@@ -17,20 +17,27 @@ Make new or moved content reachable from every index. Target: $ARGUMENTS (a path
 3. **Deep Dive topic** (`deep_dive/NN_Title_Case/`):
    - `deep_dive/README.md`: add a row to the right track table: `| NN | [Title](NN_X/README.md) | what you'll learn | [open](NN_X/NN_x_lesson.html) |`.
    - `deep_dive/index.html`: add the topic card, copying an existing card's markup.
-   - Root `README.md`: update the "numbered 01–NN" range if it changed.
-
-4. **Verify links.** Check every relative link in each edited index resolves (handles `%20`):
+   - Root `README.md`: update the "NN numbered topics" count in the Track4. **Verify links — case-sensitively.** macOS ignores case, so a plain `os.path.exists` check passes links that 404 on GitHub. Check against the paths git tracks (plus untracked, non-ignored files):
    ```bash
    python3 - "blind_75/README.md" OTHER_EDITED_FILES <<'PY'
-   import re, sys, os
+   import re, sys, os, subprocess
    from urllib.parse import unquote
+   out = subprocess.run(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], capture_output=True, text=True).stdout
+   known = set()
+   for f in filter(None, out.split("\0")):
+       while f:
+           known.add(f); f = os.path.dirname(f)
    for f in sys.argv[1:]:
-       for p in re.findall(r'\]\(([^)#\s]+)\)|href="([^"#]+)"', open(f).read()):
-           p = p[0] or p[1]
-           if not p.startswith(("http", "mailto:")) and not os.path.exists(os.path.join(os.path.dirname(f), unquote(p))):
+       for m in re.findall(r'\]\(([^)#\s]+)\)|href="([^"#]+)"', open(f).read()):
+           p = m[0] or m[1]
+           if p.startswith(("http", "mailto:")):
+               continue
+           if os.path.normpath(os.path.join(os.path.dirname(f), unquote(p))) not in known:
                print(f"MISSING in {f}: {p}")
    PY
    ```
-   Fix every `MISSING` you introduced; report pre-existing ones.
+   Fix every `MISSING` you introduced; report pre-existing ones. A folder whose case differs only on disk (e.g. git has `Docs/`, disk shows `docs/`) needs a two-step rename: `git mv Docs tmp && git mv tmp docs`.
+
+ort pre-existing ones.
 
 5. Report: one line per index edited, plus any index you deliberately skipped and why. Do not commit.

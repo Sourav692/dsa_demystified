@@ -41,7 +41,7 @@ flowchart LR
 
 - **Tracker** ([`Blind75_Tracker.md`](Blind75_Tracker.md)) — progress across all 75.
 - **Visual hub** ([`index.html`](index.html)) — browse all topics from one page.
-- **YouTube references** ([`NeetCode_YouTube_Links.md`](NeetCode_YouTube_Links.md)) — topic-agnostic video links.
+- **YouTube references** ([`NeetCode_YouTube_Links.md`](../neetcode_150/docs/NeetCode_YouTube_Links.md)) — topic-agnostic video links.
 - **`bench_utils.py`** — shared benchmarking helper imported by every notebook (they walk up parent directories to find it, so it stays at the root).
 
 ## Suggested study loop per topic

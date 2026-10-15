@@ -8,7 +8,7 @@ Data structures and algorithms study material in two tracks: **concepts first**,
 |---|---|---|
 | [**deep_dive**](deep_dive/README.md) | Learning the structures and algorithms themselves from first principles: hashing, sorting, binary search, two pointers, greedy, backtracking, trees, heaps, tries, graphs, shortest paths, MST, topological sort, SCCs. 21 numbered topics. | [`deep_dive/README.md`](deep_dive/README.md) · [`deep_dive/index.html`](deep_dive/index.html) |
 | [**blind_75**](blind_75/README.md) | Drilling the 75 classic interview problems, grouped by topic and pattern (two pointers, sliding window, DFS/BFS, DP, …). | [`blind_75/README.md`](blind_75/README.md) · [`blind_75/index.html`](blind_75/index.html) · [tracker](blind_75/Blind75_Tracker.md) |
-| [**neetcode_150**](neetcode_150/index.html) | NeetCode 150 hub page plus reference docs: pattern archetypes, red-herring traps, a 20-day spaced-repetition plan, a mnemonic poster. | [`neetcode_150/index.html`](neetcode_150/index.html) · [`neetcode_150/docs/`](neetcode_150/docs/) |
+| [**neetcode_150**](neetcode_150/index.html) | NeetCode 150 hub page plus reference docs: pattern archetypes, red-herring traps, a 20-day spaced-repetition plan, a mnemonic poster (PDF/PNG), and YouTube video links. | [`neetcode_150/index.html`](neetcode_150/index.html) · [`neetcode_150/docs/`](neetcode_150/docs/) |
 
 Also at the root: [`leetcode-prep-roadmap.html`](leetcode-prep-roadmap.html) (overall prep roadmap) and [`docs/`](docs/) (course and NeetCode link lists).
 
