@@ -18,14 +18,14 @@ Two kinds of output per topic:
 
 ## Inputs
 
-- A **topic** (build a page for every notebook in `DSA_Blind 75/notebooks/<Topic>/`, then the patterns page), or a **single problem** (just its page).
+- A **topic** (build a page for every notebook under `blind_75/<Topic>/`, including its `Group …/` subfolders, then the patterns page), or a **single problem** (just its page).
 - If the notebooks are missing, say so and offer to generate them first.
 
 ## Output location & naming
 
-- Per-problem pages: `DSA_Blind 75/visualizations/<Topic>/<snake_case>.html` (same base name as the notebook).
-- Final patterns page: `DSA_Blind 75/visualizations/<Topic>/patterns.html`.
-- Also write/refresh an `index.html` in the topic folder linking every problem page + the patterns page.
+- Per-problem pages: next to the notebook, same base name — `blind_75/<Topic>/[<Group folder>/]<snake_case>.html`.
+- Final patterns page: `blind_75/<Topic>/patterns.html`.
+- Also write/refresh `blind_75/<Topic>/index.html` linking every problem page (relative paths into the group folders, spaces as `%20`) + the patterns page, then run the `register-content` skill.
 - Do **not** overwrite an existing page without asking.
 
 ## Hard technical rules (every HTML file)
@@ -59,7 +59,7 @@ Build the page in this order.
 
 ### Step-by-step trace table (required, per solution)
 
-In addition to the interactive stepper, add a plain `<table>` that lays out the *entire* run of that approach on the same sample input, in the same style as the trace tables in the `reference/**/*_explained.md` files (e.g. `DevRev_Preparation/dsa_notebooks/reference/Array/subarray_sum_equals_k_explained.md`). This gives a reader something to scan/screenshot without pressing buttons.
+In addition to the interactive stepper, add a plain `<table>` that lays out the *entire* run of that approach on the same sample input, in the same style as the trace tables in the `*_explained.md` files next to the notebooks (e.g. `blind_75/Graph/Group 1 - Grid Flood Field & Connectivity/number_of_islands_explained.md`). This gives a reader something to scan/screenshot without pressing buttons.
 
 - One row per step/iteration; one column per state variable that changes (`i`, `j`, pointer positions, current value, running total, map/set contents, etc.) — pick columns that match that specific solution's mechanics, not a fixed template.
 - Last column states the decision made that step, in plain words (e.g. "Too small → lo++", "Not in map yet → store and continue").

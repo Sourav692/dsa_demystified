@@ -2,8 +2,8 @@
 
 Paste this structure into the new notebook cell. Replace the combination-sum-specific lines with the
 snippet's DSA. The filled example is the Combination Sum / Combination Sum II trace in
-`DSA_Deep_Dive/21_Backtracking/21_backtracking.ipynb` (the cell right after `combine` / `combination_sum` /
-`combination_sum2`). This is the **only** format this skill produces — always the full table trace below,
+`deep_dive/21_Backtracking/21_backtracking.ipynb` (the cell right after `combine` / `combination_sum` /
+`combination_sum2`). This is the only CELL-mode format — always the full table trace below,
 never a depth choice, never per-step ASCII/fenced blocks.
 
 ```markdown

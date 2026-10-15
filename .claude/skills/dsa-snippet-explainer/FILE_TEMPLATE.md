@@ -1,7 +1,7 @@
 # <Notebook Title> — Step-by-Step Reference
 
-> **Source notebook:** `DSA_Deep_Dive/notebooks/<basename>.ipynb`  
-> **Companion tutorial:** `DSA_Deep_Dive/tutorials/<Tutorial>.md`  
+> **Source notebook:** `<same folder>/<basename>.ipynb`  
+> **Companion tutorial:** `<same folder>/README.md`  
 > **Generated for:** personal study reference
 
 ---

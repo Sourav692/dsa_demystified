@@ -1,6 +1,6 @@
 ---
 name: leetcode-notebook
-description: Generate a structured Jupyter notebook (.ipynb) for a LeetCode / Blind 75 problem. Each notebook opens with the underlying concepts — including a first-principles "what is it" primer for every data structure/technique named (e.g. what a hash map is and how it works) — then presents multiple Python solutions ordered by complexity (brute-force → better → optimal), each with a markdown explanation, inline-commented code, and complexity analysis, and closes with the reusable patterns learned. Invoke when the user asks to "make a notebook", "solve", "implement", or "practice" a specific LeetCode/Blind 75 problem, or wants a study notebook for one.
+description: Generate a structured Jupyter notebook (.ipynb) for a LeetCode / Blind 75 problem. Each notebook opens with the underlying concepts — including a first-principles "what is it" primer for every data structure/technique named (e.g. what a hash map is and how it works) — then presents multiple Python solutions ordered by complexity (brute-force → better → optimal), each with a markdown explanation, inline-commented code, and complexity analysis, and closes with the reusable patterns learned. Invoke when the user asks to "make a notebook", "solve", "implement", or "practice" a specific LeetCode/Blind 75 problem, or wants a study notebook for one. Also use it to reformat an existing notebook's Concepts/theory cell into plain-language bullets (one notebook or a whole folder) when the user asks to make it "easier to read", "simpler language", or "proper bullet points".
 ---
 
 # LeetCode Notebook Generator
@@ -15,7 +15,9 @@ Produce a single Jupyter notebook (`.ipynb`) per problem that doubles as a **lea
 
 ## Output location & naming
 
-- Save notebooks under `DSA_Blind 75/notebooks/<Topic>/` (create dirs as needed), e.g. `DSA_Blind 75/notebooks/Array/two_sum.ipynb`. The shared `bench_utils.py` lives once at `DSA_Blind 75/notebooks/`.
+- Save notebooks in the topic folder, inside the pattern-group subfolder when the topic has groups: `blind_75/<Topic>/[<Group folder>/]<snake_case>.ipynb`, e.g. `blind_75/Tree/Group 1_Basic Tree DFS/same_tree.ipynb`. List the topic folder first and reuse the existing group folder whose pattern fits; ask before creating a new group. Paths contain spaces — quote them.
+- The shared `bench_utils.py` lives once at `blind_75/bench_utils.py` (a byte-identical copy is at `deep_dive/bench_utils.py`; change both together).
+- After saving, run the `register-content` skill so the topic README/index pages link the new notebook.
 - File name: `snake_case` of the problem title.
 - One notebook per problem. Do **not** overwrite an existing notebook without asking.
 
@@ -47,8 +49,21 @@ Assume the reader may be meeting the concept for the first time. Whenever the no
 - **Key operations + complexity:** the common operations and their Big-O (e.g. insert / lookup / delete: O(1) average for a hash map).
 - **In Python:** the concrete built-in or stdlib type used (e.g. `dict`/`set`, `list`, `collections.deque`, `heapq`).
 
+**Write the Concepts cell as plain-language bullets, never dense paragraphs:**
+1. One idea per bullet. A paragraph making three points becomes three bullets — no chaining ideas with `--` or semicolons.
+2. Simplify the words, not the content. Every Big-O bound, definition, caveat, and example stays; only the phrasing gets plainer.
+3. Each primer keeps its **bold sub-heading**, then bullets for what it is / how it works / operations + complexity / in Python.
+4. Code spans and Big-O notation are written exactly (`O(N²)`, `` `"".join(pieces)` ``).
+5. Ordered steps stay a numbered list.
+6. A closing "one thing to remember" intuition, if any, is its own short line — not buried in a bullet.
+
 Example primer:
-> **What is a Hash Map?** A hash map (Python `dict`) stores key → value pairs. Internally it runs each key through a *hash function* to compute a slot in an array, so it jumps straight to the value instead of scanning. **Operations:** insert, lookup, and delete are **O(1) on average** (O(n) in rare worst-case collisions). **In Python:** use `dict` for key→value, or `set` when you only need membership. This O(1) lookup is what lets us check for a value's existence inside a loop without a second scan.
+> **What is a Hash Map?**
+> - A hash map (Python `dict`) stores key → value pairs.
+> - It runs each key through a *hash function* to pick a slot in an array, so it jumps straight to the value instead of scanning.
+> - Insert, lookup, and delete are **O(1) on average** (O(n) in rare worst-case collisions).
+> - In Python: `dict` for key → value, `set` when you only need membership.
+> - Why it matters here: we can check "have I seen this value?" inside a loop without a second scan.
 
 Only write a primer once per concept per notebook — do not repeat it if the same structure appears in multiple approaches.
 
@@ -85,7 +100,7 @@ One final code cell that runs all approaches against a few test cases and prints
 ### 6. Empirical complexity benchmark (markdown + code) — *confirm the Big-O by measuring*
 After correctness is verified, add a section that lets the reader **observe** each approach's complexity instead of taking the claimed Big-O on faith.
 - **Markdown cell:** explain that Big-O can't be read off directly but can be measured via the **doubling ratio** — time each approach on inputs of growing `n` and watch how runtime grows when `n` doubles (~2× ⇒ linear/`n log n`, ~4× ⇒ quadratic, ~1× ⇒ constant/log). Include the expected-ratio table.
-- **Code cell — reuse the shared helper, do NOT re-implement the loop.** Every notebook imports one tested function from `notebooks/bench_utils.py`:
+- **Code cell — reuse the shared helper, do NOT re-implement the loop.** Every notebook imports one tested function from `blind_75/bench_utils.py`:
   - `benchmark(solutions, make_worst_case, sizes, repeats=1, plot=False)` prints the per-approach `n | time (ms) | ratio vs prev` table and, when `plot=True`, draws a log-log runtime chart with O(n)/O(n²) reference slopes. The matplotlib import inside it is **guarded** — if matplotlib is missing it prints a skip message and the table still works, so the notebook never hard-depends on a third-party library.
   - The notebook's benchmark cell only declares three things and calls the helper:
     1. a **bootstrap** that locates `bench_utils.py` by walking up from `os.getcwd()` and adds it to `sys.path` (so it works whatever folder the kernel starts in), then `from bench_utils import benchmark`;
@@ -93,7 +108,7 @@ After correctness is verified, add a section that lets the reader **observe** ea
     3. `solutions` (label → function) and `sizes` (doubling, e.g. `[1000, 2000, 4000, 8000]`); then `benchmark(solutions, make_worst_case, sizes, plot=True)`.
   - **Watch out for arithmetic that isn't O(1):** if the algorithm multiplies values into ever-larger integers (e.g. product problems), Python big-int math inflates the timing and hides the true shape. Use bounded-magnitude worst-case inputs (e.g. values in `{+1, -1}`) so each operation stays O(1).
   - Keep `sizes` modest enough that the slowest approach (e.g. O(n³) brute) finishes in a few seconds. Helper output is ASCII-only so it runs in any console.
-  - If `notebooks/bench_utils.py` does not exist yet, create it first (it is the single source of truth for `time_call` + `benchmark`); every topic folder shares the one file at the `notebooks/` root.
+  - Never create another `bench_utils.py`; every topic and group folder shares the one at the `blind_75/` root (found by the walk-up bootstrap).
 
 ### 7. Patterns Learned cell (markdown) — *at the very end*
 ```
@@ -115,10 +130,20 @@ A bulleted list of transferable takeaways from this problem:
 - Keep markdown tight and skimmable; use bold labels and short bullets over long paragraphs.
 - After generating, tell the user the file path and offer to tick the problem off in `Blind75_Tracker.md`.
 
+## Reformatting an existing Concepts cell
+
+When the user asks to make an existing notebook's Concepts/theory cell easier to read (one notebook or a whole folder):
+
+1. Read the notebook and find the `## 💡 Concepts` cell id. Touch only that cell unless the user names another — Problem, Approach, and Patterns Learned cells stay as they are.
+2. Rewrite it with the bullet rules in section 2. This is a reformat, not a rewrite: don't invent facts, don't drop any. If unsure whether a compression loses precision, keep the original claim.
+3. `NotebookEdit` with `edit_mode: replace` on that cell id. No need to re-run code — nothing executable changed.
+4. Folder batches: one notebook at a time, each keeps its own primers and examples (only the shape is shared). Report the list of files updated.
+
 ## Minimal cell template (for reference)
 
 Markdown (concepts):
-> **Core concept:** Hash map for constant-time lookups. **Why here:** we need to find, for each element, whether its complement exists — a membership test that a hash map answers in O(1)...
+> **Core concept:** Hash map for constant-time lookups.
+> - **Why here:** for each element we must know whether its complement exists — a membership test a hash map answers in O(1).
 
 Code (optimal):
 ```python
