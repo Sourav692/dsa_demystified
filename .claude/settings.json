@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' | { read -r f; case \"$f\" in *.ipynb) python3 -m json.tool \"$f\" >/dev/null 2>&1 || { echo \"Notebook is not valid JSON after edit: $f\" >&2; exit 2; };; esac; }",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
