@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build and Serialize — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Trees · pattern 05 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Build and Serialize a Binary Tree</h1>
+          <p>
+            Turn a tree into a flat sequence and back again. Preorder hands you the roots in order; one extra piece of information (inorder positions, or explicit null markers) tells you where each subtree ends, and that pins the tree down uniquely.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: preorder gives roots, extra info gives the split</span>
+            <span class="chip">Method 1: hash map + preorder pointer</span>
+            <span class="chip">Method 2: preorder with null markers</span>
+            <span class="chip">Interactive traces synced with code</span>
+          </div>
+          <p class="footer-note"><a href="README.md">Pattern README</a> · Problems: <a href="construct_binary_tree_preorder_inorder.html">Construct from Preorder + Inorder</a> · <a href="serialize_and_deserialize_binary_tree.html">Serialize and Deserialize</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p><code>preorder = [3,9,20,15,7]</code>, <code>inorder = [9,3,15,20,7]</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 230" width="100%" role="img" aria-label="Tree rebuilt from preorder and inorder: 3 with children 9 and 20; 20 with children 15 and 7">
+              <defs>
+                <style>
+                  .h-edge { stroke: #6c7a96; stroke-width: 4; stroke-linecap: round; }
+                  .h-node { fill: #315efb; }
+                  .h-label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; text-anchor: middle; }
+                  .h-note { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <line x1="260" y1="50" x2="150" y2="125" class="h-edge" />
+              <line x1="260" y1="50" x2="370" y2="125" class="h-edge" />
+              <line x1="370" y1="125" x2="310" y2="195" class="h-edge" />
+              <line x1="370" y1="125" x2="430" y2="195" class="h-edge" />
+              <circle cx="260" cy="50" r="26" class="h-node" />
+              <circle cx="150" cy="125" r="26" class="h-node" />
+              <circle cx="370" cy="125" r="26" class="h-node" />
+              <circle cx="310" cy="195" r="26" class="h-node" />
+              <circle cx="430" cy="195" r="26" class="h-node" />
+              <text x="260" y="56" class="h-label">3</text>
+              <text x="150" y="131" class="h-label">9</text>
+              <text x="370" y="131" class="h-label">20</text>
+              <text x="310" y="201" class="h-label">15</text>
+              <text x="430" y="201" class="h-label">7</text>
+              <text x="20" y="40" class="h-note">root = preorder[0]</text>
+              <text x="20" y="200" class="h-note">left of 3 in inorder: [9]</text>
+              <text x="20" y="220" class="h-note">right of 3 in inorder: [15,20,7]</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = tree [3,9,20,null,null,15,7]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Saving and sending trees</h3>
+          <p>A tree in memory is pointers. To write it to a file, cache it, or send it over a network, you need a flat string that can be turned back into the exact same shape.</p>
+        </div>
+        <div class="card">
+          <h3>Recovering structure from logs</h3>
+          <p>Two traversal orders of the same tree are enough to rebuild it when values are distinct. That is the whole Construct problem.</p>
+        </div>
+        <div class="card">
+          <h3>Pattern reuse</h3>
+          <p>The same "consume a sequence front to back, root first" recursion shows up in Construct, Serialize/Deserialize, and the related Encode and Decode Strings problem.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> both problems answer one question: <strong>given a flat sequence, where does each subtree start and stop?</strong> Preorder answers "start" for free. The trick is always how you learn "stop".</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the Build and Serialize pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Preorder lists a tree as <strong>root, then left subtree, then right subtree</strong>. So the next unread preorder value is always the root of the subtree you are about to build. You rebuild recursively: take the root, build its left subtree, then its right subtree.</p>
+        </div>
+        <div class="card">
+          <h3>What you are actually building</h3>
+          <p>A tree with a specific shape. Preorder alone cannot fix the shape, because it does not say where the left subtree ends. You add that information either from <strong>inorder positions</strong> (Construct) or from <strong><code>#</code> markers for empty children</strong> (Serialize).</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>The tell:</strong> "construct / rebuild the tree from its traversals", "serialize and deserialize", "encode / decode", "save and restore a tree". One side is a flat list or string, the other side is a tree with a specific shape.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Find the root</h3>
+          <p>The next unread preorder value is the root of the current subtree. Keep one pointer (or iterator) that only moves forward.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Find where it splits</h3>
+          <p>Construct: look the root up in the inorder index map. Serialize: the <code>#</code> markers end each subtree for you.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Recurse left, then right</h3>
+          <p>Left first, always, because preorder lists the entire left subtree before the right one. The pointer then lands on the right subtree's root.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Stop on empty</h3>
+          <p>An empty inorder window (<code>lo &gt; hi</code>) or a <code>#</code> token means "no node here": return <code>None</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the inorder list becomes an index map</h2>
+      <p>This is where beginners lose time. Before any recursion, turn <code>inorder</code> into a dictionary from value to position. Then "where does the root split the window?" is one lookup instead of a scan.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>inorder = [9, 3, 15, 20, 7]
+index:     0  1   2   3  4</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Index map <code>idx</code></h3>
+          <div class="code-block"><code>{9: 0, 3: 1, 15: 2, 20: 3, 7: 4}</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4><code>enumerate(inorder)</code> yields <code>(0, 9)</code>, <code>(1, 3)</code>, <code>(2, 15)</code>, <code>(3, 20)</code>, <code>(4, 7)</code></h4>
+          <p>The comprehension <code>{v: i for i, v in enumerate(inorder)}</code> flips each pair so the value is the key.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>A subtree is a window <code>inorder[lo..hi]</code></h4>
+          <p>The whole tree is the window <code>(0, 4)</code>. Its root is 3, and <code>idx[3] = 1</code>, so the left subtree is window <code>(0, 0)</code> and the right subtree is window <code>(2, 4)</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>No slicing needed</h4>
+          <p>The recursion passes two integers, not new lists. That is what turns the naive <code>O(n²)</code> build into <code>O(n)</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the map only works because the values are distinct, which the problem guarantees. With duplicates, one value would have two positions.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: hash map + preorder pointer (Construct from Preorder and Inorder)</h2>
+      <p>Precompute value to inorder index. Walk preorder with a single moving pointer. Each call owns an inorder window <code>(lo, hi)</code>: it takes the next preorder value as its root, splits the window at that root, and builds left then right. This is the notebook's optimal Approach 2, line for line.</p>
+      <div class="code-block stepped">
+        <code id="bt-code">
+<span class="code-line" data-line="1">def build_fast(preorder: List[int], inorder: List[int]) -&gt; Optional[TreeNode]:</span>
+<span class="code-line" data-line="2">    idx = {v: i for i, v in enumerate(inorder)}   # value -&gt; its position in inorder (O(1))</span>
+<span class="code-line" data-line="3">    self_pre = [0]                         # our current position in preorder (in a list so it persists)</span>
+<span class="code-line" data-line="4">    def helper(lo, hi):                    # build the subtree covering inorder[lo..hi]</span>
+<span class="code-line" data-line="5">        if lo &gt; hi:</span>
+<span class="code-line" data-line="6">            return None</span>
+<span class="code-line" data-line="7">        val = preorder[self_pre[0]]        # next preorder value is this subtree's root</span>
+<span class="code-line" data-line="8">        self_pre[0] += 1                   # advance the preorder pointer</span>
+<span class="code-line" data-line="9">        node = TreeNode(val)</span>
+<span class="code-line" data-line="10">        m = idx[val]                       # where the root splits inorder (instant lookup)</span>
+<span class="code-line" data-line="11">        node.left = helper(lo, m - 1)      # build the left part first (preorder does left first)</span>
+<span class="code-line" data-line="12">        node.right = helper(m + 1, hi)     # then the right part</span>
+<span class="code-line" data-line="13">        return node</span>
+<span class="code-line" data-line="14">    return helper(0, len(inorder) - 1)</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive build trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bt-graph" viewBox="0 0 520 330" width="100%" role="img" aria-label="Tree being built from preorder and inorder">
+              <defs>
+                <style>
+                  .bt-edge { stroke: #e3e8f2; stroke-width: 4; stroke-linecap: round; }
+                  .bt-edge.built { stroke: #6c7a96; }
+                  .bt-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .bt-node.done { fill: #315efb; }
+                  .bt-node.open { fill: #13a46b; }
+                  .bt-node.current { fill: #ff9f1c; }
+                  .bt-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; text-anchor: middle; }
+                  .bt-cell { fill: #f1f4fa; stroke: #c8d2e7; stroke-width: 1.5; transition: fill 0.2s ease; }
+                  .bt-cell.used { fill: #315efb; }
+                  .bt-cell.current { fill: #ff9f1c; }
+                  .bt-cell.window { fill: #13a46b; }
+                  .bt-cell-label { font: 700 15px Inter, Arial, sans-serif; fill: #172033; text-anchor: middle; }
+                  .bt-row-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <line x1="260" y1="45" x2="150" y2="120" class="bt-edge" data-bt-edge="3-9" />
+              <line x1="260" y1="45" x2="370" y2="120" class="bt-edge" data-bt-edge="3-20" />
+              <line x1="370" y1="120" x2="310" y2="190" class="bt-edge" data-bt-edge="20-15" />
+              <line x1="370" y1="120" x2="430" y2="190" class="bt-edge" data-bt-edge="20-7" />
+              <circle cx="260" cy="45" r="25" class="bt-node" data-node="3" />
+              <circle cx="150" cy="120" r="25" class="bt-node" data-node="9" />
+              <circle cx="370" cy="120" r="25" class="bt-node" data-node="20" />
+              <circle cx="310" cy="190" r="25" class="bt-node" data-node="15" />
+              <circle cx="430" cy="190" r="25" class="bt-node" data-node="7" />
+              <text x="260" y="51" class="bt-label">3</text>
+              <text x="150" y="126" class="bt-label">9</text>
+              <text x="370" y="126" class="bt-label">20</text>
+              <text x="310" y="196" class="bt-label">15</text>
+              <text x="430" y="196" class="bt-label">7</text>
+              <text x="20" y="262" class="bt-row-title">preorder</text>
+              <text x="20" y="312" class="bt-row-title">inorder</text>
+              <rect x="120" y="240" width="56" height="34" rx="6" class="bt-cell" data-pre="0" />
+              <rect x="180" y="240" width="56" height="34" rx="6" class="bt-cell" data-pre="1" />
+              <rect x="240" y="240" width="56" height="34" rx="6" class="bt-cell" data-pre="2" />
+              <rect x="300" y="240" width="56" height="34" rx="6" class="bt-cell" data-pre="3" />
+              <rect x="360" y="240" width="56" height="34" rx="6" class="bt-cell" data-pre="4" />
+              <text x="148" y="263" class="bt-cell-label">3</text>
+              <text x="208" y="263" class="bt-cell-label">9</text>
+              <text x="268" y="263" class="bt-cell-label">20</text>
+              <text x="328" y="263" class="bt-cell-label">15</text>
+              <text x="388" y="263" class="bt-cell-label">7</text>
+              <rect x="120" y="290" width="56" height="34" rx="6" class="bt-cell" data-ino="0" />
+              <rect x="180" y="290" width="56" height="34" rx="6" class="bt-cell" data-ino="1" />
+              <rect x="240" y="290" width="56" height="34" rx="6" class="bt-cell" data-ino="2" />
+              <rect x="300" y="290" width="56" height="34" rx="6" class="bt-cell" data-ino="3" />
+              <rect x="360" y="290" width="56" height="34" rx="6" class="bt-cell" data-ino="4" />
+              <text x="148" y="313" class="bt-cell-label">9</text>
+              <text x="208" y="313" class="bt-cell-label">3</text>
+              <text x="268" y="313" class="bt-cell-label">15</text>
+              <text x="328" y="313" class="bt-cell-label">20</text>
+              <text x="388" y="313" class="bt-cell-label">7</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current root / value just read</span>
+            <span><i class="dot dot-green"></i> waiting for children / current inorder window</span>
+            <span><i class="dot dot-blue"></i> finished subtree / value already used</span>
+            <span><i class="dot dot-gray"></i> not built yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bt-step-title">Initial state</h3>
+          <p id="bt-step-text">Build the index map and set the preorder pointer to 0.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bt-prev">Previous</button>
+            <button type="button" id="bt-play" class="primary">Resume</button>
+            <button type="button" id="bt-next">Next</button>
+            <button type="button" id="bt-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bt-step-counter">Step 0 / 7</span>
+            <div class="progress"><span id="bt-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Current call</strong><div class="state-value" id="bt-call">—</div></div>
+            <div class="state-box"><strong>Inorder window</strong><div class="state-value" id="bt-window">—</div></div>
+            <div class="state-box"><strong>Preorder pointer</strong><div class="state-value" id="bt-ptr">0</div></div>
+            <div class="state-box"><strong>Root and split m</strong><div class="state-value" id="bt-root">—</div></div>
+            <div class="state-box"><strong>Child windows</strong><div class="state-value" id="bt-children">—</div></div>
+            <div class="state-box"><strong>Links made</strong><div class="state-value" id="bt-links">none</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bt-detail"><strong>What changed:</strong> nothing has been built yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bt-trace-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Call</th>
+              <th>Root read</th>
+              <th>Pointer after</th>
+              <th>m = idx[root]</th>
+              <th>Left / right windows</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td><code>0</code></td><td>—</td><td>—</td><td><code>idx = {9:0, 3:1, 15:2, 20:3, 7:4}</code></td></tr>
+            <tr data-step="1"><td>1</td><td><code>helper(0, 4)</code></td><td><code>3</code></td><td><code>1</code></td><td><code>1</code></td><td><code>(0,0)</code> / <code>(2,4)</code></td><td>node 3 created</td></tr>
+            <tr data-step="2"><td>2</td><td><code>helper(0, 0)</code></td><td><code>9</code></td><td><code>2</code></td><td><code>0</code></td><td><code>(0,-1)</code> / <code>(1,0)</code></td><td>node 9 created</td></tr>
+            <tr data-step="3"><td>3</td><td><code>helper(0,-1)</code>, <code>helper(1,0)</code></td><td>—</td><td><code>2</code></td><td>—</td><td>both empty</td><td><code>None</code>, <code>None</code>; <code>3.left = 9</code></td></tr>
+            <tr data-step="4"><td>4</td><td><code>helper(2, 4)</code></td><td><code>20</code></td><td><code>3</code></td><td><code>3</code></td><td><code>(2,2)</code> / <code>(4,4)</code></td><td>node 20 created</td></tr>
+            <tr data-step="5"><td>5</td><td><code>helper(2, 2)</code></td><td><code>15</code></td><td><code>4</code></td><td><code>2</code></td><td><code>(2,1)</code> / <code>(3,2)</code> empty</td><td>leaf; <code>20.left = 15</code></td></tr>
+            <tr data-step="6"><td>6</td><td><code>helper(4, 4)</code></td><td><code>7</code></td><td><code>5</code></td><td><code>4</code></td><td><code>(4,3)</code> / <code>(5,4)</code> empty</td><td>leaf; <code>20.right = 7</code></td></tr>
+            <tr data-step="7"><td>7</td><td>returns</td><td>—</td><td><code>5</code></td><td>—</td><td>—</td><td><code>3.right = 20</code>; return 3</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The pointer reads preorder exactly once, left to right. Each call takes one value as its root; the window size decides how many values its subtree will consume before control returns.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Swapping lines 11 and 12. If the right subtree is built first, it grabs preorder values that belong to the left subtree and the tree comes out wrong.</p>
+        </div>
+        <div class="card">
+          <h4>Why the hash map matters</h4>
+          <p>The naive version calls <code>inorder.index(root)</code> and slices both lists at every node: <code>O(n²)</code> time and space. The map plus bounds makes each node <code>O(1)</code>, so the whole build is <code>O(n)</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: preorder with null markers (Serialize and Deserialize)</h2>
+      <p>Here you design the sequence yourself. Write the tree in preorder and add a <code>#</code> for every empty child. Each <code>#</code> says "this subtree ends here", so no second traversal is needed. Deserialize reads the tokens back in the same order with the same recursion. Code is the notebook's optimal approach.</p>
+      <div class="code-block stepped">
+        <code id="sd-code">
+<span class="code-line" data-line="1">def serialize(root: Optional[TreeNode]) -&gt; str:</span>
+<span class="code-line" data-line="2">    out = []</span>
+<span class="code-line" data-line="3">    def dfs(n):                            # preorder walk, writing '#' for empty children</span>
+<span class="code-line" data-line="4">        if not n:</span>
+<span class="code-line" data-line="5">            out.append("#")               # marker records where a child is missing</span>
+<span class="code-line" data-line="6">            return</span>
+<span class="code-line" data-line="7">        out.append(str(n.val))            # record this node's value</span>
+<span class="code-line" data-line="8">        dfs(n.left); dfs(n.right)         # then its left subtree, then its right</span>
+<span class="code-line" data-line="9">    dfs(root)</span>
+<span class="code-line" data-line="10">    return ",".join(out)                  # e.g. "1,2,#,#,3,#,#"</span>
+<span class="code-line" data-line="11"></span>
+<span class="code-line" data-line="12">def deserialize(data: str) -&gt; Optional[TreeNode]:</span>
+<span class="code-line" data-line="13">    vals = iter(data.split(","))          # read tokens in the SAME order serialize wrote them</span>
+<span class="code-line" data-line="14">    def build():</span>
+<span class="code-line" data-line="15">        v = next(vals)</span>
+<span class="code-line" data-line="16">        if v == "#":                      # a '#' means "no node here"</span>
+<span class="code-line" data-line="17">            return None</span>
+<span class="code-line" data-line="18">        node = TreeNode(int(v))</span>
+<span class="code-line" data-line="19">        node.left = build()               # rebuild left subtree first (matches preorder)</span>
+<span class="code-line" data-line="20">        node.right = build()              # then the right subtree</span>
+<span class="code-line" data-line="21">        return node</span>
+<span class="code-line" data-line="22">    return build()</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive round-trip trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="sd-graph" viewBox="0 0 520 310" width="100%" role="img" aria-label="Tree 1,2,3,null,null,4,5 being serialized and rebuilt">
+              <defs>
+                <style>
+                  .sd-edge { stroke: #e3e8f2; stroke-width: 4; stroke-linecap: round; }
+                  .sd-edge.built { stroke: #6c7a96; }
+                  .sd-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .sd-node.done { fill: #315efb; }
+                  .sd-node.rebuilt { fill: #13a46b; }
+                  .sd-node.current { fill: #ff9f1c; }
+                  .sd-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; text-anchor: middle; }
+                  .sd-cell { fill: #f1f4fa; stroke: #c8d2e7; stroke-width: 1.5; transition: fill 0.2s ease; }
+                  .sd-cell.written { fill: #315efb; }
+                  .sd-cell.read { fill: #13a46b; }
+                  .sd-cell.current { fill: #ff9f1c; }
+                  .sd-cell-label { font: 700 15px Inter, Arial, sans-serif; fill: #172033; text-anchor: middle; }
+                  .sd-row-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .sd-phase { font: 700 15px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="20" y="28" class="sd-phase" id="sd-phase-label">Phase: serialize</text>
+              <line x1="260" y1="55" x2="150" y2="130" class="sd-edge" data-sd-edge="1-2" />
+              <line x1="260" y1="55" x2="370" y2="130" class="sd-edge" data-sd-edge="1-3" />
+              <line x1="370" y1="130" x2="310" y2="200" class="sd-edge" data-sd-edge="3-4" />
+              <line x1="370" y1="130" x2="430" y2="200" class="sd-edge" data-sd-edge="3-5" />
+              <circle cx="260" cy="55" r="25" class="sd-node" data-node="1" />
+              <circle cx="150" cy="130" r="25" class="sd-node" data-node="2" />
+              <circle cx="370" cy="130" r="25" class="sd-node" data-node="3" />
+              <circle cx="310" cy="200" r="25" class="sd-node" data-node="4" />
+              <circle cx="430" cy="200" r="25" class="sd-node" data-node="5" />
+              <text x="260" y="61" class="sd-label">1</text>
+              <text x="150" y="136" class="sd-label">2</text>
+              <text x="370" y="136" class="sd-label">3</text>
+              <text x="310" y="206" class="sd-label">4</text>
+              <text x="430" y="206" class="sd-label">5</text>
+              <text x="20" y="252" class="sd-row-title">tokens (index 0 to 10)</text>
+              <rect x="15" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="0" />
+              <rect x="60" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="1" />
+              <rect x="105" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="2" />
+              <rect x="150" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="3" />
+              <rect x="195" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="4" />
+              <rect x="240" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="5" />
+              <rect x="285" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="6" />
+              <rect x="330" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="7" />
+              <rect x="375" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="8" />
+              <rect x="420" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="9" />
+              <rect x="465" y="265" width="40" height="34" rx="6" class="sd-cell" data-tok="10" />
+              <text x="35" y="288" class="sd-cell-label">1</text>
+              <text x="80" y="288" class="sd-cell-label">2</text>
+              <text x="125" y="288" class="sd-cell-label">#</text>
+              <text x="170" y="288" class="sd-cell-label">#</text>
+              <text x="215" y="288" class="sd-cell-label">3</text>
+              <text x="260" y="288" class="sd-cell-label">4</text>
+              <text x="305" y="288" class="sd-cell-label">#</text>
+              <text x="350" y="288" class="sd-cell-label">#</text>
+              <text x="395" y="288" class="sd-cell-label">5</text>
+              <text x="440" y="288" class="sd-cell-label">#</text>
+              <text x="485" y="288" class="sd-cell-label">#</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current node / current token</span>
+            <span><i class="dot dot-blue"></i> written by serialize</span>
+            <span><i class="dot dot-green"></i> read back by deserialize</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="sd-step-title">Initial state</h3>
+          <p id="sd-step-text">Start serializing the tree [1,2,3,null,null,4,5].</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="sd-prev">Previous</button>
+            <button type="button" id="sd-play" class="primary">Resume</button>
+            <button type="button" id="sd-next">Next</button>
+            <button type="button" id="sd-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="sd-step-counter">Step 0 / 16</span>
+            <div class="progress"><span id="sd-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Phase</strong><div class="state-value" id="sd-phase">serialize</div></div>
+            <div class="state-box"><strong>Current call</strong><div class="state-value" id="sd-call">—</div></div>
+            <div class="state-box"><strong>Token(s) this step</strong><div class="state-value" id="sd-token">—</div></div>
+            <div class="state-box"><strong>out / tokens read</strong><div class="state-value" id="sd-out">[]</div></div>
+            <div class="state-box"><strong>Links made (rebuild)</strong><div class="state-value" id="sd-links">none</div></div>
+          </div>
+          <div class="explainer">
+            <p id="sd-detail"><strong>What changed:</strong> nothing has been written yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="sd-trace-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Phase</th>
+              <th>Call</th>
+              <th>Token(s)</th>
+              <th>out / read so far</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>serialize</td><td>—</td><td>—</td><td><code>[]</code></td><td><code>out = []</code></td></tr>
+            <tr data-step="1"><td>1</td><td>serialize</td><td><code>dfs(1)</code></td><td><code>1</code></td><td><code>1</code></td><td>write root</td></tr>
+            <tr data-step="2"><td>2</td><td>serialize</td><td><code>dfs(2)</code></td><td><code>2</code></td><td><code>1,2</code></td><td>left subtree of 1</td></tr>
+            <tr data-step="3"><td>3</td><td>serialize</td><td><code>dfs(2.left)</code>, <code>dfs(2.right)</code></td><td><code>#</code>, <code>#</code></td><td><code>1,2,#,#</code></td><td>2 has no children</td></tr>
+            <tr data-step="4"><td>4</td><td>serialize</td><td><code>dfs(3)</code></td><td><code>3</code></td><td><code>1,2,#,#,3</code></td><td>right subtree of 1</td></tr>
+            <tr data-step="5"><td>5</td><td>serialize</td><td><code>dfs(4)</code></td><td><code>4</code></td><td><code>1,2,#,#,3,4</code></td><td>left of 3</td></tr>
+            <tr data-step="6"><td>6</td><td>serialize</td><td><code>dfs(4.left)</code>, <code>dfs(4.right)</code></td><td><code>#</code>, <code>#</code></td><td><code>1,2,#,#,3,4,#,#</code></td><td>4 is a leaf</td></tr>
+            <tr data-step="7"><td>7</td><td>serialize</td><td><code>dfs(5)</code></td><td><code>5</code></td><td><code>1,2,#,#,3,4,#,#,5</code></td><td>right of 3</td></tr>
+            <tr data-step="8"><td>8</td><td>serialize</td><td><code>dfs(5.left)</code>, <code>dfs(5.right)</code></td><td><code>#</code>, <code>#</code></td><td><code>1,2,#,#,3,4,#,#,5,#,#</code></td><td>join and return</td></tr>
+            <tr data-step="9"><td>9</td><td>deserialize</td><td><code>build()</code></td><td>tok 0 <code>1</code></td><td>1 of 11</td><td>new root 1</td></tr>
+            <tr data-step="10"><td>10</td><td>deserialize</td><td><code>build()</code></td><td>tok 1 <code>2</code></td><td>2 of 11</td><td>new node 2 (left of 1)</td></tr>
+            <tr data-step="11"><td>11</td><td>deserialize</td><td><code>build()</code> x2</td><td>tok 2, 3 <code>#</code>, <code>#</code></td><td>4 of 11</td><td>2 has no children; <code>1.left = 2</code></td></tr>
+            <tr data-step="12"><td>12</td><td>deserialize</td><td><code>build()</code></td><td>tok 4 <code>3</code></td><td>5 of 11</td><td>new node 3 (right of 1)</td></tr>
+            <tr data-step="13"><td>13</td><td>deserialize</td><td><code>build()</code></td><td>tok 5 <code>4</code></td><td>6 of 11</td><td>new node 4 (left of 3)</td></tr>
+            <tr data-step="14"><td>14</td><td>deserialize</td><td><code>build()</code> x2</td><td>tok 6, 7 <code>#</code>, <code>#</code></td><td>8 of 11</td><td>4 is a leaf; <code>3.left = 4</code></td></tr>
+            <tr data-step="15"><td>15</td><td>deserialize</td><td><code>build()</code></td><td>tok 8 <code>5</code></td><td>9 of 11</td><td>new node 5 (right of 3)</td></tr>
+            <tr data-step="16"><td>16</td><td>deserialize</td><td><code>build()</code> x2</td><td>tok 9, 10 <code>#</code>, <code>#</code></td><td>11 of 11</td><td>5 is a leaf; <code>3.right = 5</code>; <code>1.right = 3</code>; return 1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Deserialize is serialize played back. The same recursion (root, left, right) runs in both directions, so token <code>k</code> is read by exactly the call that wrote it.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Leaving out the <code>#</code> markers. Without them <code>"1,2"</code> could mean 2 is the left child or the right child of 1: the shape is lost.</p>
+        </div>
+        <div class="card">
+          <h4>Why the iterator matters</h4>
+          <p><code>iter(...)</code> plus <code>next(vals)</code> is the same idea as Method 1's preorder pointer: a single shared cursor that only moves forward, so every token is read once and the whole round trip is <code>O(n)</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Empty tree</button>
+        <button type="button" data-example-tab="1">Single node</button>
+        <button type="button" data-example-tab="2">Two nodes (left chain)</button>
+        <button type="button" data-example-tab="3">Negative values</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: empty tree</h3>
+          <p>Construct: <code>preorder = []</code>, <code>inorder = []</code> → <code>helper(0, -1)</code> returns <code>None</code> immediately.</p>
+          <p>Serialize: <code>[]</code> → <code>"#"</code>, and deserialize reads that one <code>#</code> back as <code>None</code>.</p>
+          <div class="result-badge">Answer = None / "#"</div>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: single node</h3>
+          <p>Serialize <code>[1]</code> → <code>"1,#,#"</code>. Even a leaf writes two markers, one per empty child.</p>
+          <div class="result-badge">Answer = "1,#,#"</div>
+          <p class="footer-note">BFS level-order serialization (the notebook's Approach 1) produces the same string here.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: two nodes</h3>
+          <p>Construct: <code>preorder = [1,2]</code>, <code>inorder = [2,1]</code>. Root 1 sits at inorder index 1, so the left window is <code>(0,0)</code> holding 2 and the right window <code>(2,1)</code> is empty.</p>
+          <div class="result-badge">Answer = 1 with left child 2</div>
+          <p class="footer-note">Preorder <code>[1,2]</code> alone could not tell left from right; the inorder position decides it.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: negative values and a lopsided shape</h3>
+          <p>Serialize <code>[5,4,7,3,None,2,None,-1,None,9]</code> → <code>"5,4,3,-1,#,#,#,#,7,2,9,#,#,#,#"</code>.</p>
+          <div class="result-badge">Round trip reproduces the tree</div>
+          <p class="footer-note">Values are written with <code>str</code> and read with <code>int</code>, so <code>-1</code> survives; the comma separator keeps multi-character tokens apart.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Problem</th>
+              <th>Method</th>
+              <th>Time</th>
+              <th>Space</th>
+              <th>Takeaway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Construct</td><td>Search + slice (naive)</td><td><code>O(n²)</code></td><td><code>O(n²)</code></td><td><code>inorder.index</code> scan and list slices at every node</td></tr>
+            <tr><td>Construct</td><td>Hash map + preorder pointer (Method 1)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>O(1) split lookup, index bounds instead of slices</td></tr>
+            <tr><td>Serialize</td><td>BFS level order with null markers</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Same format LeetCode prints; queue of parents waiting for children</td></tr>
+            <tr><td>Serialize</td><td>Preorder DFS with null markers (Method 2)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Shortest code; deserialize mirrors serialize</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">Complexities are the ones stated in the two notebooks; their benchmark cells show runtime roughly doubling when <code>n</code> doubles for the <code>O(n)</code> approaches.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Preorder's first value is the root, and after it come the whole left subtree, then the whole right subtree.</p></div>
+            <div class="timeline-step"><p>So I can rebuild recursively if I know where the left subtree ends.</p></div>
+            <div class="timeline-step"><p>Construct: inorder tells me, because the root splits it into left and right. A dict makes that split O(1).</p></div>
+            <div class="timeline-step"><p>Serialize: I control the format, so I write a <code>#</code> for each empty child and the markers tell me.</p></div>
+            <div class="timeline-step"><p>Either way one forward cursor plus left-before-right recursion gives O(n).</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Preorder hands me roots in order; the question is where each subtree stops."</li>
+            <li>"I'll map each inorder value to its index so the split is O(1), and pass index bounds instead of slicing."</li>
+            <li>"I recurse left before right because preorder lists the left subtree first; the shared pointer depends on that."</li>
+            <li>"For serialize I write markers for empty children, so preorder alone is lossless, and I read tokens back in the same order."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Construct (Method 1) mistakes</h3>
+          <ul class="mistake-list">
+            <li>Slicing <code>preorder</code> / <code>inorder</code> at each call: extra copies and easy off-by-one errors. Pass <code>(lo, hi)</code>.</li>
+            <li>Calling <code>inorder.index(root)</code> inside the recursion, which brings back <code>O(n²)</code>.</li>
+            <li>Building the right subtree before the left, so the pointer hands out the wrong roots.</li>
+            <li>Keeping the pointer in a plain local integer: the inner function cannot advance it. The notebook stores it in a one-element list.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Serialize (Method 2) mistakes</h3>
+          <ul class="mistake-list">
+            <li>Omitting the markers for empty children, which makes the string ambiguous.</li>
+            <li>Reading tokens in a different order than they were written (for example BFS writer, DFS reader).</li>
+            <li>Joining values without a separator, so <code>1</code>, <code>-1</code> and <code>12</code> run together.</li>
+            <li>Forgetting the empty tree: it must serialize to something (<code>"#"</code>) that deserializes back to <code>None</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Commit to an answer before opening each one. Each links to that problem's step-through page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Construct: <code>preorder = [1,2]</code>, <code>inorder = [2,1]</code>. Is 2 a left or right child?</summary>
+          <p style="margin-top:10px;">Hint: find root 1 in inorder. What is on its left?</p>
+          <p style="margin-top:10px;">Answer: <strong>left child</strong>. <code>idx[1] = 1</code>, so the left window <code>(0,0)</code> holds 2 and the right window <code>(2,1)</code> is empty. Step through it: <a href="construct_binary_tree_preorder_inorder.html">Construct Binary Tree from Preorder and Inorder</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Construct: what goes wrong if you swap the two recursive calls in <code>build_fast</code>?</summary>
+          <p style="margin-top:10px;">Hint: which value does the pointer hand out after the root?</p>
+          <p style="margin-top:10px;">Answer: on the canonical example the call <code>helper(2, 4)</code> would run first and read <code>9</code> (the next preorder value) as the root of the right subtree, but <code>9</code> belongs to the left subtree. Preorder lists left before right, so the recursion must too. See <a href="construct_binary_tree_preorder_inorder.html">the step-through</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Serialize: write <code>[1,2,3,None,None,4,5]</code> with BFS level order and null markers.</summary>
+          <p style="margin-top:10px;">Hint: pop a node, write it, enqueue both children even when they are empty.</p>
+          <p style="margin-top:10px;">Answer: <code>"1,2,3,#,#,4,5,#,#,#,#"</code> (the notebook's Approach 1 prints exactly this). Preorder gives <code>"1,2,#,#,3,4,#,#,5,#,#"</code>. Both have 11 tokens: 5 values and 6 markers. Open <a href="serialize_and_deserialize_binary_tree.html">Serialize and Deserialize Binary Tree</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Serialize: why can't you drop the <code>#</code> markers and send just <code>"1,2"</code>?</summary>
+          <p style="margin-top:10px;">Hint: draw every tree whose preorder is <code>1, 2</code>.</p>
+          <p style="margin-top:10px;">Answer: 2 could be the left child or the right child of 1; both trees have preorder <code>1, 2</code>. With markers they differ: <code>"1,2,#,#,#"</code> versus <code>"1,#,2,#,#"</code>. That is why Construct needs inorder and Serialize needs markers. See <a href="serialize_and_deserialize_binary_tree.html">the step-through</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Preorder tells you where each subtree starts; you only need one more fact to know where it stops.</strong>
+          Construct gets that fact from inorder positions (via a hash map), Serialize builds it into the string as <code>#</code> markers. In both, one forward cursor and a left-before-right recursion rebuild the tree in <code>O(n)</code>.
+        </p>
+      </div>
+      <p class="footer-note">Code and trace values come from the notebooks in this folder: <code>construct_binary_tree_preorder_inorder.ipynb</code> and <code>serialize_and_deserialize_binary_tree.ipynb</code>. Pattern summary: <a href="README.md">README</a>.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const btSteps = [
+        { step: 0, title: 'Initial state', text: 'Build the value-to-index map from inorder and set the preorder pointer to 0.', call: '—', win: '—', ptr: '0 (next value 3)', root: '—', children: '—', links: 'none', detail: 'idx = {9:0, 3:1, 15:2, 20:3, 7:4}. Nothing is built yet.', current: null, open: [], done: [], edges: [], usedPre: [], curPre: null, inoWin: [], lines: [2,3] },
+        { step: 1, title: 'Step 1: helper(0, 4)', text: 'Window (0,4) is the whole tree. Read preorder[0] = 3 as the root and advance the pointer. idx[3] = 1 splits the window.', call: 'helper(0, 4)', win: '[9, 3, 15, 20, 7]', ptr: '1 (next value 9)', root: 'root 3, m = 1', children: 'left (0,0), right (2,4)', links: 'none', detail: 'Everything left of index 1 in inorder ([9]) is the left subtree; everything right ([15,20,7]) is the right subtree.', current: 3, open: [], done: [], edges: [], usedPre: [], curPre: 0, inoWin: [0,1,2,3,4], lines: [4,5,7,8,9,10,14] },
+        { step: 2, title: 'Step 2: helper(0, 0), left of 3', text: 'Recurse left first. The pointer hands out preorder[1] = 9; idx[9] = 0.', call: 'helper(0, 0)', win: '[9]', ptr: '2 (next value 20)', root: 'root 9, m = 0', children: 'left (0,-1), right (1,0)', links: 'none', detail: 'Node 3 waits (green) for its children while 9 is built.', current: 9, open: [3], done: [], edges: [], usedPre: [0], curPre: 1, inoWin: [0], lines: [11,4,5,7,8,9,10] },
+        { step: 3, title: 'Step 3: both children of 9 are empty', text: 'helper(0,-1) and helper(1,0) both have lo > hi, so both return None. Node 9 is a leaf and returns to become 3.left.', call: 'helper(0,-1), helper(1,0)', win: 'empty', ptr: '2 (unchanged)', root: '—', children: 'None, None', links: '3.left = 9', detail: 'Empty windows consume no preorder values, so the pointer still points at 20, the right subtree root.', current: null, open: [3], done: [9], edges: ['3-9'], usedPre: [0,1], curPre: null, inoWin: [], lines: [5,6,11,12,13] },
+        { step: 4, title: 'Step 4: helper(2, 4), right of 3', text: 'Now build the right subtree. The pointer hands out preorder[2] = 20; idx[20] = 3.', call: 'helper(2, 4)', win: '[15, 20, 7]', ptr: '3 (next value 15)', root: 'root 20, m = 3', children: 'left (2,2), right (4,4)', links: '3.left = 9', detail: 'Because the left subtree consumed exactly its values (just 9), the pointer lands on the right subtree root.', current: 20, open: [3], done: [9], edges: ['3-9'], usedPre: [0,1], curPre: 2, inoWin: [2,3,4], lines: [12,4,5,7,8,9,10] },
+        { step: 5, title: 'Step 5: helper(2, 2), left of 20', text: 'Pointer gives 15; idx[15] = 2. Its child windows (2,1) and (3,2) are empty, so 15 is a leaf and becomes 20.left.', call: 'helper(2, 2)', win: '[15]', ptr: '4 (next value 7)', root: 'root 15, m = 2', children: '(2,1) empty, (3,2) empty', links: '3.left = 9, 20.left = 15', detail: 'Same shape as node 9: one value in the window means a leaf.', current: 15, open: [3,20], done: [9], edges: ['3-9','20-15'], usedPre: [0,1,2], curPre: 3, inoWin: [2], lines: [11,4,5,7,8,9,10,6,13] },
+        { step: 6, title: 'Step 6: helper(4, 4), right of 20', text: 'Pointer gives 7; idx[7] = 4. Child windows (4,3) and (5,4) are empty, so 7 is a leaf and becomes 20.right.', call: 'helper(4, 4)', win: '[7]', ptr: '5 (end of preorder)', root: 'root 7, m = 4', children: '(4,3) empty, (5,4) empty', links: '3.left = 9, 20.left = 15, 20.right = 7', detail: 'Every preorder value has now been read exactly once.', current: 7, open: [3,20], done: [9,15], edges: ['3-9','20-15','20-7'], usedPre: [0,1,2,3], curPre: 4, inoWin: [4], lines: [12,4,5,7,8,9,10,6,13] },
+        { step: 7, title: 'Step 7: unwind and return the root', text: 'helper(2,4) returns 20, which becomes 3.right. helper(0,4) returns 3: the tree [3,9,20,null,null,15,7].', call: 'return', win: '—', ptr: '5', root: '—', children: '—', links: '3.left = 9, 3.right = 20, 20.left = 15, 20.right = 7', detail: 'Five nodes, five preorder reads, five dict lookups: O(n).', current: null, open: [], done: [3,9,20,15,7], edges: ['3-9','3-20','20-15','20-7'], usedPre: [0,1,2,3,4], curPre: null, inoWin: [], lines: [12,13,14] }
+      ];
+
+      const range = (a, b) => Array.from({ length: b - a }, (_, i) => a + i);
+      const sdSteps = [
+        { step: 0, phase: 'serialize', title: 'Initial state', text: 'Serialize the tree [1,2,3,null,null,4,5] with a preorder walk.', call: 'dfs(root)', token: '—', out: '[]', links: 'none', detail: 'out starts empty. The tree is drawn in gray because nothing is written yet.', current: null, done: [], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 0, read: 0, curTok: [], lines: [2,9] },
+        { step: 1, phase: 'serialize', title: 'Step 1: dfs(1)', text: 'Node 1 exists: write "1", then go left.', call: 'dfs(1)', token: '1', out: '1', links: 'none', detail: 'Root first: that is what makes this preorder.', current: 1, done: [], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 1, read: 0, curTok: [0], lines: [3,4,7,8] },
+        { step: 2, phase: 'serialize', title: 'Step 2: dfs(2)', text: 'Node 2 exists: write "2", then go to its left child.', call: 'dfs(2)', token: '2', out: '1,2', links: 'none', detail: 'We are inside the left subtree of 1.', current: 2, done: [1], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 2, read: 0, curTok: [1], lines: [3,4,7,8] },
+        { step: 3, phase: 'serialize', title: 'Step 3: both children of 2 are empty', text: 'dfs(2.left) and dfs(2.right) each hit "if not n" and write "#".', call: 'dfs(None) x2', token: '#, #', out: '1,2,#,#', links: 'none', detail: 'These two markers are what record that 2 is a leaf. They close the left subtree of 1.', current: null, done: [1,2], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 4, read: 0, curTok: [2,3], lines: [4,5,6] },
+        { step: 4, phase: 'serialize', title: 'Step 4: dfs(3)', text: 'Back at 1, go right: write "3".', call: 'dfs(3)', token: '3', out: '1,2,#,#,3', links: 'none', detail: 'The right subtree of 1 starts right after the markers that ended the left one.', current: 3, done: [1,2], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 5, read: 0, curTok: [4], lines: [3,4,7,8] },
+        { step: 5, phase: 'serialize', title: 'Step 5: dfs(4)', text: 'Left child of 3: write "4".', call: 'dfs(4)', token: '4', out: '1,2,#,#,3,4', links: 'none', detail: 'Left before right, at every level.', current: 4, done: [1,2,3], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 6, read: 0, curTok: [5], lines: [3,4,7,8] },
+        { step: 6, phase: 'serialize', title: 'Step 6: both children of 4 are empty', text: 'Two more markers: "#", "#".', call: 'dfs(None) x2', token: '#, #', out: '1,2,#,#,3,4,#,#', links: 'none', detail: '4 is a leaf, so the left subtree of 3 is closed.', current: null, done: [1,2,3,4], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 8, read: 0, curTok: [6,7], lines: [4,5,6] },
+        { step: 7, phase: 'serialize', title: 'Step 7: dfs(5)', text: 'Right child of 3: write "5".', call: 'dfs(5)', token: '5', out: '1,2,#,#,3,4,#,#,5', links: 'none', detail: 'The last real node.', current: 5, done: [1,2,3,4], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 9, read: 0, curTok: [8], lines: [3,4,7,8] },
+        { step: 8, phase: 'serialize', title: 'Step 8: children of 5, then join', text: '5 is a leaf: write "#", "#". dfs returns and the list is joined with commas.', call: 'dfs(None) x2; join', token: '#, #', out: '1,2,#,#,3,4,#,#,5,#,#', links: 'none', detail: 'Result: "1,2,#,#,3,4,#,#,5,#,#": 5 values and 6 markers, 11 tokens.', current: null, done: [1,2,3,4,5], rebuilt: [], edges: ['1-2','1-3','3-4','3-5'], written: 11, read: 0, curTok: [9,10], lines: [5,6,10] },
+        { step: 9, phase: 'deserialize', title: 'Step 9: read token 0 = "1"', text: 'Split the string and wrap it in an iterator. build() reads "1": not "#", so make node 1 and build its left.', call: 'build() for root', token: 'tok 0: 1', out: '1 of 11 read', links: 'none', detail: 'Now we start from nothing and rebuild. Green nodes are the rebuilt copy.', current: 1, done: [], rebuilt: [], edges: [], written: 11, read: 0, curTok: [0], lines: [13,14,15,16,18,22] },
+        { step: 10, phase: 'deserialize', title: 'Step 10: read token 1 = "2"', text: 'node.left = build() reads "2": make node 2 and build its left.', call: 'build() for 1.left', token: 'tok 1: 2', out: '2 of 11 read', links: 'none', detail: 'The reader is in exactly the place the writer was at step 2.', current: 2, done: [], rebuilt: [1], edges: [], written: 11, read: 1, curTok: [1], lines: [19,15,16,18] },
+        { step: 11, phase: 'deserialize', title: 'Step 11: read tokens 2 and 3 = "#", "#"', text: 'Both calls for 2\'s children read "#" and return None. Node 2 is complete and becomes 1.left.', call: 'build() x2 for 2\'s children', token: 'tok 2, 3: #, #', out: '4 of 11 read', links: '1.left = 2', detail: 'The markers tell the reader the left subtree of 1 is finished, so the next token belongs to the right subtree.', current: null, done: [], rebuilt: [1,2], edges: ['1-2'], written: 11, read: 2, curTok: [2,3], lines: [15,16,17,21] },
+        { step: 12, phase: 'deserialize', title: 'Step 12: read token 4 = "3"', text: 'node.right = build() for node 1 reads "3": make node 3.', call: 'build() for 1.right', token: 'tok 4: 3', out: '5 of 11 read', links: '1.left = 2', detail: 'Same recursion as serialize, so token 4 lands on 1.right.', current: 3, done: [], rebuilt: [1,2], edges: ['1-2'], written: 11, read: 4, curTok: [4], lines: [20,15,16,18] },
+        { step: 13, phase: 'deserialize', title: 'Step 13: read token 5 = "4"', text: 'Left of 3 reads "4": make node 4.', call: 'build() for 3.left', token: 'tok 5: 4', out: '6 of 11 read', links: '1.left = 2', detail: 'Left first again.', current: 4, done: [], rebuilt: [1,2,3], edges: ['1-2'], written: 11, read: 5, curTok: [5], lines: [19,15,16,18] },
+        { step: 14, phase: 'deserialize', title: 'Step 14: read tokens 6 and 7 = "#", "#"', text: '4 gets no children and becomes 3.left.', call: 'build() x2 for 4\'s children', token: 'tok 6, 7: #, #', out: '8 of 11 read', links: '1.left = 2, 3.left = 4', detail: 'Two markers per leaf, exactly as written.', current: null, done: [], rebuilt: [1,2,3,4], edges: ['1-2','3-4'], written: 11, read: 6, curTok: [6,7], lines: [15,16,17,21] },
+        { step: 15, phase: 'deserialize', title: 'Step 15: read token 8 = "5"', text: 'Right of 3 reads "5": make node 5.', call: 'build() for 3.right', token: 'tok 8: 5', out: '9 of 11 read', links: '1.left = 2, 3.left = 4', detail: 'The last value token.', current: 5, done: [], rebuilt: [1,2,3,4], edges: ['1-2','3-4'], written: 11, read: 8, curTok: [8], lines: [20,15,16,18] },
+        { step: 16, phase: 'deserialize', title: 'Step 16: read tokens 9 and 10, unwind', text: '5 gets no children. Calls return: 3.right = 5, 1.right = 3, and build() returns node 1.', call: 'build() x2; return root', token: 'tok 9, 10: #, #', out: '11 of 11 read', links: '1.left = 2, 1.right = 3, 3.left = 4, 3.right = 5', detail: 'All 11 tokens read once: the tree [1,2,3,null,null,4,5] is back, same shape and values.', current: null, done: [], rebuilt: [1,2,3,4,5], edges: ['1-2','1-3','3-4','3-5'], written: 11, read: 9, curTok: [9,10], lines: [17,20,21,22] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      function renderBT(step, index, max) {
+        document.getElementById('bt-step-title').textContent = step.title;
+        document.getElementById('bt-step-text').textContent = step.text;
+        document.getElementById('bt-call').textContent = step.call;
+        document.getElementById('bt-window').textContent = step.win;
+        document.getElementById('bt-ptr').textContent = step.ptr;
+        document.getElementById('bt-root').textContent = step.root;
+        document.getElementById('bt-children').textContent = step.children;
+        document.getElementById('bt-links').textContent = step.links;
+        document.getElementById('bt-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bt-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bt-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bt-trace-table', step.step);
+        setCodeHighlight('bt-code', step.lines);
+
+        document.querySelectorAll('#bt-graph [data-node]').forEach((node) => {
+          const id = Number(node.dataset.node);
+          node.classList.remove('done', 'open', 'current');
+          if (step.done.includes(id)) node.classList.add('done');
+          if (step.open.includes(id)) node.classList.add('open');
+          if (step.current === id) node.classList.add('current');
+        });
+        document.querySelectorAll('#bt-graph [data-bt-edge]').forEach((line) => {
+          line.classList.toggle('built', step.edges.includes(line.dataset.btEdge));
+        });
+        document.querySelectorAll('#bt-graph [data-pre]').forEach((cell) => {
+          const i = Number(cell.dataset.pre);
+          cell.classList.toggle('used', step.usedPre.includes(i));
+          cell.classList.toggle('current', step.curPre === i);
+        });
+        document.querySelectorAll('#bt-graph [data-ino]').forEach((cell) => {
+          cell.classList.toggle('window', step.inoWin.includes(Number(cell.dataset.ino)));
+        });
+      }
+
+      function renderSD(step, index, max) {
+        document.getElementById('sd-step-title').textContent = step.title;
+        document.getElementById('sd-step-text').textContent = step.text;
+        document.getElementById('sd-phase').textContent = step.phase;
+        document.getElementById('sd-phase-label').textContent = `Phase: ${step.phase}`;
+        document.getElementById('sd-call').textContent = step.call;
+        document.getElementById('sd-token').textContent = step.token;
+        document.getElementById('sd-out').textContent = step.out;
+        document.getElementById('sd-links').textContent = step.links;
+        document.getElementById('sd-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('sd-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('sd-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('sd-trace-table', step.step);
+        setCodeHighlight('sd-code', step.lines);
+
+        document.querySelectorAll('#sd-graph [data-node]').forEach((node) => {
+          const id = Number(node.dataset.node);
+          node.classList.remove('done', 'rebuilt', 'current');
+          if (step.done.includes(id)) node.classList.add('done');
+          if (step.rebuilt.includes(id)) node.classList.add('rebuilt');
+          if (step.current === id) node.classList.add('current');
+        });
+        document.querySelectorAll('#sd-graph [data-sd-edge]').forEach((line) => {
+          line.classList.toggle('built', step.edges.includes(line.dataset.sdEdge));
+        });
+        const writtenSet = range(0, step.written);
+        const readSet = step.phase === 'deserialize' ? range(0, step.read) : [];
+        document.querySelectorAll('#sd-graph [data-tok]').forEach((cell) => {
+          const i = Number(cell.dataset.tok);
+          cell.classList.remove('written', 'read', 'current');
+          if (step.phase === 'serialize' && writtenSet.includes(i)) cell.classList.add('written');
+          if (step.phase === 'deserialize') cell.classList.add(readSet.includes(i) ? 'read' : 'written');
+          if (step.curTok.includes(i)) cell.classList.add('current');
+        });
+      }
+
+      setupTrace({ steps: btSteps, prefix: 'bt', render: renderBT });
+      setupTrace({ steps: sdSteps, prefix: 'sd', render: renderSD });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

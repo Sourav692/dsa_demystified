@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balanced Binary Tree — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode .tnote{fill:var(--accent);font-size:11px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_dfs_height_and_global_lesson.html">&larr; DFS Height and Global lesson</a><span class="tag"><span class="dot" style="background:#22c55e"></span> Easy · Trees · DFS Height and Global</span></div>
+<h1>110 · Balanced Binary Tree</h1>
+<p class="lead">Is every node's left side about as tall as its right side?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">A tree is <b>balanced</b> when, at <b>every</b> node, the left side and the right side differ in height by at most 1. Return <code>True</code> or <code>False</code>.</p>
+<p><b>Height</b> = how many nodes you pass going straight down from a node to its deepest leaf (an empty side has height 0).</p>
+<div class="idea">Think of a mobile hanging from the ceiling: it only hangs straight if <b>every</b> joint is balanced, not just the top one.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>being measured</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>passes / answer</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>fails</span></div>
+<p class="trace-title">Try it: check every node of [3, 9, 20, null, null, 15, 7]</p>
+<div id="pd-viz"></div><div class="badges" id="pd-b"></div><div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="pd-count"></span></div>
+</div>
+
+<div class="card"><h2>Way 1 — Brute force: re-measure heights at every node</h2>
+<div class="idea">Go to each node. Measure the height of its left side and right side from scratch with a separate <code>height()</code> walk. If they differ by more than 1, stop with <code>False</code>. Otherwise check the children the same way. Lower nodes get measured again by every ancestor &mdash; that is the wasted work.</div>
+<div id="bf-viz"></div><div class="badges" id="bf-b"></div><div class="caption" id="bf-cap"></div>
+<div class="controls" data-player="bf"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="bf-count"></span></div>
+<p class="speed"><b>Speed:</b> heights get re-measured from every ancestor &mdash; <code>O(n log n)</code> on a balanced tree, <code>O(n&sup2;)</code> as an upper bound. <b>Memory:</b> <code>O(h)</code> for the recursion.</p>
+<div class="trace-title">Step-by-step trace &mdash; tree = [3, 9, 20, null, null, 15, 7]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Node checked</th><th>height(left)</th><th>height(right)</th><th>Nodes walked by height()</th><th>Total height() visits</th><th>Decision</th></tr>
+  <tr><td>1</td><td>3</td><td>1</td><td>2</td><td>9 &middot; 20, 15, 7</td><td>4</td><td class="rule">|1 &minus; 2| = 1 &rarr; OK, check children</td></tr>
+  <tr><td>2</td><td>9</td><td>0</td><td>0</td><td>&mdash;</td><td>4</td><td class="rule">OK</td></tr>
+  <tr><td>3</td><td>20</td><td>1</td><td>1</td><td>15 &middot; 7 (again!)</td><td>6</td><td class="rule">OK &mdash; 15 and 7 measured a second time</td></tr>
+  <tr><td>4</td><td>15</td><td>0</td><td>0</td><td>&mdash;</td><td>6</td><td class="rule">OK</td></tr>
+  <tr class="final"><td>5</td><td>7</td><td>0</td><td>0</td><td>&mdash;</td><td>6</td><td>OK &rarr; every node passed &rarr; True</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Way 2 — The smart way: one bottom-up DFS that returns height or -1</h2>
+<div class="idea">Ask the children first (post-order). Each call returns its <b>height</b> if its subtree is fine, or <b>-1</b> if something below is already unbalanced. A node that sees <code>-1</code> from a child just passes <code>-1</code> up. Every height is measured once.</div>
+<div id="op-viz"></div><div class="badges" id="op-b"></div><div class="caption" id="op-cap"></div>
+<div class="controls" data-player="op"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="op-count"></span></div>
+<p class="speed"><b>Speed:</b> each node visited at most once &mdash; <code>O(n)</code> time. <b>Memory:</b> <code>O(h)</code> for the recursion.</p>
+<div class="trace-title">Step-by-step trace &mdash; tree = [1, 2, 3, 4, null, null, null, 5] (post-order)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Node</th><th>left</th><th>right</th><th>|left &minus; right|</th><th>Returns</th><th>Decision</th></tr>
+  <tr><td>1</td><td>5</td><td>0</td><td>0</td><td>0</td><td>1</td><td class="rule">leaf &rarr; height 1</td></tr>
+  <tr><td>2</td><td>4</td><td>1</td><td>0</td><td>1</td><td>2</td><td class="rule">OK &rarr; 1 + max(1, 0)</td></tr>
+  <tr><td>3</td><td>2</td><td>2</td><td>0</td><td>2</td><td>-1</td><td class="rule">differ by 2 &rarr; unbalanced, return -1</td></tr>
+  <tr class="final"><td>4</td><td>1</td><td>-1</td><td>not asked</td><td>&mdash;</td><td>-1</td><td>left said -1 &rarr; return -1 at once (node 3 never visited) &rarr; False</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"at every node, compare the left and right subtrees"</b> or <b>"height-balanced"</b>? Return the height from a post-order DFS and use an impossible value like <code>-1</code> to carry "already failed" up to the root.
+<p><a href="02_dfs_height_and_global_lesson.html">&rarr; See the DFS Height and Global pattern and how to use it in an interview</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+// Binary tree drawn with x = inorder position, y = depth, so left/right children sit on the correct side.
+function renderTree(id,T,root,marks,notes){
+  marks=marks||{}; notes=notes||{};
+  var pos={},c=0;
+  (function go(i,d){ if(i<0)return; go(T[i].l,d+1); pos[i]={x:c++,y:d}; go(T[i].r,d+1); })(root,0);
+  var my=0; for(var k in pos) my=Math.max(my,pos[k].y);
+  var GX=58,GY=72,r=17,W=c*GX,H=(my+1)*GY+6;
+  function X(i){return pos[i].x*GX+GX/2;} function Y(i){return pos[i].y*GY+r+6;}
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+Math.max(W,240)+'px">';
+  for(var i=0;i<T.length;i++){ [T[i].l,T[i].r].forEach(function(ch){ if(ch>=0) s+='<line class="edge" x1="'+X(i)+'" y1="'+Y(i)+'" x2="'+X(ch)+'" y2="'+Y(ch)+'"/>'; }); }
+  for(var j=0;j<T.length;j++){
+    s+='<g class="tnode '+(marks[j]||'')+'"><circle cx="'+X(j)+'" cy="'+Y(j)+'" r="'+r+'"/><text x="'+X(j)+'" y="'+(Y(j)+5)+'" text-anchor="middle">'+T[j].v+'</text>';
+    if(notes[j]!==undefined) s+='<text class="tnote" x="'+X(j)+'" y="'+(Y(j)+r+15)+'" text-anchor="middle">'+notes[j]+'</text>';
+    s+='</g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>';
+}
+
+// ---- Tree A: [3,9,20,null,null,15,7]  0:3(l1,r2) 1:9 2:20(l3,r4) 3:15 4:7
+var A=[{v:3,l:1,r:2},{v:9,l:-1,r:-1},{v:20,l:3,r:4},{v:15,l:-1,r:-1},{v:7,l:-1,r:-1}];
+
+// Problem demo: the rule checked at every node (values from the notebook's brute-force trace).
+var pdF=[{cap:'Rule: at <b>every</b> node, |height(left) &minus; height(right)| must be at most 1.',m:{},n:{},b:[{label:'nodes checked',val:0}]}];
+var pdRows=[[0,1,2],[1,0,0],[2,1,1],[3,0,0],[4,0,0]], okSet={};
+pdRows.forEach(function(r,k){
+  var m={}; for(var q in okSet) m[q]='good'; m[r[0]]='hi'; okSet[r[0]]=1;
+  var n={}; n[r[0]]='L'+r[1]+' R'+r[2];
+  pdF.push({cap:'Node <b>'+A[r[0]].v+'</b>: left height '+r[1]+', right height '+r[2]+', difference '+Math.abs(r[1]-r[2])+' &le; 1 &rarr; OK.',m:m,n:n,b:[{label:'nodes checked',val:k+1}]});
+});
+pdF.push({cap:'Every node passed, so the tree is balanced: <b>True</b>.',m:{0:'good',1:'good',2:'good',3:'good',4:'good'},n:{},b:[{label:'answer',val:'True',cls:'good'}]});
+makePlayer('pd',pdF,function(f){ renderTree('pd-viz',A,0,f.m,f.n); badges('pd-b',f.b); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+// Way 1: brute force. Each frame = one node checked; 'seen' = nodes the height() calls walk.
+var bfF=[
+ {cap:'Start at the root. For each node we will call <code>height()</code> on both sides from scratch.',m:{},n:{},v:0},
+ {cap:'Check <b>3</b>: height(left) walks 9 &rarr; 1; height(right) walks 20, 15, 7 &rarr; 2. |1 &minus; 2| = 1 &rarr; OK.',m:{0:'hi',1:'seen',2:'seen',3:'seen',4:'seen'},n:{1:'h=1',2:'h=2'},v:4},
+ {cap:'Check <b>9</b>: both sides empty, heights 0 and 0 &rarr; OK.',m:{0:'good',1:'hi'},n:{1:'L0 R0'},v:4},
+ {cap:'Check <b>20</b>: height() walks 15 and 7 <b>again</b> &mdash; they were already measured for node 3. Heights 1 and 1 &rarr; OK.',m:{0:'good',1:'good',2:'hi',3:'seen',4:'seen'},n:{3:'h=1',4:'h=1'},v:6},
+ {cap:'Check <b>15</b>: leaf, heights 0 and 0 &rarr; OK.',m:{0:'good',1:'good',2:'good',3:'hi'},n:{},v:6},
+ {cap:'Check <b>7</b>: leaf &rarr; OK. All nodes passed: <b>True</b>, after 6 height() visits for 5 nodes.',m:{0:'good',1:'good',2:'good',3:'good',4:'good'},n:{},v:6,done:true}
+];
+makePlayer('bf',bfF,function(f){
+  renderTree('bf-viz',A,0,f.m,f.n);
+  var b=[{label:'height() node visits',val:f.v}]; if(f.done) b.push({label:'answer',val:'True',cls:'good'});
+  badges('bf-b',b); document.getElementById('bf-cap').innerHTML=f.cap;
+});
+
+// ---- Tree B: [1,2,3,4,null,null,null,5]  0:1(l1,r2) 1:2(l3) 2:3 3:4(l4) 4:5
+var B=[{v:1,l:1,r:2},{v:2,l:3,r:-1},{v:3,l:-1,r:-1},{v:4,l:4,r:-1},{v:5,l:-1,r:-1}];
+var opF=[
+ {cap:'check(1) asks its left child first, which asks its left child, all the way down to 5.',m:{},n:{},ret:'&mdash;'},
+ {cap:'Node <b>5</b> is a leaf: left 0, right 0 &rarr; returns height <b>1</b>.',m:{4:'hi'},n:{4:'1'},ret:'1'},
+ {cap:'Node <b>4</b>: left 1, right 0, difference 1 &rarr; OK, returns 1 + max(1, 0) = <b>2</b>.',m:{4:'good',3:'hi'},n:{4:'1',3:'2'},ret:'2'},
+ {cap:'Node <b>2</b>: left 2, right 0, difference 2 &gt; 1 &rarr; unbalanced, returns the sentinel <b>-1</b>.',m:{4:'good',3:'good',1:'bad'},n:{4:'1',3:'2',1:'-1'},ret:'-1'},
+ {cap:'Node <b>1</b>: its left child said -1, so it returns <b>-1</b> immediately. Node 3 is never visited.',m:{4:'good',3:'good',1:'bad',0:'bad',2:'dim'},n:{4:'1',3:'2',1:'-1',0:'-1'},ret:'-1'},
+ {cap:'check(root) = -1, so the answer is <b>False</b>.',m:{4:'good',3:'good',1:'bad',0:'bad',2:'dim'},n:{4:'1',3:'2',1:'-1',0:'-1'},ret:'-1',done:true}
+];
+makePlayer('op',opF,function(f){
+  renderTree('op-viz',B,0,f.m,f.n);
+  var b=[{label:'last value returned',val:f.ret}]; if(f.done) b.push({label:'answer',val:'False',cls:'bad'});
+  badges('op-b',b); document.getElementById('op-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

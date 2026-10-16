@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DFS Height and Global — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Trees · interactive pattern lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>DFS Height and Global</h1>
+          <p>
+            A post-order DFS that <strong>returns</strong> one thing to its parent (a height, or a best downward gain) while <strong>updating</strong> another: a global best answer, or a <code>-1</code> sentinel that means "already failed". This page teaches the pattern on Balanced Binary Tree, then shows the global-variable version on Diameter of Binary Tree.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: return one arm, record two arms</span>
+            <span class="chip">Method 1: height or -1</span>
+            <span class="chip">Method 2: height + global best</span>
+            <span class="chip">Code synced with steps</span>
+          </div>
+          <p class="footer-note"><a href="README.md">Pattern notes (README)</a> · Problems: <a href="balanced_binary_tree.html">Balanced Binary Tree</a> · <a href="diameter_of_binary_tree.html">Diameter of Binary Tree</a> · <a href="binary_tree_maximum_path_sum.html">Binary Tree Maximum Path Sum</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example: Balanced Binary Tree</h3>
+          <p><code>root = [1, 2, 3, 4, null, null, null, 5]</code> (an illustrative input, also a test in the notebook)</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 300" width="100%" role="img" aria-label="Tree 1,2,3,4,null,null,null,5 where node 2 is unbalanced">
+              <defs>
+                <style>
+                  .edge { stroke: #6c7a96; stroke-width: 4; stroke-linecap: round; }
+                  .nodeA { fill: #315efb; }
+                  .nodeB { fill: #ff9f1c; }
+                  .label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <line x1="260" y1="50" x2="170" y2="125" class="edge" />
+              <line x1="260" y1="50" x2="350" y2="125" class="edge" />
+              <line x1="170" y1="125" x2="110" y2="200" class="edge" />
+              <line x1="110" y1="200" x2="60" y2="275" class="edge" />
+              <circle cx="260" cy="50" r="24" class="nodeA" />
+              <circle cx="170" cy="125" r="24" class="nodeB" />
+              <circle cx="350" cy="125" r="24" class="nodeA" />
+              <circle cx="110" cy="200" r="24" class="nodeA" />
+              <circle cx="60" cy="275" r="24" class="nodeA" />
+              <text x="260" y="56" text-anchor="middle" class="label">1</text>
+              <text x="170" y="131" text-anchor="middle" class="label">2</text>
+              <text x="350" y="131" text-anchor="middle" class="label">3</text>
+              <text x="110" y="206" text-anchor="middle" class="label">4</text>
+              <text x="60" y="281" text-anchor="middle" class="label">5</text>
+              <text x="200" y="110" class="title">left 2, right 0</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = False (node 2: left height 2, right height 0)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Self-balancing trees</h3>
+          <p>AVL trees keep every node's left and right heights within 1 of each other. Checking that rule is exactly Balanced Binary Tree.</p>
+        </div>
+        <div class="card">
+          <h3>Longest route in a hierarchy</h3>
+          <p>In any tree-shaped network (an org chart, a file tree, a cable network without loops), the longest route between two endpoints is the tree's diameter.</p>
+        </div>
+        <div class="card">
+          <h3>Pattern reuse</h3>
+          <p>The same skeleton solves Balanced Binary Tree, Diameter of Binary Tree, and Binary Tree Maximum Path Sum.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the hard part is not the DFS. It is noticing that what the <strong>parent needs</strong> (one arm) is different from the <strong>answer</strong> (two arms, or a yes/no). Once you see that split, the code writes itself.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the DFS Height and Global pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>One recursive function visits the children first (post-order). It returns a single number upward, and as a side effect it updates an answer that lives outside the recursion.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"At every node, compare left and right", "path between any two nodes", "may or may not pass through the root". Or: your first idea calls <code>height()</code> inside another recursion over every node.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> at each node, <strong>record</strong> the value that uses both children (<code>left + right</code>) and <strong>return</strong> the value that uses one (<code>1 + max(left, right)</code>). If the answer is a yes/no instead, return <code>-1</code> to mean "no".</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Base case</h3>
+          <p>What does an empty subtree hand back? For heights it is <code>0</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Children first</h3>
+          <p>Call the function on the left and right child. Post-order, so each node sees finished child values.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Side effect</h3>
+          <p>Use both child values: update <code>best</code> with <code>left + right</code>, or return <code>-1</code> if the node breaks a rule.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Return one arm</h3>
+          <p>Hand the parent only what it can extend: <code>1 + max(left, right)</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a tree</h2>
+      <p>LeetCode gives the tree as a level-order list, where <code>null</code> means "no child here". The notebook's <code>build_tree</code> turns it into linked <code>TreeNode</code> objects using a queue of parents waiting for children.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>[1, 2, 3, 4, None, None, None, 5]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Linked nodes</h3>
+          <div class="code-block"><code>1
+├── left:  2
+│   ├── left:  4
+│   │   └── left: 5
+│   └── right: None
+└── right: 3</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Read <code>1</code></h4>
+          <p>It becomes the root and joins the queue of parents.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read <code>2, 3</code></h4>
+          <p>Parent <code>1</code> takes <code>2</code> as left child and <code>3</code> as right child. Both join the queue.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read <code>4, None</code></h4>
+          <p>Parent <code>2</code> takes <code>4</code> on the left; its right stays empty.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read <code>None, None</code></h4>
+          <p>Parent <code>3</code> gets no children: it is a leaf.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read <code>5</code></h4>
+          <p>Parent <code>4</code> takes <code>5</code> on the left. The list is used up.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the DFS never sees the list. It only sees <code>node.left</code> and <code>node.right</code>, and an empty child is <code>None</code>, which the base case turns into height <code>0</code>.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: Height or -1 sentinel (Balanced Binary Tree)</h2>
+      <p>The function returns the subtree's height when it is balanced, and <code>-1</code> when anything inside it is not. A node that receives <code>-1</code> passes it straight up. This is <code>is_balanced_optimal</code> from the notebook, line for line.</p>
+      <div class="code-block stepped">
+        <code id="bal-code">
+<span class="code-line" data-line="1">def is_balanced_optimal(root: Optional[TreeNode]) -&gt; bool:</span>
+<span class="code-line" data-line="2">    def check(node):                       # height of node's subtree, or -1 if it is unbalanced</span>
+<span class="code-line" data-line="3">        if not node:</span>
+<span class="code-line" data-line="4">            return 0                       # empty subtree: height 0, trivially balanced</span>
+<span class="code-line" data-line="5">        left = check(node.left)</span>
+<span class="code-line" data-line="6">        if left == -1:</span>
+<span class="code-line" data-line="7">            return -1                      # left side already failed -&gt; pass the failure straight up</span>
+<span class="code-line" data-line="8">        right = check(node.right)</span>
+<span class="code-line" data-line="9">        if right == -1:</span>
+<span class="code-line" data-line="10">            return -1</span>
+<span class="code-line" data-line="11">        if abs(left - right) &gt; 1:</span>
+<span class="code-line" data-line="12">            return -1                      # this node breaks the rule</span>
+<span class="code-line" data-line="13">        return 1 + max(left, right)        # healthy: hand the parent our real height</span>
+<span class="code-line" data-line="14">    return check(root) != -1</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive trace: check()</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bal-graph" viewBox="0 0 520 310" width="100%" role="img" aria-label="Binary tree trace">
+<defs><style>
+.bal-edge { stroke: #cad3e6; stroke-width: 4; stroke-linecap: round; }
+.bal-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+.bal-node.done { fill: #315efb; }
+.bal-node.stack { fill: #13a46b; }
+.bal-node.current { fill: #ff9f1c; }
+.bal-node.failed { fill: #c97a10; }
+.bal-node.skipped { fill: #eef1f7; }
+.bal-label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+.bal-ret { font: 700 14px Inter, Arial, sans-serif; fill: #17366c; }
+</style></defs>
+<line x1="260" y1="50" x2="170" y2="125" class="bal-edge" />
+<line x1="260" y1="50" x2="350" y2="125" class="bal-edge" />
+<line x1="170" y1="125" x2="110" y2="200" class="bal-edge" />
+<line x1="110" y1="200" x2="60" y2="275" class="bal-edge" />
+<circle cx="260" cy="50" r="24" class="bal-node" data-node="1" />
+<text x="260" y="56" text-anchor="middle" class="bal-label">1</text>
+<text x="290" y="36" class="bal-ret" data-ret="1"></text>
+<circle cx="170" cy="125" r="24" class="bal-node" data-node="2" />
+<text x="170" y="131" text-anchor="middle" class="bal-label">2</text>
+<text x="200" y="111" class="bal-ret" data-ret="2"></text>
+<circle cx="350" cy="125" r="24" class="bal-node" data-node="3" />
+<text x="350" y="131" text-anchor="middle" class="bal-label">3</text>
+<text x="380" y="111" class="bal-ret" data-ret="3"></text>
+<circle cx="110" cy="200" r="24" class="bal-node" data-node="4" />
+<text x="110" y="206" text-anchor="middle" class="bal-label">4</text>
+<text x="140" y="186" class="bal-ret" data-ret="4"></text>
+<circle cx="60" cy="275" r="24" class="bal-node" data-node="5" />
+<text x="60" y="281" text-anchor="middle" class="bal-label">5</text>
+<text x="90" y="261" class="bal-ret" data-ret="5"></text>
+</svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call</span>
+            <span><i class="dot dot-green"></i> waiting on the call stack</span>
+            <span><i class="dot dot-blue"></i> returned a height</span>
+            <span><i class="dot" style="background:#c97a10"></i> returned -1</span>
+            <span><i class="dot dot-gray"></i> not reached</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bal-step-title">Initial state</h3>
+          <p id="bal-step-text"></p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bal-prev">Previous</button>
+            <button type="button" id="bal-play" class="primary">Resume</button>
+            <button type="button" id="bal-next">Next</button>
+            <button type="button" id="bal-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bal-step-counter">Step 0 / 8</span>
+            <div class="progress"><span id="bal-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Call stack (bottom to top)</strong><div class="state-value" id="bal-stack">—</div></div>
+            <div class="state-box"><strong>Current node</strong><div class="state-value" id="bal-node">—</div></div>
+            <div class="state-box"><strong>left (height or -1)</strong><div class="state-value" id="bal-left">—</div></div>
+            <div class="state-box"><strong>right (height or -1)</strong><div class="state-value" id="bal-right">—</div></div>
+            <div class="state-box"><strong>Value returned</strong><div class="state-value" id="bal-ret">—</div></div>
+            <div class="state-box"><strong>is_balanced result</strong><div class="state-value" id="bal-result">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bal-detail"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bal-trace-table">
+          <thead>
+            <tr><th>Step</th><th>What happens</th><th>Call stack</th><th>left</th><th>right</th><th>Returned</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>Initial state</td><td><code>[check(1)]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>—</code></td><td><code>pending</code></td></tr>
+            <tr data-step="1"><td>1</td><td>check(1) asks its left child</td><td><code>[check(1), check(2)]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>—</code></td><td><code>pending</code></td></tr>
+            <tr data-step="2"><td>2</td><td>check(2) asks its left child</td><td><code>[check(1), check(2), check(4)]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>—</code></td><td><code>pending</code></td></tr>
+            <tr data-step="3"><td>3</td><td>check(4) asks its left child</td><td><code>[check(1), check(2), check(4), check(5)]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>—</code></td><td><code>pending</code></td></tr>
+            <tr data-step="4"><td>4</td><td>node 5 returns height 1</td><td><code>[check(1), check(2), check(4)]</code></td><td><code>0</code></td><td><code>0</code></td><td><code>1</code></td><td><code>pending</code></td></tr>
+            <tr data-step="5"><td>5</td><td>node 4 returns height 2</td><td><code>[check(1), check(2)]</code></td><td><code>1</code></td><td><code>0</code></td><td><code>2</code></td><td><code>pending</code></td></tr>
+            <tr data-step="6"><td>6</td><td>node 2 is unbalanced and returns -1</td><td><code>[check(1)]</code></td><td><code>2</code></td><td><code>0</code></td><td><code>-1</code></td><td><code>pending</code></td></tr>
+            <tr data-step="7"><td>7</td><td>node 1 sees -1 and stops</td><td><code>[]</code></td><td><code>-1</code></td><td><code>not asked</code></td><td><code>-1</code></td><td><code>pending</code></td></tr>
+            <tr data-step="8"><td>8</td><td>compare with -1</td><td><code>[]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>-1</code></td><td><code>False</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>One return value, two meanings: a height (<code>0</code> or more) when healthy, <code>-1</code> when already failed. Heights are never negative, so the signals cannot collide.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Forgetting <code>if left == -1: return -1</code>. Then a parent computes <code>1 + max(-1, 0)</code> and treats the failure as a real height.</p>
+        </div>
+        <div class="card">
+          <h4>Why post-order matters</h4>
+          <p>The brute force asks for heights top-down, so lower heights are re-measured by every ancestor (<code>O(n&sup2;)</code> upper bound). Bottom-up, each height is computed once: <code>O(n)</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: Height plus a global best (Diameter of Binary Tree)</h2>
+      <p>Same skeleton, but now the answer is a number that uses <strong>both</strong> arms. The function still returns a height; the two-armed value <code>left + right</code> is written into <code>best</code>, a variable outside the recursion. This is <code>diameter_optimal</code> from the notebook.</p>
+      <div class="code-block stepped">
+        <code id="dia-code">
+<span class="code-line" data-line="1">def diameter_optimal(root: Optional[TreeNode]) -&gt; int:</span>
+<span class="code-line" data-line="2">    best = 0                               # longest path (in edges) seen anywhere so far</span>
+<span class="code-line" data-line="3">    def depth(node):                       # returns the height of node's subtree</span>
+<span class="code-line" data-line="4">        nonlocal best</span>
+<span class="code-line" data-line="5">        if not node:</span>
+<span class="code-line" data-line="6">            return 0</span>
+<span class="code-line" data-line="7">        left = depth(node.left)</span>
+<span class="code-line" data-line="8">        right = depth(node.right)</span>
+<span class="code-line" data-line="9">        best = max(best, left + right)     # side effect: the path that bends at this node</span>
+<span class="code-line" data-line="10">        return 1 + max(left, right)        # the parent can only use ONE arm</span>
+<span class="code-line" data-line="11">    depth(root)</span>
+<span class="code-line" data-line="12">    return best</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive trace: depth()</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="dia-graph" viewBox="0 0 520 240" width="100%" role="img" aria-label="Binary tree trace">
+<defs><style>
+.dia-edge { stroke: #cad3e6; stroke-width: 4; stroke-linecap: round; }
+.dia-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+.dia-node.done { fill: #315efb; }
+.dia-node.stack { fill: #13a46b; }
+.dia-node.current { fill: #ff9f1c; }
+.dia-node.failed { fill: #c97a10; }
+.dia-node.skipped { fill: #eef1f7; }
+.dia-label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+.dia-ret { font: 700 14px Inter, Arial, sans-serif; fill: #17366c; }
+</style></defs>
+<line x1="260" y1="50" x2="170" y2="125" class="dia-edge" />
+<line x1="260" y1="50" x2="350" y2="125" class="dia-edge" />
+<line x1="170" y1="125" x2="110" y2="205" class="dia-edge" />
+<line x1="170" y1="125" x2="230" y2="205" class="dia-edge" />
+<circle cx="260" cy="50" r="24" class="dia-node" data-node="1" />
+<text x="260" y="56" text-anchor="middle" class="dia-label">1</text>
+<text x="290" y="36" class="dia-ret" data-ret="1"></text>
+<circle cx="170" cy="125" r="24" class="dia-node" data-node="2" />
+<text x="170" y="131" text-anchor="middle" class="dia-label">2</text>
+<text x="200" y="111" class="dia-ret" data-ret="2"></text>
+<circle cx="350" cy="125" r="24" class="dia-node" data-node="3" />
+<text x="350" y="131" text-anchor="middle" class="dia-label">3</text>
+<text x="380" y="111" class="dia-ret" data-ret="3"></text>
+<circle cx="110" cy="205" r="24" class="dia-node" data-node="4" />
+<text x="110" y="211" text-anchor="middle" class="dia-label">4</text>
+<text x="140" y="191" class="dia-ret" data-ret="4"></text>
+<circle cx="230" cy="205" r="24" class="dia-node" data-node="5" />
+<text x="230" y="211" text-anchor="middle" class="dia-label">5</text>
+<text x="260" y="191" class="dia-ret" data-ret="5"></text>
+</svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call</span>
+            <span><i class="dot dot-green"></i> waiting on the call stack</span>
+            <span><i class="dot dot-blue"></i> finished (number = height returned)</span>
+            <span><i class="dot dot-gray"></i> not reached</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="dia-step-title">Initial state</h3>
+          <p id="dia-step-text"></p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="dia-prev">Previous</button>
+            <button type="button" id="dia-play" class="primary">Resume</button>
+            <button type="button" id="dia-next">Next</button>
+            <button type="button" id="dia-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="dia-step-counter">Step 0 / 7</span>
+            <div class="progress"><span id="dia-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Call stack (bottom to top)</strong><div class="state-value" id="dia-stack">—</div></div>
+            <div class="state-box"><strong>Current node</strong><div class="state-value" id="dia-node">—</div></div>
+            <div class="state-box"><strong>left height</strong><div class="state-value" id="dia-left">—</div></div>
+            <div class="state-box"><strong>right height</strong><div class="state-value" id="dia-right">—</div></div>
+            <div class="state-box"><strong>Global best (edges)</strong><div class="state-value" id="dia-best">—</div></div>
+            <div class="state-box"><strong>Value returned</strong><div class="state-value" id="dia-ret">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="dia-detail"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="dia-trace-table">
+          <thead>
+            <tr><th>Step</th><th>What happens</th><th>Call stack</th><th>left</th><th>right</th><th>best after</th><th>Returned</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>Initial state</td><td><code>[depth(1)]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>0</code></td><td><code>—</code></td></tr>
+            <tr data-step="1"><td>1</td><td>walk down the left side</td><td><code>[depth(1), depth(2), depth(4)]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>0</code></td><td><code>—</code></td></tr>
+            <tr data-step="2"><td>2</td><td>node 4 finishes</td><td><code>[depth(1), depth(2)]</code></td><td><code>0</code></td><td><code>0</code></td><td><code>0</code></td><td><code>1</code></td></tr>
+            <tr data-step="3"><td>3</td><td>node 5 finishes</td><td><code>[depth(1), depth(2)]</code></td><td><code>0</code></td><td><code>0</code></td><td><code>0</code></td><td><code>1</code></td></tr>
+            <tr data-step="4"><td>4</td><td>node 2 records 2, returns 2</td><td><code>[depth(1)]</code></td><td><code>1</code></td><td><code>1</code></td><td><code>2</code></td><td><code>2</code></td></tr>
+            <tr data-step="5"><td>5</td><td>node 3 finishes</td><td><code>[depth(1)]</code></td><td><code>0</code></td><td><code>0</code></td><td><code>2</code></td><td><code>1</code></td></tr>
+            <tr data-step="6"><td>6</td><td>node 1 records 3</td><td><code>[]</code></td><td><code>2</code></td><td><code>1</code></td><td><code>3</code></td><td><code>3</code></td></tr>
+            <tr data-step="7"><td>7</td><td>return best</td><td><code>[]</code></td><td><code>—</code></td><td><code>—</code></td><td><code>3</code></td><td><code>3</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Every path has one highest node where it bends. Checking "the path bending here" (<code>left + right</code>) at every node covers every path, including ones that skip the root.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Returning <code>left + right</code> to the parent. A parent's path can only continue down <strong>one</strong> side of a child.</p>
+        </div>
+        <div class="card">
+          <h4>Why the global matters</h4>
+          <p>The root's return value here is <code>3</code> because it is the tree's <em>height</em>. It only matches the diameter by coincidence; the answer always comes from <code>best</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Empty tree</button>
+        <button type="button" data-example-tab="1">One-sided chain</button>
+        <button type="button" data-example-tab="2">Answer below the root</button>
+        <button type="button" data-example-tab="3">All negative</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: empty tree</h3>
+          <p><code>root = []</code></p>
+          <div class="result-badge">Balanced = True · Diameter = 0</div>
+          <p class="footer-note">The base case returns 0 at once. Make sure your wrapper does not crash on <code>None</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: one-sided chain</h3>
+          <p><code>root = [1, null, 2, null, 3]</code></p>
+          <div class="result-badge">Balanced = False · Diameter = 2</div>
+          <p class="footer-note">Node 1 has left height 0 and right height 2. A chain is also the worst case for the brute force and the deepest recursion (<code>h = n</code>).</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: longest path skips the root</h3>
+          <p><code>root = [1, 2, null, 3, 4, 5, null, null, 6]</code></p>
+          <div class="result-badge">Diameter = 4 (5 → 3 → 2 → 4 → 6)</div>
+          <p class="footer-note">Only checking <code>left + right</code> at the root gives 3. This is why the update runs at every node.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: all-negative values (Max Path Sum)</h3>
+          <p><code>root = [-3]</code></p>
+          <div class="result-badge">Max path sum = -3</div>
+          <p class="footer-note">Seed <code>best</code> with <code>-inf</code>, not 0, or you would report a path sum of 0 that no path has.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Returns</th><th>Side effect</th><th>Time</th><th>Space</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Brute force (height() at every node)</td><td>answer per subtree</td><td>none; heights re-measured</td><td><code>O(n&sup2;)</code> upper bound (<code>O(n log n)</code> balanced)</td><td><code>O(h)</code></td></tr>
+            <tr><td>Method 1: height or -1 (Balanced)</td><td>height, or -1</td><td>the sentinel carries the answer</td><td><code>O(n)</code></td><td><code>O(h)</code></td></tr>
+            <tr><td>Method 2: height + global (Diameter)</td><td>height</td><td><code>best = max(best, left + right)</code></td><td><code>O(n)</code></td><td><code>O(h)</code></td></tr>
+            <tr><td>Same skeleton: Max Path Sum</td><td>best downward gain</td><td><code>best = max(best, val + left + right)</code></td><td><code>O(n)</code></td><td><code>O(h)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>h</code> is the tree height: about <code>log n</code> for a balanced tree, <code>n</code> for a chain.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The rule (or the path) at a node depends on the left and right subtree heights.</p></div>
+            <div class="timeline-step"><p>Calling <code>height()</code> at every node repeats work: <code>O(n&sup2;)</code> in the worst case.</p></div>
+            <div class="timeline-step"><p>Post-order DFS gives each node its children's heights for free, once.</p></div>
+            <div class="timeline-step"><p>The answer is not the height, so store it in a global (or encode failure as <code>-1</code>) and return the height.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Each node needs its children's heights, so I'll compute them bottom-up in one DFS."</li>
+            <li>"The function returns the height, the one arm a parent can extend."</li>
+            <li>"As a side effect I update a global best with <code>left + right</code>, the path bending here." (Or: "I return -1 to mean unbalanced and short-circuit.")</li>
+            <li>"Every node is visited once: <code>O(n)</code> time, <code>O(h)</code> stack space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Method 1 (sentinel) mistakes</h3>
+          <ul class="mistake-list">
+            <li>Checking balance only at the root; every node must pass.</li>
+            <li>Not returning <code>-1</code> as soon as a child returns <code>-1</code>.</li>
+            <li>Returning <code>True/False</code> from the helper and losing the height the parent needs.</li>
+            <li>Calling <code>height()</code> inside the recursion (that is the brute force again).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Method 2 (global) mistakes</h3>
+          <ul class="mistake-list">
+            <li>Returning <code>left + right</code> instead of <code>1 + max(left, right)</code>.</li>
+            <li>Returning the root's height as the answer instead of <code>best</code>.</li>
+            <li>Forgetting <code>nonlocal best</code>, so Python treats <code>best</code> as a new local variable.</li>
+            <li>Counting nodes instead of edges in the diameter, or seeding <code>best = 0</code> for Max Path Sum.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Commit to an answer before opening each one. Each links to the problem's step-through page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 (Easy) — Balanced Binary Tree: is <code>[1, 2, 2, 3, 3, null, null, 4, 4]</code> balanced?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> look at the root's two sides.</p>
+          <p style="margin-top:6px;">Answer: <strong>False</strong>. At the root, the left subtree has height 3 and the right has height 1. <a href="balanced_binary_tree.html">Open the Balanced Binary Tree walkthrough</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 (Easy) — Diameter of Binary Tree: <code>[1, 2, null, 3, 4, 5, null, null, 6]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> which node is the highest point of the longest path? It does not have to be the root.</p>
+          <p style="margin-top:6px;">Answer: <strong>4</strong>, the path 5 → 3 → 2 → 4 → 6 bending at node 2. <a href="diameter_of_binary_tree.html">Open the Diameter walkthrough</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (Hard) — Binary Tree Maximum Path Sum: <code>[-10, 9, 20, null, null, 15, 7]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> return <code>node.val + max(left, right)</code> with negative arms clamped to 0; record <code>node.val + left + right</code> in a global seeded with <code>-inf</code>.</p>
+          <p style="margin-top:6px;">Answer: <strong>42</strong>, the path 15 → 20 → 7. <a href="binary_tree_maximum_path_sum.html">Open the Maximum Path Sum walkthrough</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          When a node's answer needs <strong>both</strong> children but its parent can only use <strong>one</strong>, split the two jobs:
+          <strong>return</strong> the one-arm value (a height or a gain) and <strong>record</strong> the two-arm value in a global, or fold a yes/no into a <code>-1</code> sentinel.
+          One post-order pass, <code>O(n)</code>.
+        </p>
+      </div>
+      <p class="footer-note">Code and traces come from the notebooks in this folder: <code>balanced_binary_tree.ipynb</code> and <code>diameter_of_binary_tree.ipynb</code>.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const balSteps = [{"title": "Initial state", "text": "We call check(root). Nothing has returned yet.", "stack": "[check(1)]", "node": "1", "left": "—", "right": "—", "ret": "—", "result": "pending", "detail": "The whole answer will come back through the return value of check(1).", "current": 1, "stackNodes": [1], "done": [], "failed": [], "skipped": [], "rets": {}, "lines": [14], "step": 0}, {"title": "Step 1: check(1) asks its left child", "text": "Post-order: before node 1 can decide anything it needs its left child's height.", "stack": "[check(1), check(2)]", "node": "2", "left": "—", "right": "—", "ret": "—", "result": "pending", "detail": "check(1) pauses on the line left = check(node.left) and waits for the answer.", "current": 2, "stackNodes": [1, 2], "done": [], "failed": [], "skipped": [], "rets": {}, "lines": [3, 5], "step": 1}, {"title": "Step 2: check(2) asks its left child", "text": "Node 2 also needs its children first, so it calls check(4).", "stack": "[check(1), check(2), check(4)]", "node": "4", "left": "—", "right": "—", "ret": "—", "result": "pending", "detail": "The call stack grows one level per node on the way down.", "current": 4, "stackNodes": [1, 2, 4], "done": [], "failed": [], "skipped": [], "rets": {}, "lines": [3, 5], "step": 2}, {"title": "Step 3: check(4) asks its left child", "text": "Node 4 calls check(5), the deepest node.", "stack": "[check(1), check(2), check(4), check(5)]", "node": "5", "left": "—", "right": "—", "ret": "—", "result": "pending", "detail": "We are now at the bottom of the left spine.", "current": 5, "stackNodes": [1, 2, 4, 5], "done": [], "failed": [], "skipped": [], "rets": {}, "lines": [3, 5], "step": 3}, {"title": "Step 4: node 5 returns height 1", "text": "Both children of 5 are empty (height 0). Difference 0, so 5 is fine and returns 1 + max(0, 0) = 1.", "stack": "[check(1), check(2), check(4)]", "node": "5", "left": "0", "right": "0", "ret": "1", "result": "pending", "detail": "A leaf always returns height 1.", "current": 5, "stackNodes": [1, 2, 4], "done": [5], "failed": [], "skipped": [], "rets": {"5": "1"}, "lines": [4, 5, 8, 11, 13], "step": 4}, {"title": "Step 5: node 4 returns height 2", "text": "Node 4 got left = 1. Its right child is empty, so right = 0. Difference 1 is allowed, so it returns 1 + max(1, 0) = 2.", "stack": "[check(1), check(2)]", "node": "4", "left": "1", "right": "0", "ret": "2", "result": "pending", "detail": "Every height is computed exactly once, on the way back up.", "current": 4, "stackNodes": [1, 2], "done": [5, 4], "failed": [], "skipped": [], "rets": {"5": "1", "4": "2"}, "lines": [6, 8, 9, 11, 13], "step": 5}, {"title": "Step 6: node 2 is unbalanced and returns -1", "text": "Node 2 got left = 2 and right = 0. They differ by 2, which breaks the rule, so it returns the sentinel -1.", "stack": "[check(1)]", "node": "2", "left": "2", "right": "0", "ret": "-1", "result": "pending", "detail": "-1 can never be a real height, so it safely means 'something below already failed'.", "current": 2, "stackNodes": [1], "done": [5, 4], "failed": [2], "skipped": [], "rets": {"5": "1", "4": "2", "2": "-1"}, "lines": [6, 8, 9, 11, 12], "step": 6}, {"title": "Step 7: node 1 sees -1 and stops", "text": "check(1) receives left = -1 and returns -1 immediately. It never calls check(3).", "stack": "[]", "node": "1", "left": "-1", "right": "not asked", "ret": "-1", "result": "pending", "detail": "The sentinel short-circuits: node 3 is never visited.", "current": 1, "stackNodes": [], "done": [5, 4], "failed": [2, 1], "skipped": [3], "rets": {"5": "1", "4": "2", "2": "-1", "1": "-1"}, "lines": [6, 7], "step": 7}, {"title": "Step 8: compare with -1", "text": "check(root) returned -1, so is_balanced_optimal returns False.", "stack": "[]", "node": "—", "left": "—", "right": "—", "ret": "-1", "result": "False", "detail": "One integer carried both facts: a height when healthy, -1 when not.", "current": null, "stackNodes": [], "done": [5, 4], "failed": [2, 1], "skipped": [3], "rets": {"5": "1", "4": "2", "2": "-1", "1": "-1"}, "lines": [14], "step": 8}];
+      const diaSteps = [{"title": "Initial state", "text": "best starts at 0, then depth(root) is called.", "stack": "[depth(1)]", "node": "1", "left": "—", "right": "—", "best": "0", "ret": "—", "detail": "best lives outside depth(), so every call reads and writes the same variable.", "current": 1, "stackNodes": [1], "done": [], "rets": {}, "lines": [2, 11], "step": 0}, {"title": "Step 1: walk down the left side", "text": "depth(1) calls depth(2), which calls depth(4).", "stack": "[depth(1), depth(2), depth(4)]", "node": "4", "left": "—", "right": "—", "best": "0", "ret": "—", "detail": "Post-order: nobody can record or return until its children answer.", "current": 4, "stackNodes": [1, 2, 4], "done": [], "rets": {}, "lines": [5, 7], "step": 1}, {"title": "Step 2: node 4 finishes", "text": "Leaf: left = 0, right = 0. Record 0 + 0 = 0 (best stays 0). Return 1.", "stack": "[depth(1), depth(2)]", "node": "4", "left": "0", "right": "0", "best": "0", "ret": "1", "detail": "The path that bends at a leaf has 0 edges.", "current": 4, "stackNodes": [1, 2], "done": [4], "rets": {"4": "1"}, "lines": [7, 8, 9, 10], "step": 2}, {"title": "Step 3: node 5 finishes", "text": "depth(2) now asks its right child. Leaf 5: record 0, best stays 0, return 1.", "stack": "[depth(1), depth(2)]", "node": "5", "left": "0", "right": "0", "best": "0", "ret": "1", "detail": "Same as node 4.", "current": 5, "stackNodes": [1, 2], "done": [4, 5], "rets": {"4": "1", "5": "1"}, "lines": [8, 9, 10], "step": 3}, {"title": "Step 4: node 2 records 2, returns 2", "text": "Node 2 has left = 1, right = 1. The path 4-2-5 bends here: best = max(0, 1 + 1) = 2. It returns 1 + max(1, 1) = 2.", "stack": "[depth(1)]", "node": "2", "left": "1", "right": "1", "best": "2", "ret": "2", "detail": "The two-armed value (2) goes into best. Only one arm (height 2) goes up.", "current": 2, "stackNodes": [1], "done": [4, 5, 2], "rets": {"4": "1", "5": "1", "2": "2"}, "lines": [9, 10], "step": 4}, {"title": "Step 5: node 3 finishes", "text": "depth(1) asks its right child. Leaf 3: record 0, best stays 2, return 1.", "stack": "[depth(1)]", "node": "3", "left": "0", "right": "0", "best": "2", "ret": "1", "detail": "best only ever grows.", "current": 3, "stackNodes": [1], "done": [4, 5, 2, 3], "rets": {"4": "1", "5": "1", "2": "2", "3": "1"}, "lines": [8, 9, 10], "step": 5}, {"title": "Step 6: node 1 records 3", "text": "Node 1 has left = 2, right = 1. The path bending here has 3 edges: best = max(2, 3) = 3. It returns 3.", "stack": "[]", "node": "1", "left": "2", "right": "1", "best": "3", "ret": "3", "detail": "The root's return value (3) is the tree's height, not the answer. The answer is in best.", "current": 1, "stackNodes": [], "done": [4, 5, 2, 3, 1], "rets": {"4": "1", "5": "1", "2": "2", "3": "1", "1": "3"}, "lines": [9, 10], "step": 6}, {"title": "Step 7: return best", "text": "depth(root) is finished. The function returns best = 3.", "stack": "[]", "node": "—", "left": "—", "right": "—", "best": "3", "ret": "3", "detail": "Longest path: 4 -> 2 -> 1 -> 3 (or 5 -> 2 -> 1 -> 3), 3 edges.", "current": null, "stackNodes": [], "done": [4, 5, 2, 3, 1], "rets": {"4": "1", "5": "1", "2": "2", "3": "1", "1": "3"}, "lines": [11, 12], "step": 7}];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function paintTree(prefix, step, extra) {
+        document.querySelectorAll(`#${prefix}-graph [data-node]`).forEach((node) => {
+          const id = Number(node.dataset.node);
+          node.classList.remove('done', 'stack', 'current', 'failed', 'skipped');
+          if (step.done.includes(id)) node.classList.add('done');
+          if (step.stackNodes.includes(id)) node.classList.add('stack');
+          if (extra) extra(node, id);
+          if (step.current === id) node.classList.add('current');
+        });
+        document.querySelectorAll(`#${prefix}-graph [data-ret]`).forEach((t) => {
+          const r = step.rets[t.dataset.ret];
+          t.textContent = r === undefined ? '' : `returned ${r}`;
+        });
+      }
+
+      function renderCommon(prefix, step, index, max, keys) {
+        document.getElementById(`${prefix}-step-title`).textContent = step.title;
+        document.getElementById(`${prefix}-step-text`).textContent = step.text;
+        keys.forEach((k) => { document.getElementById(`${prefix}-${k}`).textContent = step[k]; });
+        document.getElementById(`${prefix}-detail`).innerHTML = '<strong>What changed:</strong> ' + step.detail;
+        document.getElementById(`${prefix}-step-counter`).textContent = `Step ${step.step} / ${max}`;
+        document.getElementById(`${prefix}-progress`).style.width = `${(index / max) * 100}%`;
+        markActiveRow(`${prefix}-trace-table`, step.step);
+        setCodeHighlight(`${prefix}-code`, step.lines);
+      }
+
+      function renderBal(step, index, max) {
+        renderCommon('bal', step, index, max, ['stack', 'node', 'left', 'right', 'ret', 'result']);
+        paintTree('bal', step, (node, id) => {
+          if (step.failed.includes(id)) node.classList.add('failed');
+          if (step.skipped.includes(id)) node.classList.add('skipped');
+        });
+      }
+
+      function renderDia(step, index, max) {
+        renderCommon('dia', step, index, max, ['stack', 'node', 'left', 'right', 'best', 'ret']);
+        paintTree('dia', step, null);
+      }
+
+      setupTrace({ steps: balSteps, prefix: 'bal', render: renderBal });
+      setupTrace({ steps: diaSteps, prefix: 'dia', render: renderDia });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

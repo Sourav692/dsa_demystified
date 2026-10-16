@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diameter of Binary Tree — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode .tnote{fill:var(--accent);font-size:11px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_dfs_height_and_global_lesson.html">&larr; DFS Height and Global lesson</a><span class="tag"><span class="dot" style="background:#22c55e"></span> Easy · Trees · DFS Height and Global</span></div>
+<h1>543 · Diameter of Binary Tree</h1>
+<p class="lead">The longest walk between any two nodes.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Find the longest path between <b>any</b> two nodes, counting <b>edges</b> (the lines), not nodes. The path does not have to go through the root.</p>
+<div class="idea">Think of the tree as a set of hiking trails: what is the longest hike you can take without walking any trail twice? Every such hike has one highest point where it turns around.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>being measured</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>done / on the answer path</span></div>
+<p class="trace-title">Try it: walk the longest path in [1, 2, 3, 4, 5]</p>
+<div id="pd-viz"></div><div class="badges" id="pd-b"></div><div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="pd-count"></span></div>
+</div>
+
+<div class="card"><h2>Way 1 — Brute force: re-measure heights at every node</h2>
+<div class="idea">The longest path that turns at a node uses <code>height(left) + height(right)</code> edges. So visit every node, measure both sides from scratch with a separate <code>height()</code> walk, and keep the biggest sum. Lower nodes get measured again by every ancestor.</div>
+<div id="bf-viz"></div><div class="badges" id="bf-b"></div><div class="caption" id="bf-cap"></div>
+<div class="controls" data-player="bf"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="bf-count"></span></div>
+<p class="speed"><b>Speed:</b> heights re-measured from every ancestor &mdash; <code>O(n&sup2;)</code> on a one-sided chain, <code>O(n log n)</code> on a balanced tree. <b>Memory:</b> <code>O(h)</code> for the recursion.</p>
+<div class="trace-title">Step-by-step trace &mdash; tree = [1, 2, 3, 4, 5] (nodes checked in preorder)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Node</th><th>height(left)</th><th>height(right)</th><th>Path turning here = L + R</th><th>Nodes walked by height()</th><th>Best so far</th></tr>
+  <tr><td>1</td><td>1</td><td>2</td><td>1</td><td>3</td><td>2, 4, 5 &middot; 3</td><td class="rule">3</td></tr>
+  <tr><td>2</td><td>2</td><td>1</td><td>1</td><td>2</td><td>4 &middot; 5 (again!)</td><td class="rule">3</td></tr>
+  <tr><td>3</td><td>4</td><td>0</td><td>0</td><td>0</td><td>&mdash;</td><td class="rule">3</td></tr>
+  <tr><td>4</td><td>5</td><td>0</td><td>0</td><td>0</td><td>&mdash;</td><td class="rule">3</td></tr>
+  <tr class="final"><td>5</td><td>3</td><td>0</td><td>0</td><td>0</td><td>&mdash;</td><td>3 &mdash; answer (6 height() visits for 5 nodes)</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Way 2 — The smart way: return height, update a global best</h2>
+<div class="idea">One post-order DFS. Each call gets <code>left</code> and <code>right</code> heights from its children. It <b>records</b> <code>left + right</code> in a shared <code>best</code> (the path turning here), and <b>returns</b> <code>1 + max(left, right)</code> &mdash; a parent can only extend one arm.</div>
+<div id="op-viz"></div><div class="badges" id="op-b"></div><div class="caption" id="op-cap"></div>
+<div class="controls" data-player="op"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="op-count"></span></div>
+<p class="speed"><b>Speed:</b> each node visited once &mdash; <code>O(n)</code> time. <b>Memory:</b> <code>O(h)</code> for the recursion.</p>
+<div class="trace-title">Step-by-step trace &mdash; tree = [1, 2, 3, 4, 5] (post-order)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Node</th><th>left</th><th>right</th><th>left + right</th><th>best after</th><th>Returns 1 + max</th></tr>
+  <tr><td>1</td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="rule">1</td></tr>
+  <tr><td>2</td><td>5</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="rule">1</td></tr>
+  <tr><td>3</td><td>2</td><td>1</td><td>1</td><td>2</td><td>2</td><td class="rule">2</td></tr>
+  <tr><td>4</td><td>3</td><td>0</td><td>0</td><td>0</td><td>2</td><td class="rule">1</td></tr>
+  <tr class="final"><td>5</td><td>1</td><td>2</td><td>1</td><td>3</td><td>3 &mdash; answer</td><td>3</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"longest path between any two nodes"</b> or <b>"may or may not pass through the root"</b>? Return the height from a post-order DFS and keep the two-armed answer in a global variable.
+<p><a href="02_dfs_height_and_global_lesson.html">&rarr; See the DFS Height and Global pattern and how to use it in an interview</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+// Binary tree drawn with x = inorder position, y = depth, so left/right children sit on the correct side.
+function renderTree(id,T,root,marks,notes){
+  marks=marks||{}; notes=notes||{};
+  var pos={},c=0;
+  (function go(i,d){ if(i<0)return; go(T[i].l,d+1); pos[i]={x:c++,y:d}; go(T[i].r,d+1); })(root,0);
+  var my=0; for(var k in pos) my=Math.max(my,pos[k].y);
+  var GX=58,GY=72,r=17,W=c*GX,H=(my+1)*GY+6;
+  function X(i){return pos[i].x*GX+GX/2;} function Y(i){return pos[i].y*GY+r+6;}
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+Math.max(W,240)+'px">';
+  for(var i=0;i<T.length;i++){ [T[i].l,T[i].r].forEach(function(ch){ if(ch>=0) s+='<line class="edge" x1="'+X(i)+'" y1="'+Y(i)+'" x2="'+X(ch)+'" y2="'+Y(ch)+'"/>'; }); }
+  for(var j=0;j<T.length;j++){
+    s+='<g class="tnode '+(marks[j]||'')+'"><circle cx="'+X(j)+'" cy="'+Y(j)+'" r="'+r+'"/><text x="'+X(j)+'" y="'+(Y(j)+5)+'" text-anchor="middle">'+T[j].v+'</text>';
+    if(notes[j]!==undefined) s+='<text class="tnote" x="'+X(j)+'" y="'+(Y(j)+r+15)+'" text-anchor="middle">'+notes[j]+'</text>';
+    s+='</g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>';
+}
+
+// ---- Tree: [1,2,3,4,5]  0:1(l1,r2) 1:2(l3,r4) 2:3 3:4 4:5
+var T=[{v:1,l:1,r:2},{v:2,l:3,r:4},{v:3,l:-1,r:-1},{v:4,l:-1,r:-1},{v:5,l:-1,r:-1}];
+
+// Problem demo: the longest path 4 -> 2 -> 1 -> 3, one edge at a time.
+var pdF=[
+ {cap:'Start at node <b>4</b>, a leaf.',m:{3:'good'},e:0},
+ {cap:'Walk up to <b>2</b>: 1 edge.',m:{3:'good',1:'good'},e:1},
+ {cap:'Walk up to <b>1</b>, the highest point of this path: 2 edges.',m:{3:'good',1:'good',0:'hi'},e:2},
+ {cap:'Walk down to <b>3</b>: 3 edges. No longer path exists (5 &rarr; 2 &rarr; 1 &rarr; 3 ties it). Diameter = <b>3</b>.',m:{3:'good',1:'good',0:'good',2:'good'},e:3,done:true}
+];
+makePlayer('pd',pdF,function(f){
+  renderTree('pd-viz',T,0,f.m,{});
+  var b=[{label:'edges walked',val:f.e}]; if(f.done) b.push({label:'diameter',val:3,cls:'good'});
+  badges('pd-b',b); document.getElementById('pd-cap').innerHTML=f.cap;
+});
+
+// Way 1: brute force, nodes checked in preorder (values from the notebook's traced run).
+var bfF=[
+ {cap:'Visit every node. At each one, measure both sides from scratch with <code>height()</code>.',m:{},n:{},v:0,best:0},
+ {cap:'Node <b>1</b>: height(left) walks 2, 4, 5 &rarr; 2; height(right) walks 3 &rarr; 1. Path turning here = 2 + 1 = <b>3</b>.',m:{0:'hi',1:'seen',3:'seen',4:'seen',2:'seen'},n:{1:'h=2',2:'h=1'},v:4,best:3},
+ {cap:'Node <b>2</b>: height() walks 4 and 5 <b>again</b>. 1 + 1 = 2, not better than 3.',m:{0:'good',1:'hi',3:'seen',4:'seen'},n:{3:'h=1',4:'h=1'},v:6,best:3},
+ {cap:'Node <b>4</b>: leaf, 0 + 0 = 0.',m:{0:'good',1:'good',3:'hi'},n:{},v:6,best:3},
+ {cap:'Node <b>5</b>: leaf, 0 + 0 = 0.',m:{0:'good',1:'good',3:'good',4:'hi'},n:{},v:6,best:3},
+ {cap:'Node <b>3</b>: leaf, 0 + 0 = 0. Largest value seen: <b>3</b>, after 6 height() visits for 5 nodes.',m:{0:'good',1:'good',3:'good',4:'good',2:'good'},n:{},v:6,best:3,done:true}
+];
+makePlayer('bf',bfF,function(f){
+  renderTree('bf-viz',T,0,f.m,f.n);
+  badges('bf-b',[{label:'height() node visits',val:f.v},{label:'best',val:f.best,cls:f.done?'good':''}]);
+  document.getElementById('bf-cap').innerHTML=f.cap;
+});
+
+// Way 2: one post-order DFS. Notes under nodes = the height each call returned.
+var ev=[[3,0,0,0,1],[4,0,0,0,1],[1,1,1,2,2],[2,0,0,2,1],[0,2,1,3,3]];
+var opF=[{cap:'<code>best = 0</code>. depth(1) asks its children first, so the leaves answer first.',m:{},n:{},best:0,ret:'&mdash;'}];
+var doneSet={}, notes={};
+ev.forEach(function(e){
+  var m={}; for(var q in doneSet) m[q]='good'; m[e[0]]='hi'; doneSet[e[0]]=1; notes[e[0]]=e[4];
+  var nn={}; for(var q2 in notes) nn[q2]=notes[q2];
+  opF.push({cap:'Node <b>'+T[e[0]].v+'</b>: left '+e[1]+', right '+e[2]+'. Record left + right = '+(e[1]+e[2])+' &rarr; best = <b>'+e[3]+'</b>. Return 1 + max = <b>'+e[4]+'</b>.',m:m,n:nn,best:e[3],ret:e[4]});
+});
+opF.push({cap:'DFS finished. The diameter is the global <b>best = 3</b> (the path turning at node 1).',m:{0:'good',1:'good',2:'good',3:'good',4:'good'},n:notes,best:3,ret:3,done:true});
+makePlayer('op',opF,function(f){
+  renderTree('op-viz',T,0,f.m,f.n);
+  badges('op-b',[{label:'last value returned',val:f.ret},{label:'global best',val:f.best,cls:f.done?'good':''}]);
+  document.getElementById('op-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

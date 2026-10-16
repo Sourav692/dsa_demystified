@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BFS Level Order — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Trees · Pattern 03 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>BFS Level Order</h1>
+          <p>
+            Walk a binary tree one level at a time with a queue. The single trick: freeze the queue's size at the start of each level, pop exactly that many nodes, and push their children. Each pass of the inner loop is then exactly one level of the tree.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: snapshot <code>len(q)</code> per level</span>
+            <span class="chip">Method 1: Level Order Traversal</span>
+            <span class="chip">Method 2: Right Side View</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="binary_tree_level_order_traversal.html">Binary Tree Level Order Traversal</a> · <a href="binary_tree_right_side_view.html">Binary Tree Right Side View</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Binary Tree Level Order Traversal, <code>root = [3,9,20,null,null,15,7]</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 240" width="100%" role="img" aria-label="Binary tree 3, 9, 20, 15, 7 grouped into three levels">
+              <defs>
+                <style>
+                  .h-edge { stroke: #6c7a96; stroke-width: 4; stroke-linecap: round; }
+                  .h-l0 { fill: #315efb; }
+                  .h-l1 { fill: #13a46b; }
+                  .h-l2 { fill: #ff9f1c; }
+                  .h-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="49" class="h-title">level 0</text>
+              <text x="14" y="129" class="h-title">level 1</text>
+              <text x="14" y="209" class="h-title">level 2</text>
+              <line x1="270" y1="44" x2="180" y2="124" class="h-edge" />
+              <line x1="270" y1="44" x2="380" y2="124" class="h-edge" />
+              <line x1="380" y1="124" x2="320" y2="204" class="h-edge" />
+              <line x1="380" y1="124" x2="450" y2="204" class="h-edge" />
+              <circle cx="270" cy="44" r="25" class="h-l0" />
+              <circle cx="180" cy="124" r="25" class="h-l1" />
+              <circle cx="380" cy="124" r="25" class="h-l1" />
+              <circle cx="320" cy="204" r="25" class="h-l2" />
+              <circle cx="450" cy="204" r="25" class="h-l2" />
+              <text x="270" y="50" text-anchor="middle" class="h-label">3</text>
+              <text x="180" y="130" text-anchor="middle" class="h-label">9</text>
+              <text x="380" y="130" text-anchor="middle" class="h-label">20</text>
+              <text x="320" y="210" text-anchor="middle" class="h-label">15</text>
+              <text x="450" y="210" text-anchor="middle" class="h-label">7</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = [[3], [9, 20], [15, 7]]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Anything reported per level</h3>
+          <p>Org charts by management layer, file trees by folder depth, game trees by move number: the output is grouped by distance from the top.</p>
+        </div>
+        <div class="card">
+          <h3>Shortest path when every step costs 1</h3>
+          <p>BFS reaches nodes in order of distance from the start, so the first time it reaches a target is along a shortest path.</p>
+        </div>
+        <div class="card">
+          <h3>One template, many problems</h3>
+          <p>Level Order Traversal and Right Side View share the same loop; only the line that records each level changes.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> learn one loop shape, the level snapshot, and you can answer every "per level" tree question by changing a single line.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is BFS level order?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Breadth-first search visits the tree row by row: the root, then all its children, then all their children. A <strong>queue</strong> (first in, first out) keeps nodes in the order they were found, so children always wait behind the rest of their parent's level.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>The answer is organised <strong>per level</strong>: "level order", "row by row", "by depth", "visible from the right side", "rightmost node of each level", "average of each level", zigzag, minimum depth.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> at the moment a new level starts, the queue holds <em>exactly</em> that level. So <code>len(q)</code> right then is the level's size. Pop that many nodes and you have finished the level, no more and no less.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot "per level"</h3>
+          <p>The output has one entry per row of the tree. That points to BFS with a queue.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Seed the queue</h3>
+          <p>Handle the empty tree, then start with <code>q = deque([root])</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Drain one level</h3>
+          <p><code>for _ in range(len(q))</code>: pop a node, use it, push its left and right children.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Record the level</h3>
+          <p>After the inner loop, append what this level contributes: its full list, or just its last node.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a tree and a queue</h2>
+      <p>LeetCode gives the tree as a level-order list where <code>null</code> means "no child here". The notebook's <code>build_tree</code> turns that list into linked <code>TreeNode</code> objects, and it does so with the very same queue idea: each popped parent takes the next two list entries as its left and right child.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>root = [3, 9, 20, null, null, 15, 7]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Linked nodes</h3>
+          <div class="code-block"><code>3.left  = 9     3.right  = 20
+9.left  = None  9.right  = None
+20.left = 15    20.right = 7</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Create the root <code>3</code></h4>
+          <p>The first entry is the root. It goes into the builder's queue.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Pop <code>3</code>, read <code>9, 20</code></h4>
+          <p>They become 3's left and right children, and both join the queue.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Pop <code>9</code>, read <code>null, null</code></h4>
+          <p>9 has no children; nothing joins the queue.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Pop <code>20</code>, read <code>15, 7</code></h4>
+          <p>They become 20's children. The list is used up, so the tree is complete.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the BFS below works on the <em>linked nodes</em>, not on the list. Its queue holds <code>TreeNode</code> objects, and a node's children are reached through <code>.left</code> and <code>.right</code>, skipping any that are <code>None</code>.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: BFS level order (Binary Tree Level Order Traversal)</h2>
+      <p>This is the template itself, taken line for line from the notebook's <code>level_order_bfs</code>. The queue starts with the root. Each outer pass snapshots <code>len(q)</code>, pops that many nodes into a fresh <code>level</code> list, pushes their children, and appends the finished list.</p>
+      <div class="code-block stepped">
+        <code id="lo-code">
+<span class="code-line" data-line="1">def level_order_bfs(root: Optional[TreeNode]) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    res = []</span>
+<span class="code-line" data-line="3">    if not root:</span>
+<span class="code-line" data-line="4">        return res</span>
+<span class="code-line" data-line="5">    q = deque([root])</span>
+<span class="code-line" data-line="6">    while q:</span>
+<span class="code-line" data-line="7">        level = []                         # values collected for the current level</span>
+<span class="code-line" data-line="8">        for _ in range(len(q)):            # snapshot: current queue = exactly one level</span>
+<span class="code-line" data-line="9">            node = q.popleft()</span>
+<span class="code-line" data-line="10">            level.append(node.val)</span>
+<span class="code-line" data-line="11">            if node.left:  q.append(node.left)   # push the next level's nodes</span>
+<span class="code-line" data-line="12">            if node.right: q.append(node.right)</span>
+<span class="code-line" data-line="13">        res.append(level)                  # store this finished level</span>
+<span class="code-line" data-line="14">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive level-order trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="lo-graph" viewBox="0 0 520 250" width="100%" role="img" aria-label="Level order BFS trace on tree 3, 9, 20, 15, 7">
+              <defs>
+                <style>
+                  .lo-edge { stroke: #cad3e6; stroke-width: 4; stroke-linecap: round; }
+                  .lo-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .lo-node.done { fill: #315efb; }
+                  .lo-node.frontier { fill: #13a46b; }
+                  .lo-node.current { fill: #ff9f1c; }
+                  .lo-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .lo-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .lo-band { fill: #ff9f1c; opacity: 0.12; }
+                </style>
+              </defs>
+              <rect x="6" y="14" width="508" height="62" rx="12" class="lo-band" data-band="0" visibility="hidden" />
+              <rect x="6" y="94" width="508" height="62" rx="12" class="lo-band" data-band="1" visibility="hidden" />
+              <rect x="6" y="174" width="508" height="62" rx="12" class="lo-band" data-band="2" visibility="hidden" />
+              <text x="14" y="50" class="lo-title">level 0</text>
+              <text x="14" y="130" class="lo-title">level 1</text>
+              <text x="14" y="210" class="lo-title">level 2</text>
+              <line x1="270" y1="45" x2="180" y2="125" class="lo-edge" />
+              <line x1="270" y1="45" x2="380" y2="125" class="lo-edge" />
+              <line x1="380" y1="125" x2="320" y2="205" class="lo-edge" />
+              <line x1="380" y1="125" x2="450" y2="205" class="lo-edge" />
+              <circle cx="270" cy="45" r="25" class="lo-node" data-node="3" />
+              <circle cx="180" cy="125" r="25" class="lo-node" data-node="9" />
+              <circle cx="380" cy="125" r="25" class="lo-node" data-node="20" />
+              <circle cx="320" cy="205" r="25" class="lo-node" data-node="15" />
+              <circle cx="450" cy="205" r="25" class="lo-node" data-node="7" />
+              <text x="270" y="51" text-anchor="middle" class="lo-label">3</text>
+              <text x="180" y="131" text-anchor="middle" class="lo-label">9</text>
+              <text x="380" y="131" text-anchor="middle" class="lo-label">20</text>
+              <text x="320" y="211" text-anchor="middle" class="lo-label">15</text>
+              <text x="450" y="211" text-anchor="middle" class="lo-label">7</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> node just popped</span>
+            <span><i class="dot dot-green"></i> waiting in the queue</span>
+            <span><i class="dot dot-blue"></i> already popped</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="lo-step-title">Initial state</h3>
+          <p id="lo-step-text">The tree is not empty, so the queue starts with the root.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="lo-prev">Previous</button>
+            <button type="button" id="lo-play" class="primary">Resume</button>
+            <button type="button" id="lo-next">Next</button>
+            <button type="button" id="lo-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="lo-step-counter">Step 0 / 11</span>
+            <div class="progress"><span id="lo-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Level (depth)</strong><div class="state-value" id="lo-depth">—</div></div>
+            <div class="state-box"><strong>Snapshot len(q)</strong><div class="state-value" id="lo-size">—</div></div>
+            <div class="state-box"><strong>node (just popped)</strong><div class="state-value" id="lo-node">—</div></div>
+            <div class="state-box"><strong>Queue (front is left)</strong><div class="state-value" id="lo-queue">[3]</div></div>
+            <div class="state-box"><strong>level list</strong><div class="state-value" id="lo-level">—</div></div>
+            <div class="state-box"><strong>res</strong><div class="state-value" id="lo-res">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="lo-detail"><strong>What changed:</strong> nothing popped yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="lo-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Level</th><th>Action</th><th>Queue after</th><th>level list</th><th>res after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>Root exists, <code>q = deque([3])</code></td><td><code>[3]</code></td><td>—</td><td><code>[]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>Start level, snapshot <code>len(q) = 1</code></td><td><code>[3]</code></td><td><code>[]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>0</td><td>Pop <code>3</code>, push <code>9</code>, <code>20</code></td><td><code>[9, 20]</code></td><td><code>[3]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>0</td><td>1 of 1 popped, append level</td><td><code>[9, 20]</code></td><td><code>[3]</code></td><td><code>[[3]]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>1</td><td>Start level, snapshot <code>len(q) = 2</code></td><td><code>[9, 20]</code></td><td><code>[]</code></td><td><code>[[3]]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>1</td><td>Pop <code>9</code>, no children</td><td><code>[20]</code></td><td><code>[9]</code></td><td><code>[[3]]</code></td></tr>
+            <tr data-step="6"><td>6</td><td>1</td><td>Pop <code>20</code>, push <code>15</code>, <code>7</code></td><td><code>[15, 7]</code></td><td><code>[9, 20]</code></td><td><code>[[3]]</code></td></tr>
+            <tr data-step="7"><td>7</td><td>1</td><td>2 of 2 popped, append level</td><td><code>[15, 7]</code></td><td><code>[9, 20]</code></td><td><code>[[3], [9, 20]]</code></td></tr>
+            <tr data-step="8"><td>8</td><td>2</td><td>Start level, snapshot <code>len(q) = 2</code></td><td><code>[15, 7]</code></td><td><code>[]</code></td><td><code>[[3], [9, 20]]</code></td></tr>
+            <tr data-step="9"><td>9</td><td>2</td><td>Pop <code>15</code>, no children</td><td><code>[7]</code></td><td><code>[15]</code></td><td><code>[[3], [9, 20]]</code></td></tr>
+            <tr data-step="10"><td>10</td><td>2</td><td>Pop <code>7</code>, no children</td><td><code>[]</code></td><td><code>[15, 7]</code></td><td><code>[[3], [9, 20]]</code></td></tr>
+            <tr data-step="11"><td>11</td><td>2</td><td>Append level; queue empty, return</td><td><code>[]</code></td><td><code>[15, 7]</code></td><td><code>[[3], [9, 20], [15, 7]]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The queue is a conveyor belt. While level 1 is being popped from the front, level 2 is being loaded on the back. The frozen <code>len(q)</code> is the line painted between them.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Re-reading the queue length while children are being appended. At step 6 the queue grows to two new nodes; a moving bound would drag level 2 into level 1's list.</p>
+        </div>
+        <div class="card">
+          <h4>Why a deque</h4>
+          <p><code>deque.popleft()</code> is O(1). A Python list's <code>pop(0)</code> shifts every remaining element, O(n) per pop, which turns the whole traversal quadratic.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: keep only the last node per level (Binary Tree Right Side View)</h2>
+      <p>Same loop, one line changed. Standing on the right, you see the rightmost node of each level. The inner loop pops a level left to right, so when it ends, <code>node</code> still points to the last node popped: the rightmost one. Append <code>node.val</code> instead of a whole list. Code from the notebook's <code>right_side_view_bfs</code>, traced on <code>root = [1,2,3,null,5,null,4]</code>.</p>
+      <div class="code-block stepped">
+        <code id="rv-code">
+<span class="code-line" data-line="1">def right_side_view_bfs(root: Optional[TreeNode]) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    res = []</span>
+<span class="code-line" data-line="3">    if not root:</span>
+<span class="code-line" data-line="4">        return res</span>
+<span class="code-line" data-line="5">    q = deque([root])</span>
+<span class="code-line" data-line="6">    while q:</span>
+<span class="code-line" data-line="7">        for _ in range(len(q)):            # snapshot: current queue = exactly one level</span>
+<span class="code-line" data-line="8">            node = q.popleft()</span>
+<span class="code-line" data-line="9">            if node.left:  q.append(node.left)    # children wait in the queue for the next level</span>
+<span class="code-line" data-line="10">            if node.right: q.append(node.right)</span>
+<span class="code-line" data-line="11">        res.append(node.val)               # `node` is the last one popped = rightmost on this level</span>
+<span class="code-line" data-line="12">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive right-side-view trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="rv-graph" viewBox="0 0 520 250" width="100%" role="img" aria-label="Right side view BFS trace on tree 1, 2, 3, 5, 4">
+              <defs>
+                <style>
+                  .rv-edge { stroke: #cad3e6; stroke-width: 4; stroke-linecap: round; }
+                  .rv-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .rv-node.done { fill: #315efb; }
+                  .rv-node.frontier { fill: #13a46b; }
+                  .rv-node.current { fill: #ff9f1c; }
+                  .rv-ring { fill: none; stroke: #172033; stroke-width: 4; }
+                  .rv-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .rv-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .rv-sight { stroke: #172033; stroke-width: 2; stroke-dasharray: 5 4; }
+                  .rv-seen { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="50" class="rv-title">level 0</text>
+              <text x="14" y="130" class="rv-title">level 1</text>
+              <text x="14" y="210" class="rv-title">level 2</text>
+              <line x1="240" y1="45" x2="150" y2="125" class="rv-edge" />
+              <line x1="240" y1="45" x2="330" y2="125" class="rv-edge" />
+              <line x1="150" y1="125" x2="210" y2="205" class="rv-edge" />
+              <line x1="330" y1="125" x2="390" y2="205" class="rv-edge" />
+              <g data-sight="0" visibility="hidden"><line x1="272" y1="45" x2="436" y2="45" class="rv-sight" /><text x="442" y="50" class="rv-seen">sees 1</text></g>
+              <g data-sight="1" visibility="hidden"><line x1="362" y1="125" x2="436" y2="125" class="rv-sight" /><text x="442" y="130" class="rv-seen">sees 3</text></g>
+              <g data-sight="2" visibility="hidden"><line x1="422" y1="205" x2="436" y2="205" class="rv-sight" /><text x="442" y="210" class="rv-seen">sees 4</text></g>
+              <circle cx="240" cy="45" r="25" class="rv-node" data-node="1" />
+              <circle cx="150" cy="125" r="25" class="rv-node" data-node="2" />
+              <circle cx="330" cy="125" r="25" class="rv-node" data-node="3" />
+              <circle cx="210" cy="205" r="25" class="rv-node" data-node="5" />
+              <circle cx="390" cy="205" r="25" class="rv-node" data-node="4" />
+              <circle cx="240" cy="45" r="30" class="rv-ring" data-ring="1" visibility="hidden" />
+              <circle cx="330" cy="125" r="30" class="rv-ring" data-ring="3" visibility="hidden" />
+              <circle cx="390" cy="205" r="30" class="rv-ring" data-ring="4" visibility="hidden" />
+              <text x="240" y="51" text-anchor="middle" class="rv-label">1</text>
+              <text x="150" y="131" text-anchor="middle" class="rv-label">2</text>
+              <text x="330" y="131" text-anchor="middle" class="rv-label">3</text>
+              <text x="210" y="211" text-anchor="middle" class="rv-label">5</text>
+              <text x="390" y="211" text-anchor="middle" class="rv-label">4</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> node just popped</span>
+            <span><i class="dot dot-green"></i> waiting in the queue</span>
+            <span><i class="dot dot-blue"></i> already popped</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dark ring + dashed line = recorded (visible from the right)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="rv-step-title">Initial state</h3>
+          <p id="rv-step-text">The tree is not empty, so the queue starts with the root.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="rv-prev">Previous</button>
+            <button type="button" id="rv-play" class="primary">Resume</button>
+            <button type="button" id="rv-next">Next</button>
+            <button type="button" id="rv-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="rv-step-counter">Step 0 / 11</span>
+            <div class="progress"><span id="rv-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Level (depth)</strong><div class="state-value" id="rv-depth">—</div></div>
+            <div class="state-box"><strong>Snapshot len(q)</strong><div class="state-value" id="rv-size">—</div></div>
+            <div class="state-box"><strong>node (last popped)</strong><div class="state-value" id="rv-node">—</div></div>
+            <div class="state-box"><strong>Queue (front is left)</strong><div class="state-value" id="rv-queue">[1]</div></div>
+            <div class="state-box"><strong>res</strong><div class="state-value" id="rv-res">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="rv-detail"><strong>What changed:</strong> nothing popped yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="rv-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Level</th><th>Action</th><th>Queue after</th><th>node</th><th>res after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>Root exists, <code>q = deque([1])</code></td><td><code>[1]</code></td><td>—</td><td><code>[]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>Start level, snapshot <code>len(q) = 1</code></td><td><code>[1]</code></td><td>—</td><td><code>[]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>0</td><td>Pop <code>1</code>, push <code>2</code>, <code>3</code></td><td><code>[2, 3]</code></td><td><code>1</code></td><td><code>[]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>0</td><td>Level done, record <code>node.val</code></td><td><code>[2, 3]</code></td><td><code>1</code></td><td><code>[1]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>1</td><td>Start level, snapshot <code>len(q) = 2</code></td><td><code>[2, 3]</code></td><td><code>1</code></td><td><code>[1]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>1</td><td>Pop <code>2</code>, push its right child <code>5</code></td><td><code>[3, 5]</code></td><td><code>2</code></td><td><code>[1]</code></td></tr>
+            <tr data-step="6"><td>6</td><td>1</td><td>Pop <code>3</code>, push its right child <code>4</code></td><td><code>[5, 4]</code></td><td><code>3</code></td><td><code>[1]</code></td></tr>
+            <tr data-step="7"><td>7</td><td>1</td><td>Level done, record <code>node.val</code></td><td><code>[5, 4]</code></td><td><code>3</code></td><td><code>[1, 3]</code></td></tr>
+            <tr data-step="8"><td>8</td><td>2</td><td>Start level, snapshot <code>len(q) = 2</code></td><td><code>[5, 4]</code></td><td><code>3</code></td><td><code>[1, 3]</code></td></tr>
+            <tr data-step="9"><td>9</td><td>2</td><td>Pop <code>5</code>, no children</td><td><code>[4]</code></td><td><code>5</code></td><td><code>[1, 3]</code></td></tr>
+            <tr data-step="10"><td>10</td><td>2</td><td>Pop <code>4</code>, no children</td><td><code>[]</code></td><td><code>4</code></td><td><code>[1, 3]</code></td></tr>
+            <tr data-step="11"><td>11</td><td>2</td><td>Level done, record <code>node.val</code>; queue empty, return</td><td><code>[]</code></td><td><code>4</code></td><td><code>[1, 3, 4]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Within one level the queue is ordered left to right, so "last popped" means "rightmost". Node 5 is popped before 4 on level 2, which is exactly why 5 is hidden.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Walking only the right spine (<code>root.right.right...</code>). On <code>[1,2,3,4,null,null,null,5]</code> the answer is <code>[1, 3, 4, 5]</code>: levels 2 and 3 exist only on the left.</p>
+        </div>
+        <div class="card">
+          <h4>Why the template still fits</h4>
+          <p>The level boundary is what lets you say "last of this level". Without the <code>len(q)</code> snapshot there is no way to know which pop ends a level.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Empty tree</button>
+        <button type="button" data-example-tab="1">Single node</button>
+        <button type="button" data-example-tab="2">Left-only chain</button>
+        <button type="button" data-example-tab="3">Left side shows through</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: empty tree</h3>
+          <p><code>root = []</code></p>
+          <div class="result-badge">Level order = [] · Right side view = []</div>
+          <p class="footer-note">The <code>if not root: return res</code> guard runs before the queue is built. Without it, <code>deque([None])</code> would pop <code>None</code> and crash on <code>.val</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: single node</h3>
+          <p><code>root = [1]</code></p>
+          <div class="result-badge">Level order = [[1]]</div>
+          <p class="footer-note">One outer pass with <code>len(q) = 1</code>; no children are pushed, so the loop ends.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: every node is a left child</h3>
+          <p><code>root = [1, 2, null, 3, null, 4]</code></p>
+          <div class="result-badge">Right side view = [1, 2, 3, 4]</div>
+          <p class="footer-note">Each level has a single node, so it is both the leftmost and the rightmost: every node is visible.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: the right subtree is shorter</h3>
+          <p><code>root = [1, 2, 3, 4, null, null, null, 5]</code></p>
+          <div class="result-badge">Right side view = [1, 3, 4, 5]</div>
+          <p class="footer-note">Levels 2 and 3 contain only left-subtree nodes, so 4 and 5 are visible from the right.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Level Order Traversal</td><td>BFS level order (Method 1)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>The template as is.</td></tr>
+            <tr><td>Level Order Traversal</td><td>DFS tagged by depth</td><td><code>O(n)</code></td><td><code>O(h)</code> + output</td><td>Append to <code>res[depth]</code>; works, but the levels are implicit.</td></tr>
+            <tr><td>Right Side View</td><td>Brute force: rescan per depth</td><td><code>O(n·h)</code></td><td><code>O(h)</code></td><td>Measured about 4x per doubling on a chain, where <code>h = n</code>.</td></tr>
+            <tr><td>Right Side View</td><td>DFS, right child first</td><td><code>O(n)</code></td><td><code>O(h)</code></td><td>First node reached at a new depth is the rightmost.</td></tr>
+            <tr><td>Right Side View</td><td>BFS, last node per level (Method 2)</td><td><code>O(n)</code></td><td><code>O(w)</code></td><td>The template with one line changed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = number of nodes, <code>h</code> = height, <code>w</code> = widest level. All complexities and the 4x figure come from the two notebooks in this folder.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The answer has one entry per level of the tree.</p></div>
+            <div class="timeline-step"><p>A queue hands out nodes in level order, because children always join the back.</p></div>
+            <div class="timeline-step"><p>To know where one level ends, freeze <code>len(q)</code> when the level starts and pop exactly that many.</p></div>
+            <div class="timeline-step"><p>Decide what each level records: the whole list, or only the last node popped.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"The output is grouped by level, so I'll use BFS with a deque."</li>
+            <li>"At the start of each level, the queue holds exactly that level, so I snapshot <code>len(q)</code> and pop that many nodes."</li>
+            <li>"For the right side view, the last node popped in each level is the rightmost, so I append it after the inner loop."</li>
+            <li>"Every node is pushed and popped once: O(n) time; the queue holds about one level: O(w) space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Level Order Traversal</h3>
+          <ul class="mistake-list">
+            <li>Reading the queue length after children were appended, so levels blur together.</li>
+            <li>Creating <code>level = []</code> outside the <code>while</code> loop, so every level shares one list.</li>
+            <li>Using <code>list.pop(0)</code> instead of <code>deque.popleft()</code>: O(n) per pop.</li>
+            <li>Forgetting the empty-tree guard.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Right Side View</h3>
+          <ul class="mistake-list">
+            <li>Following only the right spine and missing deeper left-subtree nodes.</li>
+            <li>Recording the <em>first</em> node popped per level: that is the left side view.</li>
+            <li>In the DFS version, exploring left before right, so the first node per depth is the leftmost.</li>
+            <li>Appending <code>node.val</code> inside the inner loop instead of after it.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Binary Tree Level Order Traversal: <code>root = [1]</code> and <code>root = []</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> how many outer passes does the loop make, and what guards the empty case?</p>
+          <p style="margin-top:10px;">Answer: <code>[[1]]</code> (one pass, snapshot 1) and <code>[]</code> (the guard returns before the queue exists). Step through it: <a href="binary_tree_level_order_traversal.html">Binary Tree Level Order Traversal</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Binary Tree Right Side View: <code>root = [1, null, 3]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> list each level, then take its last node.</p>
+          <p style="margin-top:10px;">Answer: <code>[1, 3]</code>. Level 0 is <code>[1]</code>, level 1 is <code>[3]</code>. Compare all three approaches on the page: <a href="binary_tree_right_side_view.html">Binary Tree Right Side View</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Right Side View when the left side is deeper: <code>root = [1, 2, 3, 4, null, null, null, 5]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the levels are <code>[1]</code>, <code>[2, 3]</code>, <code>[4]</code>, <code>[5]</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>[1, 3, 4, 5]</code>. Levels 2 and 3 have only left-subtree nodes, so they are the rightmost on their levels. See the problem demo on <a href="binary_tree_right_side_view.html">the Right Side View page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Why does Right Side View's brute force slow down about 4x per doubling on a chain?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> how many depths does a chain of <code>n</code> nodes have, and what does each pass rescan?</p>
+          <p style="margin-top:10px;">Answer: a chain has <code>h = n</code> levels and the pass for depth <code>d</code> rewalks every node above it, so the total is about <code>n²/2</code> visits: <code>O(n·h) = O(n²)</code>. BFS visits each node once. Walkthrough: <a href="binary_tree_right_side_view.html">Binary Tree Right Side View</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Freeze <code>len(q)</code>, drain exactly that many, push the children.</strong>
+          That one loop turns a queue into a level-by-level walk. Level Order Traversal records each level's full list; Right Side View records only the last node popped. Same template, one line apart.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">BFS Level Order pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of level_order_bfs on [3,9,20,null,null,15,7].
+      const loSteps = [
+        { step: 0, title: 'Initial state', text: 'The tree is not empty, so the queue starts with the root.', depth: '—', size: '—', node: '—', queue: '[3]', level: '—', res: '[]', detail: 'Only the root is waiting. Nothing has been popped.', done: [], frontier: [3], current: null, band: null, lines: [2, 3, 5] },
+        { step: 1, title: 'Step 1: start level 0', text: 'Enter the while loop, make an empty level list, and snapshot len(q) = 1.', depth: '0', size: '1', node: '—', queue: '[3]', level: '[]', res: '[]', detail: 'range(len(q)) is evaluated once, here. This level will pop exactly 1 node.', done: [], frontier: [3], current: null, band: 0, lines: [6, 7, 8] },
+        { step: 2, title: 'Step 2: pop 3', text: 'Pop 3 from the front, add it to the level, push its children 9 and 20 to the back.', depth: '0', size: '1', node: '3', queue: '[9, 20]', level: '[3]', res: '[]', detail: 'The children are level 1. They wait behind anything still left on level 0 (nothing here).', done: [], frontier: [9, 20], current: 3, band: 0, lines: [9, 10, 11, 12] },
+        { step: 3, title: 'Step 3: level 0 finished', text: '1 of 1 nodes popped. Append the finished level to res.', depth: '0', size: '1', node: '3', queue: '[9, 20]', level: '[3]', res: '[[3]]', detail: 'res gains its first row. The queue now holds exactly level 1.', done: [3], frontier: [9, 20], current: null, band: 0, lines: [13] },
+        { step: 4, title: 'Step 4: start level 1', text: 'New level list, snapshot len(q) = 2.', depth: '1', size: '2', node: '—', queue: '[9, 20]', level: '[]', res: '[[3]]', detail: 'Two nodes are waiting, so this level pops exactly two.', done: [3], frontier: [9, 20], current: null, band: 1, lines: [6, 7, 8] },
+        { step: 5, title: 'Step 5: pop 9', text: 'Pop 9 and add it to the level. It has no children, so nothing is pushed.', depth: '1', size: '2', node: '9', queue: '[20]', level: '[9]', res: '[[3]]', detail: 'One of two pops done for level 1.', done: [3], frontier: [20], current: 9, band: 1, lines: [9, 10, 11, 12] },
+        { step: 6, title: 'Step 6: pop 20', text: 'Pop 20, add it to the level, and push its children 15 and 7.', depth: '1', size: '2', node: '20', queue: '[15, 7]', level: '[9, 20]', res: '[[3]]', detail: 'The queue grew while level 1 was being drained. The frozen snapshot (2) stops the loop here anyway.', done: [3, 9], frontier: [15, 7], current: 20, band: 1, lines: [9, 10, 11, 12] },
+        { step: 7, title: 'Step 7: level 1 finished', text: '2 of 2 nodes popped. Append [9, 20] to res.', depth: '1', size: '2', node: '20', queue: '[15, 7]', level: '[9, 20]', res: '[[3], [9, 20]]', detail: 'The queue now holds exactly level 2.', done: [3, 9, 20], frontier: [15, 7], current: null, band: 1, lines: [13] },
+        { step: 8, title: 'Step 8: start level 2', text: 'New level list, snapshot len(q) = 2.', depth: '2', size: '2', node: '—', queue: '[15, 7]', level: '[]', res: '[[3], [9, 20]]', detail: 'Two leaves are waiting.', done: [3, 9, 20], frontier: [15, 7], current: null, band: 2, lines: [6, 7, 8] },
+        { step: 9, title: 'Step 9: pop 15', text: 'Pop 15 and add it to the level. No children.', depth: '2', size: '2', node: '15', queue: '[7]', level: '[15]', res: '[[3], [9, 20]]', detail: 'One of two pops done for level 2.', done: [3, 9, 20], frontier: [7], current: 15, band: 2, lines: [9, 10, 11, 12] },
+        { step: 10, title: 'Step 10: pop 7', text: 'Pop 7 and add it to the level. No children; the queue is now empty.', depth: '2', size: '2', node: '7', queue: '[]', level: '[15, 7]', res: '[[3], [9, 20]]', detail: 'Both pops for level 2 are done.', done: [3, 9, 20, 15], frontier: [], current: 7, band: 2, lines: [9, 10, 11, 12] },
+        { step: 11, title: 'Step 11: append and return', text: 'Append [15, 7]. The queue is empty, so the while loop ends and res is returned.', depth: '2', size: '2', node: '7', queue: '[]', level: '[15, 7]', res: '[[3], [9, 20], [15, 7]]', detail: 'Final answer: [[3], [9, 20], [15, 7]].', done: [3, 9, 20, 15, 7], frontier: [], current: null, band: null, lines: [13, 6, 14] }
+      ];
+
+      // Ground truth: instrumented run of right_side_view_bfs on [1,2,3,null,5,null,4].
+      const rvSteps = [
+        { step: 0, title: 'Initial state', text: 'The tree is not empty, so the queue starts with the root.', depth: '—', size: '—', node: '—', queue: '[1]', res: '[]', detail: 'Only the root is waiting.', done: [], frontier: [1], current: null, rings: [], lines: [2, 3, 5] },
+        { step: 1, title: 'Step 1: start level 0', text: 'Snapshot len(q) = 1.', depth: '0', size: '1', node: '—', queue: '[1]', res: '[]', detail: 'This level will pop exactly 1 node.', done: [], frontier: [1], current: null, rings: [], lines: [6, 7] },
+        { step: 2, title: 'Step 2: pop 1', text: 'Pop 1 and push its children 2 and 3.', depth: '0', size: '1', node: '1', queue: '[2, 3]', res: '[]', detail: 'node now refers to 1.', done: [], frontier: [2, 3], current: 1, rings: [], lines: [8, 9, 10] },
+        { step: 3, title: 'Step 3: record level 0', text: 'The inner loop ended, so node is the last node popped on level 0: append 1.', depth: '0', size: '1', node: '1', queue: '[2, 3]', res: '[1]', detail: 'This is the only line that differs in spirit from Method 1: record one value, not a list.', done: [1], frontier: [2, 3], current: null, rings: [1], lines: [11] },
+        { step: 4, title: 'Step 4: start level 1', text: 'Snapshot len(q) = 2.', depth: '1', size: '2', node: '1', queue: '[2, 3]', res: '[1]', detail: 'Two pops on this level: 2 first, then 3.', done: [1], frontier: [2, 3], current: null, rings: [1], lines: [6, 7] },
+        { step: 5, title: 'Step 5: pop 2', text: 'Pop 2. It has no left child; push its right child 5.', depth: '1', size: '2', node: '2', queue: '[3, 5]', res: '[1]', detail: '2 is not the last pop of this level, so it will be hidden.', done: [1], frontier: [3, 5], current: 2, rings: [1], lines: [8, 9, 10] },
+        { step: 6, title: 'Step 6: pop 3', text: 'Pop 3. No left child; push its right child 4.', depth: '1', size: '2', node: '3', queue: '[5, 4]', res: '[1]', detail: '3 is the second of two pops: the last one on level 1.', done: [1, 2], frontier: [5, 4], current: 3, rings: [1], lines: [8, 9, 10] },
+        { step: 7, title: 'Step 7: record level 1', text: 'Inner loop over; node is 3. Append 3.', depth: '1', size: '2', node: '3', queue: '[5, 4]', res: '[1, 3]', detail: 'From the right, 3 hides 2.', done: [1, 2, 3], frontier: [5, 4], current: null, rings: [1, 3], lines: [11] },
+        { step: 8, title: 'Step 8: start level 2', text: 'Snapshot len(q) = 2.', depth: '2', size: '2', node: '3', queue: '[5, 4]', res: '[1, 3]', detail: '5 sits left of 4 in the queue, matching left-to-right order on the level.', done: [1, 2, 3], frontier: [5, 4], current: null, rings: [1, 3], lines: [6, 7] },
+        { step: 9, title: 'Step 9: pop 5', text: 'Pop 5. It is a leaf, so nothing is pushed.', depth: '2', size: '2', node: '5', queue: '[4]', res: '[1, 3]', detail: '5 is not the last pop of level 2.', done: [1, 2, 3], frontier: [4], current: 5, rings: [1, 3], lines: [8, 9, 10] },
+        { step: 10, title: 'Step 10: pop 4', text: 'Pop 4. It is a leaf; the queue is now empty.', depth: '2', size: '2', node: '4', queue: '[]', res: '[1, 3]', detail: '4 is the last pop of level 2.', done: [1, 2, 3, 5], frontier: [], current: 4, rings: [1, 3], lines: [8, 9, 10] },
+        { step: 11, title: 'Step 11: record level 2 and return', text: 'Append 4. The queue is empty, so the loop ends and res is returned.', depth: '2', size: '2', node: '4', queue: '[]', res: '[1, 3, 4]', detail: 'Final answer: [1, 3, 4]. Node 5 was hidden behind 4.', done: [1, 2, 3, 5, 4], frontier: [], current: null, rings: [1, 3, 4], lines: [11, 6, 12] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function colorNodes(svgId, step) {
+        document.querySelectorAll(`#${svgId} [data-node]`).forEach((node) => {
+          const id = Number(node.dataset.node);
+          node.classList.remove('done', 'frontier', 'current');
+          if (step.done.includes(id)) node.classList.add('done');
+          if (step.frontier.includes(id)) node.classList.add('frontier');
+          if (step.current === id) node.classList.add('current');
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+          stop();
+          if (index > 0) index -= 1;
+          update();
+        });
+
+        nextBtn.addEventListener('click', () => {
+          stop();
+          if (index < steps.length - 1) index += 1;
+          update();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          stop();
+          index = 0;
+          update();
+        });
+
+        playBtn.addEventListener('click', () => {
+          if (timer) {
+            stop();
+            return;
+          }
+          if (index >= steps.length - 1) {
+            index = 0;
+            update();
+          }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) {
+              stop();
+              return;
+            }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      function renderLO(step, index, max) {
+        document.getElementById('lo-step-title').textContent = step.title;
+        document.getElementById('lo-step-text').textContent = step.text;
+        document.getElementById('lo-depth').textContent = step.depth;
+        document.getElementById('lo-size').textContent = step.size;
+        document.getElementById('lo-node').textContent = step.node;
+        document.getElementById('lo-queue').textContent = step.queue;
+        document.getElementById('lo-level').textContent = step.level;
+        document.getElementById('lo-res').textContent = step.res;
+        document.getElementById('lo-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('lo-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('lo-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('lo-trace-table', step.step);
+        setCodeHighlight('lo-code', step.lines);
+        colorNodes('lo-graph', step);
+        document.querySelectorAll('#lo-graph [data-band]').forEach((band) => {
+          band.setAttribute('visibility', Number(band.dataset.band) === step.band ? 'visible' : 'hidden');
+        });
+      }
+
+      function renderRV(step, index, max) {
+        document.getElementById('rv-step-title').textContent = step.title;
+        document.getElementById('rv-step-text').textContent = step.text;
+        document.getElementById('rv-depth').textContent = step.depth;
+        document.getElementById('rv-size').textContent = step.size;
+        document.getElementById('rv-node').textContent = step.node;
+        document.getElementById('rv-queue').textContent = step.queue;
+        document.getElementById('rv-res').textContent = step.res;
+        document.getElementById('rv-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('rv-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('rv-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('rv-trace-table', step.step);
+        setCodeHighlight('rv-code', step.lines);
+        colorNodes('rv-graph', step);
+        document.querySelectorAll('#rv-graph [data-ring]').forEach((ring) => {
+          ring.setAttribute('visibility', step.rings.includes(Number(ring.dataset.ring)) ? 'visible' : 'hidden');
+        });
+        document.querySelectorAll('#rv-graph [data-sight]').forEach((g) => {
+          g.setAttribute('visibility', Number(g.dataset.sight) < step.rings.length ? 'visible' : 'hidden');
+        });
+      }
+
+      setupTrace({ steps: loSteps, prefix: 'lo', render: renderLO });
+      setupTrace({ steps: rvSteps, prefix: 'rv', render: renderRV });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>
