@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kth Largest Element in an Array — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .svgwrap svg{display:block;margin:0 auto}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_top_k_lesson.html">← Top K lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Heap · Top K</span></div>
+<h1>215 · Kth Largest Element in an Array</h1>
+<p class="lead">Find the value that would be in k-th place if the array were sorted, best first.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You have a list of numbers and a number <code>k</code>. Imagine lining the numbers up from biggest to smallest; return the one standing in place <code>k</code>. Duplicates each take their own place. The challenge: can you do it without sorting the whole list?</p>
+<div class="idea">Example: <code>nums = [3, 2, 1, 5, 6, 4]</code>, <code>k = 2</code> &rarr; <code>5</code> (biggest first: 6, <b>5</b>, 4, 3, 2, 1).</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at / pivot</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>kept / settled</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>the answer</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>thrown away</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">"k-th largest" is the same as index <code>n - k</code> once the list is sorted smallest first: here <code>6 - 2 = 4</code>.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: sort, then count back k</h2>
+<div class="idea">Sort the list smallest first and read the value <code>k</code> places from the end.</div>
+<div class="viz" id="so-viz"></div>
+<div class="caption" id="so-cap"></div>
+<div class="controls" data-player="so"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="so-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> a full sort — <code>O(n log n)</code> time, <code>O(n)</code> memory for the sorted copy. (In Python, <code>sorted</code> runs in C, so it is often the fastest in practice; the notebook's timings show it.)</p>
+<div class="trace-title">Step-by-step trace — nums = [3, 2, 1, 5, 6, 4], k = 2</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>List</th><th>Decision</th></tr>
+  <tr><td>1</td><td>[3, 2, 1, 5, 6, 4]</td><td class="rule">Input, unsorted</td></tr>
+  <tr class="final"><td>2</td><td>[1, 2, 3, 4, 5, 6]</td><td>sorted(nums)[-2] = 5</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — The pattern: a min-heap that keeps only the top k</h2>
+<div class="idea">Keep a small pile of the <code>k</code> biggest numbers seen so far, smallest of them on top (a <b>min-heap</b>). Push each number; if the pile now has <code>k + 1</code>, the top one leaves. When the list is done, the top of the pile is the k-th largest.</div>
+<div class="viz" id="hp-viz"></div>
+<div class="caption" id="hp-cap"></div>
+<div class="controls" data-player="hp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one push and at most one pop per number on a pile of size <code>k + 1</code> — <code>O(n log k)</code> time, <code>O(k)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — nums = [3, 2, 1, 5, 6, 4], k = 2</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Push</th><th>Size after push</th><th>Popped (too small)</th><th>Heap after (array)</th></tr>
+  <tr><td>1</td><td>3</td><td>1</td><td>—</td><td>[3]</td></tr>
+  <tr><td>2</td><td>2</td><td>2</td><td>—</td><td>[2, 3]</td></tr>
+  <tr><td>3</td><td>1</td><td>3 &gt; 2</td><td>1</td><td>[2, 3]</td></tr>
+  <tr><td>4</td><td>5</td><td>3 &gt; 2</td><td>2</td><td>[3, 5]</td></tr>
+  <tr><td>5</td><td>6</td><td>3 &gt; 2</td><td>3</td><td>[5, 6]</td></tr>
+  <tr class="final"><td>6</td><td>4</td><td>3 &gt; 2</td><td>4</td><td>[5, 6] &rarr; heap[0] = 5</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — Quickselect: split around a random pivot, keep one side</h2>
+<div class="idea">Pick a random <b>pivot</b>. Rearrange the range into three blocks: smaller than the pivot, equal to it, bigger than it. The equal block is now in its final sorted place. If the target index <code>n - k</code> is inside it, the pivot is the answer; otherwise repeat on <b>only</b> the side that holds the target. Pointers: everything left of <code>lt</code> is smaller, <code>i</code> is the value being checked, everything right of <code>gt</code> is bigger.</div>
+<div class="viz" id="qs-viz"></div>
+<div class="caption" id="qs-cap"></div>
+<div class="controls" data-player="qs"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="qs-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each round scans the current range once and keeps about half — <code>O(n)</code> on average (<code>O(n²)</code> only if the pivots are very unlucky). The notebook copies the list first (<code>O(n)</code>); in place it needs <code>O(1)</code> extra. The pivots below are the ones the notebook's seeded random generator picks on this input: 3, then 5.</p>
+<div class="trace-title">Step-by-step trace — nums = [3, 2, 1, 5, 6, 4], k = 2, target index = 6 - 2 = 4</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Range</th><th>Pivot</th><th>a[i] vs pivot</th><th>Action</th><th>Array after</th><th>lt</th><th>i</th><th>gt</th></tr>
+  <tr><td>1</td><td>[0..5]</td><td>3</td><td>3 = 3</td><td class="rule">equal &rarr; i++</td><td>[3, 2, 1, 5, 6, 4]</td><td>0</td><td>1</td><td>5</td></tr>
+  <tr><td>2</td><td>[0..5]</td><td>3</td><td>2 &lt; 3</td><td class="rule">swap a[lt], a[i]; lt++, i++</td><td>[2, 3, 1, 5, 6, 4]</td><td>1</td><td>2</td><td>5</td></tr>
+  <tr><td>3</td><td>[0..5]</td><td>3</td><td>1 &lt; 3</td><td class="rule">swap a[lt], a[i]; lt++, i++</td><td>[2, 1, 3, 5, 6, 4]</td><td>2</td><td>3</td><td>5</td></tr>
+  <tr><td>4</td><td>[0..5]</td><td>3</td><td>5 &gt; 3</td><td class="rule">swap a[i], a[gt]; gt--</td><td>[2, 1, 3, 4, 6, 5]</td><td>2</td><td>3</td><td>4</td></tr>
+  <tr><td>5</td><td>[0..5]</td><td>3</td><td>4 &gt; 3</td><td class="rule">swap a[i], a[gt]; gt--</td><td>[2, 1, 3, 6, 4, 5]</td><td>2</td><td>3</td><td>3</td></tr>
+  <tr><td>6</td><td>[0..5]</td><td>3</td><td>6 &gt; 3</td><td class="rule">swap a[i], a[gt]; gt--</td><td>[2, 1, 3, 6, 4, 5]</td><td>2</td><td>3</td><td>2</td></tr>
+  <tr><td>7</td><td>[0..5]</td><td>3</td><td>—</td><td class="rule">i &gt; gt: round over. Target 4 &gt; gt 2 &rarr; lo = 3</td><td>[2, 1, 3, 6, 4, 5]</td><td>2</td><td>3</td><td>2</td></tr>
+  <tr><td>8</td><td>[3..5]</td><td>5</td><td>6 &gt; 5</td><td class="rule">swap a[i], a[gt]; gt--</td><td>[2, 1, 3, 5, 4, 6]</td><td>3</td><td>3</td><td>4</td></tr>
+  <tr><td>9</td><td>[3..5]</td><td>5</td><td>5 = 5</td><td class="rule">equal &rarr; i++</td><td>[2, 1, 3, 5, 4, 6]</td><td>3</td><td>4</td><td>4</td></tr>
+  <tr><td>10</td><td>[3..5]</td><td>5</td><td>4 &lt; 5</td><td class="rule">swap a[lt], a[i]; lt++, i++</td><td>[2, 1, 3, 4, 5, 6]</td><td>4</td><td>5</td><td>4</td></tr>
+  <tr class="final"><td>11</td><td>[3..5]</td><td>5</td><td>—</td><td>i &gt; gt: round over. lt 4 &le; target 4 &le; gt 4 &rarr; return 5</td><td>[2, 1, 3, 4, 5, 6]</td><td>4</td><td>5</td><td>4</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"k-th largest"</b> or <b>"top k"</b>? The size-k min-heap is the safe default (and the only choice for a stream). If the whole array is in memory and you may reorder it, quickselect gets <code>O(n)</code> on average.
+<p><a href="01_top_k_lesson.html">→ Top K: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* A row of value boxes. marks: {index: class}, ptrs: {index: label above}, labels: text under each box (default: index). */
+function rowHTML(vals, marks, ptrs, labels){
+  marks=marks||{}; ptrs=ptrs||{};
+  var h='<div class="row">';
+  for(var i=0;i<vals.length;i++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[i]||'')+'</div><div class="box '+(marks[i]||'')+'">'+vals[i]+'</div>'+
+       '<div class="idxlabel">'+(labels?labels[i]:i)+'</div></div>';
+  }
+  return h+'</div>';
+}
+function drawRows(id, rows){
+  var h='';
+  rows.forEach(function(r){ h+='<div class="rowlabel">'+r.label+'</div>'+(r.vals.length?rowHTML(r.vals,r.marks,r.ptrs,r.labels):'<div class="row"><span class="empty">(empty)</span></div>'); });
+  document.getElementById(id).innerHTML=h;
+}
+/* A binary heap drawn as a tree: array index i sits at level floor(log2(i+1)); children of i are 2i+1 and 2i+2. */
+function drawHeap(id, arr, marks, note){
+  marks=marks||{};
+  var W=340, GY=58, r=20, levels=1;
+  while((1<<levels)-1 < arr.length) levels++;
+  var H=levels*GY+8;
+  function lvl(i){ return Math.floor(Math.log2(i+1)); }
+  function X(i){ var L=lvl(i), p=i-((1<<L)-1); return (p+0.5)*W/(1<<L); }
+  function Y(i){ return lvl(i)*GY+r+6; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px" role="img" aria-label="heap drawn as a tree">';
+  if(!arr.length){ s+='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="var(--muted)" font-size="13">(empty heap)</text>'; }
+  for(var i=1;i<arr.length;i++){ var p=(i-1)>>1; s+='<line class="edge" x1="'+X(p)+'" y1="'+Y(p)+'" x2="'+X(i)+'" y2="'+Y(i)+'"/>'; }
+  for(var i=0;i<arr.length;i++){
+    s+='<g class="tnode '+(marks[i]||'')+'"><circle cx="'+X(i)+'" cy="'+Y(i)+'" r="'+r+'"/><text x="'+X(i)+'" y="'+(Y(i)+5)+'" text-anchor="middle">'+arr[i]+'</text></g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>'+(note?'<div class="rowlabel" style="text-align:center">'+note+'</div>':'');
+}
+
+var NUMS=[3,2,1,5,6,4];
+makePlayer('pd',[
+  {cap:'Six numbers, k = 2. We want the 2nd biggest.', r:[{vals:NUMS, label:'nums'}]},
+  {cap:'Lined up biggest first: 6, <b>5</b>, 4, 3, 2, 1. Place 2 holds <b>5</b>.', r:[{vals:[6,5,4,3,2,1], marks:{0:'seen',1:'good'}, labels:['#1','#2','#3','#4','#5','#6'], label:'biggest first'}]},
+  {cap:'Smallest first, the same value sits at index n - k = 4. Both views give <b>5</b>.', r:[{vals:[1,2,3,4,5,6], marks:{4:'good',5:'seen'}, ptrs:{4:'n - k'}, label:'smallest first (index under each box)'}]}
+],function(f){ drawRows('pd-viz',f.r); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+makePlayer('so',[
+  {cap:'The input, in its original order.', r:[{vals:NUMS, label:'nums'}]},
+  {cap:'After <code>sorted(nums)</code>, read 2nd from the end: <b>5</b>. Every value got sorted, though we needed just one.', r:[{vals:[1,2,3,4,5,6], marks:{4:'good'}, ptrs:{4:'[-2]'}, label:'sorted(nums)'}]}
+],function(f){ drawRows('so-viz',f.r); document.getElementById('so-cap').innerHTML=f.cap; });
+
+/* Size-k min-heap: heap arrays are heapq's real layout (from find_kth_largest_heap in the notebook). */
+makePlayer('hp',[
+  {cap:'Empty heap; it keeps at most k = 2 numbers, the smaller of them on top.', h:[], i:-1},
+  {cap:'Push 3.', h:[3], i:0},
+  {cap:'Push 2. It is smaller, so it rises to the top. Size 2 = k.', h:[2,3], i:1, full:true},
+  {cap:'Push 1: size 3 &gt; 2. Pop the top: <b>1</b> leaves at once.', h:[2,3], i:2, full:true, ev:1},
+  {cap:'Push 5: size 3. Pop the top: <b>2</b> leaves.', h:[3,5], i:3, full:true, ev:2},
+  {cap:'Push 6: size 3. Pop the top: <b>3</b> leaves.', h:[5,6], i:4, full:true, ev:3},
+  {cap:'Push 4: size 3. Pop the top: <b>4</b> leaves. Done: the top, <b>5</b>, is the 2nd largest.', h:[5,6], i:5, full:true, ev:4, done:true}
+],function(f){
+  var m={}; for(var j=0;j<NUMS.length;j++) m[j]= j<f.i ? 'dim' : (j===f.i ? 'hi' : '');
+  document.getElementById('hp-viz').innerHTML='<div id="hp-arr"></div><div id="hp-heap"></div>';
+  drawRows('hp-arr',[{vals:NUMS, marks:m, ptrs: f.i>=0 ? (function(){var p={}; p[f.i]='push'; return p;})() : {}, label:'nums'}]);
+  drawHeap('hp-heap', f.h, f.full ? {0: f.done ? 'good' : 'seen'} : {}, (f.ev!==undefined ? 'popped: <b>'+f.ev+'</b> &nbsp;·&nbsp; ' : '')+'min-heap of the top k');
+  document.getElementById('hp-cap').innerHTML=f.cap;
+});
+
+/* Quickselect: one frame per element check (values from find_kth_largest_quickselect, seeded pivots 3 then 5). */
+function QS(a, lo, hi, lt, i, gt, pivotVal, extra){ return {a:a, lo:lo, hi:hi, lt:lt, i:i, gt:gt, pv:pivotVal, x:extra||{}}; }
+makePlayer('qs',[
+  {cap:'Target index = 6 - 2 = 4. Round 1 covers [0..5]; the random pivot is <b>3</b>. lt = i = 0, gt = 5.', s:QS([3,2,1,5,6,4],0,5,0,0,5,3)},
+  {cap:'a[0] = 3 equals the pivot: leave it, i moves on.', s:QS([3,2,1,5,6,4],0,5,0,1,5,3)},
+  {cap:'a[1] = 2 &lt; 3: swap it to position lt; lt and i both move.', s:QS([2,3,1,5,6,4],0,5,1,2,5,3)},
+  {cap:'a[2] = 1 &lt; 3: swap to position lt; lt and i move.', s:QS([2,1,3,5,6,4],0,5,2,3,5,3)},
+  {cap:'a[3] = 5 &gt; 3: swap it with a[gt] to the back; gt moves left. i stays (the 4 that came in is unchecked).', s:QS([2,1,3,4,6,5],0,5,2,3,4,3)},
+  {cap:'a[3] = 4 &gt; 3: swap with a[gt]; gt moves left.', s:QS([2,1,3,6,4,5],0,5,2,3,3,3)},
+  {cap:'a[3] = 6 &gt; 3: swap with itself; gt moves left. Now i &gt; gt: the round is over.', s:QS([2,1,3,6,4,5],0,5,2,3,2,3)},
+  {cap:'Blocks: [2, 1] &lt; 3 | [3] | [6, 4, 5] &gt; 3. The target 4 is right of gt = 2, so drop the left part: lo = 3.', s:QS([2,1,3,6,4,5],3,5,3,3,5,null,{drop:[0,1,2]})},
+  {cap:'Round 2 covers [3..5]; the random pivot is <b>5</b>. a[3] = 6 &gt; 5: swap with a[gt]; gt moves left.', s:QS([2,1,3,5,4,6],3,5,3,3,4,5,{drop:[0,1,2]})},
+  {cap:'a[3] = 5 equals the pivot: i moves on.', s:QS([2,1,3,5,4,6],3,5,3,4,4,5,{drop:[0,1,2]})},
+  {cap:'a[4] = 4 &lt; 5: swap to position lt; lt and i move. i &gt; gt: round over.', s:QS([2,1,3,4,5,6],3,5,4,5,4,5,{drop:[0,1,2]})},
+  {cap:'The equal block is [lt..gt] = [4..4], and it holds the target 4. Return the pivot: <b>5</b>.', s:QS([2,1,3,4,5,6],3,5,4,5,4,5,{drop:[0,1,2],win:4})}
+],function(f){
+  var s=f.s, m={}, p={};
+  for(var j=0;j<s.a.length;j++){
+    if(j<s.lo || j>s.hi) m[j]='dim';
+    else if(s.pv!==null && s.a[j]===s.pv && j>=s.lt && j<s.i) m[j]='seen';
+  }
+  (s.x.drop||[]).forEach(function(j){ m[j]='bad'; });
+  if(s.x.win!==undefined) m[s.x.win]='good';
+  else if(s.i<=s.gt && s.i<s.a.length) m[s.i]='hi';
+  function tag(j,t){ p[j]= p[j] ? p[j]+' '+t : t; }
+  if(s.x.win===undefined){ tag(s.lt,'lt'); if(s.i<s.a.length) tag(s.i,'i'); if(s.gt>=0) tag(s.gt,'gt'); }
+  tag(4,'target');
+  drawRows('qs-viz',[{vals:s.a, marks:m, ptrs:p, label: s.pv===null ? 'next round: range ['+s.lo+'..'+s.hi+']' : 'range ['+s.lo+'..'+s.hi+'], pivot '+s.pv}]);
+  document.getElementById('qs-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

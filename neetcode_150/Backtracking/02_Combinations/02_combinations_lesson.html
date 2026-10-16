@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Combinations — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  
+    /* recursion tree (legend colours from the template) */
+    .tree-scroll { overflow-x: auto; max-width: 100%; }
+    .interactive-grid > *, .hero-grid > * { min-width: 0; }
+    .t-edge { stroke: #cad3e6; stroke-width: 3; stroke-linecap: round; }
+    .t-edge.live { stroke: #ff9f1c; }
+    .t-elab { fill: var(--muted); font: 600 12px Inter, Arial, sans-serif; }
+    .t-node rect { fill: #c8d2e7; stroke: none; }
+    .t-node text { fill: var(--ink); font: 700 14px Inter, Arial, sans-serif; }
+    .t-node.visited rect { fill: #315efb; }
+    .t-node.answer rect { fill: #13a46b; }
+    .t-node.current rect { fill: #ff9f1c; }
+    .t-node.visited text, .t-node.answer text, .t-node.current text { fill: #ffffff; }
+    .t-node.pruned rect { fill: var(--card); stroke: var(--warn); stroke-width: 2; stroke-dasharray: 5 4; }
+    .t-node.pruned text { fill: var(--warn); font-size: 12px; }
+    .t-node.pruned.current rect { fill: #ff9f1c; stroke: #ff9f1c; }
+    .t-node.pruned.current text { fill: #ffffff; }
+    .dot-pruned { background: var(--card); border: 2px dashed var(--warn); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Backtracking · Pattern 02 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Combinations</h1>
+          <p>
+            List every combination that meets a goal by building it one choice at a time: choose, explore, undo. A start index that only moves forward means each set is built in exactly one order, the recursion argument (<code>i</code> or <code>i + 1</code>) decides whether a choice can be reused, and sorting lets you skip duplicates and stop a loop the moment a choice is too big.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: start-index loop, choose / explore / undo</span>
+            <span class="chip">Method 1: Combination Sum (reuse, break)</span>
+            <span class="chip">Method 2: Combination Sum II (sort, skip duplicates, i + 1)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="combination_sum.html">Combination Sum</a> · <a href="combination_sum_ii.html">Combination Sum II</a> · <a href="letter_combinations_of_a_phone_number.html">Letter Combinations of a Phone Number</a> · <a href="generate_parentheses.html">Generate Parentheses</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Combination Sum, <code>candidates = [2, 3, 6, 7]</code>, <code>target = 7</code>. Every call of the start-index search, with the remainder in each box:</p>
+          <div class="diagram tree-scroll">
+            <svg viewBox="0 0 530 320" width="100%" role="img" aria-label="Recursion tree of Combination Sum on [2,3,6,7], target 7"><line class="t-edge" x1="337.5" y1="34" x2="178.0" y2="70"/><text class="t-elab" x="233.6" y="63" text-anchor="end">+2</text><line class="t-edge" x1="178.0" y1="98" x2="91.0" y2="134"/><text class="t-elab" x="119.1" y="127" text-anchor="end">+2</text><line class="t-edge" x1="91.0" y1="162" x2="33.0" y2="198"/><text class="t-elab" x="50.0" y="191" text-anchor="end">+2</text><line class="t-edge" x1="33.0" y1="226" x2="33.0" y2="262"/><text class="t-elab" x="38.0" y="255" text-anchor="start">+2</text><line class="t-edge" x1="91.0" y1="162" x2="91.0" y2="198"/><text class="t-elab" x="96.0" y="191" text-anchor="start">+3</text><line class="t-edge" x1="91.0" y1="162" x2="149.0" y2="198"/><text class="t-elab" x="132.0" y="191" text-anchor="start">+6</text><line class="t-edge" x1="178.0" y1="98" x2="207.0" y2="134"/><text class="t-elab" x="201.0" y="127" text-anchor="start">+3</text><line class="t-edge" x1="207.0" y1="162" x2="207.0" y2="198"/><text class="t-elab" x="212.0" y="191" text-anchor="start">+3</text><line class="t-edge" x1="178.0" y1="98" x2="265.0" y2="134"/><text class="t-elab" x="236.9" y="127" text-anchor="start">+6</text><line class="t-edge" x1="337.5" y1="34" x2="352.0" y2="70"/><text class="t-elab" x="351.5" y="63" text-anchor="start">+3</text><line class="t-edge" x1="352.0" y1="98" x2="323.0" y2="134"/><text class="t-elab" x="329.0" y="127" text-anchor="end">+3</text><line class="t-edge" x1="323.0" y1="162" x2="323.0" y2="198"/><text class="t-elab" x="328.0" y="191" text-anchor="start">+3</text><line class="t-edge" x1="352.0" y1="98" x2="381.0" y2="134"/><text class="t-elab" x="375.0" y="127" text-anchor="start">+6</text><line class="t-edge" x1="337.5" y1="34" x2="439.0" y2="70"/><text class="t-elab" x="405.4" y="63" text-anchor="start">+6</text><line class="t-edge" x1="439.0" y1="98" x2="439.0" y2="134"/><text class="t-elab" x="444.0" y="127" text-anchor="start">+6</text><line class="t-edge" x1="337.5" y1="34" x2="497.0" y2="70"/><text class="t-elab" x="441.4" y="63" text-anchor="start">+7</text><g class="t-node visited"><rect x="322.5" y="6" width="30" height="28" rx="9"/><text x="337.5" y="25" text-anchor="middle">7</text></g><g class="t-node visited"><rect x="163.0" y="70" width="30" height="28" rx="9"/><text x="178.0" y="89" text-anchor="middle">5</text></g><g class="t-node visited"><rect x="76.0" y="134" width="30" height="28" rx="9"/><text x="91.0" y="153" text-anchor="middle">3</text></g><g class="t-node visited"><rect x="18.0" y="198" width="30" height="28" rx="9"/><text x="33.0" y="217" text-anchor="middle">1</text></g><g class="t-node pruned"><rect x="10.0" y="262" width="46" height="28" rx="9"/><text x="33.0" y="281" text-anchor="middle">stop</text></g><g class="t-node answer"><rect x="76.0" y="198" width="30" height="28" rx="9"/><text x="91.0" y="217" text-anchor="middle">0</text></g><g class="t-node pruned"><rect x="126.0" y="198" width="46" height="28" rx="9"/><text x="149.0" y="217" text-anchor="middle">stop</text></g><g class="t-node visited"><rect x="192.0" y="134" width="30" height="28" rx="9"/><text x="207.0" y="153" text-anchor="middle">2</text></g><g class="t-node pruned"><rect x="184.0" y="198" width="46" height="28" rx="9"/><text x="207.0" y="217" text-anchor="middle">stop</text></g><g class="t-node pruned"><rect x="242.0" y="134" width="46" height="28" rx="9"/><text x="265.0" y="153" text-anchor="middle">stop</text></g><g class="t-node visited"><rect x="337.0" y="70" width="30" height="28" rx="9"/><text x="352.0" y="89" text-anchor="middle">4</text></g><g class="t-node visited"><rect x="308.0" y="134" width="30" height="28" rx="9"/><text x="323.0" y="153" text-anchor="middle">1</text></g><g class="t-node pruned"><rect x="300.0" y="198" width="46" height="28" rx="9"/><text x="323.0" y="217" text-anchor="middle">stop</text></g><g class="t-node pruned"><rect x="358.0" y="134" width="46" height="28" rx="9"/><text x="381.0" y="153" text-anchor="middle">stop</text></g><g class="t-node visited"><rect x="424.0" y="70" width="30" height="28" rx="9"/><text x="439.0" y="89" text-anchor="middle">1</text></g><g class="t-node pruned"><rect x="416.0" y="134" width="46" height="28" rx="9"/><text x="439.0" y="153" text-anchor="middle">stop</text></g><g class="t-node answer"><rect x="482.0" y="70" width="30" height="28" rx="9"/><text x="497.0" y="89" text-anchor="middle">0</text></g></svg>
+          </div>
+          <div class="result-badge">Answer = [[2, 2, 3], [7]]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Spending an exact budget</h3>
+          <p>Which bundles of items, coins or tasks add up to exactly a target? Combination Sum is that question with reuse; Combination Sum II is it with a limited stock of each item.</p>
+        </div>
+        <div class="card">
+          <h3>Enumerating every configuration</h3>
+          <p>One option per slot from a fixed menu: keypad words, test-case matrices, product variants. Letter Combinations is the cleanest version: nothing to prune, every leaf is an answer.</p>
+        </div>
+        <div class="card">
+          <h3>Generating only valid structures</h3>
+          <p>Balanced brackets, valid expressions, legal moves. Generate Parentheses shows how a rule checked on the <em>prefix</em> prunes every invalid branch before it is built.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> all four problems run the same 6-line loop. What changes is only the menu of choices at each level, whether the recursion passes <code>i</code> or <code>i + 1</code>, and which branches are pruned. Learn the loop once, then learn the knobs.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the Combinations pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A depth-first search over a <strong>tree of choices</strong>. Each node is a partial answer held in one shared <code>path</code> list; each edge appends one choice. You <strong>choose</strong> (<code>path.append</code>), <strong>explore</strong> (recurse), then <strong>un-choose</strong> (<code>path.pop()</code>) so the next sibling starts clean. When the goal is met you save a copy, <code>path[:]</code>.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Return <strong>all</strong> combinations / all possible strings", "each number may be chosen an unlimited number of times" or "used once", "may contain duplicates, but the answer must not", "all well-formed ...". Order of the chosen items does not matter, and you must list the answers, not count them.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> a combination is decided by <em>which</em> items it holds, not their order. So never look back: each call only considers choices from <code>start</code> onward. Then <code>[2, 3]</code> is built and <code>[3, 2]</code> never is, with no set needed.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot "list all"</h3>
+          <p>The output is every combination, so the work is at least the size of the answer. Backtracking is the tool.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Name the menu per level</h3>
+          <p>Candidates from <code>start</code> onward, the letters of <code>digits[i]</code>, or <code>(</code> / <code>)</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Set the reuse and duplicate rules</h3>
+          <p>Reuse allowed: recurse with <code>i</code>. Once only: <code>i + 1</code>. Duplicates in the input: sort, then skip a value equal to its previous sibling.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Prune and record</h3>
+          <p>Stop branches that can't succeed (<code>break</code> on overshoot, prefix rules), and save <code>path[:]</code> when the goal is met.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a tree of choices</h2>
+      <p>The input is just a list and a target. The algorithm never builds the tree as a data structure: the tree is the shape of the recursive calls. Each call is a node holding <code>(start, remain)</code>; the shared <code>path</code> list is the route from the root to that node.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input</h3>
+          <div class="code-block"><code>candidates = [2, 3, 6, 7]
+target     = 7</code></div>
+        </div>
+        <div class="arrow-box">&rarr;</div>
+        <div class="mini-diagram">
+          <h3>Tree of calls</h3>
+          <div class="code-block"><code>root     (start=0, remain=7)
++2     -> (start=0, remain=5)
++2 +2  -> (start=0, remain=3)
++2 +2 +3 -> remain 0: save [2, 2, 3]
++7     -> (start=3, remain=0): save [7]</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Sort the candidates</h4>
+          <p>Sorted order makes "too big" final: once <code>candidates[i] &gt; remain</code>, every later candidate is too big as well.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>The root call holds the whole target</h4>
+          <p><code>backtrack(0, 7, [])</code>: nothing chosen, 7 still to reach, every candidate allowed.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Each edge subtracts one candidate</h4>
+          <p>Choosing <code>candidates[i]</code> creates a child with <code>remain - candidates[i]</code> and <code>start = i</code> (reuse) or <code>i + 1</code> (once only).</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Leaves end the branch</h4>
+          <p><code>remain == 0</code> is an answer: save <code>path[:]</code>. A candidate bigger than <code>remain</code> is a dead branch: <code>break</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> there is only <em>one</em> <code>path</code> list for the whole search. That is why every <code>append</code> needs a matching <code>pop</code>, and why a saved answer must be a copy: <code>res.append(path)</code> would store a reference that later pops empty out.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: start-index loop with reuse and break (Combination Sum)</h2>
+      <p>The template itself, line for line from the notebook's <code>combination_sum_start_index</code>. Sort, loop from <code>start</code>, <code>break</code> on the first candidate that overshoots, choose, recurse with <code>i</code> so the candidate can be reused, pop. Traced on <code>candidates = [2, 3, 6, 7]</code>, <code>target = 7</code>: 10 calls and 7 breaks.</p>
+      <div class="code-block stepped">
+        <code id="cs-code">
+<span class="code-line" data-line="1">def combination_sum_start_index(candidates: List[int], target: int) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    candidates = sorted(candidates)        # sorting lets us stop early when a number is too big</span>
+<span class="code-line" data-line="3">    res = []</span>
+<span class="code-line" data-line="4">    def backtrack(start, remain, path):    # remain = target left to reach; path = chosen so far</span>
+<span class="code-line" data-line="5">        if remain == 0:</span>
+<span class="code-line" data-line="6">            res.append(path[:])            # exact hit -&gt; save a COPY of the combination</span>
+<span class="code-line" data-line="7">            return</span>
+<span class="code-line" data-line="8">        for i in range(start, len(candidates)):   # only consider candidates from `start` onward</span>
+<span class="code-line" data-line="9">            if candidates[i] &gt; remain:</span>
+<span class="code-line" data-line="10">                break                      # sorted -&gt; everything after is also too big</span>
+<span class="code-line" data-line="11">            path.append(candidates[i])     # choose this candidate</span>
+<span class="code-line" data-line="12">            backtrack(i, remain - candidates[i], path)   # i (not i+1) allows reusing it</span>
+<span class="code-line" data-line="13">            path.pop()                     # un-choose it (backtrack) and try the next</span>
+<span class="code-line" data-line="14">    backtrack(0, target, [])</span>
+<span class="code-line" data-line="15">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive Combination Sum trace</div>
+          <div class="diagram tree-scroll" style="margin-top:12px;" id="cs-graph" role="img" aria-label="Recursion tree of Combination Sum on candidates 2, 3, 6, 7 with target 7"></div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call (and the path to it)</span>
+            <span><i class="dot dot-blue"></i> visited call</span>
+            <span><i class="dot dot-green"></i> remain = 0, answer saved</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span><i class="dot dot-pruned"></i> pruned by break</span>
+          </div>
+          <p class="footer-note">Number in a box = <code>remain</code> at that call. Edge label = the candidate appended.</p>
+        </div>
+
+        <div class="card">
+          <h3 id="cs-step-title">Initial state</h3>
+          <p id="cs-step-text"></p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="cs-prev">Previous</button>
+            <button type="button" id="cs-play" class="primary">Resume</button>
+            <button type="button" id="cs-next">Next</button>
+            <button type="button" id="cs-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="cs-step-counter">Step 0</span>
+            <div class="progress"><span id="cs-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>start</strong><div class="state-value" id="cs-start">&mdash;</div></div>
+            <div class="state-box"><strong>remain</strong><div class="state-value" id="cs-remain">&mdash;</div></div>
+            <div class="state-box"><strong>i &rarr; candidate</strong><div class="state-value" id="cs-cand">&mdash;</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="cs-path">[]</div></div>
+            <div class="state-box" style="grid-column: 1 / -1;"><strong>res</strong><div class="state-value" id="cs-res">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="cs-detail"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="cs-trace-table">
+          <thead>
+            <tr><th>Step</th><th>start</th><th>remain</th><th>i &rarr; candidate</th><th>path</th><th>Action</th><th>res after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>[]</td><td>sort &rarr; [2, 3, 6, 7]</td><td>[]</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>7</td><td>&mdash;</td><td>[]</td><td>call (start=0, remain=7), loop i = 0..</td><td>[]</td></tr>
+            <tr data-step="2"><td>2</td><td>0</td><td>5</td><td>&mdash;</td><td>[2]</td><td>call (start=0, remain=5), loop i = 0..</td><td>[]</td></tr>
+            <tr data-step="3"><td>3</td><td>0</td><td>3</td><td>&mdash;</td><td>[2, 2]</td><td>call (start=0, remain=3), loop i = 0..</td><td>[]</td></tr>
+            <tr data-step="4"><td>4</td><td>0</td><td>1</td><td>&mdash;</td><td>[2, 2, 2]</td><td>call (start=0, remain=1), loop i = 0..</td><td>[]</td></tr>
+            <tr data-step="5"><td>5</td><td>0</td><td>1</td><td>i=0 &rarr; 2</td><td>[2, 2, 2]</td><td>2 &gt; 1 &rarr; break</td><td>[]</td></tr>
+            <tr data-step="6"><td>6</td><td>1</td><td>0</td><td>&mdash;</td><td>[2, 2, 3]</td><td>remain 0 &rarr; save [2, 2, 3]</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="7"><td>7</td><td>0</td><td>3</td><td>i=2 &rarr; 6</td><td>[2, 2]</td><td>6 &gt; 3 &rarr; break</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="8"><td>8</td><td>1</td><td>2</td><td>&mdash;</td><td>[2, 3]</td><td>call (start=1, remain=2), loop i = 1..</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="9"><td>9</td><td>1</td><td>2</td><td>i=1 &rarr; 3</td><td>[2, 3]</td><td>3 &gt; 2 &rarr; break</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="10"><td>10</td><td>0</td><td>5</td><td>i=2 &rarr; 6</td><td>[2]</td><td>6 &gt; 5 &rarr; break</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="11"><td>11</td><td>1</td><td>4</td><td>&mdash;</td><td>[3]</td><td>call (start=1, remain=4), loop i = 1..</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="12"><td>12</td><td>1</td><td>1</td><td>&mdash;</td><td>[3, 3]</td><td>call (start=1, remain=1), loop i = 1..</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="13"><td>13</td><td>1</td><td>1</td><td>i=1 &rarr; 3</td><td>[3, 3]</td><td>3 &gt; 1 &rarr; break</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="14"><td>14</td><td>1</td><td>4</td><td>i=2 &rarr; 6</td><td>[3]</td><td>6 &gt; 4 &rarr; break</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="15"><td>15</td><td>2</td><td>1</td><td>&mdash;</td><td>[6]</td><td>call (start=2, remain=1), loop i = 2..</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="16"><td>16</td><td>2</td><td>1</td><td>i=2 &rarr; 6</td><td>[6]</td><td>6 &gt; 1 &rarr; break</td><td>[[2, 2, 3]]</td></tr>
+            <tr data-step="17"><td>17</td><td>3</td><td>0</td><td>&mdash;</td><td>[7]</td><td>remain 0 &rarr; save [7]</td><td>[[2, 2, 3], [7]]</td></tr>
+            <tr data-step="18"><td>18</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>[]</td><td>all loops done &rarr; return</td><td>[[2, 2, 3], [7]]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Each call answers "which numbers, from <code>start</code> onward, finish the job of reaching <code>remain</code>?". Passing <code>i</code> keeps the current number on the menu; everything left of <code>start</code> has already been fully explored by an earlier sibling.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Recursing with <code>0</code> instead of <code>i</code>: the search would rebuild <code>[2, 3, 2]</code> and <code>[3, 2, 2]</code> after <code>[2, 2, 3]</code>. Recursing with <code>i + 1</code> instead: <code>[2, 2, 3]</code> disappears because 2 can't be reused.</p>
+        </div>
+        <div class="card">
+          <h4>Why sort first</h4>
+          <p>Without sorting, a too-big candidate only says something about itself, so the loop must <code>continue</code> through all the rest. Sorted, the first overshoot ends the loop: at step 5 one comparison (2 &gt; remain 1) rules out 3, 6 and 7 without looking at them.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: once only, with duplicates in the input (Combination Sum II)</h2>
+      <p>Two edits to Method 1, from the notebook's <code>combination_sum2_start_index</code>. Recurse with <strong><code>i + 1</code></strong>, so each element is used at most once. And skip a <strong>sibling duplicate</strong>: <code>if i &gt; start and candidates[i] == candidates[i - 1]: continue</code>. Traced on <code>candidates = [2, 5, 2, 1, 2]</code> (sorted <code>[1, 2, 2, 2, 5]</code>), <code>target = 5</code>; the skip fires 6 times.</p>
+      <div class="code-block stepped">
+        <code id="c2-code">
+<span class="code-line" data-line="1">def combination_sum2_start_index(candidates: List[int], target: int) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    candidates = sorted(candidates)          # sort: enables `break` AND puts duplicates side by side</span>
+<span class="code-line" data-line="3">    res = []</span>
+<span class="code-line" data-line="4">    def backtrack(start, remain, path):</span>
+<span class="code-line" data-line="5">        if remain == 0:</span>
+<span class="code-line" data-line="6">            res.append(path[:])              # exact hit -&gt; save a COPY</span>
+<span class="code-line" data-line="7">            return</span>
+<span class="code-line" data-line="8">        for i in range(start, len(candidates)):</span>
+<span class="code-line" data-line="9">            if candidates[i] &gt; remain:</span>
+<span class="code-line" data-line="10">                break                        # sorted -&gt; nothing later fits either</span>
+<span class="code-line" data-line="11">            if i &gt; start and candidates[i] == candidates[i - 1]:</span>
+<span class="code-line" data-line="12">                continue                     # SKIP sibling duplicate: same value, same subtree</span>
+<span class="code-line" data-line="13">            path.append(candidates[i])</span>
+<span class="code-line" data-line="14">            backtrack(i + 1, remain - candidates[i], path)   # `i + 1`: each element at most once</span>
+<span class="code-line" data-line="15">            path.pop()</span>
+<span class="code-line" data-line="16">    backtrack(0, target, [])</span>
+<span class="code-line" data-line="17">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive Combination Sum II trace</div>
+          <div class="diagram tree-scroll" style="margin-top:12px;" id="c2-graph" role="img" aria-label="Recursion tree of Combination Sum II on candidates 1, 2, 2, 2, 5 with target 5"></div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call (and the path to it)</span>
+            <span><i class="dot dot-blue"></i> visited call</span>
+            <span><i class="dot dot-green"></i> remain = 0, answer saved</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span><i class="dot dot-pruned"></i> skipped duplicate or break</span>
+          </div>
+          <p class="footer-note">Number in a box = <code>remain</code> at that call. Edge label = the candidate appended.</p>
+        </div>
+
+        <div class="card">
+          <h3 id="c2-step-title">Initial state</h3>
+          <p id="c2-step-text"></p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="c2-prev">Previous</button>
+            <button type="button" id="c2-play" class="primary">Resume</button>
+            <button type="button" id="c2-next">Next</button>
+            <button type="button" id="c2-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="c2-step-counter">Step 0</span>
+            <div class="progress"><span id="c2-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>start</strong><div class="state-value" id="c2-start">&mdash;</div></div>
+            <div class="state-box"><strong>remain</strong><div class="state-value" id="c2-remain">&mdash;</div></div>
+            <div class="state-box"><strong>i &rarr; candidate</strong><div class="state-value" id="c2-cand">&mdash;</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="c2-path">[]</div></div>
+            <div class="state-box" style="grid-column: 1 / -1;"><strong>res</strong><div class="state-value" id="c2-res">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="c2-detail"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="c2-trace-table">
+          <thead>
+            <tr><th>Step</th><th>start</th><th>remain</th><th>i &rarr; candidate</th><th>path</th><th>Action</th><th>res after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>[]</td><td>sort &rarr; [1, 2, 2, 2, 5]</td><td>[]</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>5</td><td>&mdash;</td><td>[]</td><td>call (start=0, remain=5), loop i = 0..</td><td>[]</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>4</td><td>&mdash;</td><td>[1]</td><td>call (start=1, remain=4), loop i = 1..</td><td>[]</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>2</td><td>&mdash;</td><td>[1, 2]</td><td>call (start=2, remain=2), loop i = 2..</td><td>[]</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>0</td><td>&mdash;</td><td>[1, 2, 2]</td><td>remain 0 &rarr; save [1, 2, 2]</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="5"><td>5</td><td>2</td><td>2</td><td>i=3 &rarr; 2</td><td>[1, 2]</td><td>same as previous sibling &rarr; continue</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="6"><td>6</td><td>2</td><td>2</td><td>i=4 &rarr; 5</td><td>[1, 2]</td><td>5 &gt; 2 &rarr; break</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="7"><td>7</td><td>1</td><td>4</td><td>i=2 &rarr; 2</td><td>[1]</td><td>same as previous sibling &rarr; continue</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="8"><td>8</td><td>1</td><td>4</td><td>i=3 &rarr; 2</td><td>[1]</td><td>same as previous sibling &rarr; continue</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="9"><td>9</td><td>1</td><td>4</td><td>i=4 &rarr; 5</td><td>[1]</td><td>5 &gt; 4 &rarr; break</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="10"><td>10</td><td>2</td><td>3</td><td>&mdash;</td><td>[2]</td><td>call (start=2, remain=3), loop i = 2..</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="11"><td>11</td><td>3</td><td>1</td><td>&mdash;</td><td>[2, 2]</td><td>call (start=3, remain=1), loop i = 3..</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="12"><td>12</td><td>3</td><td>1</td><td>i=3 &rarr; 2</td><td>[2, 2]</td><td>2 &gt; 1 &rarr; break</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="13"><td>13</td><td>2</td><td>3</td><td>i=3 &rarr; 2</td><td>[2]</td><td>same as previous sibling &rarr; continue</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="14"><td>14</td><td>2</td><td>3</td><td>i=4 &rarr; 5</td><td>[2]</td><td>5 &gt; 3 &rarr; break</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="15"><td>15</td><td>0</td><td>5</td><td>i=2 &rarr; 2</td><td>[]</td><td>same as previous sibling &rarr; continue</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="16"><td>16</td><td>0</td><td>5</td><td>i=3 &rarr; 2</td><td>[]</td><td>same as previous sibling &rarr; continue</td><td>[[1, 2, 2]]</td></tr>
+            <tr data-step="17"><td>17</td><td>5</td><td>0</td><td>&mdash;</td><td>[5]</td><td>remain 0 &rarr; save [5]</td><td>[[1, 2, 2], [5]]</td></tr>
+            <tr data-step="18"><td>18</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>[]</td><td>all loops done &rarr; return</td><td>[[1, 2, 2], [5]]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Siblings in the tree are "the next number of the combination". Two siblings with the same value would grow identical subtrees, so only the first one is explored. Going <em>deeper</em> with an equal value is still allowed: that is how <code>[1, 2, 2]</code> uses two 2s.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Writing <code>i &gt; 0</code> instead of <code>i &gt; start</code>. Then the first 2 at a deeper level is skipped because it equals the 2 before it, and answers like <code>[1, 2, 2]</code> or <code>[1, 1, 6]</code> vanish.</p>
+        </div>
+        <div class="card">
+          <h4>Why not dedupe with a set?</h4>
+          <p>A set of tuples gives the right output, but every duplicate is still built first. On <code>[1] * n</code> with <code>target = n // 2</code> the notebook measures the set version growing about 4x per +2 elements, while this loop barely changes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Nothing fits</button>
+        <button type="button" data-example-tab="1">Empty input</button>
+        <button type="button" data-example-tab="2">All duplicates</button>
+        <button type="button" data-example-tab="3">Smallest n</button>
+        <button type="button" data-example-tab="4">One candidate reused</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: every candidate is bigger than the target</h3>
+          <p><code>combination_sum([5, 7], 3)</code></p>
+          <div class="result-badge">Answer = []</div>
+          <p class="footer-note">The first loop iteration breaks: 5 &gt; 3. No call ever reaches <code>remain == 0</code>, so <code>res</code> stays empty.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: no digits</h3>
+          <p><code>letter_combinations("")</code></p>
+          <div class="result-badge">Answer = []</div>
+          <p class="footer-note">Return <code>[]</code>, not <code>[""]</code>. Without the guard, the base case fires at once (<code>i == len(digits) == 0</code>) and saves one empty string.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: every value is the same</h3>
+          <p><code>combination_sum2([1, 1, 1, 1], 2)</code></p>
+          <div class="result-badge">Answer = [[1, 1]]</div>
+          <p class="footer-note">Six pairs of positions sum to 2, but they are all the same combination. The sibling-skip explores one 1 per level, so it builds <code>[1, 1]</code> exactly once.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: one pair of brackets</h3>
+          <p><code>generate_parenthesis(1)</code></p>
+          <div class="result-badge">Answer = ['()']</div>
+          <p class="footer-note">At the root only <code>(</code> is allowed (<code>close &lt; open</code> is false); after it only <code>)</code> is allowed (<code>open == n</code>).</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="4">
+        <div class="card">
+          <h3>Case E: a single candidate used many times</h3>
+          <p><code>combination_sum([3], 9)</code></p>
+          <div class="result-badge">Answer = [[3, 3, 3]]</div>
+          <p class="footer-note">Only works because the recursion passes <code>i</code>: the path is 3, 3, 3. With <code>i + 1</code> the answer would wrongly be <code>[]</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Combination Sum</td><td>Include / exclude per candidate</td><td><code>O(2^(T/M + N))</code></td><td><code>O(T/M + N)</code></td><td>Same answers, no sorting needed, but can't break.</td></tr>
+            <tr><td>Combination Sum</td><td>Start-index loop + break (Method 1)</td><td><code>O(N^(T/M + 1))</code></td><td><code>O(T/M)</code></td><td>Same growth, fewer calls: 6 vs 17 on <code>[2, 3, 5]</code>, target 5.</td></tr>
+            <tr><td>Combination Sum II</td><td>Brute: all subsets + set of tuples</td><td><code>O(2^n &middot; n)</code></td><td><code>O(n)</code> + set</td><td>Builds every duplicate, then throws it away.</td></tr>
+            <tr><td>Combination Sum II</td><td>Include / exclude, skip a run of equal values</td><td><code>O(2^n &middot; n)</code></td><td><code>O(n)</code></td><td>Run of k equal values costs k + 1 choices.</td></tr>
+            <tr><td>Combination Sum II</td><td>Start-index, skip sibling duplicate, <code>i + 1</code> (Method 2)</td><td><code>O(2^n &middot; n)</code></td><td><code>O(n)</code></td><td>Never builds a duplicate.</td></tr>
+            <tr><td>Letter Combinations</td><td>Iterative: extend every prefix</td><td><code>O(n &middot; 4^n)</code></td><td><code>O(n &middot; 4^(n-1))</code></td><td>Same tree, level by level.</td></tr>
+            <tr><td>Letter Combinations</td><td>Backtracking, one digit per level</td><td><code>O(n &middot; 4^n)</code></td><td><code>O(n)</code></td><td>The template with the menu = letters of <code>digits[i]</code>.</td></tr>
+            <tr><td>Generate Parentheses</td><td>Brute: all <code>2^(2n)</code> strings + check</td><td><code>O(4^n &middot; n)</code></td><td><code>O(n)</code></td><td>Most strings are rejected.</td></tr>
+            <tr><td>Generate Parentheses</td><td>Backtracking with open/close counts</td><td><code>O(4^n / &radic;n)</code></td><td><code>O(n)</code></td><td>Every leaf is valid: work tracks the Catalan number of answers.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>N</code> = number of candidates, <code>T</code> = target, <code>M</code> = smallest candidate, <code>n</code> = input length or number of pairs; output size not counted in space. Complexities and call counts come from this folder's notebooks and problem pages.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>"Return all combinations": the answer can be exponential, so an exhaustive search is acceptable. Backtracking.</p></div>
+            <div class="timeline-step"><p>Order doesn't matter, so only move forward: a <code>start</code> index.</p></div>
+            <div class="timeline-step"><p>Reuse allowed? Recurse with <code>i</code>. Once only? <code>i + 1</code>. Duplicate values? Sort and skip equal siblings.</p></div>
+            <div class="timeline-step"><p>Prune what can't work (sorted <code>break</code>, prefix rules), and save <code>path[:]</code> at the goal.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"We need every combination, so I'll backtrack: append a choice, recurse, pop it."</li>
+            <li>"A start index means I never revisit earlier candidates, so each set is generated once without a set."</li>
+            <li>"Because reuse is allowed I recurse with <code>i</code>; in the once-only version it's <code>i + 1</code>, and I skip <code>candidates[i] == candidates[i - 1]</code> when <code>i &gt; start</code>."</li>
+            <li>"I sort so I can break as soon as a candidate exceeds the remainder. The time is exponential, bounded by the number of answers; space is the recursion depth."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Method 1: Combination Sum</h3>
+          <ul class="mistake-list">
+            <li><code>res.append(path)</code> without a copy: every saved entry is the same list, and it ends up empty.</li>
+            <li>Forgetting <code>path.pop()</code>: choices leak into sibling branches.</li>
+            <li>Recursing with <code>i + 1</code> (no reuse) or <code>0</code> (duplicate orderings).</li>
+            <li><code>break</code> on an unsorted list: skips candidates that would still fit.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Method 2: Combination Sum II</h3>
+          <ul class="mistake-list">
+            <li>Skipping duplicates without sorting first: equal values aren't neighbours.</li>
+            <li><code>i &gt; 0</code> instead of <code>i &gt; start</code>: loses <code>[1, 1, 6]</code>-style answers.</li>
+            <li>Recursing with <code>i</code> out of habit: reuses a single card.</li>
+            <li>Deduplicating with a set at the end: correct output, exponential wasted work.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Combination Sum: <code>candidates = [2, 3, 5]</code>, <code>target = 8</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> start with as many 2s as fit, then replace the last ones with bigger numbers.</p>
+          <p style="margin-top:10px;">Answer: <code>[[2, 2, 2, 2], [2, 3, 3], [3, 5]]</code>. Step through both solutions on a smaller input: <a href="combination_sum.html">Combination Sum</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Combination Sum II: <code>[10, 1, 2, 7, 6, 1, 5]</code>, <code>target = 8</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> sorted, it is <code>[1, 1, 2, 5, 6, 7, 10]</code>. At the root, only the first 1 is tried; deeper, the second 1 may follow it.</p>
+          <p style="margin-top:10px;">Answer: <code>[[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]</code>. Compare the brute force, include/exclude and the template: <a href="combination_sum_ii.html">Combination Sum II</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Letter Combinations of a Phone Number: <code>digits = "23"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> level 0 chooses from <code>abc</code>, level 1 from <code>def</code>. What replaces the start index?</p>
+          <p style="margin-top:10px;">Answer: the digit position <code>i</code>; 3 &times; 3 = 9 strings: <code>['ad', 'ae', 'af', 'bd', 'be', 'bf', 'cd', 'ce', 'cf']</code>. Walk the tree: <a href="letter_combinations_of_a_phone_number.html">Letter Combinations of a Phone Number</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Generate Parentheses: <code>n = 3</code> (NeetCode files it under Stack)</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the menu is <code>(</code> and <code>)</code>. Allow <code>(</code> while <code>open &lt; n</code> and <code>)</code> while <code>close &lt; open</code>.</p>
+          <p style="margin-top:10px;">Answer: 5 strings, <code>['((()))', '(()())', '(())()', '()(())', '()()()']</code>. The counters make every leaf valid, so there is nothing to filter. See both approaches: <a href="generate_parentheses.html">Generate Parentheses</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Loop from <code>start</code>, choose, recurse, pop.</strong>
+          Pass <code>i</code> to allow reuse and <code>i + 1</code> to forbid it; sort to <code>break</code> on overshoot and to skip equal siblings; replace the candidate list with whatever menu each level offers (letters of a digit, an open or a close bracket). Four problems, one loop.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Combinations pattern notes</a>. Look-alike patterns: <a href="../01_Subsets/README.md">Subsets</a> (record every node, not just the goal) and <a href="../03_Permutations/README.md">Permutations</a> (order matters: a used-set instead of a start index). Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented runs of combination_sum_start_index([2,3,6,7], 7)
+      // and combination_sum2_start_index([2,5,2,1,2], 5) (see the notebooks).
+      const csTree = {"nodes": [{"p": null, "label": "7", "edge": "", "x": 5.25, "y": 0, "w": 30, "pruned": false}, {"p": 0, "label": "5", "edge": "+2", "x": 2.5, "y": 1, "w": 30, "pruned": false}, {"p": 1, "label": "3", "edge": "+2", "x": 1.0, "y": 2, "w": 30, "pruned": false}, {"p": 2, "label": "1", "edge": "+2", "x": 0.0, "y": 3, "w": 30, "pruned": false}, {"p": 3, "label": "stop", "edge": "+2", "x": 0, "y": 4, "w": 46, "pruned": true}, {"p": 2, "label": "0", "edge": "+3", "x": 1, "y": 3, "w": 30, "pruned": false}, {"p": 2, "label": "stop", "edge": "+6", "x": 2, "y": 3, "w": 46, "pruned": true}, {"p": 1, "label": "2", "edge": "+3", "x": 3.0, "y": 2, "w": 30, "pruned": false}, {"p": 7, "label": "stop", "edge": "+3", "x": 3, "y": 3, "w": 46, "pruned": true}, {"p": 1, "label": "stop", "edge": "+6", "x": 4, "y": 2, "w": 46, "pruned": true}, {"p": 0, "label": "4", "edge": "+3", "x": 5.5, "y": 1, "w": 30, "pruned": false}, {"p": 10, "label": "1", "edge": "+3", "x": 5.0, "y": 2, "w": 30, "pruned": false}, {"p": 11, "label": "stop", "edge": "+3", "x": 5, "y": 3, "w": 46, "pruned": true}, {"p": 10, "label": "stop", "edge": "+6", "x": 6, "y": 2, "w": 46, "pruned": true}, {"p": 0, "label": "1", "edge": "+6", "x": 7.0, "y": 1, "w": 30, "pruned": false}, {"p": 14, "label": "stop", "edge": "+6", "x": 7, "y": 2, "w": 46, "pruned": true}, {"p": 0, "label": "0", "edge": "+7", "x": 8, "y": 1, "w": 30, "pruned": false}], "slot": 58, "cols": 9, "rows": 5};
+      const csSteps = [{"step": 0, "title": "Initial state", "text": "Sort the candidates: [2, 3, 6, 7]. Nothing has been chosen yet.", "detail": "The tree on the left is every call this run will make; grey = not reached yet.", "start": "&mdash;", "remain": "7", "cand": "&mdash;", "path": "[]", "res": "[]", "lines": [2, 3], "n": 0, "cur": -1, "live": [], "answers": []}, {"step": 1, "title": "Step 1: first call", "text": "backtrack(start=0, remain=7, path=[]). The loop will try candidates from index 0.", "detail": "Every child of this call subtracts one candidate from 7.", "start": "0", "remain": "7", "cand": "&mdash;", "path": "[]", "res": "[]", "lines": [14, 4, 8], "n": 1, "cur": 0, "live": [0], "answers": []}, {"step": 2, "title": "Step 2: choose 2", "text": "path.append(2), then recurse: backtrack(start=0, remain=5).", "detail": "start stays at 0: the same candidate may be chosen again.", "start": "0", "remain": "5", "cand": "&mdash;", "path": "[2]", "res": "[]", "lines": [11, 12, 4, 8], "n": 2, "cur": 1, "live": [0, 1], "answers": []}, {"step": 3, "title": "Step 3: choose 2", "text": "path.append(2), then recurse: backtrack(start=0, remain=3).", "detail": "start stays at 0: the same candidate may be chosen again.", "start": "0", "remain": "3", "cand": "&mdash;", "path": "[2, 2]", "res": "[]", "lines": [11, 12, 4, 8], "n": 3, "cur": 2, "live": [0, 1, 2], "answers": []}, {"step": 4, "title": "Step 4: choose 2", "text": "path.append(2), then recurse: backtrack(start=0, remain=1).", "detail": "start stays at 0: the same candidate may be chosen again.", "start": "0", "remain": "1", "cand": "&mdash;", "path": "[2, 2, 2]", "res": "[]", "lines": [11, 12, 4, 8], "n": 4, "cur": 3, "live": [0, 1, 2, 3], "answers": []}, {"step": 5, "title": "Step 5: prune with break", "text": "candidates[0] = 2 is bigger than remain = 1.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "0", "remain": "1", "cand": "i=0 &rarr; 2", "path": "[2, 2, 2]", "res": "[]", "lines": [8, 9, 10], "n": 5, "cur": 4, "live": [0, 1, 2, 3, 4], "answers": []}, {"step": 6, "title": "Step 6: remain hits 0", "text": "path [2, 2, 3] sums to the target. Save a copy, return, and pop the last number.", "detail": "res.append(path[:]) stores a snapshot; the following path.pop() undoes the last choice.", "start": "1", "remain": "0", "cand": "&mdash;", "path": "[2, 2, 3]", "res": "[[2, 2, 3]]", "lines": [5, 6], "n": 6, "cur": 5, "live": [0, 1, 2, 5], "answers": [5]}, {"step": 7, "title": "Step 7: prune with break", "text": "candidates[2] = 6 is bigger than remain = 3.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "0", "remain": "3", "cand": "i=2 &rarr; 6", "path": "[2, 2]", "res": "[[2, 2, 3]]", "lines": [8, 9, 10], "n": 7, "cur": 6, "live": [0, 1, 2, 6], "answers": [5]}, {"step": 8, "title": "Step 8: choose 3", "text": "path.append(3), then recurse: backtrack(start=1, remain=2).", "detail": "start stays at 1: the same candidate may be chosen again.", "start": "1", "remain": "2", "cand": "&mdash;", "path": "[2, 3]", "res": "[[2, 2, 3]]", "lines": [11, 12, 4, 8], "n": 8, "cur": 7, "live": [0, 1, 7], "answers": [5]}, {"step": 9, "title": "Step 9: prune with break", "text": "candidates[1] = 3 is bigger than remain = 2.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "1", "remain": "2", "cand": "i=1 &rarr; 3", "path": "[2, 3]", "res": "[[2, 2, 3]]", "lines": [8, 9, 10], "n": 9, "cur": 8, "live": [0, 1, 7, 8], "answers": [5]}, {"step": 10, "title": "Step 10: prune with break", "text": "candidates[2] = 6 is bigger than remain = 5.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "0", "remain": "5", "cand": "i=2 &rarr; 6", "path": "[2]", "res": "[[2, 2, 3]]", "lines": [8, 9, 10], "n": 10, "cur": 9, "live": [0, 1, 9], "answers": [5]}, {"step": 11, "title": "Step 11: choose 3", "text": "path.append(3), then recurse: backtrack(start=1, remain=4).", "detail": "start stays at 1: the same candidate may be chosen again.", "start": "1", "remain": "4", "cand": "&mdash;", "path": "[3]", "res": "[[2, 2, 3]]", "lines": [11, 12, 4, 8], "n": 11, "cur": 10, "live": [0, 10], "answers": [5]}, {"step": 12, "title": "Step 12: choose 3", "text": "path.append(3), then recurse: backtrack(start=1, remain=1).", "detail": "start stays at 1: the same candidate may be chosen again.", "start": "1", "remain": "1", "cand": "&mdash;", "path": "[3, 3]", "res": "[[2, 2, 3]]", "lines": [11, 12, 4, 8], "n": 12, "cur": 11, "live": [0, 10, 11], "answers": [5]}, {"step": 13, "title": "Step 13: prune with break", "text": "candidates[1] = 3 is bigger than remain = 1.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "1", "remain": "1", "cand": "i=1 &rarr; 3", "path": "[3, 3]", "res": "[[2, 2, 3]]", "lines": [8, 9, 10], "n": 13, "cur": 12, "live": [0, 10, 11, 12], "answers": [5]}, {"step": 14, "title": "Step 14: prune with break", "text": "candidates[2] = 6 is bigger than remain = 4.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "1", "remain": "4", "cand": "i=2 &rarr; 6", "path": "[3]", "res": "[[2, 2, 3]]", "lines": [8, 9, 10], "n": 14, "cur": 13, "live": [0, 10, 13], "answers": [5]}, {"step": 15, "title": "Step 15: choose 6", "text": "path.append(6), then recurse: backtrack(start=2, remain=1).", "detail": "start stays at 2: the same candidate may be chosen again.", "start": "2", "remain": "1", "cand": "&mdash;", "path": "[6]", "res": "[[2, 2, 3]]", "lines": [11, 12, 4, 8], "n": 15, "cur": 14, "live": [0, 14], "answers": [5]}, {"step": 16, "title": "Step 16: prune with break", "text": "candidates[2] = 6 is bigger than remain = 1.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "2", "remain": "1", "cand": "i=2 &rarr; 6", "path": "[6]", "res": "[[2, 2, 3]]", "lines": [8, 9, 10], "n": 16, "cur": 15, "live": [0, 14, 15], "answers": [5]}, {"step": 17, "title": "Step 17: remain hits 0", "text": "path [7] sums to the target. Save a copy, return, and pop the last number.", "detail": "res.append(path[:]) stores a snapshot; the following path.pop() undoes the last choice.", "start": "3", "remain": "0", "cand": "&mdash;", "path": "[7]", "res": "[[2, 2, 3], [7]]", "lines": [5, 6], "n": 17, "cur": 16, "live": [0, 16], "answers": [5, 16]}, {"step": 18, "title": "Step 18: return res", "text": "Every loop has finished. The first call returns, and the function returns res.", "detail": "Final answer: [[2, 2, 3], [7]].", "start": "&mdash;", "remain": "&mdash;", "cand": "&mdash;", "path": "[]", "res": "[[2, 2, 3], [7]]", "lines": [15], "n": 17, "cur": -1, "live": [], "answers": [5, 16]}];
+      const c2Tree = {"nodes": [{"p": null, "label": "5", "edge": "", "x": 7.0, "y": 0, "w": 30, "pruned": false}, {"p": 0, "label": "4", "edge": "+1", "x": 3.0, "y": 1, "w": 30, "pruned": false}, {"p": 1, "label": "2", "edge": "+2", "x": 1.0, "y": 2, "w": 30, "pruned": false}, {"p": 2, "label": "0", "edge": "+2", "x": 0, "y": 3, "w": 30, "pruned": false}, {"p": 2, "label": "skip", "edge": "+2", "x": 1, "y": 3, "w": 46, "pruned": true}, {"p": 2, "label": "stop", "edge": "+5", "x": 2, "y": 3, "w": 46, "pruned": true}, {"p": 1, "label": "skip", "edge": "+2", "x": 3, "y": 2, "w": 46, "pruned": true}, {"p": 1, "label": "skip", "edge": "+2", "x": 4, "y": 2, "w": 46, "pruned": true}, {"p": 1, "label": "stop", "edge": "+5", "x": 5, "y": 2, "w": 46, "pruned": true}, {"p": 0, "label": "3", "edge": "+2", "x": 7.0, "y": 1, "w": 30, "pruned": false}, {"p": 9, "label": "1", "edge": "+2", "x": 6.0, "y": 2, "w": 30, "pruned": false}, {"p": 10, "label": "stop", "edge": "+2", "x": 6, "y": 3, "w": 46, "pruned": true}, {"p": 9, "label": "skip", "edge": "+2", "x": 7, "y": 2, "w": 46, "pruned": true}, {"p": 9, "label": "stop", "edge": "+5", "x": 8, "y": 2, "w": 46, "pruned": true}, {"p": 0, "label": "skip", "edge": "+2", "x": 9, "y": 1, "w": 46, "pruned": true}, {"p": 0, "label": "skip", "edge": "+2", "x": 10, "y": 1, "w": 46, "pruned": true}, {"p": 0, "label": "0", "edge": "+5", "x": 11, "y": 1, "w": 30, "pruned": false}], "slot": 58, "cols": 12, "rows": 4};
+      const c2Steps = [{"step": 0, "title": "Initial state", "text": "Sort the candidates: [1, 2, 2, 2, 5]. Nothing has been chosen yet.", "detail": "The tree on the left is every call this run will make; grey = not reached yet.", "start": "&mdash;", "remain": "5", "cand": "&mdash;", "path": "[]", "res": "[]", "lines": [2, 3], "n": 0, "cur": -1, "live": [], "answers": []}, {"step": 1, "title": "Step 1: first call", "text": "backtrack(start=0, remain=5, path=[]). The loop will try candidates from index 0.", "detail": "Every child of this call subtracts one candidate from 5.", "start": "0", "remain": "5", "cand": "&mdash;", "path": "[]", "res": "[]", "lines": [16, 4, 8], "n": 1, "cur": 0, "live": [0], "answers": []}, {"step": 2, "title": "Step 2: choose 1", "text": "path.append(1), then recurse: backtrack(start=1, remain=4).", "detail": "start = 1 (one past the chosen index): each element is used at most once.", "start": "1", "remain": "4", "cand": "&mdash;", "path": "[1]", "res": "[]", "lines": [13, 14, 4, 8], "n": 2, "cur": 1, "live": [0, 1], "answers": []}, {"step": 3, "title": "Step 3: choose 2", "text": "path.append(2), then recurse: backtrack(start=2, remain=2).", "detail": "start = 2 (one past the chosen index): each element is used at most once.", "start": "2", "remain": "2", "cand": "&mdash;", "path": "[1, 2]", "res": "[]", "lines": [13, 14, 4, 8], "n": 3, "cur": 2, "live": [0, 1, 2], "answers": []}, {"step": 4, "title": "Step 4: remain hits 0", "text": "path [1, 2, 2] sums to the target. Save a copy, return, and pop the last number.", "detail": "res.append(path[:]) stores a snapshot; the following path.pop() undoes the last choice.", "start": "3", "remain": "0", "cand": "&mdash;", "path": "[1, 2, 2]", "res": "[[1, 2, 2]]", "lines": [5, 6], "n": 4, "cur": 3, "live": [0, 1, 2, 3], "answers": [3]}, {"step": 5, "title": "Step 5: skip a sibling duplicate", "text": "i = 3 &gt; start = 2 and candidates[3] = candidates[2] = 2.", "detail": "At this level, the previous sibling already started with 2. Starting again with an equal value would rebuild the same subtree, so continue.", "start": "2", "remain": "2", "cand": "i=3 &rarr; 2", "path": "[1, 2]", "res": "[[1, 2, 2]]", "lines": [8, 11, 12], "n": 5, "cur": 4, "live": [0, 1, 2, 4], "answers": [3]}, {"step": 6, "title": "Step 6: prune with break", "text": "candidates[4] = 5 is bigger than remain = 2.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "2", "remain": "2", "cand": "i=4 &rarr; 5", "path": "[1, 2]", "res": "[[1, 2, 2]]", "lines": [8, 9, 10], "n": 6, "cur": 5, "live": [0, 1, 2, 5], "answers": [3]}, {"step": 7, "title": "Step 7: skip a sibling duplicate", "text": "i = 2 &gt; start = 1 and candidates[2] = candidates[1] = 2.", "detail": "At this level, the previous sibling already started with 2. Starting again with an equal value would rebuild the same subtree, so continue.", "start": "1", "remain": "4", "cand": "i=2 &rarr; 2", "path": "[1]", "res": "[[1, 2, 2]]", "lines": [8, 11, 12], "n": 7, "cur": 6, "live": [0, 1, 6], "answers": [3]}, {"step": 8, "title": "Step 8: skip a sibling duplicate", "text": "i = 3 &gt; start = 1 and candidates[3] = candidates[2] = 2.", "detail": "At this level, the previous sibling already started with 2. Starting again with an equal value would rebuild the same subtree, so continue.", "start": "1", "remain": "4", "cand": "i=3 &rarr; 2", "path": "[1]", "res": "[[1, 2, 2]]", "lines": [8, 11, 12], "n": 8, "cur": 7, "live": [0, 1, 7], "answers": [3]}, {"step": 9, "title": "Step 9: prune with break", "text": "candidates[4] = 5 is bigger than remain = 4.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "1", "remain": "4", "cand": "i=4 &rarr; 5", "path": "[1]", "res": "[[1, 2, 2]]", "lines": [8, 9, 10], "n": 9, "cur": 8, "live": [0, 1, 8], "answers": [3]}, {"step": 10, "title": "Step 10: choose 2", "text": "path.append(2), then recurse: backtrack(start=2, remain=3).", "detail": "start = 2 (one past the chosen index): each element is used at most once.", "start": "2", "remain": "3", "cand": "&mdash;", "path": "[2]", "res": "[[1, 2, 2]]", "lines": [13, 14, 4, 8], "n": 10, "cur": 9, "live": [0, 9], "answers": [3]}, {"step": 11, "title": "Step 11: choose 2", "text": "path.append(2), then recurse: backtrack(start=3, remain=1).", "detail": "start = 3 (one past the chosen index): each element is used at most once.", "start": "3", "remain": "1", "cand": "&mdash;", "path": "[2, 2]", "res": "[[1, 2, 2]]", "lines": [13, 14, 4, 8], "n": 11, "cur": 10, "live": [0, 9, 10], "answers": [3]}, {"step": 12, "title": "Step 12: prune with break", "text": "candidates[3] = 2 is bigger than remain = 1.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "3", "remain": "1", "cand": "i=3 &rarr; 2", "path": "[2, 2]", "res": "[[1, 2, 2]]", "lines": [8, 9, 10], "n": 12, "cur": 11, "live": [0, 9, 10, 11], "answers": [3]}, {"step": 13, "title": "Step 13: skip a sibling duplicate", "text": "i = 3 &gt; start = 2 and candidates[3] = candidates[2] = 2.", "detail": "At this level, the previous sibling already started with 2. Starting again with an equal value would rebuild the same subtree, so continue.", "start": "2", "remain": "3", "cand": "i=3 &rarr; 2", "path": "[2]", "res": "[[1, 2, 2]]", "lines": [8, 11, 12], "n": 13, "cur": 12, "live": [0, 9, 12], "answers": [3]}, {"step": 14, "title": "Step 14: prune with break", "text": "candidates[4] = 5 is bigger than remain = 3.", "detail": "The list is sorted, so every later candidate is bigger too. break ends this call's loop; we return to the caller and it pops.", "start": "2", "remain": "3", "cand": "i=4 &rarr; 5", "path": "[2]", "res": "[[1, 2, 2]]", "lines": [8, 9, 10], "n": 14, "cur": 13, "live": [0, 9, 13], "answers": [3]}, {"step": 15, "title": "Step 15: skip a sibling duplicate", "text": "i = 2 &gt; start = 0 and candidates[2] = candidates[1] = 2.", "detail": "At this level, the previous sibling already started with 2. Starting again with an equal value would rebuild the same subtree, so continue.", "start": "0", "remain": "5", "cand": "i=2 &rarr; 2", "path": "[]", "res": "[[1, 2, 2]]", "lines": [8, 11, 12], "n": 15, "cur": 14, "live": [0, 14], "answers": [3]}, {"step": 16, "title": "Step 16: skip a sibling duplicate", "text": "i = 3 &gt; start = 0 and candidates[3] = candidates[2] = 2.", "detail": "At this level, the previous sibling already started with 2. Starting again with an equal value would rebuild the same subtree, so continue.", "start": "0", "remain": "5", "cand": "i=3 &rarr; 2", "path": "[]", "res": "[[1, 2, 2]]", "lines": [8, 11, 12], "n": 16, "cur": 15, "live": [0, 15], "answers": [3]}, {"step": 17, "title": "Step 17: remain hits 0", "text": "path [5] sums to the target. Save a copy, return, and pop the last number.", "detail": "res.append(path[:]) stores a snapshot; the following path.pop() undoes the last choice.", "start": "5", "remain": "0", "cand": "&mdash;", "path": "[5]", "res": "[[1, 2, 2], [5]]", "lines": [5, 6], "n": 17, "cur": 16, "live": [0, 16], "answers": [3, 16]}, {"step": 18, "title": "Step 18: return res", "text": "Every loop has finished. The first call returns, and the function returns res.", "detail": "Final answer: [[1, 2, 2], [5]].", "start": "&mdash;", "remain": "&mdash;", "cand": "&mdash;", "path": "[]", "res": "[[1, 2, 2], [5]]", "lines": [17], "n": 17, "cur": -1, "live": [], "answers": [3, 16]}];
+
+      function drawTree(hostId, tree, step) {
+        const GY = 64, slot = tree.slot;
+        const W = tree.cols * slot + 8, H = tree.rows * GY;
+        const X = (i) => 4 + (tree.nodes[i].x + 0.5) * slot;
+        const Y = (i) => 20 + tree.nodes[i].y * GY;
+        const live = new Set(step.live), answers = new Set(step.answers);
+        let s = `<svg viewBox="0 0 ${W} ${H}" width="${Math.max(W, 300)}" height="${H}">`;
+        tree.nodes.forEach((nd, i) => {
+          if (nd.p === null) return;
+          const on = live.has(i) && live.has(nd.p);
+          s += `<line class="t-edge${on ? ' live' : ''}" x1="${X(nd.p)}" y1="${Y(nd.p) + 14}" x2="${X(i)}" y2="${Y(i) - 14}"/>`;
+          const left = X(i) < X(nd.p);
+          s += `<text class="t-elab" x="${X(nd.p) + (X(i) - X(nd.p)) * 0.62 + (left ? -5 : 5)}" y="${Y(nd.p) + (Y(i) - Y(nd.p)) * 0.62 + 4}" text-anchor="${left ? 'end' : 'start'}">${nd.edge}</text>`;
+        });
+        tree.nodes.forEach((nd, i) => {
+          let cls = '';
+          if (i < step.n) cls = nd.pruned ? 'pruned' : (answers.has(i) ? 'answer' : 'visited');
+          if (i === step.cur) cls += ' current';
+          const label = (i < step.n || !nd.pruned) ? nd.label : '';
+          s += `<g class="t-node ${cls}"><rect x="${X(i) - nd.w / 2}" y="${Y(i) - 14}" width="${nd.w}" height="28" rx="9"/><text x="${X(i)}" y="${Y(i) + 5}" text-anchor="middle">${label}</text></g>`;
+        });
+        const host = document.getElementById(hostId);
+        host.innerHTML = s + '</svg>';
+        if (step.cur >= 0 && host.scrollWidth > host.clientWidth) host.scrollLeft = Math.max(0, X(step.cur) - host.clientWidth / 2);
+      }
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function makeRender(prefix, tree) {
+        return (step, index, max) => {
+          document.getElementById(`${prefix}-step-title`).textContent = step.title;
+          document.getElementById(`${prefix}-step-text`).innerHTML = step.text;
+          ['start', 'remain', 'cand', 'path', 'res'].forEach((k) => {
+            document.getElementById(`${prefix}-${k}`).innerHTML = step[k];
+          });
+          document.getElementById(`${prefix}-detail`).innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+          document.getElementById(`${prefix}-step-counter`).textContent = `Step ${step.step} / ${max}`;
+          document.getElementById(`${prefix}-progress`).style.width = `${(index / max) * 100}%`;
+          markActiveRow(`${prefix}-trace-table`, step.step);
+          setCodeHighlight(`${prefix}-code`, step.lines);
+          drawTree(`${prefix}-graph`, tree, step);
+        };
+      }
+
+      setupTrace({ steps: csSteps, prefix: 'cs', render: makeRender('cs', csTree) });
+      setupTrace({ steps: c2Steps, prefix: 'c2', render: makeRender('c2', c2Tree) });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

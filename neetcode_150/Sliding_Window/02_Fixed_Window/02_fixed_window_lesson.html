@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fixed Window — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Sliding Window · Pattern 02 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Fixed Window</h1>
+          <p>
+            Slide a window of exactly <code>k</code> elements along an array or string. Each step, one element enters on the right and the element at <code>r - k</code> leaves on the left. Keep a small summary of the window (letter counts, a sum, a line of candidate maximums) and update it with those two elements instead of rebuilding it for every window.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: one in, one out, size stays <code>k</code></span>
+            <span class="chip">Method 1: Permutation in String</span>
+            <span class="chip">Method 2: Sliding Window Maximum</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="permutation_in_string.html">Permutation in String</a> · <a href="sliding_window_maximum.html">Sliding Window Maximum</a> · <a href="README.md">pattern notes (README)</a> · look-alike: <a href="../01_Variable_Window/README.md">Variable Window</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Permutation in String, <code>s1 = "ab"</code>, <code>s2 = "eidbaooo"</code>, window size <code>k = len(s1) = 2</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 150" width="100%" role="img" aria-label="String eidbaooo with a window of width 2 covering b and a at indices 3 and 4">
+              <defs>
+                <style>
+                  .h-box { fill: #c8d2e7; }
+                  .h-win { fill: #13a46b; }
+                  .h-band { fill: none; stroke: #ff9f1c; stroke-width: 4; }
+                  .h-label { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="20" y="24" class="h-title">window of width 2 that matches need = {a:1, b:1}</text>
+              <rect x="20" y="44" width="50" height="50" rx="10" class="h-box" />
+              <rect x="80" y="44" width="50" height="50" rx="10" class="h-box" />
+              <rect x="140" y="44" width="50" height="50" rx="10" class="h-box" />
+              <rect x="200" y="44" width="50" height="50" rx="10" class="h-win" />
+              <rect x="260" y="44" width="50" height="50" rx="10" class="h-win" />
+              <rect x="320" y="44" width="50" height="50" rx="10" class="h-box" />
+              <rect x="380" y="44" width="50" height="50" rx="10" class="h-box" />
+              <rect x="440" y="44" width="50" height="50" rx="10" class="h-box" />
+              <rect x="193" y="37" width="124" height="64" rx="14" class="h-band" />
+              <text x="45" y="76" text-anchor="middle" class="h-label">e</text>
+              <text x="105" y="76" text-anchor="middle" class="h-label">i</text>
+              <text x="165" y="76" text-anchor="middle" class="h-label">d</text>
+              <text x="225" y="76" text-anchor="middle" class="h-label">b</text>
+              <text x="285" y="76" text-anchor="middle" class="h-label">a</text>
+              <text x="345" y="76" text-anchor="middle" class="h-label">o</text>
+              <text x="405" y="76" text-anchor="middle" class="h-label">o</text>
+              <text x="465" y="76" text-anchor="middle" class="h-label">o</text>
+              <text x="45" y="120" text-anchor="middle" class="h-idx">0</text>
+              <text x="105" y="120" text-anchor="middle" class="h-idx">1</text>
+              <text x="165" y="120" text-anchor="middle" class="h-idx">2</text>
+              <text x="225" y="120" text-anchor="middle" class="h-idx">3</text>
+              <text x="285" y="120" text-anchor="middle" class="h-idx">4</text>
+              <text x="345" y="120" text-anchor="middle" class="h-idx">5</text>
+              <text x="405" y="120" text-anchor="middle" class="h-idx">6</text>
+              <text x="465" y="120" text-anchor="middle" class="h-idx">7</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = True ("ba" at indices 3..4)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Rolling metrics</h3>
+          <p>"Average of the last 7 days", "requests in the last 60 seconds": a dashboard slides a fixed window over a stream and updates the total as one reading arrives and one expires.</p>
+        </div>
+        <div class="card">
+          <h3>Peak over a recent period</h3>
+          <p>The highest load or price over the last <code>k</code> ticks is exactly Sliding Window Maximum. A deque of candidates answers it without rescanning the whole period every tick.</p>
+        </div>
+        <div class="card">
+          <h3>Fingerprinting blocks of text</h3>
+          <p>Finding scrambled copies of a word, or every block of <code>k</code> letters with a given makeup, is a fixed window of letter counts sliding over the text.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the whole pattern is "neighbouring windows share <code>k - 1</code> elements". Once you see that, the only real question in each problem is: what summary of the window can I update with one element in and one element out?</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is a fixed sliding window?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A <strong>window</strong> is a contiguous slice <code>arr[l..r]</code>. A <strong>fixed</strong> window always holds exactly <code>k</code> elements. It moves one step at a time: index <code>r</code> enters on the right, index <code>r - k</code> leaves on the left, and once <code>r >= k - 1</code> the slice <code>arr[r-k+1..r]</code> is a full window to check or record.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>The length is given or implied and never changes: "subarray of length <code>k</code>", "window of size <code>k</code>", "a permutation / anagram of <code>p</code> inside <code>s</code>" (length <code>len(p)</code>), "maximum / average of each window". If you are asked for the <em>longest</em> or <em>shortest</em> window, the size is the unknown: that is a <a href="../01_Variable_Window/README.md">variable window</a>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> write one <code>for r</code> loop with three lines in it: add <code>arr[r]</code>; if <code>r >= k</code>, remove <code>arr[r - k]</code>; if <code>r >= k - 1</code>, record. Every fixed-window problem fills in those three lines.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot the fixed size</h3>
+          <p>Every candidate has the same length <code>k</code>. Brute force would look at each of the <code>n - k + 1</code> windows from scratch: <code>O(n·k)</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Pick the summary</h3>
+          <p>What do you need to know about a window? Letter counts (permutation), a sum (average), the max (a monotonic deque).</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>One in, one out</h3>
+          <p>Update the summary with <code>arr[r]</code> entering and <code>arr[r - k]</code> leaving. The update must be <code>O(1)</code>, or amortised <code>O(1)</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Record when full</h3>
+          <p>From <code>r = k - 1</code> on, every step completes a window: compare it, or append its answer.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a window summary</h2>
+      <p>For Permutation in String the summary is two arrays of 26 numbers. Letter <code>c</code> lives in slot <code>ord(c) - ord('a')</code>: <code>a</code> is slot 0, <code>b</code> slot 1, and so on. <code>need</code> is built once from <code>s1</code>; <code>window</code> changes by exactly two slots per step.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input strings</h3>
+          <div class="code-block"><code>s1 = "ab"          k = len(s1) = 2
+s2 = "eidbaooo"    n = len(s2) = 8</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Count arrays (non-zero slots)</h3>
+          <div class="code-block"><code>need   = {a:1, b:1}   slots 0 and 1
+window = {}           starts empty, then
+                      +1 for s2[r], -1 for s2[r-k]</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Build <code>need</code> from <code>s1</code></h4>
+          <p><code>a</code> adds 1 to slot 0, <code>b</code> adds 1 to slot 1. This never changes again.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Fill the first window: <code>r = 0, 1</code></h4>
+          <p><code>e</code> then <code>i</code> enter. Nothing leaves yet, because <code>r &lt; k</code>. At <code>r = 1</code> the window holds 2 letters: it is full.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Slide: <code>r = 2, 3, ...</code></h4>
+          <p>Each step one slot goes up (the letter entering) and one goes down (the letter at <code>r - 2</code> leaving). The window's letter total stays at 2.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Compare</h4>
+          <p><code>window == need</code> compares 26 slots: a fixed cost, so it counts as <code>O(1)</code>. Equal counts mean the window is a rearrangement of <code>s1</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> for Sliding Window Maximum the summary is not a count but a deque of <em>indices</em>. A count can be decremented when an element leaves; a maximum can't. Method 2 shows the structure that replaces it.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: fixed window of letter counts (Permutation in String)</h2>
+      <p>The template with counts as the summary, taken line for line from the notebook's <code>check_inclusion_window</code>. Line 8 is "add", line 10 is "remove", line 11 is "record when full".</p>
+      <div class="code-block stepped">
+        <code id="pw-code">
+<span class="code-line" data-line="1">def check_inclusion_window(s1: str, s2: str) -&gt; bool:</span>
+<span class="code-line" data-line="2">    k = len(s1)</span>
+<span class="code-line" data-line="3">    need = [0] * 26                                  # letter counts of s1 (the target)</span>
+<span class="code-line" data-line="4">    for c in s1:</span>
+<span class="code-line" data-line="5">        need[ord(c) - ord('a')] += 1</span>
+<span class="code-line" data-line="6">    window = [0] * 26                                # letter counts of the current window of s2</span>
+<span class="code-line" data-line="7">    for r in range(len(s2)):</span>
+<span class="code-line" data-line="8">        window[ord(s2[r]) - ord('a')] += 1           # 1) s2[r] enters on the right</span>
+<span class="code-line" data-line="9">        if r &gt;= k:</span>
+<span class="code-line" data-line="10">            window[ord(s2[r - k]) - ord('a')] -= 1   # 2) s2[r-k] leaves on the left: size stays k</span>
+<span class="code-line" data-line="11">        if r &gt;= k - 1 and window == need:            # 3) full window with s1's counts = permutation</span>
+<span class="code-line" data-line="12">            return True</span>
+<span class="code-line" data-line="13">    return False                                     # also covers k &gt; len(s2): never full</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive fixed-window trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="pw-graph" viewBox="0 0 520 150" width="100%" role="img" aria-label="Fixed window of width 2 sliding over eidbaooo">
+              <defs>
+                <style>
+                  .pw-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .pw-cell.done { fill: #315efb; }
+                  .pw-cell.frontier { fill: #13a46b; }
+                  .pw-cell.current { fill: #ff9f1c; }
+                  .pw-band { fill: none; stroke: #172033; stroke-width: 3; stroke-dasharray: 6 4; transition: x 0.2s ease; }
+                  .pw-label { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .pw-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .pw-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="20" y="24" class="pw-title" id="pw-svg-title">s2, window of width k = 2</text>
+              <rect x="20" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="0" />
+              <rect x="80" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="1" />
+              <rect x="140" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="2" />
+              <rect x="200" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="3" />
+              <rect x="260" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="4" />
+              <rect x="320" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="5" />
+              <rect x="380" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="6" />
+              <rect x="440" y="44" width="50" height="50" rx="10" class="pw-cell" data-node="7" />
+              <rect id="pw-band" x="13" y="37" width="124" height="64" rx="14" class="pw-band" visibility="hidden" />
+              <text x="45" y="76" text-anchor="middle" class="pw-label">e</text>
+              <text x="105" y="76" text-anchor="middle" class="pw-label">i</text>
+              <text x="165" y="76" text-anchor="middle" class="pw-label">d</text>
+              <text x="225" y="76" text-anchor="middle" class="pw-label">b</text>
+              <text x="285" y="76" text-anchor="middle" class="pw-label">a</text>
+              <text x="345" y="76" text-anchor="middle" class="pw-label">o</text>
+              <text x="405" y="76" text-anchor="middle" class="pw-label">o</text>
+              <text x="465" y="76" text-anchor="middle" class="pw-label">o</text>
+              <text x="45" y="120" text-anchor="middle" class="pw-idx">0</text>
+              <text x="105" y="120" text-anchor="middle" class="pw-idx">1</text>
+              <text x="165" y="120" text-anchor="middle" class="pw-idx">2</text>
+              <text x="225" y="120" text-anchor="middle" class="pw-idx">3</text>
+              <text x="285" y="120" text-anchor="middle" class="pw-idx">4</text>
+              <text x="345" y="120" text-anchor="middle" class="pw-idx">5</text>
+              <text x="405" y="120" text-anchor="middle" class="pw-idx">6</text>
+              <text x="465" y="120" text-anchor="middle" class="pw-idx">7</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> letter entering (s2[r])</span>
+            <span><i class="dot dot-green"></i> inside the window</span>
+            <span><i class="dot dot-blue"></i> already left the window</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dashed frame = the window</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="pw-step-title">Initial state</h3>
+          <p id="pw-step-text">Build need from s1; the window starts empty.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="pw-prev">Previous</button>
+            <button type="button" id="pw-play" class="primary">Resume</button>
+            <button type="button" id="pw-next">Next</button>
+            <button type="button" id="pw-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="pw-step-counter">Step 0 / 5</span>
+            <div class="progress"><span id="pw-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>r</strong><div class="state-value" id="pw-r">—</div></div>
+            <div class="state-box"><strong>enters / leaves</strong><div class="state-value" id="pw-io">—</div></div>
+            <div class="state-box"><strong>need</strong><div class="state-value" id="pw-need">{a:1, b:1}</div></div>
+            <div class="state-box"><strong>window counts</strong><div class="state-value" id="pw-win">{}</div></div>
+            <div class="state-box"><strong>full? (r &gt;= k - 1)</strong><div class="state-value" id="pw-full">—</div></div>
+            <div class="state-box"><strong>window == need?</strong><div class="state-value" id="pw-match">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="pw-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="pw-trace-table">
+          <thead>
+            <tr><th>Step</th><th>r</th><th>Enters s2[r]</th><th>Leaves s2[r-2]</th><th>Window counts</th><th>Full?</th><th>== need?</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td>—</td><td><code>{}</code></td><td>—</td><td>—</td><td><code>need = {a:1, b:1}</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td><code>e</code></td><td>—</td><td><code>{e:1}</code></td><td>no</td><td>—</td><td>keep filling</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td><code>i</code></td><td>—</td><td><code>{e:1, i:1}</code></td><td>yes</td><td>no</td><td>window "ei"</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td><code>d</code></td><td><code>e</code></td><td><code>{d:1, i:1}</code></td><td>yes</td><td>no</td><td>window "id"</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td><code>b</code></td><td><code>i</code></td><td><code>{b:1, d:1}</code></td><td>yes</td><td>no</td><td>window "db"</td></tr>
+            <tr data-step="5"><td>5</td><td>4</td><td><code>a</code></td><td><code>d</code></td><td><code>{a:1, b:1}</code></td><td>yes</td><td>yes</td><td><strong>return True</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The window is a caterpillar: the head steps onto <code>s2[r]</code>, the tail lifts off <code>s2[r - k]</code>, and the body length never changes. Only two count slots move per step.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Removing <code>s2[r - k + 1]</code> instead of <code>s2[r - k]</code>. At step 3 the letter leaving is <code>e</code> (index 0); index 1 (<code>i</code>) is still inside the window <code>"id"</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Why counts, not sorting</h4>
+          <p>Sorting also ignores order, but it has to be redone for every window: <code>O(k log k)</code> each. Counts are updated with <code>+1</code> / <code>-1</code>. The notebook measures the sort version at about 4x per doubling and this one at about 2x.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: fixed window with a monotonic deque (Sliding Window Maximum)</h2>
+      <p>Same loop, but the summary is a deque of indices whose values decrease from front to back, so <code>nums[q[0]]</code> is always the window's max. "Add" first throws away every older value the newcomer beats (lines 5-6): they can never be a maximum again. "Remove" pops the front only if its index is <code>r - k</code> (lines 8-9). Code from the notebook's <code>max_sliding_window_deque</code>, traced on <code>nums = [5, 4, 3, 2, 6, 1]</code>, <code>k = 3</code>, an input where both kinds of pop happen.</p>
+      <div class="code-block stepped">
+        <code id="mq-code">
+<span class="code-line" data-line="1">def max_sliding_window_deque(nums: List[int], k: int) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    q = deque()                             # indices; nums[q[0]] &gt; nums[q[1]] &gt; ... (decreasing)</span>
+<span class="code-line" data-line="3">    res = []</span>
+<span class="code-line" data-line="4">    for r, x in enumerate(nums):</span>
+<span class="code-line" data-line="5">        while q and nums[q[-1]] &lt;= x:       # 1) x enters: drop older values it beats,</span>
+<span class="code-line" data-line="6">            q.pop()                         #    they can never be a window max again</span>
+<span class="code-line" data-line="7">        q.append(r)</span>
+<span class="code-line" data-line="8">        if q[0] == r - k:                   # 2) index r-k leaves: pop it if it is the front</span>
+<span class="code-line" data-line="9">            q.popleft()</span>
+<span class="code-line" data-line="10">        if r &gt;= k - 1:                      # 3) window [r-k+1, r] is full: front is its max</span>
+<span class="code-line" data-line="11">            res.append(nums[q[0]])</span>
+<span class="code-line" data-line="12">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive monotonic-deque trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="mq-graph" viewBox="0 0 520 150" width="100%" role="img" aria-label="Window of width 3 sliding over 5, 4, 3, 2, 6, 1">
+              <defs>
+                <style>
+                  .mq-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .mq-cell.done { fill: #315efb; }
+                  .mq-cell.frontier { fill: #13a46b; }
+                  .mq-cell.current { fill: #ff9f1c; }
+                  .mq-band { fill: none; stroke: #172033; stroke-width: 3; stroke-dasharray: 6 4; }
+                  .mq-ring { fill: none; stroke: #172033; stroke-width: 4; }
+                  .mq-label { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .mq-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .mq-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="30" y="24" class="mq-title">nums, window of width k = 3</text>
+              <rect x="30" y="44" width="60" height="50" rx="10" class="mq-cell" data-node="0" />
+              <rect x="110" y="44" width="60" height="50" rx="10" class="mq-cell" data-node="1" />
+              <rect x="190" y="44" width="60" height="50" rx="10" class="mq-cell" data-node="2" />
+              <rect x="270" y="44" width="60" height="50" rx="10" class="mq-cell" data-node="3" />
+              <rect x="350" y="44" width="60" height="50" rx="10" class="mq-cell" data-node="4" />
+              <rect x="430" y="44" width="60" height="50" rx="10" class="mq-cell" data-node="5" />
+              <rect x="25" y="38" width="70" height="62" rx="12" class="mq-ring" data-ring="0" visibility="hidden" />
+              <rect x="105" y="38" width="70" height="62" rx="12" class="mq-ring" data-ring="1" visibility="hidden" />
+              <rect x="185" y="38" width="70" height="62" rx="12" class="mq-ring" data-ring="2" visibility="hidden" />
+              <rect x="265" y="38" width="70" height="62" rx="12" class="mq-ring" data-ring="3" visibility="hidden" />
+              <rect x="345" y="38" width="70" height="62" rx="12" class="mq-ring" data-ring="4" visibility="hidden" />
+              <rect x="425" y="38" width="70" height="62" rx="12" class="mq-ring" data-ring="5" visibility="hidden" />
+              <rect id="mq-band" x="18" y="32" width="244" height="74" rx="16" class="mq-band" visibility="hidden" />
+              <text x="60" y="76" text-anchor="middle" class="mq-label">5</text>
+              <text x="140" y="76" text-anchor="middle" class="mq-label">4</text>
+              <text x="220" y="76" text-anchor="middle" class="mq-label">3</text>
+              <text x="300" y="76" text-anchor="middle" class="mq-label">2</text>
+              <text x="380" y="76" text-anchor="middle" class="mq-label">6</text>
+              <text x="460" y="76" text-anchor="middle" class="mq-label">1</text>
+              <text x="60" y="124" text-anchor="middle" class="mq-idx">0</text>
+              <text x="140" y="124" text-anchor="middle" class="mq-idx">1</text>
+              <text x="220" y="124" text-anchor="middle" class="mq-idx">2</text>
+              <text x="300" y="124" text-anchor="middle" class="mq-idx">3</text>
+              <text x="380" y="124" text-anchor="middle" class="mq-idx">4</text>
+              <text x="460" y="124" text-anchor="middle" class="mq-idx">5</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> x = nums[r] entering</span>
+            <span><i class="dot dot-green"></i> in the deque (can still be a max)</span>
+            <span><i class="dot dot-blue"></i> thrown away or left the window</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dark ring = deque front = window max</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="mq-step-title">Initial state</h3>
+          <p id="mq-step-text">Empty deque, empty result.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="mq-prev">Previous</button>
+            <button type="button" id="mq-play" class="primary">Resume</button>
+            <button type="button" id="mq-next">Next</button>
+            <button type="button" id="mq-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="mq-step-counter">Step 0 / 6</span>
+            <div class="progress"><span id="mq-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>r, x = nums[r]</strong><div class="state-value" id="mq-rx">—</div></div>
+            <div class="state-box"><strong>popped from back</strong><div class="state-value" id="mq-back">—</div></div>
+            <div class="state-box"><strong>front leaves? (q[0] == r - k)</strong><div class="state-value" id="mq-front">—</div></div>
+            <div class="state-box"><strong>deque (value@index, front first)</strong><div class="state-value" id="mq-q">[]</div></div>
+            <div class="state-box"><strong>res</strong><div class="state-value" id="mq-res">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="mq-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="mq-trace-table">
+          <thead>
+            <tr><th>Step</th><th>r</th><th>x</th><th>Popped from back</th><th>Front leaves?</th><th>Deque after</th><th>res after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td>—</td><td>—</td><td><code>[]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>5</td><td>—</td><td>no</td><td><code>[5@0]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>4</td><td>— (5 &gt; 4)</td><td>no</td><td><code>[5@0, 4@1]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>3</td><td>— (4 &gt; 3)</td><td>no</td><td><code>[5@0, 4@1, 3@2]</code></td><td><code>[5]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>2</td><td>— (3 &gt; 2)</td><td>yes, index 0</td><td><code>[4@1, 3@2, 2@3]</code></td><td><code>[5, 4]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>4</td><td>6</td><td><code>2@3, 3@2, 4@1</code></td><td>no</td><td><code>[6@4]</code></td><td><code>[5, 4, 6]</code></td></tr>
+            <tr data-step="6"><td>6</td><td>5</td><td>1</td><td>— (6 &gt; 1)</td><td>no (front is 4, not 2)</td><td><code>[6@4, 1@5]</code></td><td><code>[5, 4, 6, 6]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A line of candidates for "tallest in the room", ordered tallest first. A newcomer who is at least as tall as the people at the back sends them home: they will leave the room earlier and never be tallest again.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Storing values instead of indices. At step 4 the deque must know that its front <code>5</code> sits at index 0 = <code>r - k</code>; a bare <code>5</code> can't say whether it is still inside the window.</p>
+        </div>
+        <div class="card">
+          <h4>Why it is still O(n)</h4>
+          <p>Step 5 pops three items at once, but each index is appended once and popped at most once over the whole run. Total work is <code>O(n)</code>; the notebook measures about 2x per doubling.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Window longer than input</button>
+        <button type="button" data-example-tab="1">k equals n</button>
+        <button type="button" data-example-tab="2">k = 1</button>
+        <button type="button" data-example-tab="3">Same letters, wrong counts</button>
+        <button type="button" data-example-tab="4">Duplicates</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: <code>len(s1) &gt; len(s2)</code></h3>
+          <p><code>s1 = "abc"</code>, <code>s2 = "ab"</code></p>
+          <div class="result-badge">Permutation in String = False</div>
+          <p class="footer-note">No window of width 3 fits in 2 letters. <code>r &gt;= k - 1</code> is never true, so the loop ends and returns <code>False</code> without a special guard.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: one window covers everything</h3>
+          <p><code>nums = [2, 7, 1, 8]</code>, <code>k = 4</code>; and <code>s1 = "a"</code>, <code>s2 = "a"</code></p>
+          <div class="result-badge">[8] · True</div>
+          <p class="footer-note">The window becomes full at the last index and nothing ever leaves.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: window of one</h3>
+          <p><code>nums = [1, 2, 3, 4]</code>, <code>k = 1</code></p>
+          <div class="result-badge">Sliding Window Maximum = [1, 2, 3, 4]</div>
+          <p class="footer-note">Every number is its own window. Each step the previous index (<code>r - 1</code>) leaves, so every step ends with a single index in the deque.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: right letters, wrong amounts</h3>
+          <p><code>s1 = "aab"</code>, <code>s2 = "abbba"</code></p>
+          <div class="result-badge">Permutation in String = False</div>
+          <p class="footer-note">Every window uses only <code>a</code> and <code>b</code>, but none has two <code>a</code>s. Comparing the set of letters would wrongly say True.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="4">
+        <div class="card">
+          <h3>Case E: equal values</h3>
+          <p><code>nums = [4, 4, 4, 1]</code>, <code>k = 2</code></p>
+          <div class="result-badge">Sliding Window Maximum = [4, 4, 4]</div>
+          <p class="footer-note">With <code>&lt;=</code> the newer 4 replaces the older one, which would leave the window first anyway. The deque stays strictly decreasing.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Permutation in String</td><td>Sort every window</td><td><code>O(n·k log k)</code></td><td><code>O(k)</code></td><td>Measured about 4x per doubling with <code>k = n/2</code>.</td></tr>
+            <tr><td>Permutation in String</td><td>Count every window from scratch</td><td><code>O(n·k)</code></td><td><code>O(k)</code></td><td>Right summary, but rebuilt each time: still about 4x.</td></tr>
+            <tr><td>Permutation in String</td><td>Fixed window of counts (Method 1)</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>Two slot updates + a 26-slot compare per step: about 2x.</td></tr>
+            <tr><td>Sliding Window Maximum</td><td>Rescan every window</td><td><code>O(n·k)</code></td><td><code>O(k)</code></td><td>About 4x per doubling with <code>k = n/2</code>.</td></tr>
+            <tr><td>Sliding Window Maximum</td><td>Max-heap, lazy deletion</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td><td>Stale items stay inside until they reach the top.</td></tr>
+            <tr><td>Sliding Window Maximum</td><td>Monotonic deque (Method 2)</td><td><code>O(n)</code></td><td><code>O(k)</code></td><td>Each index enters and leaves once: about 2x.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = input length, <code>k</code> = window size. Complexities and doubling ratios come from the two notebooks in this folder.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Every candidate has the same length <code>k</code>, so brute force is "check each of the <code>n - k + 1</code> windows": <code>O(n·k)</code>.</p></div>
+            <div class="timeline-step"><p>Neighbouring windows share <code>k - 1</code> elements. Only <code>arr[r]</code> enters and <code>arr[r - k]</code> leaves.</p></div>
+            <div class="timeline-step"><p>Choose a summary that updates in <code>O(1)</code>: counts for "same letters", a sum for averages.</p></div>
+            <div class="timeline-step"><p>If the summary is a max or min, it can't be undone: keep a decreasing deque of indices instead.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Every candidate is exactly <code>len(s1)</code> long, so I'll slide a fixed window over <code>s2</code>."</li>
+            <li>"Two strings are permutations when their letter counts match, so the window keeps 26 counts: +1 for the letter entering, -1 for the letter at <code>r - k</code> leaving."</li>
+            <li>"For the maximum I can't subtract, so I keep indices with decreasing values in a deque. The front is the max; each index is pushed and popped once, so it's O(n)."</li>
+            <li>"I only record once <code>r &gt;= k - 1</code>, when the window is full."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Permutation in String</h3>
+          <ul class="mistake-list">
+            <li>Removing <code>s2[r - k + 1]</code>: that letter is still inside the window.</li>
+            <li>Comparing before the window is full, or forgetting to compare the very first full window.</li>
+            <li>Comparing the set of letters instead of their counts.</li>
+            <li>Recounting each window with <code>Counter(s2[l:l+k])</code>: correct, but <code>O(n·k)</code>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Sliding Window Maximum</h3>
+          <ul class="mistake-list">
+            <li>Storing values, not indices, so the front's age is unknown.</li>
+            <li>Flipping the comparison to <code>&gt;=</code>: the deque becomes increasing and returns minimums.</li>
+            <li>Evicting from the back instead of the front when an index leaves the window.</li>
+            <li>Calling it <code>O(n·k)</code> because of the inner <code>while</code>: count pops over the whole run.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Questions 3 and 4 are follow-up variants of this pattern's two problems, not separate NeetCode problems; they link the page they build on.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Permutation in String: <code>s1 = "adc"</code>, <code>s2 = "dcda"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the windows of width 3 are <code>"dcd"</code> and <code>"cda"</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>True</code>, at <code>r = 3</code>: the window <code>"cda"</code> has counts <code>{a:1, c:1, d:1}</code>, the same as <code>"adc"</code>. Step through the method on <a href="permutation_in_string.html">Permutation in String</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Sliding Window Maximum on <code>[1, 3, -1, -3, 5, 3, 6, 7]</code>, <code>k = 3</code>: does the front-eviction line (<code>q[0] == r - k</code>) ever fire?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> look at what happens to each old maximum before it gets <code>k</code> steps old.</p>
+          <p style="margin-top:10px;">Answer: never. Every old front is thrown off the back by a bigger-or-equal newcomer first (3 by 5 at <code>r = 4</code>, 5 by 6, 6 by 7). The answer is <code>[3, 3, 5, 5, 6, 7]</code>. The eviction matters on decreasing runs, like <code>[5, 4, 3, 2, ...]</code>. Compare on <a href="sliding_window_maximum.html">Sliding Window Maximum</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (follow-up variant of Permutation in String) — Find every start index of an anagram of <code>p = "abc"</code> in <code>s = "cbaebabacd"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> same loop; instead of <code>return True</code>, record the window's start <code>r - k + 1</code> and keep going.</p>
+          <p style="margin-top:10px;">Answer: <code>[0, 6]</code> (<code>"cba"</code> and <code>"bac"</code>). This is LeetCode "Find All Anagrams in a String". The template change is one line; see the base problem on <a href="permutation_in_string.html">Permutation in String</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 (follow-up variant of Sliding Window Maximum) — Window <em>minimum</em> of <code>[5, 4, 3, 2, 6, 1]</code>, <code>k = 3</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> keep the deque <em>increasing</em>: pop from the back while <code>nums[q[-1]] &gt;= x</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>[3, 2, 2, 1]</code>. Everything else (indices, front eviction at <code>r - k</code>, recording when full) is unchanged. Base walkthrough: <a href="sliding_window_maximum.html">Sliding Window Maximum</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Add <code>arr[r]</code>, remove <code>arr[r - k]</code>, record once <code>r &gt;= k - 1</code>.</strong>
+          That loop is the whole pattern. Permutation in String keeps 26 letter counts in it; Sliding Window Maximum keeps a decreasing deque of indices, because a maximum can't be subtracted. Both visit each element a constant number of times: <code>O(n)</code>.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Fixed Window pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of check_inclusion_window("ab", "eidbaooo").
+      // lo..hi = window, cur = index entering, left = indices that already left.
+      const pwSteps = [
+        { step: 0, title: 'Initial state', text: 'k = 2. need is built from s1; the window is empty.', r: '—', io: '—', win: '{}', full: '—', match: '—', detail: 'need = {a:1, b:1}. It never changes again.', lo: null, hi: null, cur: null, left: [], lines: [2, 3, 4, 5, 6] },
+        { step: 1, title: 'Step 1: r = 0', text: 'e enters. r < k, so nothing leaves; r < k - 1, so the window is not full.', r: '0', io: '+e', win: '{e:1}', full: 'no', match: '—', detail: 'One letter in a window meant for two.', lo: 0, hi: 0, cur: 0, left: [], lines: [7, 8, 9, 11] },
+        { step: 2, title: 'Step 2: r = 1', text: 'i enters. The window "ei" is full: compare it with need.', r: '1', io: '+i', win: '{e:1, i:1}', full: 'yes', match: 'no', detail: 'First full window. Its counts have no a and no b.', lo: 0, hi: 1, cur: 1, left: [], lines: [7, 8, 9, 11] },
+        { step: 3, title: 'Step 3: r = 2', text: 'd enters; s2[r - k] = s2[0] = e leaves. Window "id".', r: '2', io: '+d, -e', win: '{d:1, i:1}', full: 'yes', match: 'no', detail: 'The first slide: one slot up, one slot down, the size stays 2.', lo: 1, hi: 2, cur: 2, left: [0], lines: [7, 8, 9, 10, 11] },
+        { step: 4, title: 'Step 4: r = 3', text: 'b enters; s2[1] = i leaves. Window "db".', r: '3', io: '+b, -i', win: '{b:1, d:1}', full: 'yes', match: 'no', detail: 'b matches need, but d is there instead of a.', lo: 2, hi: 3, cur: 3, left: [0, 1], lines: [7, 8, 9, 10, 11] },
+        { step: 5, title: 'Step 5: r = 4, match', text: 'a enters; s2[2] = d leaves. Window "ba" has counts {a:1, b:1} = need.', r: '4', io: '+a, -d', win: '{a:1, b:1}', full: 'yes', match: 'yes', detail: 'Return True. Indices 5..7 are never looked at.', lo: 3, hi: 4, cur: 4, left: [0, 1, 2], lines: [7, 8, 9, 10, 11, 12] }
+      ];
+
+      // Ground truth: instrumented run of max_sliding_window_deque([5, 4, 3, 2, 6, 1], 3).
+      // inq = indices in the deque, gone = indices popped (back or front) or left the window, front = q[0].
+      const mqSteps = [
+        { step: 0, title: 'Initial state', text: 'Empty deque, empty result.', rx: '—', back: '—', front: '—', q: '[]', res: '[]', detail: 'The deque will hold indices; their values decrease from front to back.', lo: null, hi: null, cur: null, inq: [], gone: [], ring: null, lines: [2, 3] },
+        { step: 1, title: 'Step 1: r = 0, x = 5', text: 'Deque is empty, nothing to pop. Append 0. q[0] = 0 is not r - k = -3. Window not full.', rx: '0, 5', back: '—', front: 'no', q: '[5@0]', res: '[]', detail: '5 is the only candidate.', lo: 0, hi: 0, cur: 0, inq: [0], gone: [], ring: 0, lines: [4, 5, 7, 8, 10] },
+        { step: 2, title: 'Step 2: r = 1, x = 4', text: 'Back is 5 and 5 > 4: stop popping. Append 1.', rx: '1, 4', back: '— (5 > 4)', front: 'no', q: '[5@0, 4@1]', res: '[]', detail: '4 stays as a candidate: once 5 leaves, 4 could be the max.', lo: 0, hi: 1, cur: 1, inq: [0, 1], gone: [], ring: 0, lines: [4, 5, 7, 8, 10] },
+        { step: 3, title: 'Step 3: r = 2, x = 3', text: 'Back is 4 > 3: nothing popped. Append 2. The window [0..2] is full: record nums[q[0]] = 5.', rx: '2, 3', back: '— (4 > 3)', front: 'no', q: '[5@0, 4@1, 3@2]', res: '[5]', detail: 'First full window. The front is its max.', lo: 0, hi: 2, cur: 2, inq: [0, 1, 2], gone: [], ring: 0, lines: [4, 5, 7, 8, 10, 11] },
+        { step: 4, title: 'Step 4: r = 3, x = 2', text: 'Nothing popped from the back. Append 3. q[0] = 0 == r - k = 0: index 0 leaves, popleft. Record 4.', rx: '3, 2', back: '— (3 > 2)', front: 'yes, index 0', q: '[4@1, 3@2, 2@3]', res: '[5, 4]', detail: 'The fixed-window "remove" step: the old max slid out of the front.', lo: 1, hi: 3, cur: 3, inq: [1, 2, 3], gone: [0], ring: 1, lines: [4, 5, 7, 8, 9, 10, 11] },
+        { step: 5, title: 'Step 5: r = 4, x = 6', text: '6 beats 2, then 3, then 4: pop all three from the back. Append 4. q[0] = 4 is not r - k = 1. Record 6.', rx: '4, 6', back: '2@3, 3@2, 4@1', front: 'no', q: '[6@4]', res: '[5, 4, 6]', detail: 'Three pops in one step, but each of those indices can never be popped again.', lo: 2, hi: 4, cur: 4, inq: [4], gone: [0, 1, 2, 3], ring: 4, lines: [4, 5, 6, 7, 8, 10, 11] },
+        { step: 6, title: 'Step 6: r = 5, x = 1', text: '6 > 1: nothing popped. Append 5. Index r - k = 2 leaves, but it is not the front (it was popped at step 5). Record 6 and return.', rx: '5, 1', back: '— (6 > 1)', front: 'no (front is 4, not 2)', q: '[6@4, 1@5]', res: '[5, 4, 6, 6]', detail: 'Final answer: [5, 4, 6, 6].', lo: 3, hi: 5, cur: 5, inq: [4, 5], gone: [0, 1, 2, 3], ring: 4, lines: [4, 5, 7, 8, 10, 11, 12] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setBand(bandId, lo, hi, x0, pitch, pad, size) {
+        const band = document.getElementById(bandId);
+        if (lo === null) { band.setAttribute('visibility', 'hidden'); return; }
+        band.setAttribute('visibility', 'visible');
+        band.setAttribute('x', x0 + lo * pitch - pad);
+        band.setAttribute('width', (hi - lo) * pitch + size + 2 * pad);
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      function renderPW(step, index, max) {
+        document.getElementById('pw-step-title').textContent = step.title;
+        document.getElementById('pw-step-text').textContent = step.text;
+        document.getElementById('pw-r').textContent = step.r;
+        document.getElementById('pw-io').textContent = step.io;
+        document.getElementById('pw-win').textContent = step.win;
+        document.getElementById('pw-full').textContent = step.full;
+        document.getElementById('pw-match').textContent = step.match;
+        document.getElementById('pw-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('pw-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('pw-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('pw-trace-table', step.step);
+        setCodeHighlight('pw-code', step.lines);
+        document.querySelectorAll('#pw-graph [data-node]').forEach((cell) => {
+          const i = Number(cell.dataset.node);
+          cell.classList.remove('done', 'frontier', 'current');
+          if (step.left.includes(i)) cell.classList.add('done');
+          if (step.lo !== null && i >= step.lo && i <= step.hi) cell.classList.add('frontier');
+          if (step.cur === i) cell.classList.add('current');
+        });
+        setBand('pw-band', step.lo, step.hi, 20, 60, 7, 50);
+      }
+
+      function renderMQ(step, index, max) {
+        document.getElementById('mq-step-title').textContent = step.title;
+        document.getElementById('mq-step-text').textContent = step.text;
+        document.getElementById('mq-rx').textContent = step.rx;
+        document.getElementById('mq-back').textContent = step.back;
+        document.getElementById('mq-front').textContent = step.front;
+        document.getElementById('mq-q').textContent = step.q;
+        document.getElementById('mq-res').textContent = step.res;
+        document.getElementById('mq-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('mq-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('mq-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('mq-trace-table', step.step);
+        setCodeHighlight('mq-code', step.lines);
+        document.querySelectorAll('#mq-graph [data-node]').forEach((cell) => {
+          const i = Number(cell.dataset.node);
+          cell.classList.remove('done', 'frontier', 'current');
+          if (step.gone.includes(i)) cell.classList.add('done');
+          if (step.inq.includes(i)) cell.classList.add('frontier');
+          if (step.cur === i) cell.classList.add('current');
+        });
+        document.querySelectorAll('#mq-graph [data-ring]').forEach((ring) => {
+          ring.setAttribute('visibility', Number(ring.dataset.ring) === step.ring ? 'visible' : 'hidden');
+        });
+        setBand('mq-band', step.lo, step.hi, 30, 80, 12, 60);
+      }
+
+      setupTrace({ steps: pwSteps, prefix: 'pw', render: renderPW });
+      setupTrace({ steps: mqSteps, prefix: 'mq', render: renderMQ });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

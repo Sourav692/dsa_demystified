@@ -4,66 +4,66 @@
 
 The 150 problems grouped by DSA type, then by pattern. Each pattern folder has a `README.md` that explains the pattern, an interactive `NN_pattern_lesson.html`, and for each problem a notebook (brute force → optimal, asserts, benchmark) plus an interactive step-through HTML. Build one pattern at a time with `/neetcode-pattern <pattern>`.
 
-Built: **15 / 150** problems, **5 / 55** patterns complete. Also here: the [question tracker](index.html) and [reference docs](docs/).
+Built: **67 / 150** problems, **27 / 55** patterns complete. Also here: the [question tracker](index.html) and [reference docs](docs/).
 
 ## Arrays and Hashing
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Hash Lookup | 1 | [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/) | Easy | — | — |
-|  | 3 | [Two Sum](https://leetcode.com/problems/two-sum/) | Easy | — | — |
-|  | 8 | [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/) | Medium | — | — |
-|  | 9 | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) | Medium | — | — |
-| 02 Frequency Count | 2 | [Valid Anagram](https://leetcode.com/problems/valid-anagram/) | Easy | — | — |
-|  | 4 | [Group Anagrams](https://leetcode.com/problems/group-anagrams/) | Medium | — | — |
-|  | 5 | [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/) | Medium | — | — |
-|  | 143 | [Detect Squares](https://leetcode.com/problems/detect-squares/) | Medium | — | — |
-| 03 Prefix Suffix | 7 | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) | Medium | — | — |
-| 04 String Encoding | 6 | [Encode and Decode Strings](https://leetcode.com/problems/encode-and-decode-strings/) | Medium | — | — |
+| [01 Hash Lookup](Arrays_and_Hashing/01_Hash_Lookup/README.md) · [lesson](Arrays_and_Hashing/01_Hash_Lookup/01_hash_lookup_lesson.html) | 1 | [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/) | Easy | [ipynb](Arrays_and_Hashing/01_Hash_Lookup/contains_duplicate.ipynb) | [html](Arrays_and_Hashing/01_Hash_Lookup/contains_duplicate.html) |
+|  | 3 | [Two Sum](https://leetcode.com/problems/two-sum/) | Easy | [ipynb](Arrays_and_Hashing/01_Hash_Lookup/two_sum.ipynb) | [html](Arrays_and_Hashing/01_Hash_Lookup/two_sum.html) |
+|  | 8 | [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/) | Medium | [ipynb](Arrays_and_Hashing/01_Hash_Lookup/valid_sudoku.ipynb) | [html](Arrays_and_Hashing/01_Hash_Lookup/valid_sudoku.html) |
+|  | 9 | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) | Medium | [ipynb](Arrays_and_Hashing/01_Hash_Lookup/longest_consecutive_sequence.ipynb) | [html](Arrays_and_Hashing/01_Hash_Lookup/longest_consecutive_sequence.html) |
+| [02 Frequency Count](Arrays_and_Hashing/02_Frequency_Count/README.md) · [lesson](Arrays_and_Hashing/02_Frequency_Count/02_frequency_count_lesson.html) | 2 | [Valid Anagram](https://leetcode.com/problems/valid-anagram/) | Easy | [ipynb](Arrays_and_Hashing/02_Frequency_Count/valid_anagram.ipynb) | [html](Arrays_and_Hashing/02_Frequency_Count/valid_anagram.html) |
+|  | 4 | [Group Anagrams](https://leetcode.com/problems/group-anagrams/) | Medium | [ipynb](Arrays_and_Hashing/02_Frequency_Count/group_anagrams.ipynb) | [html](Arrays_and_Hashing/02_Frequency_Count/group_anagrams.html) |
+|  | 5 | [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/) | Medium | [ipynb](Arrays_and_Hashing/02_Frequency_Count/top_k_frequent_elements.ipynb) | [html](Arrays_and_Hashing/02_Frequency_Count/top_k_frequent_elements.html) |
+|  | 143 | [Detect Squares](https://leetcode.com/problems/detect-squares/) | Medium | [ipynb](Arrays_and_Hashing/02_Frequency_Count/detect_squares.ipynb) | [html](Arrays_and_Hashing/02_Frequency_Count/detect_squares.html) |
+| [03 Prefix Suffix](Arrays_and_Hashing/03_Prefix_Suffix/README.md) · [lesson](Arrays_and_Hashing/03_Prefix_Suffix/03_prefix_suffix_lesson.html) | 7 | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) | Medium | [ipynb](Arrays_and_Hashing/03_Prefix_Suffix/product_of_array_except_self.ipynb) | [html](Arrays_and_Hashing/03_Prefix_Suffix/product_of_array_except_self.html) |
+| [04 String Encoding](Arrays_and_Hashing/04_String_Encoding/README.md) · [lesson](Arrays_and_Hashing/04_String_Encoding/04_string_encoding_lesson.html) | 6 | [Encode and Decode Strings](https://leetcode.com/problems/encode-and-decode-strings/) | Medium | [ipynb](Arrays_and_Hashing/04_String_Encoding/encode_and_decode_strings.ipynb) | [html](Arrays_and_Hashing/04_String_Encoding/encode_and_decode_strings.html) |
 
 ## Two Pointers
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Opposite Ends | 10 | [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/) | Easy | — | — |
-|  | 11 | [Two Sum II Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/) | Medium | — | — |
-|  | 12 | [3Sum](https://leetcode.com/problems/3sum/) | Medium | — | — |
-|  | 13 | [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) | Medium | — | — |
-|  | 14 | [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/) | Hard | — | — |
+| [01 Opposite Ends](Two_Pointers/01_Opposite_Ends/README.md) · [lesson](Two_Pointers/01_Opposite_Ends/01_opposite_ends_lesson.html) | 10 | [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/) | Easy | [ipynb](Two_Pointers/01_Opposite_Ends/valid_palindrome.ipynb) | [html](Two_Pointers/01_Opposite_Ends/valid_palindrome.html) |
+|  | 11 | [Two Sum II Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/) | Medium | [ipynb](Two_Pointers/01_Opposite_Ends/two_sum_ii.ipynb) | [html](Two_Pointers/01_Opposite_Ends/two_sum_ii.html) |
+|  | 12 | [3Sum](https://leetcode.com/problems/3sum/) | Medium | [ipynb](Two_Pointers/01_Opposite_Ends/three_sum.ipynb) | [html](Two_Pointers/01_Opposite_Ends/three_sum.html) |
+|  | 13 | [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) | Medium | [ipynb](Two_Pointers/01_Opposite_Ends/container_with_most_water.ipynb) | [html](Two_Pointers/01_Opposite_Ends/container_with_most_water.html) |
+|  | 14 | [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/) | Hard | [ipynb](Two_Pointers/01_Opposite_Ends/trapping_rain_water.ipynb) | [html](Two_Pointers/01_Opposite_Ends/trapping_rain_water.html) |
 
 ## Sliding Window
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Variable Window | 15 | [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) | Easy | — | — |
-|  | 16 | [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/) | Medium | — | — |
-|  | 17 | [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/) | Medium | — | — |
-|  | 19 | [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/) | Hard | — | — |
-| 02 Fixed Window | 18 | [Permutation in String](https://leetcode.com/problems/permutation-in-string/) | Medium | — | — |
-|  | 20 | [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/) | Hard | — | — |
+| [01 Variable Window](Sliding_Window/01_Variable_Window/README.md) · [lesson](Sliding_Window/01_Variable_Window/01_variable_window_lesson.html) | 15 | [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) | Easy | [ipynb](Sliding_Window/01_Variable_Window/best_time_to_buy_and_sell_stock.ipynb) | [html](Sliding_Window/01_Variable_Window/best_time_to_buy_and_sell_stock.html) |
+|  | 16 | [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/) | Medium | [ipynb](Sliding_Window/01_Variable_Window/longest_substring_without_repeating.ipynb) | [html](Sliding_Window/01_Variable_Window/longest_substring_without_repeating.html) |
+|  | 17 | [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/) | Medium | [ipynb](Sliding_Window/01_Variable_Window/longest_repeating_character_replacement.ipynb) | [html](Sliding_Window/01_Variable_Window/longest_repeating_character_replacement.html) |
+|  | 19 | [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/) | Hard | [ipynb](Sliding_Window/01_Variable_Window/minimum_window_substring.ipynb) | [html](Sliding_Window/01_Variable_Window/minimum_window_substring.html) |
+| [02 Fixed Window](Sliding_Window/02_Fixed_Window/README.md) · [lesson](Sliding_Window/02_Fixed_Window/02_fixed_window_lesson.html) | 18 | [Permutation in String](https://leetcode.com/problems/permutation-in-string/) | Medium | [ipynb](Sliding_Window/02_Fixed_Window/permutation_in_string.ipynb) | [html](Sliding_Window/02_Fixed_Window/permutation_in_string.html) |
+|  | 20 | [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/) | Hard | [ipynb](Sliding_Window/02_Fixed_Window/sliding_window_maximum.ipynb) | [html](Sliding_Window/02_Fixed_Window/sliding_window_maximum.html) |
 
 ## Stack
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Stack Simulation | 21 | [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/) | Easy | — | — |
-|  | 22 | [Min Stack](https://leetcode.com/problems/min-stack/) | Medium | — | — |
-|  | 23 | [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/) | Medium | — | — |
-| 02 Monotonic Stack | 25 | [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/) | Medium | — | — |
-|  | 26 | [Car Fleet](https://leetcode.com/problems/car-fleet/) | Medium | — | — |
-|  | 27 | [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/) | Hard | — | — |
+| [01 Stack Simulation](Stack/01_Stack_Simulation/README.md) · [lesson](Stack/01_Stack_Simulation/01_stack_simulation_lesson.html) | 21 | [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/) | Easy | [ipynb](Stack/01_Stack_Simulation/valid_parentheses.ipynb) | [html](Stack/01_Stack_Simulation/valid_parentheses.html) |
+|  | 22 | [Min Stack](https://leetcode.com/problems/min-stack/) | Medium | [ipynb](Stack/01_Stack_Simulation/min_stack.ipynb) | [html](Stack/01_Stack_Simulation/min_stack.html) |
+|  | 23 | [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/) | Medium | [ipynb](Stack/01_Stack_Simulation/evaluate_reverse_polish_notation.ipynb) | [html](Stack/01_Stack_Simulation/evaluate_reverse_polish_notation.html) |
+| [02 Monotonic Stack](Stack/02_Monotonic_Stack/README.md) · [lesson](Stack/02_Monotonic_Stack/02_monotonic_stack_lesson.html) | 25 | [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/) | Medium | [ipynb](Stack/02_Monotonic_Stack/daily_temperatures.ipynb) | [html](Stack/02_Monotonic_Stack/daily_temperatures.html) |
+|  | 26 | [Car Fleet](https://leetcode.com/problems/car-fleet/) | Medium | [ipynb](Stack/02_Monotonic_Stack/car_fleet.ipynb) | [html](Stack/02_Monotonic_Stack/car_fleet.html) |
+|  | 27 | [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/) | Hard | [ipynb](Stack/02_Monotonic_Stack/largest_rectangle_in_histogram.ipynb) | [html](Stack/02_Monotonic_Stack/largest_rectangle_in_histogram.html) |
 
 ## Binary Search
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Sorted Search | 28 | [Binary Search](https://leetcode.com/problems/binary-search/) | Easy | — | — |
-|  | 29 | [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/) | Medium | — | — |
-|  | 33 | [Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/) | Medium | — | — |
-| 02 Rotated Array | 31 | [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/) | Medium | — | — |
-|  | 32 | [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/) | Medium | — | — |
-| 03 Search on Answer | 30 | [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/) | Medium | — | — |
-| 04 Partition Search | 34 | [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/) | Hard | — | — |
+| [01 Sorted Search](Binary_Search/01_Sorted_Search/README.md) · [lesson](Binary_Search/01_Sorted_Search/01_sorted_search_lesson.html) | 28 | [Binary Search](https://leetcode.com/problems/binary-search/) | Easy | [ipynb](Binary_Search/01_Sorted_Search/binary_search.ipynb) | [html](Binary_Search/01_Sorted_Search/binary_search.html) |
+|  | 29 | [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/) | Medium | [ipynb](Binary_Search/01_Sorted_Search/search_a_2d_matrix.ipynb) | [html](Binary_Search/01_Sorted_Search/search_a_2d_matrix.html) |
+|  | 33 | [Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/) | Medium | [ipynb](Binary_Search/01_Sorted_Search/time_based_key_value_store.ipynb) | [html](Binary_Search/01_Sorted_Search/time_based_key_value_store.html) |
+| [02 Rotated Array](Binary_Search/02_Rotated_Array/README.md) · [lesson](Binary_Search/02_Rotated_Array/02_rotated_array_lesson.html) | 31 | [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/) | Medium | [ipynb](Binary_Search/02_Rotated_Array/find_minimum_in_rotated_sorted_array.ipynb) | [html](Binary_Search/02_Rotated_Array/find_minimum_in_rotated_sorted_array.html) |
+|  | 32 | [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/) | Medium | [ipynb](Binary_Search/02_Rotated_Array/search_in_rotated_sorted_array.ipynb) | [html](Binary_Search/02_Rotated_Array/search_in_rotated_sorted_array.html) |
+| [03 Search on Answer](Binary_Search/03_Search_on_Answer/README.md) · [lesson](Binary_Search/03_Search_on_Answer/03_search_on_answer_lesson.html) | 30 | [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/) | Medium | [ipynb](Binary_Search/03_Search_on_Answer/koko_eating_bananas.ipynb) | [html](Binary_Search/03_Search_on_Answer/koko_eating_bananas.html) |
+| [04 Partition Search](Binary_Search/04_Partition_Search/README.md) · [lesson](Binary_Search/04_Partition_Search/04_partition_search_lesson.html) | 34 | [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/) | Hard | [ipynb](Binary_Search/04_Partition_Search/median_of_two_sorted_arrays.ipynb) | [html](Binary_Search/04_Partition_Search/median_of_two_sorted_arrays.html) |
 
 ## Linked List
 
@@ -107,29 +107,29 @@ Built: **15 / 150** problems, **5 / 55** patterns complete. Also here: the [ques
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Top K | 64 | [Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/) | Easy | — | — |
-|  | 66 | [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) | Medium | — | — |
-|  | 67 | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) | Medium | — | — |
-| 02 Heap Simulation | 65 | [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/) | Easy | — | — |
-|  | 68 | [Task Scheduler](https://leetcode.com/problems/task-scheduler/) | Medium | — | — |
-| 03 K Way Merge | 44 | [Merge K Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/) | Hard | — | — |
-|  | 69 | [Design Twitter](https://leetcode.com/problems/design-twitter/) | Medium | — | — |
-| 04 Two Heaps | 70 | [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/) | Hard | — | — |
+| [01 Top K](Heap/01_Top_K/README.md) · [lesson](Heap/01_Top_K/01_top_k_lesson.html) | 64 | [Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/) | Easy | [ipynb](Heap/01_Top_K/kth_largest_element_in_a_stream.ipynb) | [html](Heap/01_Top_K/kth_largest_element_in_a_stream.html) |
+|  | 66 | [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) | Medium | [ipynb](Heap/01_Top_K/k_closest_points_to_origin.ipynb) | [html](Heap/01_Top_K/k_closest_points_to_origin.html) |
+|  | 67 | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) | Medium | [ipynb](Heap/01_Top_K/kth_largest_element_in_an_array.ipynb) | [html](Heap/01_Top_K/kth_largest_element_in_an_array.html) |
+| [02 Heap Simulation](Heap/02_Heap_Simulation/README.md) · [lesson](Heap/02_Heap_Simulation/02_heap_simulation_lesson.html) | 65 | [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/) | Easy | [ipynb](Heap/02_Heap_Simulation/last_stone_weight.ipynb) | [html](Heap/02_Heap_Simulation/last_stone_weight.html) |
+|  | 68 | [Task Scheduler](https://leetcode.com/problems/task-scheduler/) | Medium | [ipynb](Heap/02_Heap_Simulation/task_scheduler.ipynb) | [html](Heap/02_Heap_Simulation/task_scheduler.html) |
+| [03 K Way Merge](Heap/03_K_Way_Merge/README.md) · [lesson](Heap/03_K_Way_Merge/03_k_way_merge_lesson.html) | 44 | [Merge K Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/) | Hard | [ipynb](Heap/03_K_Way_Merge/merge_k_sorted_lists.ipynb) | [html](Heap/03_K_Way_Merge/merge_k_sorted_lists.html) |
+|  | 69 | [Design Twitter](https://leetcode.com/problems/design-twitter/) | Medium | [ipynb](Heap/03_K_Way_Merge/design_twitter.ipynb) | [html](Heap/03_K_Way_Merge/design_twitter.html) |
+| [04 Two Heaps](Heap/04_Two_Heaps/README.md) · [lesson](Heap/04_Two_Heaps/04_two_heaps_lesson.html) | 70 | [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/) | Hard | [ipynb](Heap/04_Two_Heaps/find_median_from_data_stream.ipynb) | [html](Heap/04_Two_Heaps/find_median_from_data_stream.html) |
 
 ## Backtracking
 
 | Pattern | # | Problem | Difficulty | Notebook | Interactive |
 |---|---|---|---|---|---|
-| 01 Subsets | 71 | [Subsets](https://leetcode.com/problems/subsets/) | Medium | — | — |
-|  | 74 | [Subsets II](https://leetcode.com/problems/subsets-ii/) | Medium | — | — |
-| 02 Combinations | 72 | [Combination Sum](https://leetcode.com/problems/combination-sum/) | Medium | — | — |
-|  | 75 | [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/) | Medium | — | — |
-|  | 78 | [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/) | Medium | — | — |
-|  | 24 | [Generate Parentheses](https://leetcode.com/problems/generate-parentheses/) | Medium | — | — |
-| 03 Permutations | 73 | [Permutations](https://leetcode.com/problems/permutations/) | Medium | — | — |
-| 04 Partition and Placement | 77 | [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/) | Medium | — | — |
-|  | 79 | [N-Queens](https://leetcode.com/problems/n-queens/) | Hard | — | — |
-| 05 Grid Backtracking | 76 | [Word Search](https://leetcode.com/problems/word-search/) | Medium | — | — |
+| [01 Subsets](Backtracking/01_Subsets/README.md) · [lesson](Backtracking/01_Subsets/01_subsets_lesson.html) | 71 | [Subsets](https://leetcode.com/problems/subsets/) | Medium | [ipynb](Backtracking/01_Subsets/subsets.ipynb) | [html](Backtracking/01_Subsets/subsets.html) |
+|  | 74 | [Subsets II](https://leetcode.com/problems/subsets-ii/) | Medium | [ipynb](Backtracking/01_Subsets/subsets_ii.ipynb) | [html](Backtracking/01_Subsets/subsets_ii.html) |
+| [02 Combinations](Backtracking/02_Combinations/README.md) · [lesson](Backtracking/02_Combinations/02_combinations_lesson.html) | 72 | [Combination Sum](https://leetcode.com/problems/combination-sum/) | Medium | [ipynb](Backtracking/02_Combinations/combination_sum.ipynb) | [html](Backtracking/02_Combinations/combination_sum.html) |
+|  | 75 | [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/) | Medium | [ipynb](Backtracking/02_Combinations/combination_sum_ii.ipynb) | [html](Backtracking/02_Combinations/combination_sum_ii.html) |
+|  | 78 | [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/) | Medium | [ipynb](Backtracking/02_Combinations/letter_combinations_of_a_phone_number.ipynb) | [html](Backtracking/02_Combinations/letter_combinations_of_a_phone_number.html) |
+|  | 24 | [Generate Parentheses](https://leetcode.com/problems/generate-parentheses/) | Medium | [ipynb](Backtracking/02_Combinations/generate_parentheses.ipynb) | [html](Backtracking/02_Combinations/generate_parentheses.html) |
+| [03 Permutations](Backtracking/03_Permutations/README.md) · [lesson](Backtracking/03_Permutations/03_permutations_lesson.html) | 73 | [Permutations](https://leetcode.com/problems/permutations/) | Medium | [ipynb](Backtracking/03_Permutations/permutations.ipynb) | [html](Backtracking/03_Permutations/permutations.html) |
+| [04 Partition and Placement](Backtracking/04_Partition_and_Placement/README.md) · [lesson](Backtracking/04_Partition_and_Placement/04_partition_and_placement_lesson.html) | 77 | [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/) | Medium | [ipynb](Backtracking/04_Partition_and_Placement/palindrome_partitioning.ipynb) | [html](Backtracking/04_Partition_and_Placement/palindrome_partitioning.html) |
+|  | 79 | [N-Queens](https://leetcode.com/problems/n-queens/) | Hard | [ipynb](Backtracking/04_Partition_and_Placement/n_queens.ipynb) | [html](Backtracking/04_Partition_and_Placement/n_queens.html) |
+| [05 Grid Backtracking](Backtracking/05_Grid_Backtracking/README.md) · [lesson](Backtracking/05_Grid_Backtracking/05_grid_backtracking_lesson.html) | 76 | [Word Search](https://leetcode.com/problems/word-search/) | Medium | [ipynb](Backtracking/05_Grid_Backtracking/word_search.ipynb) | [html](Backtracking/05_Grid_Backtracking/word_search.html) |
 
 ## Graphs
 

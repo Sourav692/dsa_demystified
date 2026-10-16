@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K Closest Points to Origin — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .svgwrap svg{display:block;margin:0 auto}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_top_k_lesson.html">← Top K lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Heap · Top K</span></div>
+<h1>973 · K Closest Points to Origin</h1>
+<p class="lead">Out of many points on a map, keep the k that are nearest to the center.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You are standing at <code>(0, 0)</code>. Around you are points, like shops on a map. Return the <code>k</code> shops that are closest to you, in any order.</p>
+<div class="idea">Distance is the straight line <code>√(x² + y²)</code>. We can skip the square root: comparing <code>x² + y²</code> ranks the points in exactly the same order. We call it <b>dist²</b>.</div>
+<div class="idea">Example used on this page: <code>[[3,3],[5,-1],[-2,4],[1,-1],[0,2]]</code>, <code>k = 2</code> &rarr; <code>[[1,-1],[0,2]]</code>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>kept for now / best so far</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>in the answer</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>thrown out (too far)</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Each label shows the point and its dist² = x² + y².</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: find the nearest remaining point, k times</h2>
+<div class="idea">Scan every point and take the closest one. Then scan again, skipping the ones already taken, and take the next closest. Repeat <code>k</code> times.</div>
+<div class="viz" id="br-viz"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>k</code> full scans of <code>n</code> points — <code>O(n·k)</code>, which is <code>O(n²)</code> when <code>k</code> is near <code>n</code> (the notebook measured ≈4× per doubling with <code>k = n/2</code>); <code>O(n)</code> memory for the "taken" marks.</p>
+<div class="trace-title">Step-by-step trace — points = [[3,3],[5,-1],[-2,4],[1,-1],[0,2]], k = 2</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Pass</th><th>i</th><th>Point</th><th>dist²</th><th>Best so far</th><th>Decision</th></tr>
+  <tr><td>1</td><td>1</td><td>0</td><td>(3, 3)</td><td>18</td><td>(3, 3)</td><td class="rule">First candidate &rarr; best</td></tr>
+  <tr><td>2</td><td>1</td><td>1</td><td>(5, -1)</td><td>26</td><td>(3, 3)</td><td class="rule">26 not &lt; 18 &rarr; keep best</td></tr>
+  <tr><td>3</td><td>1</td><td>2</td><td>(-2, 4)</td><td>20</td><td>(3, 3)</td><td class="rule">20 not &lt; 18 &rarr; keep best</td></tr>
+  <tr><td>4</td><td>1</td><td>3</td><td>(1, -1)</td><td>2</td><td>(1, -1)</td><td class="rule">2 &lt; 18 &rarr; new best</td></tr>
+  <tr><td>5</td><td>1</td><td>4</td><td>(0, 2)</td><td>4</td><td>(1, -1)</td><td class="rule">4 not &lt; 2 &rarr; take (1, -1)</td></tr>
+  <tr><td>6</td><td>2</td><td>0</td><td>(3, 3)</td><td>18</td><td>(3, 3)</td><td class="rule">First not-taken &rarr; best</td></tr>
+  <tr><td>7</td><td>2</td><td>1</td><td>(5, -1)</td><td>26</td><td>(3, 3)</td><td class="rule">Keep best</td></tr>
+  <tr><td>8</td><td>2</td><td>2</td><td>(-2, 4)</td><td>20</td><td>(3, 3)</td><td class="rule">Keep best</td></tr>
+  <tr><td>9</td><td>2</td><td>3</td><td>(1, -1)</td><td>2</td><td>(3, 3)</td><td class="rule">Already taken &rarr; skip</td></tr>
+  <tr class="final"><td>10</td><td>2</td><td>4</td><td>(0, 2)</td><td>4</td><td>(0, 2)</td><td>4 &lt; 18 &rarr; take (0, 2). Answer [[1,-1],[0,2]]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Sort everyone by distance</h2>
+<div class="idea">Work out every point's dist², sort all points by it, and keep the first <code>k</code>. Simple and correct, but it puts <i>all</i> <code>n</code> points in order when we only need the nearest <code>k</code>.</div>
+<div class="viz" id="so-viz"></div>
+<div class="caption" id="so-cap"></div>
+<div class="controls" data-player="so"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="so-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one sort — <code>O(n log n)</code> time, <code>O(n)</code> memory for the sorted copy.</p>
+<div class="trace-title">Step-by-step trace — points = [[3,3],[5,-1],[-2,4],[1,-1],[0,2]], k = 2</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Rank after sort</th><th>Point</th><th>dist²</th><th>Decision</th></tr>
+  <tr><td>1</td><td>(1, -1)</td><td>2</td><td class="rule">Rank &le; k &rarr; keep</td></tr>
+  <tr><td>2</td><td>(0, 2)</td><td>4</td><td class="rule">Rank &le; k &rarr; keep</td></tr>
+  <tr><td>3</td><td>(3, 3)</td><td>18</td><td class="rule">Cut off by <code>[:k]</code></td></tr>
+  <tr><td>4</td><td>(-2, 4)</td><td>20</td><td class="rule">Cut off</td></tr>
+  <tr class="final"><td>5</td><td>(5, -1)</td><td>26</td><td>Cut off. Answer [[1,-1],[0,2]]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: a max-heap that keeps only the k nearest</h2>
+<div class="idea">Keep a small pile of at most <code>k</code> points with the <b>farthest</b> one on top (a <b>max-heap</b> by distance). Each new point joins the pile; if it now holds <code>k + 1</code> points, throw out the one on top — the farthest. Python's <code>heapq</code> only puts the smallest on top, so we store <code>-dist²</code>: the farthest point gets the most negative key.</div>
+<div class="viz" id="hp-viz"></div>
+<div class="caption" id="hp-cap"></div>
+<div class="controls" data-player="hp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one push and at most one pop per point on a pile of size <code>k + 1</code> — <code>O(n log k)</code> time, <code>O(k)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — points = [[3,3],[5,-1],[-2,4],[1,-1],[0,2]], k = 2</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Push (key = -dist²)</th><th>Size after push</th><th>Popped (farthest)</th><th>Heap after (array)</th></tr>
+  <tr><td>1</td><td>(3, 3) &rarr; -18</td><td>1</td><td>—</td><td>[(3,3) -18]</td></tr>
+  <tr><td>2</td><td>(5, -1) &rarr; -26</td><td>2</td><td>—</td><td>[(5,-1) -26, (3,3) -18]</td></tr>
+  <tr><td>3</td><td>(-2, 4) &rarr; -20</td><td>3 &gt; 2</td><td>(5, -1), dist² 26</td><td>[(-2,4) -20, (3,3) -18]</td></tr>
+  <tr><td>4</td><td>(1, -1) &rarr; -2</td><td>3 &gt; 2</td><td>(-2, 4), dist² 20</td><td>[(3,3) -18, (1,-1) -2]</td></tr>
+  <tr class="final"><td>5</td><td>(0, 2) &rarr; -4</td><td>3 &gt; 2</td><td>(3, 3), dist² 18</td><td>[(0,2) -4, (1,-1) -2] &rarr; answer [[0,2],[1,-1]]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"k closest"</b>, <b>"k nearest"</b> or <b>"k smallest by some score"</b>? Keep a heap of size <code>k</code> with the <i>worst</i> kept item on top: for the k smallest that is a max-heap (negate the key in Python).
+<p><a href="01_top_k_lesson.html">→ Top K: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* A row of value boxes. marks: {index: class}, ptrs: {index: label above}, labels: text under each box (default: index). */
+function rowHTML(vals, marks, ptrs, labels){
+  marks=marks||{}; ptrs=ptrs||{};
+  var h='<div class="row">';
+  for(var i=0;i<vals.length;i++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[i]||'')+'</div><div class="box '+(marks[i]||'')+'">'+vals[i]+'</div>'+
+       '<div class="idxlabel">'+(labels?labels[i]:i)+'</div></div>';
+  }
+  return h+'</div>';
+}
+function drawRows(id, rows){
+  var h='';
+  rows.forEach(function(r){ h+='<div class="rowlabel">'+r.label+'</div>'+(r.vals.length?rowHTML(r.vals,r.marks,r.ptrs,r.labels):'<div class="row"><span class="empty">(empty)</span></div>'); });
+  document.getElementById(id).innerHTML=h;
+}
+/* A binary heap drawn as a tree: array index i sits at level floor(log2(i+1)); children of i are 2i+1 and 2i+2. */
+function drawHeap(id, arr, marks, note){
+  marks=marks||{};
+  var W=340, GY=58, r=20, levels=1;
+  while((1<<levels)-1 < arr.length) levels++;
+  var H=levels*GY+8;
+  function lvl(i){ return Math.floor(Math.log2(i+1)); }
+  function X(i){ var L=lvl(i), p=i-((1<<L)-1); return (p+0.5)*W/(1<<L); }
+  function Y(i){ return lvl(i)*GY+r+6; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px" role="img" aria-label="heap drawn as a tree">';
+  if(!arr.length){ s+='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="var(--muted)" font-size="13">(empty heap)</text>'; }
+  for(var i=1;i<arr.length;i++){ var p=(i-1)>>1; s+='<line class="edge" x1="'+X(p)+'" y1="'+Y(p)+'" x2="'+X(i)+'" y2="'+Y(i)+'"/>'; }
+  for(var i=0;i<arr.length;i++){
+    s+='<g class="tnode '+(marks[i]||'')+'"><circle cx="'+X(i)+'" cy="'+Y(i)+'" r="'+r+'"/><text x="'+X(i)+'" y="'+(Y(i)+5)+'" text-anchor="middle">'+arr[i]+'</text></g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>'+(note?'<div class="rowlabel" style="text-align:center">'+note+'</div>':'');
+}
+
+var P=[[3,3],[5,-1],[-2,4],[1,-1],[0,2]];
+function d2(p){ return p[0]*p[0]+p[1]*p[1]; }
+/* Coordinate plane with the origin; marks: {pointIndex: class}. */
+function plane(id, marks){
+  marks=marks||{};
+  var U=34, x0=-3, x1=6, y0=-2, y1=5, W=(x1-x0)*U, H=(y1-y0)*U;
+  function X(x){ return (x-x0)*U; } function Y(y){ return (y1-y)*U; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px" role="img" aria-label="points on a plane">';
+  for(var gx=x0+1; gx<x1; gx++) s+='<line x1="'+X(gx)+'" y1="0" x2="'+X(gx)+'" y2="'+H+'" stroke="var(--border)" stroke-width="'+(gx===0?2:1)+'"/>';
+  for(var gy=y0+1; gy<y1; gy++) s+='<line x1="0" y1="'+Y(gy)+'" x2="'+W+'" y2="'+Y(gy)+'" stroke="var(--border)" stroke-width="'+(gy===0?2:1)+'"/>';
+  s+='<circle cx="'+X(0)+'" cy="'+Y(0)+'" r="5" fill="var(--accent)"/><text x="'+(X(0)+6)+'" y="'+(Y(0)+16)+'" fill="var(--accent)" font-size="11" font-weight="700">origin</text>';
+  for(var i=0;i<P.length;i++){
+    s+='<g class="tnode '+(marks[i]||'')+'"><circle cx="'+X(P[i][0])+'" cy="'+Y(P[i][1])+'" r="11"/>'+
+       '<text x="'+X(P[i][0])+'" y="'+(Y(P[i][1])-15)+'" text-anchor="middle" style="font-size:11px">('+P[i][0]+','+P[i][1]+') '+d2(P[i])+'</text></g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>';
+}
+function M(list){ var m={}; for(var c in list) list[c].forEach(function(i){ m[i]=c; }); return m; }
+
+makePlayer('pd',[
+  {cap:'Five points around the origin. Which 2 are nearest?', m:{}},
+  {cap:'Work out dist² for each: 18, 26, 20, 2, 4 (shown next to each point).', m:M({seen:[0,1,2,3,4]})},
+  {cap:'The two smallest are <b>2</b> at (1,-1) and <b>4</b> at (0,2). Answer: <b>[[1,-1],[0,2]]</b>, in any order.', m:M({good:[3,4],bad:[0,1,2]})}
+],function(f){ plane('pd-viz',f.m); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: one frame per point checked (values from k_closest_brute in the notebook). */
+makePlayer('br',[
+  {cap:'Pass 1 starts: nothing taken yet.', m:{}},
+  {cap:'Pass 1, i = 0: (3,3), dist² 18. First candidate, so it is the best so far.', m:M({seen:[0]})},
+  {cap:'i = 1: (5,-1), dist² 26. Not closer than 18.', m:M({seen:[0],hi:[1]})},
+  {cap:'i = 2: (-2,4), dist² 20. Not closer.', m:M({seen:[0],hi:[2]})},
+  {cap:'i = 3: (1,-1), dist² 2. Closer than 18: new best.', m:M({seen:[3],hi:[3]})},
+  {cap:'i = 4: (0,2), dist² 4. Not closer than 2. End of pass 1: take <b>(1,-1)</b>.', m:M({good:[3],hi:[4]})},
+  {cap:'Pass 2, i = 0: (3,3), 18. First point not taken: best so far.', m:M({good:[3],seen:[0]})},
+  {cap:'i = 1: (5,-1), 26. Not closer.', m:M({good:[3],seen:[0],hi:[1]})},
+  {cap:'i = 2: (-2,4), 20. Not closer.', m:M({good:[3],seen:[0],hi:[2]})},
+  {cap:'i = 3: (1,-1) is already taken: skip it.', m:M({good:[3],seen:[0]})},
+  {cap:'i = 4: (0,2), 4 &lt; 18: new best. Take <b>(0,2)</b>. Two passes done: <b>[[1,-1],[0,2]]</b>.', m:M({good:[3,4],bad:[0,1,2]})}
+],function(f){ plane('br-viz',f.m); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Sort: three frames (values from k_closest_sort). */
+function sortRow(sorted, keep){
+  var vals=[], m={}, lab=[];
+  sorted.forEach(function(i,r){ vals.push(d2(P[i])); lab.push('('+P[i][0]+','+P[i][1]+')'); if(keep) m[r]= r<2 ? 'good' : 'bad'; });
+  return [{vals:vals, marks:m, labels:lab, label: keep ? 'sorted by dist², then cut after k = 2' : 'dist² of each point'}];
+}
+makePlayer('so',[
+  {cap:'Work out dist² for every point, in input order.', r:sortRow([0,1,2,3,4],false), m:{}},
+  {cap:'Sort all five by dist²: 2, 4, 18, 20, 26.', r:sortRow([3,4,0,2,1],false), m:{}},
+  {cap:'Keep the first k = 2: <b>(1,-1)</b> and <b>(0,2)</b>. The sort also ordered three points we never needed.', r:sortRow([3,4,0,2,1],true), m:M({good:[3,4],bad:[0,1,2]})}
+],function(f){ drawRows('so-viz',f.r); document.getElementById('so-cap').innerHTML=f.cap; });
+
+/* Max-heap of size k via negated keys: heap arrays are heapq's real layout (from k_closest_heap). */
+function hk(i){ return '-'+d2(P[i]); }
+makePlayer('hp',[
+  {cap:'Empty heap. It will hold at most k = 2 points, farthest on top.', h:[], m:{}},
+  {cap:'Push (3,3) with key -18.', h:[0], m:M({seen:[0]}), top:true},
+  {cap:'Push (5,-1) with key -26. -26 is the smallest key, so the farthest point, (5,-1), rises to the top.', h:[1,0], m:M({seen:[0,1]}), top:true},
+  {cap:'Push (-2,4), key -20: 3 points &gt; k. Pop the top: <b>(5,-1)</b> (dist² 26) is out.', h:[2,0], m:M({seen:[0,2],bad:[1]}), top:true, ev:1},
+  {cap:'Push (1,-1), key -2: 3 points. Pop the top: <b>(-2,4)</b> (dist² 20) is out.', h:[0,3], m:M({seen:[0,3],bad:[1,2]}), top:true, ev:2},
+  {cap:'Push (0,2), key -4: 3 points. Pop the top: <b>(3,3)</b> (dist² 18) is out. What is left is the answer: <b>[[0,2],[1,-1]]</b>.', h:[4,3], m:M({good:[3,4],bad:[0,1,2]}), ev:0}
+],function(f){
+  plane('hp-viz',f.m);
+  var hv=document.createElement('div'); hv.id='hp-heap'; document.getElementById('hp-viz').appendChild(hv);
+  var hm={}; if(f.top && f.h.length) hm[0]='hi';
+  drawHeap('hp-heap', f.h.map(hk), hm, (f.ev!==undefined ? 'popped: ('+P[f.ev][0]+','+P[f.ev][1]+') &nbsp;·&nbsp; ' : '')+'heap keys (-dist²); top = farthest kept point');
+  document.getElementById('hp-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

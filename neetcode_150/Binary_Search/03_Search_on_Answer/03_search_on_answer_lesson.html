@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search on Answer — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+    /* Speed-line trace (Methods 1 and 2): boxes are redrawn by JS each step. */
+    .sp-box { fill: #c8d2e7; transition: fill 0.2s ease; }
+    .sp-box.green { fill: #13a46b; }
+    .sp-box.orange { fill: #ff9f1c; }
+    .sp-box.blue { fill: #315efb; }
+    .sp-label { font: 700 16px Inter, Arial, sans-serif; fill: #ffffff; }
+    .sp-label.dark { fill: #172033; }
+    .sp-top { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+    .sp-ptr { font: 800 13px Inter, Arial, sans-serif; fill: #315efb; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Binary Search · Pattern 03 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Search on Answer</h1>
+          <p>
+            Some problems ask for the smallest value you get to choose (a speed, a capacity, a number of days) that still meets a limit. You cannot search the input for it, but you can search the range of possible answers. If one guess can be checked quickly and the check is monotonic, binary search finds the smallest value that passes.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: binary search a yes/no check over the answers</span>
+            <span class="chip">Method 1: Binary search the speed</span>
+            <span class="chip">Method 2: Try every speed (brute force)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="koko_eating_bananas.html">Koko Eating Bananas</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Koko Eating Bananas, <code>piles = [3, 6, 7, 11]</code>, <code>h = 8</code>: the slowest eating speed that finishes in 8 hours.</p>
+          <div class="diagram">
+            <svg viewBox="0 0 540 150" width="100%" role="img" aria-label="Speeds 1 to 11: speeds 1 to 3 are too slow, speeds 4 to 11 fit in 8 hours; the first one that fits is 4">
+              <defs>
+                <style>
+                  .h-no { fill: #c8d2e7; }
+                  .h-yes { fill: #13a46b; }
+                  .h-ring { fill: none; stroke: #ff9f1c; stroke-width: 4; }
+                  .h-label { font: 700 16px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-label-dark { font: 700 16px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-small { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-title { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="10" y="20" class="h-title">speed k</text>
+              <text x="10" y="112" class="h-title">hours</text>
+              <rect x="20" y="40" width="40" height="40" rx="9" class="h-no" /><text x="40" y="66" text-anchor="middle" class="h-label-dark">1</text><text x="40" y="112" text-anchor="middle" class="h-small">27</text>
+              <rect x="68" y="40" width="40" height="40" rx="9" class="h-no" /><text x="88" y="66" text-anchor="middle" class="h-label-dark">2</text><text x="88" y="112" text-anchor="middle" class="h-small">15</text>
+              <rect x="116" y="40" width="40" height="40" rx="9" class="h-no" /><text x="136" y="66" text-anchor="middle" class="h-label-dark">3</text><text x="136" y="112" text-anchor="middle" class="h-small">10</text>
+              <rect x="164" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="184" y="66" text-anchor="middle" class="h-label">4</text><text x="184" y="112" text-anchor="middle" class="h-small">8</text>
+              <rect x="212" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="232" y="66" text-anchor="middle" class="h-label">5</text><text x="232" y="112" text-anchor="middle" class="h-small">8</text>
+              <rect x="260" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="280" y="66" text-anchor="middle" class="h-label">6</text><text x="280" y="112" text-anchor="middle" class="h-small">6</text>
+              <rect x="308" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="328" y="66" text-anchor="middle" class="h-label">7</text><text x="328" y="112" text-anchor="middle" class="h-small">5</text>
+              <rect x="356" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="376" y="66" text-anchor="middle" class="h-label">8</text><text x="376" y="112" text-anchor="middle" class="h-small">5</text>
+              <rect x="404" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="424" y="66" text-anchor="middle" class="h-label">9</text><text x="424" y="112" text-anchor="middle" class="h-small">5</text>
+              <rect x="452" y="40" width="40" height="40" rx="9" class="h-yes" /><text x="472" y="66" text-anchor="middle" class="h-label">10</text><text x="472" y="112" text-anchor="middle" class="h-small">5</text>
+              <rect x="500" y="40" width="34" height="40" rx="9" class="h-yes" /><text x="517" y="66" text-anchor="middle" class="h-label">11</text><text x="517" y="112" text-anchor="middle" class="h-small">4</text>
+              <rect x="160" y="36" width="48" height="48" rx="11" class="h-ring" />
+              <text x="20" y="140" class="h-small">gray = too slow (more than 8 hours) · green = fits · ring = first speed that fits</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = 4</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Capacity planning</h3>
+          <p>"What is the smallest machine, truck or bandwidth that still meets the deadline?" Checking one size is a quick simulation; trying every size is not.</p>
+        </div>
+        <div class="card">
+          <h3>Fair splitting of work</h3>
+          <p>"Split these jobs into <code>m</code> consecutive batches so the biggest batch is as small as possible." Guess the biggest allowed batch, then check whether <code>m</code> batches are enough.</p>
+        </div>
+        <div class="card">
+          <h3>Huge answer ranges</h3>
+          <p>When the answer can be anywhere up to <code>10^9</code>, a linear scan is hopeless, but about 30 halvings reach any value in that range.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the hard part is not the binary search, it is noticing that you <em>can</em> binary search. The input array is usually unsorted. What is sorted is the line of yes/no answers to "does this guess work?"</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is search on answer?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Pick a range <code>[lo, hi]</code> that surely contains the answer. Write <code>feasible(x)</code>, a yes/no check for one guess. If the check is <strong>monotonic</strong> (once a guess works, every bigger guess works too), the answers read <code>no ... no YES ... YES</code>, and binary search finds the first <code>YES</code>.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Minimum speed / capacity / days such that ... within <code>h</code> hours / <code>D</code> days", "minimize the maximum", "maximize the minimum", and a value range far bigger than <code>n</code> (up to <code>10^9</code>).</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> ask "if I were <em>told</em> the answer, could I check it in one pass?" and "if <code>x</code> works, does <code>x + 1</code> work?" Two yeses mean binary search on the answer.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Name the answer</h3>
+          <p>What number do you choose? For Koko: the eating speed <code>k</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Write the check</h3>
+          <p><code>feasible(k)</code>: total hours <code>sum((p + k - 1) // k)</code> is at most <code>h</code>. One <code>O(n)</code> pass.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Confirm monotonic, set bounds</h3>
+          <p>Faster never takes longer, so it is monotonic. <code>lo = 1</code> (slowest), <code>hi = max(piles)</code> (always fits).</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Find the first YES</h3>
+          <p>While <code>lo &lt; hi</code>: feasible <code>mid</code> means <code>hi = mid</code>; otherwise <code>lo = mid + 1</code>. Return <code>lo</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a yes/no line</h2>
+      <p>The piles are never sorted or searched. They are only read inside the check. What the binary search walks over is a line of candidate speeds, each tagged by the check as "too slow" or "fits".</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input</h3>
+          <div class="code-block"><code>piles = [3, 6, 7, 11]
+h     = 8</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Answer space: speed → hours → fits?</h3>
+          <div class="code-block"><code>k:      1   2   3   4   5   6  ...  11
+hours: 27  15  10   8   8   6  ...   4
+fits:  no  no  no YES YES YES  ... YES</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Hours for one pile at speed <code>k</code></h4>
+          <p><code>(p + k - 1) // k</code>, the ceiling of <code>p / k</code>: a pile of 7 at speed 3 takes 3 hours (3 + 3 + 1).</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Hours for all piles</h4>
+          <p>Add them up. At speed 4: 1 + 2 + 2 + 3 = 8. At speed 3: 1 + 2 + 3 + 4 = 10.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Fits or not</h4>
+          <p>Compare with <code>h = 8</code>: speed 3 is too slow, speed 4 fits.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>The line is sorted</h4>
+          <p>A faster speed never needs more hours, so once "fits" appears it never turns back to "too slow". That ordering is all binary search needs.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the bounds come from the problem, not from array indices. <code>lo = 1</code> because speed 0 eats nothing (and divides by zero). <code>hi = max(piles)</code> because at that speed every pile takes exactly one hour, and <code>h &gt;= len(piles)</code> is guaranteed.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: binary search the speed (Koko Eating Bananas)</h2>
+      <p>The template, taken line for line from the notebook's <code>hours_needed</code> (docstring omitted) and <code>min_eating_speed_binary</code>. Each pass checks the middle speed, keeps it if it fits, and throws away the half that cannot contain the answer.</p>
+      <div class="code-block stepped">
+        <code id="bs-code">
+<span class="code-line" data-line="1">def hours_needed(piles: List[int], k: int) -&gt; int:</span>
+<span class="code-line" data-line="2">    return sum((p + k - 1) // k for p in piles)    # ceil(p / k) per pile, integers only</span>
+<span class="code-line" data-line="3"></span>
+<span class="code-line" data-line="4">def min_eating_speed_binary(piles: List[int], h: int) -&gt; int:</span>
+<span class="code-line" data-line="5">    lo, hi = 1, max(piles)                     # bounds of the ANSWER (speeds), not of the array</span>
+<span class="code-line" data-line="6">    while lo &lt; hi:                             # stop when one candidate is left</span>
+<span class="code-line" data-line="7">        mid = (lo + hi) // 2</span>
+<span class="code-line" data-line="8">        if hours_needed(piles, mid) &lt;= h:      # feasible: mid works...</span>
+<span class="code-line" data-line="9">            hi = mid                           # ...so the answer is mid or smaller (keep mid)</span>
+<span class="code-line" data-line="10">        else:</span>
+<span class="code-line" data-line="11">            lo = mid + 1                       # too slow: the answer is strictly bigger than mid</span>
+<span class="code-line" data-line="12">    return lo                                  # lo == hi == smallest feasible speed</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive binary-search trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bs-graph" viewBox="0 0 540 140" width="100%" role="img" aria-label="Binary search over speeds 1 to 11 for piles 3, 6, 7, 11 and h = 8"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> mid being checked</span>
+            <span><i class="dot dot-green"></i> still a candidate (in [lo, hi])</span>
+            <span><i class="dot dot-gray"></i> ruled out</span>
+            <span><i class="dot dot-blue"></i> answer</span>
+            <span>number above a box = hours at that speed (once checked)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bs-step-title">Initial state</h3>
+          <p id="bs-step-text">Set the bounds of the answer.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bs-prev">Previous</button>
+            <button type="button" id="bs-play" class="primary">Resume</button>
+            <button type="button" id="bs-next">Next</button>
+            <button type="button" id="bs-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bs-step-counter">Step 0 / 9</span>
+            <div class="progress"><span id="bs-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>lo</strong><div class="state-value" id="bs-lo">1</div></div>
+            <div class="state-box"><strong>hi</strong><div class="state-value" id="bs-hi">11</div></div>
+            <div class="state-box"><strong>mid</strong><div class="state-value" id="bs-mid">—</div></div>
+            <div class="state-box"><strong>hours_needed(mid)</strong><div class="state-value" id="bs-hours">—</div></div>
+            <div class="state-box"><strong>feasible? (&lt;= 8)</strong><div class="state-value" id="bs-feas">—</div></div>
+            <div class="state-box"><strong>candidates left</strong><div class="state-value" id="bs-left">11</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bs-detail"><strong>What changed:</strong> nothing checked yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bs-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Action</th><th>lo</th><th>hi</th><th>mid</th><th>Hours per pile at mid</th><th>Total</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>Set bounds</td><td>1</td><td>11</td><td>—</td><td>—</td><td>—</td><td>Answer is somewhere in 1..11</td></tr>
+            <tr data-step="1"><td>1</td><td>Check <code>mid = (1 + 11) // 2</code></td><td>1</td><td>11</td><td>6</td><td>1, 1, 2, 2</td><td>6</td><td>6 &lt;= 8, fits</td></tr>
+            <tr data-step="2"><td>2</td><td>Keep left half with mid</td><td>1</td><td>6</td><td>6</td><td>—</td><td>—</td><td><code>hi = 6</code></td></tr>
+            <tr data-step="3"><td>3</td><td>Check <code>mid = (1 + 6) // 2</code></td><td>1</td><td>6</td><td>3</td><td>1, 2, 3, 4</td><td>10</td><td>10 &gt; 8, too slow</td></tr>
+            <tr data-step="4"><td>4</td><td>Drop mid and everything slower</td><td>4</td><td>6</td><td>3</td><td>—</td><td>—</td><td><code>lo = 4</code></td></tr>
+            <tr data-step="5"><td>5</td><td>Check <code>mid = (4 + 6) // 2</code></td><td>4</td><td>6</td><td>5</td><td>1, 2, 2, 3</td><td>8</td><td>8 &lt;= 8, fits</td></tr>
+            <tr data-step="6"><td>6</td><td>Keep left half with mid</td><td>4</td><td>5</td><td>5</td><td>—</td><td>—</td><td><code>hi = 5</code></td></tr>
+            <tr data-step="7"><td>7</td><td>Check <code>mid = (4 + 5) // 2</code></td><td>4</td><td>5</td><td>4</td><td>1, 2, 2, 3</td><td>8</td><td>8 &lt;= 8, fits</td></tr>
+            <tr data-step="8"><td>8</td><td>Keep left half with mid</td><td>4</td><td>4</td><td>4</td><td>—</td><td>—</td><td><code>hi = 4</code></td></tr>
+            <tr data-step="9"><td>9</td><td><code>lo == hi</code>, loop ends</td><td>4</td><td>4</td><td>—</td><td>—</td><td>—</td><td>Return 4</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Each check answers "is the boundary to my left or right?" A fitting <code>mid</code> could still be the boundary, so it stays in the range; a failing <code>mid</code> cannot be, so it leaves with everything slower.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Writing <code>hi = mid - 1</code> after a fit. At step 7 that would set <code>hi = 3</code> and lose the answer 4, which only <code>hi = mid</code> keeps.</p>
+        </div>
+        <div class="card">
+          <h4>Why lower middle + <code>lo = mid + 1</code></h4>
+          <p><code>(lo + hi) // 2</code> rounds down, so <code>mid &lt; hi</code> whenever <code>lo &lt; hi</code>. Both branches then shrink the range, and the loop always ends.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: try every speed (the brute force it replaces)</h2>
+      <p>The notebook's <code>min_eating_speed_brute</code>: walk the same yes/no line from the left, one speed at a time, and stop at the first "fits". It is correct, and it shows exactly what binary search saves: on this input it checks 4 speeds against binary search's 4, but in general it checks up to <code>max(piles)</code> speeds (up to <code>10^9</code>), not about <code>log2</code> of that.</p>
+      <div class="code-block stepped">
+        <code id="bf-code">
+<span class="code-line" data-line="1">def min_eating_speed_brute(piles: List[int], h: int) -&gt; int:</span>
+<span class="code-line" data-line="2">    for k in range(1, max(piles) + 1):         # every candidate speed, slowest first</span>
+<span class="code-line" data-line="3">        if hours_needed(piles, k) &lt;= h:        # first speed that fits in h hours...</span>
+<span class="code-line" data-line="4">            return k                           # ...is the minimum, since we go in increasing order</span>
+<span class="code-line" data-line="5">    return max(piles)                          # unreachable when h &gt;= len(piles); kept for safety</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive linear-scan trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bf-graph" viewBox="0 0 540 140" width="100%" role="img" aria-label="Linear scan over speeds 1 to 11 for piles 3, 6, 7, 11 and h = 8"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> speed being checked</span>
+            <span><i class="dot dot-green"></i> not tried yet</span>
+            <span><i class="dot dot-gray"></i> tried, too slow</span>
+            <span><i class="dot dot-blue"></i> answer</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bf-step-title">Initial state</h3>
+          <p id="bf-step-text">Start from the slowest speed.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bf-prev">Previous</button>
+            <button type="button" id="bf-play" class="primary">Resume</button>
+            <button type="button" id="bf-next">Next</button>
+            <button type="button" id="bf-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bf-step-counter">Step 0 / 4</span>
+            <div class="progress"><span id="bf-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>k</strong><div class="state-value" id="bf-k">—</div></div>
+            <div class="state-box"><strong>hours per pile</strong><div class="state-value" id="bf-per">—</div></div>
+            <div class="state-box"><strong>hours_needed(k)</strong><div class="state-value" id="bf-hours">—</div></div>
+            <div class="state-box"><strong>fits? (&lt;= 8)</strong><div class="state-value" id="bf-feas">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bf-detail"><strong>What changed:</strong> nothing checked yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bf-trace-table">
+          <thead>
+            <tr><th>Step</th><th>k</th><th>Hours per pile</th><th>Total</th><th>Fits?</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Loop over <code>range(1, 12)</code></td></tr>
+            <tr data-step="1"><td>1</td><td>1</td><td>3, 6, 7, 11</td><td>27</td><td>no</td><td>Next speed</td></tr>
+            <tr data-step="2"><td>2</td><td>2</td><td>2, 3, 4, 6</td><td>15</td><td>no</td><td>Next speed</td></tr>
+            <tr data-step="3"><td>3</td><td>3</td><td>1, 2, 3, 4</td><td>10</td><td>no</td><td>Next speed</td></tr>
+            <tr data-step="4"><td>4</td><td>4</td><td>1, 2, 2, 3</td><td>8</td><td>yes</td><td>Return 4</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>This is a linear search for the first <code>YES</code> on a sorted yes/no line. Any time you see a linear search on something sorted, binary search is the upgrade.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Judging speed by this tiny example. The worst case is an answer near <code>max(piles)</code>: with <code>h = len(piles)</code> the scan tries every single speed.</p>
+        </div>
+        <div class="card">
+          <h4>What the notebook measured</h4>
+          <p>On <code>piles = [1..n]</code>, <code>h = n</code> (answer = <code>n</code>): the scan grew about 4x per doubling (<code>O(n·M)</code> with <code>M = n</code>), binary search about 2.2x.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">One hour per pile</button>
+        <button type="button" data-example-tab="1">Plenty of time</button>
+        <button type="button" data-example-tab="2">One huge pile</button>
+        <button type="button" data-example-tab="3">Single pile, one banana</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: <code>h == len(piles)</code></h3>
+          <p><code>piles = [30, 11, 23, 4, 20]</code>, <code>h = 5</code></p>
+          <div class="result-badge">Answer = 30 (max(piles))</div>
+          <p class="footer-note">Every pile must be finished in a single hour, so the speed must be the biggest pile. This is why <code>hi = max(piles)</code> is always a safe upper bound.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: far more hours than bananas</h3>
+          <p><code>piles = [5, 5, 5]</code>, <code>h = 1000</code></p>
+          <div class="result-badge">Answer = 1</div>
+          <p class="footer-note">Speed 1 already fits (15 hours). Every check succeeds, <code>hi</code> walks down to <code>lo = 1</code>. A search starting at <code>lo = 0</code> would divide by zero here.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: one huge pile</h3>
+          <p><code>piles = [1000000000]</code>, <code>h = 2</code></p>
+          <div class="result-badge">Answer = 500000000</div>
+          <p class="footer-note">Binary search needs about 30 checks. The brute force would need 500 million; the notebook skips it on this test for that reason.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: smallest input</h3>
+          <p><code>piles = [1]</code>, <code>h = 1</code></p>
+          <div class="result-badge">Answer = 1</div>
+          <p class="footer-note"><code>lo = hi = 1</code> from the start, so the loop body never runs and <code>lo</code> is returned.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Checks</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Try every speed (Method 2)</td><td>up to <code>M</code></td><td><code>O(n·M)</code></td><td><code>O(1)</code></td><td>Correct; measured about 4x per doubling when <code>M = n</code>.</td></tr>
+            <tr><td>Binary search the speed (Method 1)</td><td>about <code>log2 M</code></td><td><code>O(n log M)</code></td><td><code>O(1)</code></td><td>The template; measured about 2.2x per doubling.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = number of piles, <code>M</code> = <code>max(piles)</code>. Complexities and ratios come from the notebook in this folder.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>"Return the minimum speed" means I am choosing a number, not finding an element.</p></div>
+            <div class="timeline-step"><p>Given a speed, I can check it in one pass: total hours with ceiling division.</p></div>
+            <div class="timeline-step"><p>Faster never takes longer, so the check is monotonic over speeds.</p></div>
+            <div class="timeline-step"><p>The answer is in <code>[1, max(piles)]</code>; binary search for the first speed that fits.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Brute force tries every speed from 1 up: O(n·M), too slow with piles up to 10^9."</li>
+            <li>"If Koko finishes at speed k, she finishes at any faster speed, so I can binary search the speed."</li>
+            <li>"If mid fits, the answer is mid or smaller, so hi = mid; otherwise lo = mid + 1."</li>
+            <li>"About log2(M) checks, each O(n): O(n log M) time, O(1) space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>The binary search</h3>
+          <ul class="mistake-list">
+            <li><code>hi = mid - 1</code> after a feasible <code>mid</code>: can skip the answer.</li>
+            <li><code>lo = mid</code> with a lower middle: loops forever when <code>hi = lo + 1</code>.</li>
+            <li>Mixing templates: <code>while lo &lt;= hi</code> with <code>hi = mid</code> never ends.</li>
+            <li>Searching indices of <code>piles</code> instead of speeds.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>The feasibility check</h3>
+          <ul class="mistake-list">
+            <li>Floor division <code>p // k</code>: undercounts hours for partial piles.</li>
+            <li><code>math.ceil(p / k)</code>: float rounding; use <code>(p + k - 1) // k</code>.</li>
+            <li>Starting at <code>lo = 0</code>: division by zero.</li>
+            <li>Upper bound too small (for example <code>sum(piles) // h</code>): may not be feasible.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>This pattern has one NeetCode 150 problem, so questions 2 to 4 are <strong>follow-up variants</strong>: other LeetCode problems that reuse the same template with a different <code>feasible</code>. They are not in this folder; the <a href="README.md">README</a> lists them with their search ranges.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Koko Eating Bananas: <code>piles = [30, 11, 23, 4, 20]</code>, <code>h = 6</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> with 6 hours for 5 piles, exactly one pile may take two hours. Which pile should it be?</p>
+          <p style="margin-top:10px;">Answer: <code>23</code>. At 23 the hours are 2 + 1 + 1 + 1 + 1 = 6. At 22 the pile of 23 also needs 2 hours: 7 in total, too slow. Step through the method on <a href="koko_eating_bananas.html">Koko Eating Bananas</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 (variant) — Capacity To Ship Packages Within D Days (LC 1011): <code>weights = [1..10]</code>, <code>days = 5</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the answer is a ship capacity in <code>[max(weights), sum(weights)]</code>. <code>feasible(c)</code>: load packages in order, start a new day when the next one would go over <code>c</code>, and check the days used are at most 5.</p>
+          <p style="margin-top:10px;">Answer: <code>15</code>. Capacity 15 gives <code>[1..5] [6,7] [8] [9] [10]</code> = 5 days; capacity 14 needs 6. Same loop as <a href="koko_eating_bananas.html">Koko</a>; only bounds and check change.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (variant) — Split Array Largest Sum (LC 410): <code>nums = [7, 2, 5, 10, 8]</code>, <code>k = 2</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> guess the largest part sum <code>x</code> in <code>[max(nums), sum(nums)]</code>. <code>feasible(x)</code>: greedily cut a new part when the running sum would exceed <code>x</code>; it fits if you used at most <code>k</code> parts. It is the shipping check with "days" renamed "parts".</p>
+          <p style="margin-top:10px;">Answer: <code>18</code>, from <code>[7, 2, 5] [10, 8]</code>. "Minimize the largest" is the tell. Template: <a href="koko_eating_bananas.html">Koko Eating Bananas</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 (variant) — Minimum Number of Days to Make m Bouquets (LC 1482): <code>bloomDay = [1, 10, 3, 10, 2]</code>, <code>m = 3</code>, <code>k = 1</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> guess a day <code>d</code> in <code>[min(bloomDay), max(bloomDay)]</code>. <code>feasible(d)</code>: walk the flowers, count runs of <code>k</code> adjacent ones with <code>bloomDay[i] &lt;= d</code>, and check you get at least <code>m</code> bouquets. If <code>m * k &gt; n</code>, return <code>-1</code> before searching.</p>
+          <p style="margin-top:10px;">Answer: <code>3</code>. By day 3 the flowers blooming on days 1, 3 and 2 are open: 3 bouquets. With <code>k = 2</code> instead, <code>m * k = 6 &gt; 5</code>, so the answer is <code>-1</code>. See the template on <a href="koko_eating_bananas.html">Koko Eating Bananas</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Search the answer, not the array.</strong>
+          Find a range that surely holds the answer, write a monotonic yes/no check for one guess, and binary search for the first yes: feasible <code>mid</code> means <code>hi = mid</code>, otherwise <code>lo = mid + 1</code>. Koko's check is "total hours at this speed is at most <code>h</code>"; the variants swap in a different check and keep the loop.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Search on Answer pattern notes</a>. Code and trace values are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const SPEEDS = 11;
+      // Ground truth: instrumented run of min_eating_speed_binary on piles = [3, 6, 7, 11], h = 8.
+      // cand = [lo, hi] range still in play; hrs = hours already computed per speed.
+      const bsSteps = [
+        { step: 0, title: 'Initial state', text: 'Set the bounds of the answer: lo = 1 (slowest speed), hi = 11 (the biggest pile always fits).', lo: 1, hi: 11, mid: null, hours: '—', feas: '—', hrs: {}, answer: null, detail: 'Nothing checked yet. All 11 speeds are candidates.', lines: [5] },
+        { step: 1, title: 'Step 1: check mid = 6', text: 'lo < hi, so compute mid = (1 + 11) // 2 = 6 and the hours at speed 6.', lo: 1, hi: 11, mid: 6, hours: '1 + 1 + 2 + 2 = 6', feas: 'yes (6 <= 8)', hrs: { 6: 6 }, answer: null, detail: 'Speed 6 fits. The answer is 6 or slower.', lines: [6, 7, 8, 1, 2] },
+        { step: 2, title: 'Step 2: hi = 6', text: 'mid fits, so keep it and drop everything faster: hi = mid.', lo: 1, hi: 6, mid: 6, hours: '6', feas: 'yes', hrs: { 6: 6 }, answer: null, detail: 'Speeds 7..11 are ruled out. 6 stays: it might be the answer.', lines: [9] },
+        { step: 3, title: 'Step 3: check mid = 3', text: 'mid = (1 + 6) // 2 = 3.', lo: 1, hi: 6, mid: 3, hours: '1 + 2 + 3 + 4 = 10', feas: 'no (10 > 8)', hrs: { 6: 6, 3: 10 }, answer: null, detail: 'Speed 3 is too slow, and every slower speed is too.', lines: [6, 7, 8, 1, 2] },
+        { step: 4, title: 'Step 4: lo = 4', text: 'mid is too slow, so the answer is strictly bigger: lo = mid + 1.', lo: 4, hi: 6, mid: 3, hours: '10', feas: 'no', hrs: { 6: 6, 3: 10 }, answer: null, detail: 'Speeds 1..3 are ruled out without checking 1 and 2.', lines: [10, 11] },
+        { step: 5, title: 'Step 5: check mid = 5', text: 'mid = (4 + 6) // 2 = 5.', lo: 4, hi: 6, mid: 5, hours: '1 + 2 + 2 + 3 = 8', feas: 'yes (8 <= 8)', hrs: { 6: 6, 3: 10, 5: 8 }, answer: null, detail: 'Speed 5 fits exactly at 8 hours.', lines: [6, 7, 8, 1, 2] },
+        { step: 6, title: 'Step 6: hi = 5', text: 'mid fits: hi = mid.', lo: 4, hi: 5, mid: 5, hours: '8', feas: 'yes', hrs: { 6: 6, 3: 10, 5: 8 }, answer: null, detail: 'Two candidates left: 4 and 5.', lines: [9] },
+        { step: 7, title: 'Step 7: check mid = 4', text: 'mid = (4 + 5) // 2 = 4, the lower middle.', lo: 4, hi: 5, mid: 4, hours: '1 + 2 + 2 + 3 = 8', feas: 'yes (8 <= 8)', hrs: { 6: 6, 3: 10, 5: 8, 4: 8 }, answer: null, detail: 'Speed 4 also fits.', lines: [6, 7, 8, 1, 2] },
+        { step: 8, title: 'Step 8: hi = 4', text: 'mid fits: hi = mid. Now lo == hi.', lo: 4, hi: 4, mid: 4, hours: '8', feas: 'yes', hrs: { 6: 6, 3: 10, 5: 8, 4: 8 }, answer: null, detail: 'One candidate left. hi = mid - 1 here would have lost it.', lines: [9] },
+        { step: 9, title: 'Step 9: return 4', text: 'lo < hi is false, so the loop ends and lo is returned.', lo: 4, hi: 4, mid: null, hours: '—', feas: '—', hrs: { 6: 6, 3: 10, 5: 8, 4: 8 }, answer: 4, detail: 'Final answer: 4, after 4 checks.', lines: [6, 12] }
+      ];
+
+      // Ground truth: instrumented run of min_eating_speed_brute on the same input.
+      const bfSteps = [
+        { step: 0, title: 'Initial state', text: 'Loop k over range(1, max(piles) + 1) = 1..11.', k: null, per: '—', hours: '—', feas: '—', tried: [], answer: null, detail: 'Nothing checked yet.', lines: [2] },
+        { step: 1, title: 'Step 1: k = 1', text: 'Hours at speed 1: one hour per banana.', k: 1, per: '3, 6, 7, 11', hours: '27', feas: 'no (27 > 8)', tried: [], answer: null, detail: 'Too slow; move on to k = 2.', lines: [2, 3, 1] },
+        { step: 2, title: 'Step 2: k = 2', text: 'Hours at speed 2.', k: 2, per: '2, 3, 4, 6', hours: '15', feas: 'no (15 > 8)', tried: [1], answer: null, detail: 'Too slow; move on to k = 3.', lines: [2, 3, 1] },
+        { step: 3, title: 'Step 3: k = 3', text: 'Hours at speed 3.', k: 3, per: '1, 2, 3, 4', hours: '10', feas: 'no (10 > 8)', tried: [1, 2], answer: null, detail: 'Too slow; move on to k = 4.', lines: [2, 3, 1] },
+        { step: 4, title: 'Step 4: k = 4, return', text: 'Hours at speed 4 fit, and every slower speed failed, so 4 is the minimum.', k: 4, per: '1, 2, 2, 3', hours: '8', feas: 'yes (8 <= 8)', tried: [1, 2, 3], answer: 4, detail: 'Final answer: 4. Speeds 5..11 are never checked.', lines: [3, 4] }
+      ];
+
+      // Draw the row of speed boxes 1..SPEEDS into an SVG. cls(k) -> fill class; top(k) / bottom(k) -> labels.
+      const NS = 'http://www.w3.org/2000/svg';
+      function drawSpeeds(svgId, cls, top, bottom) {
+        const svg = document.getElementById(svgId);
+        svg.textContent = '';
+        for (let k = 1; k <= SPEEDS; k += 1) {
+          const x = 14 + (k - 1) * 47;
+          const rect = document.createElementNS(NS, 'rect');
+          rect.setAttribute('x', x); rect.setAttribute('y', 44); rect.setAttribute('width', 40); rect.setAttribute('height', 40); rect.setAttribute('rx', 9);
+          rect.setAttribute('class', `sp-box ${cls(k)}`);
+          svg.appendChild(rect);
+          const label = document.createElementNS(NS, 'text');
+          label.setAttribute('x', x + 20); label.setAttribute('y', 70); label.setAttribute('text-anchor', 'middle');
+          label.setAttribute('class', cls(k) === 'gray' ? 'sp-label dark' : 'sp-label');
+          label.textContent = k;
+          svg.appendChild(label);
+          [[top(k), 32, 'sp-top'], [bottom(k), 108, 'sp-ptr']].forEach(([txt, y, c]) => {
+            if (!txt) return;
+            const t = document.createElementNS(NS, 'text');
+            t.setAttribute('x', x + 20); t.setAttribute('y', y); t.setAttribute('text-anchor', 'middle'); t.setAttribute('class', c);
+            t.textContent = txt;
+            svg.appendChild(t);
+          });
+        }
+      }
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function renderBS(step, index, max) {
+        document.getElementById('bs-step-title').textContent = step.title;
+        document.getElementById('bs-step-text').textContent = step.text;
+        document.getElementById('bs-lo').textContent = step.lo;
+        document.getElementById('bs-hi').textContent = step.hi;
+        document.getElementById('bs-mid').textContent = step.mid === null ? '—' : step.mid;
+        document.getElementById('bs-hours').textContent = step.hours;
+        document.getElementById('bs-feas').textContent = step.feas;
+        document.getElementById('bs-left').textContent = step.hi - step.lo + 1;
+        document.getElementById('bs-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bs-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bs-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bs-trace-table', step.step);
+        setCodeHighlight('bs-code', step.lines);
+        drawSpeeds('bs-graph',
+          (k) => (k === step.answer ? 'blue' : k === step.mid ? 'orange' : (k >= step.lo && k <= step.hi ? 'green' : 'gray')),
+          (k) => (k in step.hrs ? `${step.hrs[k]}h` : ''),
+          (k) => [k === step.lo ? 'lo' : '', k === step.hi ? 'hi' : '', k === step.mid ? 'mid' : ''].filter(Boolean).join('/'));
+      }
+
+      function renderBF(step, index, max) {
+        document.getElementById('bf-step-title').textContent = step.title;
+        document.getElementById('bf-step-text').textContent = step.text;
+        document.getElementById('bf-k').textContent = step.k === null ? '—' : step.k;
+        document.getElementById('bf-per').textContent = step.per;
+        document.getElementById('bf-hours').textContent = step.hours;
+        document.getElementById('bf-feas').textContent = step.feas;
+        document.getElementById('bf-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bf-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bf-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bf-trace-table', step.step);
+        setCodeHighlight('bf-code', step.lines);
+        drawSpeeds('bf-graph',
+          (k) => (k === step.answer ? 'blue' : k === step.k ? 'orange' : (step.tried.includes(k) ? 'gray' : 'green')),
+          (k) => (k === step.k ? `${step.hours}h` : ''),
+          (k) => (k === step.k ? 'k' : ''));
+      }
+
+      setupTrace({ steps: bsSteps, prefix: 'bs', render: renderBS });
+      setupTrace({ steps: bfSteps, prefix: 'bf', render: renderBF });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid Backtracking — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+
+    .dot-red { background: #e5484d; }
+    .g-cell { fill: #e9eef8; stroke: #c8d2e7; stroke-width: 2; transition: fill 0.2s ease; }
+    .g-cell.path { fill: #315efb; stroke: #2448c8; }
+    .g-cell.current { fill: #ff9f1c; stroke: #d97f00; }
+    .g-cell.bad { fill: #e5484d; stroke: #b9343a; }
+    .g-cell.good { fill: #13a46b; stroke: #0f8a59; }
+    .g-txt { font: 700 22px Inter, Arial, sans-serif; fill: #172033; }
+    .g-txt.on { fill: #ffffff; }
+    .g-idx { font: 600 11px Inter, Arial, sans-serif; fill: #5d677d; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Backtracking · Pattern 05 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Grid Backtracking</h1>
+          <p>
+            Search a grid for one path of neighbouring cells. Run a DFS from every cell; at each cell check the letter, <strong>mark</strong> the cell as used, explore its 4 neighbours, then <strong>restore</strong> it on the way back so a different path can still use it.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: mark, explore, restore</span>
+            <span class="chip">Method 1: backtracking DFS (Word Search)</span>
+            <span class="chip">Method 2: the brute force it replaces</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="word_search.html">Word Search</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Word Search, <code>board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]</code>, <code>word = "ABCCED"</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 360 250" width="100%" role="img" aria-label="3 by 4 letter board with the path A B C C E D highlighted and numbered 1 to 6">
+              <defs>
+                <style>
+                  .h-cell { fill: #e9eef8; stroke: #c8d2e7; stroke-width: 2; }
+                  .h-on { fill: #13a46b; stroke: #0f8a59; }
+                  .h-txt { font: 700 22px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-txt-on { fill: #ffffff; }
+                  .h-num { font: 700 12px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-arrow { stroke: #172033; stroke-width: 3; stroke-linecap: round; }
+                </style>
+              </defs>
+              <rect x="20" y="20" width="70" height="70" rx="10" class="h-cell h-on" />
+              <rect x="100" y="20" width="70" height="70" rx="10" class="h-cell h-on" />
+              <rect x="180" y="20" width="70" height="70" rx="10" class="h-cell h-on" />
+              <rect x="260" y="20" width="70" height="70" rx="10" class="h-cell" />
+              <rect x="20" y="100" width="70" height="70" rx="10" class="h-cell" />
+              <rect x="100" y="100" width="70" height="70" rx="10" class="h-cell" />
+              <rect x="180" y="100" width="70" height="70" rx="10" class="h-cell h-on" />
+              <rect x="260" y="100" width="70" height="70" rx="10" class="h-cell" />
+              <rect x="20" y="180" width="70" height="70" rx="10" class="h-cell" />
+              <rect x="100" y="180" width="70" height="70" rx="10" class="h-cell h-on" />
+              <rect x="180" y="180" width="70" height="70" rx="10" class="h-cell h-on" />
+              <rect x="260" y="180" width="70" height="70" rx="10" class="h-cell" />
+              <text x="55" y="63" text-anchor="middle" class="h-txt h-txt-on">A</text>
+              <text x="135" y="63" text-anchor="middle" class="h-txt h-txt-on">B</text>
+              <text x="215" y="63" text-anchor="middle" class="h-txt h-txt-on">C</text>
+              <text x="295" y="63" text-anchor="middle" class="h-txt">E</text>
+              <text x="55" y="143" text-anchor="middle" class="h-txt">S</text>
+              <text x="135" y="143" text-anchor="middle" class="h-txt">F</text>
+              <text x="215" y="143" text-anchor="middle" class="h-txt h-txt-on">C</text>
+              <text x="295" y="143" text-anchor="middle" class="h-txt">S</text>
+              <text x="55" y="223" text-anchor="middle" class="h-txt">A</text>
+              <text x="135" y="223" text-anchor="middle" class="h-txt h-txt-on">D</text>
+              <text x="215" y="223" text-anchor="middle" class="h-txt h-txt-on">E</text>
+              <text x="295" y="223" text-anchor="middle" class="h-txt">E</text>
+              <text x="30" y="36" class="h-num">1</text>
+              <text x="110" y="36" class="h-num">2</text>
+              <text x="190" y="36" class="h-num">3</text>
+              <text x="190" y="116" class="h-num">4</text>
+              <text x="190" y="196" class="h-num">5</text>
+              <text x="110" y="196" class="h-num">6</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = True (path 1 to 6 spells ABCCED)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Word puzzles and board games</h3>
+          <p>Word searches with bends, Boggle-style boards: the answer is a chain of touching squares, and a square can't be used twice in one word.</p>
+        </div>
+        <div class="card">
+          <h3>Paths that must not revisit a square</h3>
+          <p>A robot or a maze walker exploring routes: a square on the current route is off limits, but the same square is fine for a different route.</p>
+        </div>
+        <div class="card">
+          <h3>Backtracking, made visible</h3>
+          <p>It is the same choose, explore, un-choose loop as subsets and permutations. On a grid you can watch the "choose" (a cell turns into <code>#</code>) and the "un-choose" (the letter comes back).</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the whole pattern is one decision: the "used" mark belongs to the <em>current path</em>, not to the whole search. Get that right and the code writes itself.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is grid backtracking?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A depth-first search over grid cells that builds <strong>one path at a time</strong>. Each step checks the cell, marks it as part of the path, tries the 4 neighbours, and unmarks it when it backs out. "Backtracking" is that backing out: undo the last choice, try the next one.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>A 2D board, an answer that is a <strong>path of adjacent cells</strong> (up, down, left, right), and a rule like "the same cell may not be used more than once". Small limits (Word Search: board up to 6×6, word up to 15 letters) hint that an exponential search with pruning is expected.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> overwrite the cell with <code>#</code> before exploring and write the letter back after. <code>#</code> never equals a letter, so the ordinary "does the letter match?" check also blocks reuse. No <code>visited</code> set needed.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Try every start</h3>
+          <p>The path can begin anywhere: call <code>dfs(r, c, 0)</code> for every cell and stop at the first <code>True</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Prune at once</h3>
+          <p>Off the board, wrong letter, or a <code>#</code>: return <code>False</code> before doing any work.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Mark and explore</h3>
+          <p>Save the letter, write <code>#</code>, and ask the 4 neighbours for <code>word[i + 1]</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Restore and report</h3>
+          <p>Put the letter back, whatever the result, and return what the neighbours found.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the board becomes a tree of calls</h2>
+      <p>There is no separate data structure to build. The board itself is the graph: each cell is a node, and its up, down, left and right neighbours are its edges. The recursion turns that graph into a <strong>tree of calls</strong>: <code>dfs(r, c, i)</code> has up to 4 children, one per neighbour, each looking for the next letter.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input</h3>
+          <div class="code-block"><code>board = A B C E
+        S F C S
+        A D E E
+word  = "ABCCED"</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Calls from the first start cell</h3>
+          <div class="code-block"><code>dfs(0,0,0) A  mark
+  dfs(1,0,1) S  != B   pruned
+  dfs(-1,0,1)   off    pruned
+  dfs(0,1,1) B  mark
+    dfs(1,1,2) F != C  pruned
+    dfs(-1,1,2)  off   pruned
+    dfs(0,2,2) C  mark
+      ... deeper ...</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Depth = letter index</h4>
+          <p>A call at depth <code>i</code> is looking for <code>word[i]</code>. The tree is at most <code>L = len(word)</code> levels deep.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Children = neighbours</h4>
+          <p>Down, up, right, left, in the code's order. The <code>or</code> chain stops at the first child that returns <code>True</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>The current path = the <code>#</code> cells</h4>
+          <p>The cells marked <code>#</code> at any moment are exactly the calls still on the recursion stack.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Returning = un-marking</h4>
+          <p>When a call returns, its cell gets its letter back, so the board always shows the current path and nothing else.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> after the first step, one of the 4 neighbours is the cell you came from, and it is marked <code>#</code>. So each call has at most 3 useful children, which is where the <code>3^L</code> in the running time comes from.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: backtracking DFS (Word Search)</h2>
+      <p>The template itself, line for line from the notebook's <code>exist</code>. Traced on the canonical example: every call in the order the code makes it, including the pruned ones and the restores on the way back.</p>
+      <div class="code-block stepped">
+        <code id="bt-code">
+<span class="code-line" data-line="1">def exist(board, word):</span>
+<span class="code-line" data-line="2">    rows, cols = len(board), len(board[0])</span>
+<span class="code-line" data-line="3">    def dfs(r, c, i):                      # can we match word[i:] starting at cell (r, c)?</span>
+<span class="code-line" data-line="4">        if i == len(word):</span>
+<span class="code-line" data-line="5">            return True                    # matched every letter</span>
+<span class="code-line" data-line="6">        if r &lt; 0 or c &lt; 0 or r &gt;= rows or c &gt;= cols or board[r][c] != word[i]:</span>
+<span class="code-line" data-line="7">            return False                   # off the board, or the letter doesn't match</span>
+<span class="code-line" data-line="8">        tmp = board[r][c]; board[r][c] = "#"   # mark this cell used (can't reuse within a word)</span>
+<span class="code-line" data-line="9">        found = (dfs(r+1,c,i+1) or dfs(r-1,c,i+1) or</span>
+<span class="code-line" data-line="10">                 dfs(r,c+1,i+1) or dfs(r,c-1,i+1))   # try all 4 neighbors for the next letter</span>
+<span class="code-line" data-line="11">        board[r][c] = tmp                  # restore the cell (backtrack)</span>
+<span class="code-line" data-line="12">        return found</span>
+<span class="code-line" data-line="13">    return any(dfs(r, c, 0) for r in range(rows) for c in range(cols))   # try every start cell</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive backtracking trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bt-graph" viewBox="0 0 360 270" width="100%" role="img" aria-label="Backtracking trace on the 3 by 4 Word Search board">
+              <rect x="20" y="20" width="70" height="70" rx="10" class="g-cell" data-cell="0,0" />
+              <text x="55" y="63" text-anchor="middle" class="g-txt" data-txt="0,0">A</text>
+              <text x="25" y="34" class="g-idx">0,0</text>
+              <rect x="100" y="20" width="70" height="70" rx="10" class="g-cell" data-cell="0,1" />
+              <text x="135" y="63" text-anchor="middle" class="g-txt" data-txt="0,1">B</text>
+              <text x="105" y="34" class="g-idx">0,1</text>
+              <rect x="180" y="20" width="70" height="70" rx="10" class="g-cell" data-cell="0,2" />
+              <text x="215" y="63" text-anchor="middle" class="g-txt" data-txt="0,2">C</text>
+              <text x="185" y="34" class="g-idx">0,2</text>
+              <rect x="260" y="20" width="70" height="70" rx="10" class="g-cell" data-cell="0,3" />
+              <text x="295" y="63" text-anchor="middle" class="g-txt" data-txt="0,3">E</text>
+              <text x="265" y="34" class="g-idx">0,3</text>
+              <rect x="20" y="100" width="70" height="70" rx="10" class="g-cell" data-cell="1,0" />
+              <text x="55" y="143" text-anchor="middle" class="g-txt" data-txt="1,0">S</text>
+              <text x="25" y="114" class="g-idx">1,0</text>
+              <rect x="100" y="100" width="70" height="70" rx="10" class="g-cell" data-cell="1,1" />
+              <text x="135" y="143" text-anchor="middle" class="g-txt" data-txt="1,1">F</text>
+              <text x="105" y="114" class="g-idx">1,1</text>
+              <rect x="180" y="100" width="70" height="70" rx="10" class="g-cell" data-cell="1,2" />
+              <text x="215" y="143" text-anchor="middle" class="g-txt" data-txt="1,2">C</text>
+              <text x="185" y="114" class="g-idx">1,2</text>
+              <rect x="260" y="100" width="70" height="70" rx="10" class="g-cell" data-cell="1,3" />
+              <text x="295" y="143" text-anchor="middle" class="g-txt" data-txt="1,3">S</text>
+              <text x="265" y="114" class="g-idx">1,3</text>
+              <rect x="20" y="180" width="70" height="70" rx="10" class="g-cell" data-cell="2,0" />
+              <text x="55" y="223" text-anchor="middle" class="g-txt" data-txt="2,0">A</text>
+              <text x="25" y="194" class="g-idx">2,0</text>
+              <rect x="100" y="180" width="70" height="70" rx="10" class="g-cell" data-cell="2,1" />
+              <text x="135" y="223" text-anchor="middle" class="g-txt" data-txt="2,1">D</text>
+              <text x="105" y="194" class="g-idx">2,1</text>
+              <rect x="180" y="180" width="70" height="70" rx="10" class="g-cell" data-cell="2,2" />
+              <text x="215" y="223" text-anchor="middle" class="g-txt" data-txt="2,2">E</text>
+              <text x="185" y="194" class="g-idx">2,2</text>
+              <rect x="260" y="180" width="70" height="70" rx="10" class="g-cell" data-cell="2,3" />
+              <text x="295" y="223" text-anchor="middle" class="g-txt" data-txt="2,3">E</text>
+              <text x="265" y="194" class="g-idx">2,3</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> cell being checked or restored</span>
+            <span><i class="dot dot-blue"></i> marked # (on the current path)</span>
+            <span><i class="dot dot-red"></i> pruned (wrong letter or #)</span>
+            <span><i class="dot dot-green"></i> answer path</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bt-step-title">Initial state</h3>
+          <p id="bt-step-text">Nothing has been called yet.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bt-prev">Previous</button>
+            <button type="button" id="bt-play" class="primary">Resume</button>
+            <button type="button" id="bt-next">Next</button>
+            <button type="button" id="bt-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bt-step-counter">Step 0 / 20</span>
+            <div class="progress"><span id="bt-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Call</strong><div class="state-value" id="bt-call">—</div></div>
+            <div class="state-box"><strong>Cell holds / word[i]</strong><div class="state-value" id="bt-cell">—</div></div>
+            <div class="state-box"><strong>Marked path (stack)</strong><div class="state-value" id="bt-path">—</div></div>
+            <div class="state-box"><strong>Result</strong><div class="state-value" id="bt-result">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bt-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bt-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Call</th><th>Cell</th><th>word[i]</th><th>Result</th><th>Marked path after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td>—</td><td>start: try cells in row order</td><td>—</td></tr>
+            <tr data-step="1"><td>1</td><td>dfs(0, 0, 0)</td><td>A</td><td>A</td><td>'A' == word[0]: mark # and go deeper</td><td>(0,0)</td></tr>
+            <tr data-step="2"><td>2</td><td>dfs(1, 0, 1)</td><td>S</td><td>B</td><td>'S' != 'B': return False</td><td>(0,0)</td></tr>
+            <tr data-step="3"><td>3</td><td>dfs(-1, 0, 1)</td><td>—</td><td>B</td><td>off the board: return False</td><td>(0,0)</td></tr>
+            <tr data-step="4"><td>4</td><td>dfs(0, 1, 1)</td><td>B</td><td>B</td><td>'B' == word[1]: mark # and go deeper</td><td>(0,0) (0,1)</td></tr>
+            <tr data-step="5"><td>5</td><td>dfs(1, 1, 2)</td><td>F</td><td>C</td><td>'F' != 'C': return False</td><td>(0,0) (0,1)</td></tr>
+            <tr data-step="6"><td>6</td><td>dfs(-1, 1, 2)</td><td>—</td><td>C</td><td>off the board: return False</td><td>(0,0) (0,1)</td></tr>
+            <tr data-step="7"><td>7</td><td>dfs(0, 2, 2)</td><td>C</td><td>C</td><td>'C' == word[2]: mark # and go deeper</td><td>(0,0) (0,1) (0,2)</td></tr>
+            <tr data-step="8"><td>8</td><td>dfs(1, 2, 3)</td><td>C</td><td>C</td><td>'C' == word[3]: mark # and go deeper</td><td>(0,0) (0,1) (0,2) (1,2)</td></tr>
+            <tr data-step="9"><td>9</td><td>dfs(2, 2, 4)</td><td>E</td><td>E</td><td>'E' == word[4]: mark # and go deeper</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+            <tr data-step="10"><td>10</td><td>dfs(3, 2, 5)</td><td>—</td><td>D</td><td>off the board: return False</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+            <tr data-step="11"><td>11</td><td>dfs(1, 2, 5)</td><td>#</td><td>D</td><td>cell is # (on this path): return False</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+            <tr data-step="12"><td>12</td><td>dfs(2, 3, 5)</td><td>E</td><td>D</td><td>'E' != 'D': return False</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+            <tr data-step="13"><td>13</td><td>dfs(2, 1, 5)</td><td>D</td><td>D</td><td>'D' == word[5]: mark # and go deeper</td><td>(0,0) (0,1) (0,2) (1,2) (2,2) (2,1)</td></tr>
+            <tr data-step="14"><td>14</td><td>dfs(3, 1, 6)</td><td>—</td><td>—</td><td>i == len(word): return True</td><td>(0,0) (0,1) (0,2) (1,2) (2,2) (2,1)</td></tr>
+            <tr data-step="15"><td>15</td><td>dfs(2, 1, 5) ends</td><td># → D</td><td>D</td><td>restore 'D', return True</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+            <tr data-step="16"><td>16</td><td>dfs(2, 2, 4) ends</td><td># → E</td><td>E</td><td>restore 'E', return True</td><td>(0,0) (0,1) (0,2) (1,2)</td></tr>
+            <tr data-step="17"><td>17</td><td>dfs(1, 2, 3) ends</td><td># → C</td><td>C</td><td>restore 'C', return True</td><td>(0,0) (0,1) (0,2)</td></tr>
+            <tr data-step="18"><td>18</td><td>dfs(0, 2, 2) ends</td><td># → C</td><td>C</td><td>restore 'C', return True</td><td>(0,0) (0,1)</td></tr>
+            <tr data-step="19"><td>19</td><td>dfs(0, 1, 1) ends</td><td># → B</td><td>B</td><td>restore 'B', return True</td><td>(0,0)</td></tr>
+            <tr data-step="20"><td>20</td><td>dfs(0, 0, 0) ends</td><td># → A</td><td>A</td><td>restore 'A', return True: answer True</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The <code>#</code> cells are the recursion stack drawn on the board. At step 11 the call from E at (2,2) looks up at (1,2), finds <code>#</code>, and is turned away: that C is already on the path.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Returning before the restore line, for example <code>if dfs(...): return True</code> right after marking. On success the caller gets back a board still full of <code>#</code> marks. The notebook's correctness check asserts the board comes back unchanged.</p>
+        </div>
+        <div class="card">
+          <h4>Why mark in the board</h4>
+          <p>Writing <code>#</code> into the cell costs O(1) and needs no extra memory. The letter check on line 6 rejects it for free, so "used" and "wrong letter" are one test.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: the brute force it replaces (enumerate every path)</h2>
+      <p>The notebook's <code>exist_brute</code> builds every path of exactly <code>L</code> cells that never repeats a cell, and compares letters only when a path is complete. Letters never steer it. Traced on a 2×2 board, <code>[["A","B"],["C","D"]]</code> with <code>word = "BDC"</code>: it grows two full paths from A, though the word starts with B.</p>
+      <div class="code-block stepped">
+        <code id="bf-code">
+<span class="code-line" data-line="1">def exist_brute(board: List[List[str]], word: str) -&gt; bool:</span>
+<span class="code-line" data-line="2">    rows, cols, L = len(board), len(board[0]), len(word)</span>
+<span class="code-line" data-line="3">    def paths_from(r, c, path):           # yield every self-avoiding path that extends `path` to L cells</span>
+<span class="code-line" data-line="4">        if len(path) == L:</span>
+<span class="code-line" data-line="5">            yield path</span>
+<span class="code-line" data-line="6">            return</span>
+<span class="code-line" data-line="7">        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):</span>
+<span class="code-line" data-line="8">            nr, nc = r + dr, c + dc</span>
+<span class="code-line" data-line="9">            if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and (nr, nc) not in path:   # on the board, not reused</span>
+<span class="code-line" data-line="10">                yield from paths_from(nr, nc, path + [(nr, nc)])             # letters are ignored here</span>
+<span class="code-line" data-line="11">    for r in range(rows):</span>
+<span class="code-line" data-line="12">        for c in range(cols):</span>
+<span class="code-line" data-line="13">            for path in paths_from(r, c, [(r, c)]):</span>
+<span class="code-line" data-line="14">                if "".join(board[i][j] for i, j in path) == word:            # compare only at the end</span>
+<span class="code-line" data-line="15">                    return True</span>
+<span class="code-line" data-line="16">    return False</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive brute-force trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bf-graph" viewBox="0 0 200 190" width="100%" style="max-width:320px;" role="img" aria-label="Brute force trace on a 2 by 2 board A B C D">
+              <rect x="20" y="20" width="75" height="75" rx="10" class="g-cell" data-cell="0,0" />
+              <text x="57.5" y="65.5" text-anchor="middle" class="g-txt" data-txt="0,0">A</text>
+              <text x="25" y="34" class="g-idx">0,0</text>
+              <rect x="105" y="20" width="75" height="75" rx="10" class="g-cell" data-cell="0,1" />
+              <text x="142.5" y="65.5" text-anchor="middle" class="g-txt" data-txt="0,1">B</text>
+              <text x="110" y="34" class="g-idx">0,1</text>
+              <rect x="20" y="105" width="75" height="75" rx="10" class="g-cell" data-cell="1,0" />
+              <text x="57.5" y="150.5" text-anchor="middle" class="g-txt" data-txt="1,0">C</text>
+              <text x="25" y="119" class="g-idx">1,0</text>
+              <rect x="105" y="105" width="75" height="75" rx="10" class="g-cell" data-cell="1,1" />
+              <text x="142.5" y="150.5" text-anchor="middle" class="g-txt" data-txt="1,1">D</text>
+              <text x="110" y="119" class="g-idx">1,1</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> newest cell of the path</span>
+            <span><i class="dot dot-blue"></i> earlier cells of the path</span>
+            <span><i class="dot dot-red"></i> full path, letters differ</span>
+            <span><i class="dot dot-green"></i> full path, letters match</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bf-step-title">Initial state</h3>
+          <p id="bf-step-text">Nothing built yet.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bf-prev">Previous</button>
+            <button type="button" id="bf-play" class="primary">Resume</button>
+            <button type="button" id="bf-next">Next</button>
+            <button type="button" id="bf-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bf-step-counter">Step 0 / 8</span>
+            <div class="progress"><span id="bf-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>path (cells)</strong><div class="state-value" id="bf-path">—</div></div>
+            <div class="state-box"><strong>Letters / word</strong><div class="state-value" id="bf-letters">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bf-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bf-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Path (cells)</th><th>Letters</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td>start: try every cell as a start</td></tr>
+            <tr data-step="1"><td>1</td><td>(0,0)</td><td>"A"</td><td>new start cell, extend</td></tr>
+            <tr data-step="2"><td>2</td><td>(0,0) (1,0)</td><td>"AC"</td><td>extend (letters not checked)</td></tr>
+            <tr data-step="3"><td>3</td><td>(0,0) (1,0) (1,1)</td><td>"ACD"</td><td>full path: "ACD" == "BDC"? no, try the next path</td></tr>
+            <tr data-step="4"><td>4</td><td>(0,0) (0,1)</td><td>"AB"</td><td>extend (letters not checked)</td></tr>
+            <tr data-step="5"><td>5</td><td>(0,0) (0,1) (1,1)</td><td>"ABD"</td><td>full path: "ABD" == "BDC"? no, try the next path</td></tr>
+            <tr data-step="6"><td>6</td><td>(0,1)</td><td>"B"</td><td>new start cell, extend</td></tr>
+            <tr data-step="7"><td>7</td><td>(0,1) (1,1)</td><td>"BD"</td><td>extend (letters not checked)</td></tr>
+            <tr data-step="8"><td>8</td><td>(0,1) (1,1) (1,0)</td><td>"BDC"</td><td>full path: "BDC" == "BDC"? yes: return True</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Brute force asks "is this whole path the word?" once per path. Backtracking asks "is this cell the next letter?" once per step, and stops a path at its first wrong letter.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Thinking the worst case got better. On a board of all <code>'A'</code> with word <code>"A...AB"</code> every letter matches until the last one, so both methods explore the same paths. The notebook measures both growing about 2.1 to 2.5 times per extra letter there.</p>
+        </div>
+        <div class="card">
+          <h4>Where pruning pays</h4>
+          <p>On a board of random letters, the notebook's brute force still grows about 2.1 to 2.5 times per extra letter, while backtracking stays flat (about 1x): almost every path dies at its first letter.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Single cell</button>
+        <button type="button" data-example-tab="1">Word longer than the path allows</button>
+        <button type="button" data-example-tab="2">Needs a used cell again</button>
+        <button type="button" data-example-tab="3">Needs a cell freed by restore</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: one cell, one letter</h3>
+          <p><code>board = [["A"]]</code>, <code>word = "A"</code></p>
+          <div class="result-badge">Answer = True</div>
+          <p class="footer-note"><code>dfs(0, 0, 0)</code> matches and marks the A; its first neighbour call has <code>i = 1 = len(word)</code> and returns <code>True</code> before the bounds check, even though that neighbour is off the board.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: reuse would be the only way</h3>
+          <p><code>board = [["a","a"]]</code>, <code>word = "aaa"</code></p>
+          <div class="result-badge">Answer = False</div>
+          <p class="footer-note">Two cells can't spell three letters without stepping on one twice. Without the <code>#</code> mark, the search bounces a, a, a between the two cells and wrongly returns <code>True</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: the word wants a cell already on the path</h3>
+          <p>Canonical board, <code>word = "ABCB"</code></p>
+          <div class="result-badge">Answer = False</div>
+          <p class="footer-note">A, B, C walk along the top row; the only B next to that C is the one at (0,1), already <code>#</code>. No other route exists.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: a cell must be reusable after a failed path</h3>
+          <p><code>board = [["C","A","A"],["A","A","A"],["B","C","D"]]</code>, <code>word = "AAB"</code></p>
+          <div class="result-badge">Answer = True</div>
+          <p class="footer-note">The path (1,1) to (1,0) to (2,0) works, but earlier start cells already walked through (1,1) and failed. Restoring makes (1,1) available again; a never-cleared global <code>visited</code> set returns <code>False</code> here.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Brute force: every path, compare at the end (Method 2)</td><td><code>O(rows·cols·3^L·L)</code></td><td><code>O(L)</code></td><td>Same work on every board; the letters never cut a path short.</td></tr>
+            <tr><td>Backtracking DFS: prune, mark, restore (Method 1)</td><td><code>O(rows·cols·3^L)</code> worst case</td><td><code>O(L)</code> recursion</td><td>Same worst case, but a wrong letter ends a path at once; flat on a random board in the notebook.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>L</code> = word length. Both grew about 4x per doubling of the grid side in the notebook (time is linear in the number of cells). The complexities and every measured ratio come from <a href="word_search.ipynb">the Word Search notebook</a>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The word is a path of adjacent cells, and it can start anywhere: try every cell as a start.</p></div>
+            <div class="timeline-step"><p>From a cell, the next letter must be in one of 4 neighbours: recursion, one level per letter.</p></div>
+            <div class="timeline-step"><p>A path may not reuse a cell, but other paths may: the "used" mark must be undone when backing out.</p></div>
+            <div class="timeline-step"><p>Prune as early as possible: check bounds and the letter before marking anything.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"I'll run a DFS from every cell; <code>dfs(r, c, i)</code> means word[i:] starts at (r, c)."</li>
+            <li>"If the cell is off the board or doesn't hold word[i], I return False right away."</li>
+            <li>"Otherwise I mark it with '#', try the 4 neighbours for the next letter, and restore it on the way back, so other paths can use it."</li>
+            <li>"Worst case O(rows·cols·3^L) time, since after the first step there are at most 3 new neighbours, and O(L) space for the recursion."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Backtracking DFS</h3>
+          <ul class="mistake-list">
+            <li>Forgetting <code>board[r][c] = tmp</code>, or returning before it runs: later searches see a board full of <code>#</code>.</li>
+            <li>One global <code>visited</code> set that is never cleared: flood-fill behaviour, wrong answers (Case D).</li>
+            <li>Marking before the bounds and letter check, then indexing off the board.</li>
+            <li>Stopping after the first start cell that matches <code>word[0]</code>: for <code>"SEE"</code> the S at (1,0) fails and the S at (1,3) succeeds.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Brute force</h3>
+          <ul class="mistake-list">
+            <li>Not excluding cells already in the path, so "paths" revisit cells and Case B wrongly returns <code>True</code>.</li>
+            <li>Sharing one <code>path</code> list between branches without copying or popping it.</li>
+            <li>Comparing letters only at the end and calling it "pruned": nothing is cut until the path is full.</li>
+            <li>Assuming it is slower in big-O on every input: in the worst case both share the <code>3^L</code> term.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. The pattern has one NeetCode problem, so questions 2 to 4 are <strong>follow-up variants</strong> of Word Search, not separate pages.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Word Search: canonical board, <code>word = "SEE"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the S at (1,0) fails first. Which other S is there?</p>
+          <p style="margin-top:10px;">Answer: <code>True</code>. Path (1,3) S, then down to (2,3) E, then left to (2,2) E. Step through both approaches on <a href="word_search.html">the Word Search page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Variant: why does one global <code>visited</code> set fail on <code>[["C","A","A"],["A","A","A"],["B","C","D"]]</code>, <code>"AAB"</code>?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> which cells do the start cells (0,1) and (0,2) walk through before any path succeeds?</p>
+          <p style="margin-top:10px;">Answer: their failed paths add (1,1) and other A cells to the set and never remove them. The only valid path starts at (1,1), which is now "visited", so the search returns <code>False</code>; the correct answer is <code>True</code>. Mark-and-restore frees the cell when each failed path backs out. Compare with the restore steps on <a href="word_search.html">the Word Search page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Variant: count every path that spells <code>"AAA"</code> on <code>[["A","A"],["A","A"]]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> replace <code>or</code> with <code>+</code>. Careful with the base case: <code>if i == len(word): return 1</code> runs once per neighbour call, so it counts each finished path up to 4 times. Return 1 when the <em>last letter</em> matches instead.</p>
+          <p style="margin-top:10px;">Answer: <code>8</code> (4 start cells, 2 neighbours each, then 1 unused neighbour). The naive base case reports 32. Same template, see <a href="word_search.html">Word Search</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Variant: Word Search II, many words on one board</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> running Method 1 once per word repeats the same board walks. What could prune by prefix for all words at once?</p>
+          <p style="margin-top:10px;">Answer: put the words in a trie (NeetCode's Tries section). Run the same DFS with mark and restore from every cell, walking down the trie as you go; stop when no word continues with this letter, and record a word when you reach its end. The grid part is still this pattern. Base page: <a href="word_search.html">Word Search</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Check, mark, explore, restore.</strong>
+          Prune off-board and wrong-letter cells at once, overwrite the cell with <code>#</code> while its neighbours are searched, and put the letter back on the way out. The mark belongs to the current path, which is exactly what separates grid backtracking from flood fill.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Grid Backtracking pattern notes</a>. Code and trace values are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of exist on the LeetCode board, word "ABCCED".
+      const BOARD = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]];
+      const ANSWER_PATH = ['0,0', '0,1', '0,2', '1,2', '2,2', '2,1'];
+      const btSteps = [{"step": 0, "title": "Initial state", "text": "<code>any(...)</code> will try start cells in row order, beginning with (0,0).", "call": "—", "cell": "—", "pathText": "—", "result": "—", "detail": "Nothing marked yet.", "kind": "init", "focus": null, "path": [], "lines": [2, 13]},
+        {"step": 1, "title": "Step 1: mark (0,0) = A", "text": "<code>dfs(0, 0, 0)</code>: the cell holds <b>A</b>, the word needs <b>A</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[1].", "call": "dfs(0, 0, 0)", "cell": "A / A", "pathText": "(0,0)", "result": "'A' == word[0]: mark # and go deeper", "detail": "The path grows to 1 cell; (0,0) now shows #.", "kind": "mark", "focus": "0,0", "path": ["0,0"], "lines": [4, 6, 8, 9, 10]},
+        {"step": 2, "title": "Step 2: (1,0) holds S, need B", "text": "<code>dfs(1, 0, 1)</code>: the cell holds <b>S</b> but the word needs <b>B</b>. Prune: return False at once.", "call": "dfs(1, 0, 1)", "cell": "S / B", "pathText": "(0,0)", "result": "'S' != 'B': return False", "detail": "Pruned: nothing is marked, and the caller moves on to its next neighbour.", "kind": "miss", "focus": "1,0", "path": ["0,0"], "lines": [4, 6, 7]},
+        {"step": 3, "title": "Step 3: (-1,0) is off the board", "text": "<code>dfs(-1, 0, 1)</code>: (-1,0) is off the board. Return False.", "call": "dfs(-1, 0, 1)", "cell": "— / B", "pathText": "(0,0)", "result": "off the board: return False", "detail": "Pruned by the bounds check; the caller moves on to its next neighbour.", "kind": "off", "focus": null, "path": ["0,0"], "lines": [4, 6, 7]},
+        {"step": 4, "title": "Step 4: mark (0,1) = B", "text": "<code>dfs(0, 1, 1)</code>: the cell holds <b>B</b>, the word needs <b>B</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[2].", "call": "dfs(0, 1, 1)", "cell": "B / B", "pathText": "(0,0) (0,1)", "result": "'B' == word[1]: mark # and go deeper", "detail": "The path grows to 2 cells; (0,1) now shows #.", "kind": "mark", "focus": "0,1", "path": ["0,0", "0,1"], "lines": [4, 6, 8, 9, 10]},
+        {"step": 5, "title": "Step 5: (1,1) holds F, need C", "text": "<code>dfs(1, 1, 2)</code>: the cell holds <b>F</b> but the word needs <b>C</b>. Prune: return False at once.", "call": "dfs(1, 1, 2)", "cell": "F / C", "pathText": "(0,0) (0,1)", "result": "'F' != 'C': return False", "detail": "Pruned: nothing is marked, and the caller moves on to its next neighbour.", "kind": "miss", "focus": "1,1", "path": ["0,0", "0,1"], "lines": [4, 6, 7]},
+        {"step": 6, "title": "Step 6: (-1,1) is off the board", "text": "<code>dfs(-1, 1, 2)</code>: (-1,1) is off the board. Return False.", "call": "dfs(-1, 1, 2)", "cell": "— / C", "pathText": "(0,0) (0,1)", "result": "off the board: return False", "detail": "Pruned by the bounds check; the caller moves on to its next neighbour.", "kind": "off", "focus": null, "path": ["0,0", "0,1"], "lines": [4, 6, 7]},
+        {"step": 7, "title": "Step 7: mark (0,2) = C", "text": "<code>dfs(0, 2, 2)</code>: the cell holds <b>C</b>, the word needs <b>C</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[3].", "call": "dfs(0, 2, 2)", "cell": "C / C", "pathText": "(0,0) (0,1) (0,2)", "result": "'C' == word[2]: mark # and go deeper", "detail": "The path grows to 3 cells; (0,2) now shows #.", "kind": "mark", "focus": "0,2", "path": ["0,0", "0,1", "0,2"], "lines": [4, 6, 8, 9, 10]},
+        {"step": 8, "title": "Step 8: mark (1,2) = C", "text": "<code>dfs(1, 2, 3)</code>: the cell holds <b>C</b>, the word needs <b>C</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[4].", "call": "dfs(1, 2, 3)", "cell": "C / C", "pathText": "(0,0) (0,1) (0,2) (1,2)", "result": "'C' == word[3]: mark # and go deeper", "detail": "The path grows to 4 cells; (1,2) now shows #.", "kind": "mark", "focus": "1,2", "path": ["0,0", "0,1", "0,2", "1,2"], "lines": [4, 6, 8, 9, 10]},
+        {"step": 9, "title": "Step 9: mark (2,2) = E", "text": "<code>dfs(2, 2, 4)</code>: the cell holds <b>E</b>, the word needs <b>E</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[5].", "call": "dfs(2, 2, 4)", "cell": "E / E", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2)", "result": "'E' == word[4]: mark # and go deeper", "detail": "The path grows to 5 cells; (2,2) now shows #.", "kind": "mark", "focus": "2,2", "path": ["0,0", "0,1", "0,2", "1,2", "2,2"], "lines": [4, 6, 8, 9, 10]},
+        {"step": 10, "title": "Step 10: (3,2) is off the board", "text": "<code>dfs(3, 2, 5)</code>: (3,2) is off the board. Return False.", "call": "dfs(3, 2, 5)", "cell": "— / D", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2)", "result": "off the board: return False", "detail": "Pruned by the bounds check; the caller moves on to its next neighbour.", "kind": "off", "focus": null, "path": ["0,0", "0,1", "0,2", "1,2", "2,2"], "lines": [4, 6, 7]},
+        {"step": 11, "title": "Step 11: (1,2) is already #", "text": "<code>dfs(1, 2, 5)</code>: this cell is marked <code>#</code>, it is already on the current path. A cell can't be used twice, so return False.", "call": "dfs(1, 2, 5)", "cell": "# / D", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2)", "result": "cell is # (on this path): return False", "detail": "Pruned: # never equals a letter, so the same check that rejects wrong letters blocks reuse.", "kind": "used", "focus": "1,2", "path": ["0,0", "0,1", "0,2", "1,2", "2,2"], "lines": [4, 6, 7]},
+        {"step": 12, "title": "Step 12: (2,3) holds E, need D", "text": "<code>dfs(2, 3, 5)</code>: the cell holds <b>E</b> but the word needs <b>D</b>. Prune: return False at once.", "call": "dfs(2, 3, 5)", "cell": "E / D", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2)", "result": "'E' != 'D': return False", "detail": "Pruned: nothing is marked, and the caller moves on to its next neighbour.", "kind": "miss", "focus": "2,3", "path": ["0,0", "0,1", "0,2", "1,2", "2,2"], "lines": [4, 6, 7]},
+        {"step": 13, "title": "Step 13: mark (2,1) = D", "text": "<code>dfs(2, 1, 5)</code>: the cell holds <b>D</b>, the word needs <b>D</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[6].", "call": "dfs(2, 1, 5)", "cell": "D / D", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2) (2,1)", "result": "'D' == word[5]: mark # and go deeper", "detail": "The path grows to 6 cells; (2,1) now shows #.", "kind": "mark", "focus": "2,1", "path": ["0,0", "0,1", "0,2", "1,2", "2,2", "2,1"], "lines": [4, 6, 8, 9, 10]},
+        {"step": 14, "title": "Step 14: all 6 letters matched", "text": "<code>dfs(3, 1, 6)</code>: i = 6 = len(word). Every letter matched, return True.", "call": "dfs(3, 1, 6)", "cell": "— / —", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2) (2,1)", "result": "i == len(word): return True", "detail": "The or-chain stops here; every caller up the stack will now return True.", "kind": "done", "focus": null, "path": ["0,0", "0,1", "0,2", "1,2", "2,2", "2,1"], "lines": [4, 5]},
+        {"step": 15, "title": "Step 15: restore (2,1)", "text": "Back in <code>dfs(2, 1, 5)</code>: put <b>D</b> back in (2,1) and return True to the caller.", "call": "dfs(2, 1, 5) ends", "cell": "# → D / D", "pathText": "(0,0) (0,1) (0,2) (1,2) (2,2)", "result": "restore 'D', return True", "detail": "(2,1) gets its letter back; the marked path shrinks to 5 cells.", "kind": "restore", "focus": "2,1", "path": ["0,0", "0,1", "0,2", "1,2", "2,2"], "lines": [11, 12]},
+        {"step": 16, "title": "Step 16: restore (2,2)", "text": "Back in <code>dfs(2, 2, 4)</code>: put <b>E</b> back in (2,2) and return True to the caller.", "call": "dfs(2, 2, 4) ends", "cell": "# → E / E", "pathText": "(0,0) (0,1) (0,2) (1,2)", "result": "restore 'E', return True", "detail": "(2,2) gets its letter back; the marked path shrinks to 4 cells.", "kind": "restore", "focus": "2,2", "path": ["0,0", "0,1", "0,2", "1,2"], "lines": [11, 12]},
+        {"step": 17, "title": "Step 17: restore (1,2)", "text": "Back in <code>dfs(1, 2, 3)</code>: put <b>C</b> back in (1,2) and return True to the caller.", "call": "dfs(1, 2, 3) ends", "cell": "# → C / C", "pathText": "(0,0) (0,1) (0,2)", "result": "restore 'C', return True", "detail": "(1,2) gets its letter back; the marked path shrinks to 3 cells.", "kind": "restore", "focus": "1,2", "path": ["0,0", "0,1", "0,2"], "lines": [11, 12]},
+        {"step": 18, "title": "Step 18: restore (0,2)", "text": "Back in <code>dfs(0, 2, 2)</code>: put <b>C</b> back in (0,2) and return True to the caller.", "call": "dfs(0, 2, 2) ends", "cell": "# → C / C", "pathText": "(0,0) (0,1)", "result": "restore 'C', return True", "detail": "(0,2) gets its letter back; the marked path shrinks to 2 cells.", "kind": "restore", "focus": "0,2", "path": ["0,0", "0,1"], "lines": [11, 12]},
+        {"step": 19, "title": "Step 19: restore (0,1)", "text": "Back in <code>dfs(0, 1, 1)</code>: put <b>B</b> back in (0,1) and return True to the caller.", "call": "dfs(0, 1, 1) ends", "cell": "# → B / B", "pathText": "(0,0)", "result": "restore 'B', return True", "detail": "(0,1) gets its letter back; the marked path shrinks to 1 cell.", "kind": "restore", "focus": "0,1", "path": ["0,0"], "lines": [11, 12]},
+        {"step": 20, "title": "Step 20: restore (0,0)", "text": "Back in <code>dfs(0, 0, 0)</code>: put <b>A</b> back in (0,0) and return True to the caller. <b>Answer: True</b>, and the board is back to its original letters.", "call": "dfs(0, 0, 0) ends", "cell": "# → A / A", "pathText": "—", "result": "restore 'A', return True: answer True", "detail": "(0,0) gets its letter back; the marked path shrinks to 0 cells. any(...) returns True, and the board is exactly as it started.", "kind": "restore", "focus": "0,0", "path": [], "lines": [11, 12, 13]}];
+
+      // Ground truth: instrumented run of exist_brute on [["A","B"],["C","D"]], word "BDC".
+      const BF_BOARD = [["A","B"],["C","D"]];
+      const bfSteps = [{"step": 0, "title": "Initial state", "text": "Looking for \"BDC\" on a 2×2 board. The brute force lists every 3-cell path from every start cell.", "pathText": "—", "letters": "— / \"BDC\"", "detail": "Nothing built yet.", "path": [], "full": false, "eq": false, "lines": [2]},
+        {"step": 1, "title": "Step 1: start at (0,0)", "text": "Start a path at (0,0) = \"A\". The brute force does not look at the letter, it just grows the path.", "pathText": "(0,0)", "letters": "\"A\" / \"BDC\"", "detail": "new start cell, extend", "path": ["0,0"], "full": false, "eq": false, "lines": [11, 12, 13]},
+        {"step": 2, "title": "Step 2: extend to (1,0)", "text": "Extend to (1,0). Path letters so far \"AC\". Still no check against the word.", "pathText": "(0,0) (1,0)", "letters": "\"AC\" / \"BDC\"", "detail": "extend (letters not checked)", "path": ["0,0", "1,0"], "full": false, "eq": false, "lines": [7, 8, 9, 10]},
+        {"step": 3, "title": "Step 3: compare the full path", "text": "Path has 3 cells, so compare its letters: \"ACD\" vs \"BDC\". Different. Back up and try the next path.", "pathText": "(0,0) (1,0) (1,1)", "letters": "\"ACD\" / \"BDC\"", "detail": "full path: \"ACD\" == \"BDC\"? no, try the next path", "path": ["0,0", "1,0", "1,1"], "full": true, "eq": false, "lines": [4, 5, 13, 14]},
+        {"step": 4, "title": "Step 4: extend to (0,1)", "text": "Extend to (0,1). Path letters so far \"AB\". Still no check against the word.", "pathText": "(0,0) (0,1)", "letters": "\"AB\" / \"BDC\"", "detail": "extend (letters not checked)", "path": ["0,0", "0,1"], "full": false, "eq": false, "lines": [7, 8, 9, 10]},
+        {"step": 5, "title": "Step 5: compare the full path", "text": "Path has 3 cells, so compare its letters: \"ABD\" vs \"BDC\". Different. Back up and try the next path.", "pathText": "(0,0) (0,1) (1,1)", "letters": "\"ABD\" / \"BDC\"", "detail": "full path: \"ABD\" == \"BDC\"? no, try the next path", "path": ["0,0", "0,1", "1,1"], "full": true, "eq": false, "lines": [4, 5, 13, 14]},
+        {"step": 6, "title": "Step 6: start at (0,1)", "text": "Start a path at (0,1) = \"B\". The brute force does not look at the letter, it just grows the path.", "pathText": "(0,1)", "letters": "\"B\" / \"BDC\"", "detail": "new start cell, extend", "path": ["0,1"], "full": false, "eq": false, "lines": [11, 12, 13]},
+        {"step": 7, "title": "Step 7: extend to (1,1)", "text": "Extend to (1,1). Path letters so far \"BD\". Still no check against the word.", "pathText": "(0,1) (1,1)", "letters": "\"BD\" / \"BDC\"", "detail": "extend (letters not checked)", "path": ["0,1", "1,1"], "full": false, "eq": false, "lines": [7, 8, 9, 10]},
+        {"step": 8, "title": "Step 8: compare the full path", "text": "Path has 3 cells, so compare its letters: \"BDC\" vs \"BDC\". Match! Return True.", "pathText": "(0,1) (1,1) (1,0)", "letters": "\"BDC\" / \"BDC\"", "detail": "full path: \"BDC\" == \"BDC\"? yes: return True", "path": ["0,1", "1,1", "1,0"], "full": true, "eq": true, "lines": [4, 5, 13, 14, 15]}];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function paintGrid(svgId, board, classes, hashed) {
+        document.querySelectorAll(`#${svgId} [data-cell]`).forEach((cell) => {
+          const key = cell.dataset.cell;
+          cell.setAttribute('class', 'g-cell ' + (classes[key] || ''));
+        });
+        document.querySelectorAll(`#${svgId} [data-txt]`).forEach((t) => {
+          const key = t.dataset.txt;
+          const [r, c] = key.split(',').map(Number);
+          t.textContent = hashed.includes(key) ? '#' : board[r][c];
+          t.setAttribute('class', 'g-txt' + (classes[key] ? ' on' : ''));
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1500);
+        });
+        update();
+      }
+
+      function renderBT(step, index, max) {
+        document.getElementById('bt-step-title').textContent = step.title;
+        document.getElementById('bt-step-text').innerHTML = step.text;
+        document.getElementById('bt-call').textContent = step.call;
+        document.getElementById('bt-cell').textContent = step.cell;
+        document.getElementById('bt-path').textContent = step.pathText;
+        document.getElementById('bt-result').textContent = step.result;
+        document.getElementById('bt-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bt-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bt-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bt-trace-table', step.step);
+        setCodeHighlight('bt-code', step.lines);
+        const classes = {};
+        step.path.forEach((k) => { classes[k] = 'path'; });
+        if (step.focus && (step.kind === 'mark' || step.kind === 'restore')) classes[step.focus] = 'current';
+        if (step.focus && (step.kind === 'miss' || step.kind === 'used')) classes[step.focus] = 'bad';
+        if (index === max) ANSWER_PATH.forEach((k) => { classes[k] = 'good'; });
+        paintGrid('bt-graph', BOARD, classes, step.path);
+      }
+
+      function renderBF(step, index, max) {
+        document.getElementById('bf-step-title').textContent = step.title;
+        document.getElementById('bf-step-text').textContent = step.text;
+        document.getElementById('bf-path').textContent = step.pathText;
+        document.getElementById('bf-letters').textContent = step.letters;
+        document.getElementById('bf-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bf-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bf-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bf-trace-table', step.step);
+        setCodeHighlight('bf-code', step.lines);
+        const classes = {};
+        step.path.forEach((k, j) => { classes[k] = j === step.path.length - 1 ? 'current' : 'path'; });
+        if (step.full) step.path.forEach((k) => { classes[k] = step.eq ? 'good' : 'bad'; });
+        paintGrid('bf-graph', BF_BOARD, classes, []);
+      }
+
+      setupTrace({ steps: btSteps, prefix: 'bt', render: renderBT });
+      setupTrace({ steps: bfSteps, prefix: 'bf', render: renderBF });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

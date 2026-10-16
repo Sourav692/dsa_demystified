@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palindrome Partitioning — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .strrow{display:flex;align-items:center;justify-content:center;gap:0;min-width:min-content;padding:6px 0}
+  .gap{width:18px;height:52px;display:flex;align-items:center;justify-content:center}
+  .gap.cut::after{content:"";width:3px;height:52px;border-radius:2px;background:var(--accent)}
+  .bits{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;font-weight:700}
+  .tnode.done circle{fill:var(--card);stroke:var(--fg)}
+  .elabel{fill:var(--muted);font-size:12px;font-weight:700}
+  .pal{display:inline-grid;gap:4px;padding:6px 0}
+  .pcell{width:58px;height:40px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;background:var(--card);transition:.15s}
+  .pcell.t{background:var(--good);border-color:var(--good-bd)} .pcell.f{background:var(--bad);border-color:var(--bad-bd)}
+  .pcell.na{opacity:.25} .pcell.hi{outline:3px solid var(--hi-bd);outline-offset:1px}
+  .phead{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="04_partition_and_placement_lesson.html">← Partition and Placement lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Backtracking · Partition and Placement</span></div>
+<h1>131 · Palindrome Partitioning</h1>
+<p class="lead">Cut a string into pieces that each read the same both ways. List every way to do it.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You have a word and a pair of scissors. You may cut between any two letters, as often as you like. A cut pattern is good when <b>every piece is a palindrome</b> (reads the same forwards and backwards, like <code>"aa"</code> or <code>"aba"</code>). Return every good cut pattern.</p>
+<div class="idea">Example: <code>"aab"</code> &rarr; <code>[["a","a","b"], ["aa","b"]]</code>. Single letters are always palindromes, so cutting everywhere always works.</div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>palindrome piece</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>not a palindrome</span><span><span class="sw" style="background:var(--accent);border-color:var(--accent)"></span>blue bar = a cut</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">"aab" has 2 gaps, so there are only 4 ways to cut it. Two of them are good.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: try every cut pattern, then check</h2>
+<div class="idea">Each gap is either cut or not, like a row of light switches. Count a number <code>mask</code> from 0 to 2<sup>gaps</sup> − 1 and read its bits as the switches. Build the pieces for that pattern, and keep it only if every piece is a palindrome.</div>
+<div class="viz" id="br-viz"></div>
+<div class="mem"><h4>mask bits (bit i = cut after letter i; bit 0 is on the right)</h4><div class="chips" id="br-bits"></div></div>
+<div class="mem"><h4>good patterns so far</h4><div class="chips" id="br-out"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> it builds all 2<sup>n−1</sup> patterns no matter what, even when a bad piece shows up at the very start — <code>O(n · 2^n)</code> time, <code>O(n)</code> extra memory. The notebook measures about 2&times; per extra letter on every input.</p>
+<div class="trace-title">Step-by-step trace — s = "aab"</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>mask</th><th>bits</th><th>pieces</th><th>all palindromes?</th><th>good patterns after</th></tr>
+  <tr><td>0</td><td><code>00</code></td><td><code>["aab"]</code></td><td>no: "aab" &rarr; reject</td><td><code>[]</code></td></tr>
+  <tr><td>1</td><td><code>01</code></td><td><code>["a", "ab"]</code></td><td>no: "ab" &rarr; reject</td><td><code>[]</code></td></tr>
+  <tr><td>2</td><td><code>10</code></td><td><code>["aa", "b"]</code></td><td>yes &rarr; keep</td><td><code>[["aa", "b"]]</code></td></tr>
+  <tr><td>3</td><td><code>11</code></td><td><code>["a", "a", "b"]</code></td><td>yes &rarr; keep</td><td><code>[["aa", "b"], ["a", "a", "b"]]</code></td></tr>
+  <tr class="final"><td>done</td><td>—</td><td>—</td><td>all 4 masks checked &rarr; return</td><td><code>[["aa", "b"], ["a", "a", "b"]]</code></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Backtracking: pick the next palindromic piece</h2>
+<div class="idea">Stand at index <code>start</code>. Try every possible next piece <code>s[start:end]</code>. If it is not a palindrome, skip it right away: nothing built on it can work. If it is, take it, solve the rest from <code>end</code>, then put it back and try a longer piece. Reaching the end of the string means the pieces in hand are one answer.</div>
+<div class="viz" id="bt-tree"></div>
+<div class="viz" id="bt-str"></div>
+<div class="mem"><h4>path (pieces chosen so far)</h4><div class="chips" id="bt-path"></div></div>
+<div class="mem"><h4>out (answers recorded)</h4><div class="chips" id="bt-out"></div></div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>just tried / undone</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>on the current path</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned (not a palindrome)</span></div>
+<div class="caption" id="bt-cap"></div>
+<div class="controls" data-player="bt"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="bt-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> on <code>"aaa…a"</code> every one of the 2<sup>n−1</sup> patterns is an answer, so the worst case is still <code>O(n · 2^n)</code>. But bad pieces are cut off early: on <code>"abcabc…"</code> the notebook measures almost no growth, while the brute force keeps doubling. <code>O(n)</code> extra memory for the recursion and <code>path</code>.</p>
+<div class="trace-title">Step-by-step trace — s = "aab" (each circle is a call; the number inside is <code>start</code>)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>start</th><th>piece</th><th>action</th><th>path after</th><th>out after</th></tr>
+  <tr><td>0</td><td>0</td><td>—</td><td>Call <code>backtrack(0)</code></td><td><code>[]</code></td><td><code>[]</code></td></tr>
+  <tr><td>1</td><td>0</td><td><code>"a"</code></td><td><code>"a"</code> is a palindrome &rarr; choose, recurse</td><td><code>["a"]</code></td><td><code>[]</code></td></tr>
+  <tr><td>2</td><td>1</td><td><code>"a"</code></td><td><code>"a"</code> is a palindrome &rarr; choose, recurse</td><td><code>["a", "a"]</code></td><td><code>[]</code></td></tr>
+  <tr><td>3</td><td>2</td><td><code>"b"</code></td><td><code>"b"</code> is a palindrome &rarr; choose, recurse</td><td><code>["a", "a", "b"]</code></td><td><code>[]</code></td></tr>
+  <tr><td>4</td><td>3</td><td>—</td><td>start == len(s) &rarr; record copy</td><td><code>["a", "a", "b"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>5</td><td>2</td><td><code>"b"</code></td><td>un-choose <code>"b"</code></td><td><code>["a", "a"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>6</td><td>1</td><td><code>"a"</code></td><td>un-choose <code>"a"</code></td><td><code>["a"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>7</td><td>1</td><td><code>"ab"</code></td><td><code>"ab"</code> is not a palindrome &rarr; prune</td><td><code>["a"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>8</td><td>0</td><td><code>"a"</code></td><td>un-choose <code>"a"</code></td><td><code>[]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>9</td><td>0</td><td><code>"aa"</code></td><td><code>"aa"</code> is a palindrome &rarr; choose, recurse</td><td><code>["aa"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>10</td><td>2</td><td><code>"b"</code></td><td><code>"b"</code> is a palindrome &rarr; choose, recurse</td><td><code>["aa", "b"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>11</td><td>3</td><td>—</td><td>start == len(s) &rarr; record copy</td><td><code>["aa", "b"]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+  <tr><td>12</td><td>2</td><td><code>"b"</code></td><td>un-choose <code>"b"</code></td><td><code>["aa"]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+  <tr><td>13</td><td>0</td><td><code>"aa"</code></td><td>un-choose <code>"aa"</code></td><td><code>[]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+  <tr><td>14</td><td>0</td><td><code>"aab"</code></td><td><code>"aab"</code> is not a palindrome &rarr; prune</td><td><code>[]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+  <tr class="final"><td>15</td><td>0</td><td>—</td><td>loops exhausted &rarr; return out</td><td><code>[]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — Same backtracking, palindrome answers looked up in a table</h2>
+<div class="idea">First fill a small table: <code>is_pal[i][j]</code> says whether <code>s[i..j]</code> is a palindrome. A piece is a palindrome when its two end letters match <b>and</b> its inside is a palindrome, so fill the table from the bottom row up. Then run Solution 2, but each check is one lookup instead of reversing the piece.</div>
+<div class="viz" id="dp-viz"></div>
+<div class="mem"><h4>path</h4><div class="chips" id="dp-path"></div></div>
+<div class="mem"><h4>out</h4><div class="chips" id="dp-out"></div></div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>True</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>False</span><span><span class="sw" style="background:var(--card);border-color:var(--hi-bd)"></span>cell being filled / looked up</span></div>
+<div class="caption" id="dp-cap"></div>
+<div class="controls" data-player="dp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="dp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> the table costs <code>O(n²)</code> time and memory once; the search is the same <code>O(n · 2^n)</code> worst case, because copying 2<sup>n−1</sup> answers still dominates. Each check drops from <code>O(length)</code> to <code>O(1)</code>.</p>
+<div class="trace-title">Step-by-step trace — s = "aab"</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>phase</th><th>cell</th><th>value / decision</th><th>path after</th><th>out after</th></tr>
+  <tr><td>0</td><td>fill table</td><td>—</td><td>empty 3 x 3 table</td><td>—</td><td>—</td></tr>
+  <tr><td>1</td><td>fill table</td><td>is_pal[2][2] ("b")</td><td>True</td><td>—</td><td>—</td></tr>
+  <tr><td>2</td><td>fill table</td><td>is_pal[1][1] ("a")</td><td>True</td><td>—</td><td>—</td></tr>
+  <tr><td>3</td><td>fill table</td><td>is_pal[1][2] ("ab")</td><td>False</td><td>—</td><td>—</td></tr>
+  <tr><td>4</td><td>fill table</td><td>is_pal[0][0] ("a")</td><td>True</td><td>—</td><td>—</td></tr>
+  <tr><td>5</td><td>fill table</td><td>is_pal[0][1] ("aa")</td><td>True</td><td>—</td><td>—</td></tr>
+  <tr><td>6</td><td>fill table</td><td>is_pal[0][2] ("aab")</td><td>False</td><td>—</td><td>—</td></tr>
+  <tr><td>7</td><td>search</td><td>is_pal[0][0] ("a")</td><td>True &rarr; choose, recurse</td><td><code>["a"]</code></td><td><code>[]</code></td></tr>
+  <tr><td>8</td><td>search</td><td>is_pal[1][1] ("a")</td><td>True &rarr; choose, recurse</td><td><code>["a", "a"]</code></td><td><code>[]</code></td></tr>
+  <tr><td>9</td><td>search</td><td>is_pal[2][2] ("b")</td><td>True &rarr; choose, recurse</td><td><code>["a", "a", "b"]</code></td><td><code>[]</code></td></tr>
+  <tr><td>10</td><td>search</td><td>start = 3</td><td>record copy</td><td><code>["a", "a", "b"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>11</td><td>search</td><td>is_pal[1][2] ("ab")</td><td>False &rarr; prune</td><td><code>["a"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>12</td><td>search</td><td>is_pal[0][1] ("aa")</td><td>True &rarr; choose, recurse</td><td><code>["aa"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>13</td><td>search</td><td>is_pal[2][2] ("b")</td><td>True &rarr; choose, recurse</td><td><code>["aa", "b"]</code></td><td><code>[["a", "a", "b"]]</code></td></tr>
+  <tr><td>14</td><td>search</td><td>start = 3</td><td>record copy</td><td><code>["aa", "b"]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+  <tr><td>15</td><td>search</td><td>is_pal[0][2] ("aab")</td><td>False &rarr; prune</td><td><code>[]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+  <tr class="final"><td>16</td><td>search</td><td>—</td><td>return out</td><td><code>[]</code></td><td><code>[["a", "a", "b"], ["aa", "b"]]</code></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"return all ways to split / partition / cut a string"</b> where every piece must pass a test? Backtrack on where the next piece ends, and test each piece <i>before</i> recursing.
+<p><a href="04_partition_and_placement_lesson.html">→ Partition and Placement: the pattern lesson and N-Queens, the other problem that uses it</a></p></div>
+</div>
+<script>
+"use strict";
+var S="aab";
+var BR=[{"title": "Initial state", "cap": "\"aab\" has 2 gaps, so there are 2^2 = 4 cut patterns: masks 0 to 3.", "mask": null, "bits": "—", "pieces": [], "ok": null, "out": [], "cuts": []}, {"title": "mask 0", "cap": "mask = 0 (bits 00): cut after index nothing &rarr; pieces [\"aab\"]. \"aab\" is not a palindrome &rarr; <b>reject<\/b>.", "mask": 0, "bits": "00", "pieces": ["aab"], "ok": false, "out": [], "cuts": []}, {"title": "mask 1", "cap": "mask = 1 (bits 01): cut after index 0 &rarr; pieces [\"a\", \"ab\"]. \"ab\" is not a palindrome &rarr; <b>reject<\/b>.", "mask": 1, "bits": "01", "pieces": ["a", "ab"], "ok": false, "out": [], "cuts": [0]}, {"title": "mask 2", "cap": "mask = 2 (bits 10): cut after index 1 &rarr; pieces [\"aa\", \"b\"]. All palindromes &rarr; <b>keep<\/b>.", "mask": 2, "bits": "10", "pieces": ["aa", "b"], "ok": true, "out": [["aa", "b"]], "cuts": [1]}, {"title": "mask 3", "cap": "mask = 3 (bits 11): cut after index 0, 1 &rarr; pieces [\"a\", \"a\", \"b\"]. All palindromes &rarr; <b>keep<\/b>.", "mask": 3, "bits": "11", "pieces": ["a", "a", "b"], "ok": true, "out": [["aa", "b"], ["a", "a", "b"]], "cuts": [0, 1]}];
+var BT=[{"title": "Initial state", "cap": "Call <code>backtrack(0)<\/code>: the next piece starts at index 0. <code>path = []<\/code>.", "start": 0, "piece": "—", "path": [], "out": [], "marks": {"": "hi"}, "lines": [2, 14], "act": "init"}, {"title": "Try \"a\" at start 0: keep", "cap": "start = 0: try <code>s[0:1] = \"a\"<\/code>. It is a palindrome &rarr; <b>choose<\/b> it and recurse with <code>backtrack(1)<\/code>.", "start": 0, "piece": "a", "path": ["a"], "out": [], "marks": {"": "seen", "a": "hi"}, "lines": [7, 8, 9, 11, 12], "act": "choose"}, {"title": "Try \"a\" at start 1: keep", "cap": "start = 1: try <code>s[1:2] = \"a\"<\/code>. It is a palindrome &rarr; <b>choose<\/b> it and recurse with <code>backtrack(2)<\/code>.", "start": 1, "piece": "a", "path": ["a", "a"], "out": [], "marks": {"": "seen", "a": "seen", "a|a": "hi"}, "lines": [7, 8, 9, 11, 12], "act": "choose"}, {"title": "Try \"b\" at start 2: keep", "cap": "start = 2: try <code>s[2:3] = \"b\"<\/code>. It is a palindrome &rarr; <b>choose<\/b> it and recurse with <code>backtrack(3)<\/code>.", "start": 2, "piece": "b", "path": ["a", "a", "b"], "out": [], "marks": {"": "seen", "a": "seen", "a|a": "seen", "a|a|b": "hi"}, "lines": [7, 8, 9, 11, 12], "act": "choose"}, {"title": "Reached the end: record", "cap": "start = 3 = len(s): every letter is covered &rarr; <b>record a copy<\/b> of <code>path = [\"a\", \"a\", \"b\"]<\/code>.", "start": 3, "piece": "—", "path": ["a", "a", "b"], "out": [["a", "a", "b"]], "marks": {"": "seen", "a": "seen", "a|a": "seen", "a|a|b": "good"}, "lines": [4, 5, 6], "act": "record"}, {"title": "Pop \"b\"", "cap": "Back from <code>backtrack(3)<\/code>: <b>un-choose<\/b> <code>\"b\"<\/code>. <code>path = [\"a\", \"a\"]<\/code>; try the next end for start 2.", "start": 2, "piece": "b", "path": ["a", "a"], "out": [["a", "a", "b"]], "marks": {"": "seen", "a": "seen", "a|a": "hi", "a|a|b": "good"}, "lines": [13], "act": "pop"}, {"title": "Pop \"a\"", "cap": "Back from <code>backtrack(2)<\/code>: <b>un-choose<\/b> <code>\"a\"<\/code>. <code>path = [\"a\"]<\/code>; try the next end for start 1.", "start": 1, "piece": "a", "path": ["a"], "out": [["a", "a", "b"]], "marks": {"": "seen", "a": "hi", "a|a": "done", "a|a|b": "good"}, "lines": [13], "act": "pop"}, {"title": "Try \"ab\" at start 1: prune", "cap": "start = 1: try <code>s[1:3] = \"ab\"<\/code>. Not a palindrome &rarr; <b>prune<\/b> (skip, no recursion).", "start": 1, "piece": "ab", "path": ["a"], "out": [["a", "a", "b"]], "marks": {"": "seen", "a": "seen", "a|a": "done", "a|a|b": "good", "a|ab": "hi"}, "lines": [7, 8, 9, 10], "act": "fail"}, {"title": "Pop \"a\"", "cap": "Back from <code>backtrack(1)<\/code>: <b>un-choose<\/b> <code>\"a\"<\/code>. <code>path = []<\/code>; try the next end for start 0.", "start": 0, "piece": "a", "path": [], "out": [["a", "a", "b"]], "marks": {"": "hi", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad"}, "lines": [13], "act": "pop"}, {"title": "Try \"aa\" at start 0: keep", "cap": "start = 0: try <code>s[0:2] = \"aa\"<\/code>. It is a palindrome &rarr; <b>choose<\/b> it and recurse with <code>backtrack(2)<\/code>.", "start": 0, "piece": "aa", "path": ["aa"], "out": [["a", "a", "b"]], "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "hi"}, "lines": [7, 8, 9, 11, 12], "act": "choose"}, {"title": "Try \"b\" at start 2: keep", "cap": "start = 2: try <code>s[2:3] = \"b\"<\/code>. It is a palindrome &rarr; <b>choose<\/b> it and recurse with <code>backtrack(3)<\/code>.", "start": 2, "piece": "b", "path": ["aa", "b"], "out": [["a", "a", "b"]], "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "seen", "aa|b": "hi"}, "lines": [7, 8, 9, 11, 12], "act": "choose"}, {"title": "Reached the end: record", "cap": "start = 3 = len(s): every letter is covered &rarr; <b>record a copy<\/b> of <code>path = [\"aa\", \"b\"]<\/code>.", "start": 3, "piece": "—", "path": ["aa", "b"], "out": [["a", "a", "b"], ["aa", "b"]], "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "seen", "aa|b": "good"}, "lines": [4, 5, 6], "act": "record"}, {"title": "Pop \"b\"", "cap": "Back from <code>backtrack(3)<\/code>: <b>un-choose<\/b> <code>\"b\"<\/code>. <code>path = [\"aa\"]<\/code>; try the next end for start 2.", "start": 2, "piece": "b", "path": ["aa"], "out": [["a", "a", "b"], ["aa", "b"]], "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "hi", "aa|b": "good"}, "lines": [13], "act": "pop"}, {"title": "Pop \"aa\"", "cap": "Back from <code>backtrack(2)<\/code>: <b>un-choose<\/b> <code>\"aa\"<\/code>. <code>path = []<\/code>; try the next end for start 0.", "start": 0, "piece": "aa", "path": [], "out": [["a", "a", "b"], ["aa", "b"]], "marks": {"": "hi", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "done", "aa|b": "good"}, "lines": [13], "act": "pop"}, {"title": "Try \"aab\" at start 0: prune", "cap": "start = 0: try <code>s[0:3] = \"aab\"<\/code>. Not a palindrome &rarr; <b>prune<\/b> (skip, no recursion).", "start": 0, "piece": "aab", "path": [], "out": [["a", "a", "b"], ["aa", "b"]], "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "done", "aa|b": "good", "aab": "hi"}, "lines": [7, 8, 9, 10], "act": "fail"}, {"title": "Loop finished: return", "cap": "No more ends to try at start 0. Return <code>out = [[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]<\/code>: <b>2 partitions<\/b>.", "start": 0, "piece": "—", "path": [], "out": [["a", "a", "b"], ["aa", "b"]], "marks": {"": "done", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "done", "aa|b": "good", "aab": "done"}, "lines": [15], "act": "done"}];
+var DP=[{"title": "Initial state", "cap": "Build an 3 x 3 table <code>is_pal[i][j]<\/code> (is s[i..j] a palindrome?), bottom row first.", "table": [[null, null, null], [null, null, null], [null, null, null]], "cell": null, "path": [], "out": [], "phase": "table", "look": null}, {"title": "Fill is_pal[2][2]", "cap": "<code>\"b\"<\/code>: s[2] = \"b\", s[2] = \"b\", short piece &rarr; <b>True<\/b>.", "table": [[null, null, null], [null, null, null], [null, null, true]], "cell": [2, 2], "path": [], "out": [], "phase": "table", "look": null}, {"title": "Fill is_pal[1][1]", "cap": "<code>\"a\"<\/code>: s[1] = \"a\", s[1] = \"a\", short piece &rarr; <b>True<\/b>.", "table": [[null, null, null], [null, true, null], [null, null, true]], "cell": [1, 1], "path": [], "out": [], "phase": "table", "look": null}, {"title": "Fill is_pal[1][2]", "cap": "<code>\"ab\"<\/code>: s[1] = \"a\", s[2] = \"b\", short piece &rarr; <b>False<\/b>.", "table": [[null, null, null], [null, true, false], [null, null, true]], "cell": [1, 2], "path": [], "out": [], "phase": "table", "look": null}, {"title": "Fill is_pal[0][0]", "cap": "<code>\"a\"<\/code>: s[0] = \"a\", s[0] = \"a\", short piece &rarr; <b>True<\/b>.", "table": [[true, null, null], [null, true, false], [null, null, true]], "cell": [0, 0], "path": [], "out": [], "phase": "table", "look": null}, {"title": "Fill is_pal[0][1]", "cap": "<code>\"aa\"<\/code>: s[0] = \"a\", s[1] = \"a\", short piece &rarr; <b>True<\/b>.", "table": [[true, true, null], [null, true, false], [null, null, true]], "cell": [0, 1], "path": [], "out": [], "phase": "table", "look": null}, {"title": "Fill is_pal[0][2]", "cap": "<code>\"aab\"<\/code>: s[0] = \"a\", s[2] = \"b\", inside is_pal[1][1] = True &rarr; <b>False<\/b>.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": [0, 2], "path": [], "out": [], "phase": "table", "look": null}, {"title": "Look up is_pal[0][0]", "cap": "Piece <code>\"a\"<\/code>: <code>is_pal[0][0] = True<\/code> &rarr; choose it, recurse from 1. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["a"], "out": [], "phase": "search", "look": [0, 0]}, {"title": "Look up is_pal[1][1]", "cap": "Piece <code>\"a\"<\/code>: <code>is_pal[1][1] = True<\/code> &rarr; choose it, recurse from 2. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["a", "a"], "out": [], "phase": "search", "look": [1, 1]}, {"title": "Look up is_pal[2][2]", "cap": "Piece <code>\"b\"<\/code>: <code>is_pal[2][2] = True<\/code> &rarr; choose it, recurse from 3. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["a", "a", "b"], "out": [], "phase": "search", "look": [2, 2]}, {"title": "Record", "cap": "start = 3: record <code>[\"a\", \"a\", \"b\"]<\/code>.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["a", "a", "b"], "out": [["a", "a", "b"]], "phase": "search", "look": null}, {"title": "Look up is_pal[1][2]", "cap": "Piece <code>\"ab\"<\/code>: <code>is_pal[1][2] = False<\/code> &rarr; prune. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["a"], "out": [["a", "a", "b"]], "phase": "search", "look": [1, 2]}, {"title": "Look up is_pal[0][1]", "cap": "Piece <code>\"aa\"<\/code>: <code>is_pal[0][1] = True<\/code> &rarr; choose it, recurse from 2. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["aa"], "out": [["a", "a", "b"]], "phase": "search", "look": [0, 1]}, {"title": "Look up is_pal[2][2]", "cap": "Piece <code>\"b\"<\/code>: <code>is_pal[2][2] = True<\/code> &rarr; choose it, recurse from 3. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["aa", "b"], "out": [["a", "a", "b"]], "phase": "search", "look": [2, 2]}, {"title": "Record", "cap": "start = 3: record <code>[\"aa\", \"b\"]<\/code>.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": ["aa", "b"], "out": [["a", "a", "b"], ["aa", "b"]], "phase": "search", "look": null}, {"title": "Look up is_pal[0][2]", "cap": "Piece <code>\"aab\"<\/code>: <code>is_pal[0][2] = False<\/code> &rarr; prune. One O(1) lookup, no reversing.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": [], "out": [["a", "a", "b"], ["aa", "b"]], "phase": "search", "look": [0, 2]}, {"title": "Return", "cap": "Search finished. Return <code>[[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]<\/code>, the same 2 partitions as before.", "table": [[true, true, false], [null, true, false], [null, null, true]], "cell": null, "path": [], "out": [["a", "a", "b"], ["aa", "b"]], "phase": "search", "look": null}];
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function isPal(p){ return p===p.split('').reverse().join(''); }
+function plist(a){ return '['+a.map(function(p){return '"'+p+'"';}).join(', ')+']'; }
+function outChips(out){ return out.map(function(p){ return {text:plist(p),cls:'look'}; }); }
+function pathChips(path){ return path.map(function(p){ return {text:'"'+p+'"'}; }); }
+
+/* A row of letter boxes. cuts = gap indices i (cut after letter i). Pieces are colored by palindrome test when color=true.
+   hl = [a,b) range to highlight as the piece being tried (class hiCls). */
+function drawCuts(id, cuts, color, hl, hiCls){
+  var pieceOf=[], k=0, start=0, pieces=[];
+  for(var i=0;i<S.length;i++){ pieceOf.push(k); if(cuts.indexOf(i)>=0||i===S.length-1){ pieces.push(S.slice(start,i+1)); start=i+1; k++; } }
+  var h='<div class="strrow">';
+  for(var i=0;i<S.length;i++){
+    var cls='';
+    if(color) cls=isPal(pieces[pieceOf[i]])?'good':'bad';
+    if(hl && i>=hl[0] && i<hl[1]) cls=hiCls;
+    if(hl && i>=hl[1]) cls='dim';
+    if(hl && i<hl[0]) cls='seen';
+    h+='<div class="cell"><div class="box '+cls+'">'+S[i]+'</div><div class="idxlabel">'+i+'</div></div>';
+    if(i<S.length-1) h+='<div class="gap'+(cuts.indexOf(i)>=0?' cut':'')+'"></div>';
+  }
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+
+/* Problem demo: the 4 cut patterns of "aab", good ones first (values from partition_brute's run). */
+var PD=[{cap:'<code>"aab"</code> has 2 gaps between letters. Each gap can be cut or left alone.',cuts:[],color:false}];
+[3,2,1,0].forEach(function(m){
+  var f=BR[m+1], good=f.ok;
+  PD.push({cap:'Cut pattern '+plist(f.pieces)+': '+(good?'every piece is a palindrome &rarr; <b>good</b>.':'<code>"'+f.pieces.filter(function(p){return !isPal(p);})[0]+'"</code> is not a palindrome &rarr; not allowed.'),cuts:f.cuts,color:true});
+});
+PD.push({cap:'So the answer is <b>[["a","a","b"], ["aa","b"]]</b>.',cuts:[0,1],color:true,end:true});
+makePlayer('pd',PD,function(f){ drawCuts('pd-viz',f.cuts,f.color); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Solution 1: one frame per mask (partition_brute). */
+makePlayer('br',BR,function(f){
+  drawCuts('br-viz',f.cuts,f.mask!==null);
+  chips('br-bits', f.mask===null?[]:[{text:'mask '+f.mask+' = '+f.bits+'<sub>2</sub>',cls:''}]);
+  chips('br-out',outChips(f.out));
+  document.getElementById('br-cap').innerHTML=f.cap;
+});
+
+/* Solution 2: recursion tree. Node key = pieces joined by "|"; root = "". */
+var NODES={"":[250,26],"a":[110,96],"aa":[290,96],"aab":[430,96],"a|a":[60,166],"a|ab":[170,166],"aa|b":[290,166],"a|a|b":[60,236]};
+function drawTree(id, marks){
+  var r=17, s='<div class="svgwrap"><svg viewBox="0 0 490 262" width="100%" style="max-width:490px" role="img" aria-label="recursion tree of backtrack calls">';
+  for(var k in NODES){ if(k==='') continue;
+    var parts=k.split('|'), parent=parts.slice(0,-1).join('|'), a=NODES[parent], b=NODES[k];
+    var cls=marks[k]?'':' style="opacity:.25"';
+    s+='<line class="edge" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"'+cls+'/>';
+    var mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+    s+='<text class="elabel" x="'+(mx+(b[0]>=a[0]?8:-8))+'" y="'+(my-4)+'" text-anchor="'+(b[0]>=a[0]?'start':'end')+'"'+cls+'>"'+parts[parts.length-1]+'"</text>';
+  }
+  for(var k in NODES){
+    var p=NODES[k], m=marks[k], lab=m==='bad'?'x':String(k===''?0:k.split('|').join('').length);
+    s+='<g class="tnode '+(m?m:'dim')+'"><circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'"/><text x="'+p[0]+'" y="'+(p[1]+5)+'" text-anchor="middle">'+lab+'</text></g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>';
+}
+makePlayer('bt',BT,function(f){
+  drawTree('bt-tree',f.marks);
+  var hl=null; if(f.act==='choose'||f.act==='fail'||f.act==='pop') hl=[f.start,f.start+f.piece.length];
+  drawCuts('bt-str',[],false,hl,f.act==='fail'?'bad':'hi');
+  chips('bt-path',pathChips(f.path)); chips('bt-out',outChips(f.out));
+  document.getElementById('bt-cap').innerHTML='<b>'+f.title+'.</b> '+f.cap;
+});
+
+/* Solution 3: the is_pal table, then the lookups. */
+function drawTable(f){
+  var n=S.length, h='<div class="pal" style="grid-template-columns:28px repeat('+n+',58px)"><div></div>';
+  for(var j=0;j<n;j++) h+='<div class="phead">j='+j+' "'+S[j]+'"</div>';
+  for(var i=0;i<n;i++){
+    h+='<div class="phead">i='+i+'</div>';
+    for(var j=0;j<n;j++){
+      var v=f.table[i][j], cls=j<i?'na':(v===true?'t':(v===false?'f':''));
+      var hit=(f.cell&&f.cell[0]===i&&f.cell[1]===j)||(f.look&&f.look[0]===i&&f.look[1]===j);
+      h+='<div class="pcell '+cls+(hit?' hi':'')+'">'+(j<i?'':(v===null?'?':'"'+S.slice(i,j+1)+'"'))+'</div>';
+    }
+  }
+  document.getElementById('dp-viz').innerHTML=h+'</div>';
+}
+makePlayer('dp',DP,function(f){
+  drawTable(f); chips('dp-path',pathChips(f.path)); chips('dp-out',outChips(f.out));
+  document.getElementById('dp-cap').innerHTML='<b>'+f.title+'.</b> '+f.cap;
+});
+</script>
+</body></html>

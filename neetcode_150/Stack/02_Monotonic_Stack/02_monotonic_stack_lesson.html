@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monotonic Stack — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+    .sim-cell { transition: fill 0.2s ease; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Stack · Pattern 02 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Monotonic Stack</h1>
+          <p>
+            Walk the input once and keep the elements that are still waiting for their answer on a stack of indices. Each new element pops every waiting element it beats, and that pop is the moment the popped element learns its answer: its next greater element, its next smaller element, a distance, a width. Because beaten elements are always removed, the values left on the stack stay sorted.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: a pop is an answer</span>
+            <span class="chip">Method 1: decreasing stack (Daily Temperatures)</span>
+            <span class="chip">Method 2: increasing stack + width (Largest Rectangle)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="daily_temperatures.html">Daily Temperatures</a> · <a href="car_fleet.html">Car Fleet</a> · <a href="largest_rectangle_in_histogram.html">Largest Rectangle in Histogram</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Daily Temperatures, <code>[73, 74, 75, 71, 69, 72, 76, 73]</code>. For each day, how many days until a warmer one?</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 240" width="100%" role="img" aria-label="Eight temperature bars with an arc from each day to its next warmer day">
+              <defs>
+                <style>
+                  .h-bar { fill: #315efb; }
+                  .h-bar0 { fill: #c8d2e7; }
+                  .h-arc { fill: none; stroke: #13a46b; stroke-width: 2.5; }
+                  .h-val { font: 700 13px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-wait { font: 700 12px Inter, Arial, sans-serif; fill: #13a46b; }
+                  .h-title { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="20" class="h-title">arc = "my next warmer day", label = days to wait</text>
+              <rect x="30" y="129" width="40" height="91" rx="6" class="h-bar" />
+              <rect x="90" y="122" width="40" height="98" rx="6" class="h-bar" />
+              <rect x="150" y="115" width="40" height="105" rx="6" class="h-bar" />
+              <rect x="210" y="143" width="40" height="77" rx="6" class="h-bar" />
+              <rect x="270" y="157" width="40" height="63" rx="6" class="h-bar" />
+              <rect x="330" y="136" width="40" height="84" rx="6" class="h-bar" />
+              <rect x="390" y="108" width="40" height="112" rx="6" class="h-bar0" />
+              <rect x="450" y="129" width="40" height="91" rx="6" class="h-bar0" />
+              <path d="M 50 127 Q 80 100 110 120" class="h-arc" />
+              <path d="M 110 120 Q 140 93 170 113" class="h-arc" />
+              <path d="M 170 113 Q 290 30 410 106" class="h-arc" />
+              <path d="M 230 141 Q 290 100 350 134" class="h-arc" />
+              <path d="M 290 155 Q 320 128 350 134" class="h-arc" />
+              <path d="M 350 134 Q 380 100 410 106" class="h-arc" />
+              <text x="80" y="104" text-anchor="middle" class="h-wait">1</text>
+              <text x="140" y="97" text-anchor="middle" class="h-wait">1</text>
+              <text x="290" y="64" text-anchor="middle" class="h-wait">4</text>
+              <text x="262" y="114" text-anchor="middle" class="h-wait">2</text>
+              <text x="320" y="132" text-anchor="middle" class="h-wait">1</text>
+              <text x="380" y="104" text-anchor="middle" class="h-wait">1</text>
+              <text x="50" y="212" text-anchor="middle" class="h-val">73</text>
+              <text x="110" y="212" text-anchor="middle" class="h-val">74</text>
+              <text x="170" y="212" text-anchor="middle" class="h-val">75</text>
+              <text x="230" y="212" text-anchor="middle" class="h-val">71</text>
+              <text x="290" y="212" text-anchor="middle" class="h-val">69</text>
+              <text x="350" y="212" text-anchor="middle" class="h-val">72</text>
+              <text x="410" y="212" text-anchor="middle" class="h-val">76</text>
+              <text x="470" y="212" text-anchor="middle" class="h-val">73</text>
+              <text x="50" y="236" text-anchor="middle" class="h-idx">0</text>
+              <text x="110" y="236" text-anchor="middle" class="h-idx">1</text>
+              <text x="170" y="236" text-anchor="middle" class="h-idx">2</text>
+              <text x="230" y="236" text-anchor="middle" class="h-idx">3</text>
+              <text x="290" y="236" text-anchor="middle" class="h-idx">4</text>
+              <text x="350" y="236" text-anchor="middle" class="h-idx">5</text>
+              <text x="410" y="236" text-anchor="middle" class="h-idx">6</text>
+              <text x="470" y="236" text-anchor="middle" class="h-idx">7</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = [1, 1, 4, 2, 1, 1, 0, 0] (gray days never warm up)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Price and weather series</h3>
+          <p>"How many days until the price beats today's?" or "for how many days has the price been at most today's?" (a stock span) are next-greater questions over a time series, answered in one pass.</p>
+        </div>
+        <div class="card">
+          <h3>Skylines and visibility</h3>
+          <p>Which buildings can see the sunset, who in a queue can see whom: a taller element hides every shorter one behind it, which is exactly what a pop records.</p>
+        </div>
+        <div class="card">
+          <h3>Largest areas</h3>
+          <p>The biggest rectangle under a histogram, and the biggest all-ones rectangle in a binary matrix (one histogram per row), both reduce to "nearest shorter bar on each side".</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the brute force for every problem here compares each element with everything after it, <code>O(n²)</code>. The monotonic stack removes an element as soon as some later element answers it, so nothing is compared twice. Learn to ask "which elements are still waiting, and what ends their wait?"</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is a monotonic stack?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A <strong>stack</strong> (<code>append</code> / <code>pop</code> at the top, both O(1)) holding <strong>indices</strong> whose values stay <strong>sorted</strong> from bottom to top. Before pushing index <code>i</code>, you pop every index whose value would break that order. For "next greater" the values are <em>decreasing</em> (pop while the top is smaller than the new value); for "next smaller" they are <em>increasing</em> (pop while the top is larger).</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"How many days until a warmer temperature", "next greater / next smaller element", "largest rectangle in a histogram", "the span where this element is the minimum", "cars cannot pass and form fleets". The answer for an element is decided by the first element after it that beats it.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> the stack is a waiting room. An element waits until something beats it. When something does, the waiting element leaves (pop) with its answer. Everything still in the room at the end never got beaten.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Name the answer</h3>
+          <p>For each element: the next greater (warmer day), the next smaller (the wall of a rectangle), or the fleet ahead (Car Fleet).</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Pick the direction</h3>
+          <p>Next greater &rarr; decreasing stack, pop while <code>nums[top] &lt; x</code>. Next smaller &rarr; increasing stack, pop while <code>nums[top] &gt; x</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Write the answer at pop time</h3>
+          <p>Store indices so the pop can compute a distance <code>i - j</code> or a width <code>i - left - 1</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Handle the leftovers</h3>
+          <p>Indices never popped keep a default (<code>0</code> days) or are flushed by a sentinel (a height-0 bar after the end).</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a monotonic stack</h2>
+      <p>The input is a plain array. Nothing is pre-built: the stack is a running summary of "who is still waiting", and its values are always in order. The answer array is filled in by the pops, out of order.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input array</h3>
+          <div class="code-block"><code>temperatures = [73, 74, 75, 71, 69, 72, 76, 73]
+heights      = [2, 1, 5, 6, 2, 3]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Stack of waiting indices (bottom → top)</h3>
+          <div class="code-block"><code>after day 4:   [2, 3, 4]   temps 75 &gt; 71 &gt; 69   decreasing
+after bar 3:   [1, 2, 3]   heights 1 &lt; 5 &lt; 6    increasing</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Read the next element</h4>
+          <p>Compare it with the value of the index on top of the stack.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>It beats the top: pop and answer</h4>
+          <p>Pop the top index <code>j</code> and write its answer using the current index <code>i</code>. Repeat while it keeps beating the new top.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>It does not beat the top: push</h4>
+          <p>Push <code>i</code>. The stack is still sorted, because everything it would have broken the order with was just popped.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>End of input: the leftovers</h4>
+          <p>Daily Temperatures leaves them at 0; Largest Rectangle pushes a height-0 sentinel that pops them all.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> one step of the <code>for</code> loop can pop many indices, but each index is pushed exactly once and popped at most once in the whole run. That is why the nested <code>while</code> still totals <code>O(n)</code>.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: decreasing stack (Daily Temperatures)</h2>
+      <p>The template as is, taken line for line from the notebook's <code>daily_temperatures_stack</code>. Days waiting for a warmer day sit on the stack; a warmer day pops them and writes how long they waited. Traced on <code>[73, 74, 75, 71, 69, 72, 76, 73]</code>.</p>
+      <div class="code-block stepped">
+        <code id="dt-code">
+<span class="code-line" data-line="1">def daily_temperatures_stack(temperatures: List[int]) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    res = [0] * len(temperatures)</span>
+<span class="code-line" data-line="3">    stack = []                                     # indices of days still waiting; temps never rise bottom -&gt; top</span>
+<span class="code-line" data-line="4">    for i, t in enumerate(temperatures):</span>
+<span class="code-line" data-line="5">        while stack and temperatures[stack[-1]] &lt; t:   # today is warmer than the day on top</span>
+<span class="code-line" data-line="6">            j = stack.pop()                        # day j's wait is over...</span>
+<span class="code-line" data-line="7">            res[j] = i - j                         # ...after i - j days (why we store INDICES)</span>
+<span class="code-line" data-line="8">        stack.append(i)                            # today waits for its own warmer day</span>
+<span class="code-line" data-line="9">    return res                                     # days left on the stack keep 0</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive next-warmer-day trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="dt-graph" viewBox="0 0 520 300" width="100%" role="img" aria-label="Temperature bars, the answer row and the stack of waiting days at the current step"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> today (i)</span>
+            <span><i class="dot dot-green"></i> waiting on the stack</span>
+            <span><i class="dot dot-blue"></i> answered (popped)</span>
+            <span><i class="dot dot-gray"></i> not read yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="dt-step-title">Initial state</h3>
+          <p id="dt-step-text">Every answer starts at 0 and the stack is empty.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="dt-prev">Previous</button>
+            <button type="button" id="dt-play" class="primary">Resume</button>
+            <button type="button" id="dt-next">Next</button>
+            <button type="button" id="dt-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="dt-step-counter">Step 0 / 9</span>
+            <div class="progress"><span id="dt-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i</strong><div class="state-value" id="dt-i">—</div></div>
+            <div class="state-box"><strong>t (today)</strong><div class="state-value" id="dt-t">—</div></div>
+            <div class="state-box"><strong>Popped j &rarr; res[j]</strong><div class="state-value" id="dt-pop">—</div></div>
+            <div class="state-box"><strong>stack (top is right)</strong><div class="state-value" id="dt-stack">[]</div></div>
+            <div class="state-box"><strong>res</strong><div class="state-value" id="dt-res">[0, 0, 0, 0, 0, 0, 0, 0]</div></div>
+            <div class="state-box"><strong>Returns</strong><div class="state-value" id="dt-ret">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="dt-detail"><strong>What changed:</strong> nothing read yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="dt-trace-table">
+          <thead>
+            <tr><th>Step</th><th>i</th><th>t</th><th>Popped (j &rarr; res[j] = i - j)</th><th>stack after (temps)</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td><code>res = [0] * 8</code>, <code>stack = []</code></td><td><code>[]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>73</td><td>— (stack empty)</td><td><code>[0]</code> (73)</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>74</td><td>0 &rarr; 1</td><td><code>[1]</code> (74)</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>75</td><td>1 &rarr; 1</td><td><code>[2]</code> (75)</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>71</td><td>— (71 is not warmer than 75)</td><td><code>[2, 3]</code> (75, 71)</td></tr>
+            <tr data-step="5"><td>5</td><td>4</td><td>69</td><td>—</td><td><code>[2, 3, 4]</code> (75, 71, 69)</td></tr>
+            <tr data-step="6"><td>6</td><td>5</td><td>72</td><td>4 &rarr; 1, 3 &rarr; 2 (stops at 75)</td><td><code>[2, 5]</code> (75, 72)</td></tr>
+            <tr data-step="7"><td>7</td><td>6</td><td>76</td><td>5 &rarr; 1, 2 &rarr; 4</td><td><code>[6]</code> (76)</td></tr>
+            <tr data-step="8"><td>8</td><td>7</td><td>73</td><td>—</td><td><code>[6, 7]</code> (76, 73)</td></tr>
+            <tr data-step="9"><td>9</td><td>—</td><td>—</td><td><code>return res</code> &rarr; <code>[1, 1, 4, 2, 1, 1, 0, 0]</code></td><td><code>[6, 7]</code> keep 0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The stack is the list of days still waiting, coldest on top. A new day can only end the waits of days colder than itself, and those are all on top, so it pops from the top until it meets a day at least as warm.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Pushing temperatures instead of indices. The pop then knows the day was 69 but not <em>which</em> day it was, so <code>i - j</code> cannot be computed. NeetCode's Stack traps call this out by name.</p>
+        </div>
+        <div class="card">
+          <h4>Why a stack</h4>
+          <p>The brute force scans right from every day, <code>O(n²)</code>: about 4x slower per doubling of <code>n</code> in the notebook's benchmark. The stack touches each day twice (push, pop): <code>O(n)</code>, about 2x per doubling.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: increasing stack + width (Largest Rectangle in Histogram)</h2>
+      <p>Flip the comparison: now each bar needs its nearest <em>shorter</em> bar on both sides, so the stack keeps heights increasing and a shorter bar pops the taller ones. At pop time the current index is the right wall and the new top is the left wall. Code from the notebook's <code>largest_rectangle_stack</code>, traced on <code>heights = [2, 1, 5, 6, 2, 3]</code>.</p>
+      <div class="code-block stepped">
+        <code id="lr-code">
+<span class="code-line" data-line="1">def largest_rectangle_stack(heights: List[int]) -&gt; int:</span>
+<span class="code-line" data-line="2">    n = len(heights)</span>
+<span class="code-line" data-line="3">    stack = []                                     # bar indices, heights never decrease bottom -&gt; top</span>
+<span class="code-line" data-line="4">    best = 0</span>
+<span class="code-line" data-line="5">    for i in range(n + 1):</span>
+<span class="code-line" data-line="6">        h = heights[i] if i &lt; n else 0             # sentinel 0 after the last bar flushes the stack</span>
+<span class="code-line" data-line="7">        while stack and heights[stack[-1]] &gt; h:    # top bar is taller: its rectangle can't pass i</span>
+<span class="code-line" data-line="8">            top = stack.pop()</span>
+<span class="code-line" data-line="9">            left = stack[-1] if stack else -1      # left wall: nearest bar on its left that is not taller</span>
+<span class="code-line" data-line="10">            best = max(best, heights[top] * (i - left - 1))   # width = bars strictly between the walls</span>
+<span class="code-line" data-line="11">        stack.append(i)</span>
+<span class="code-line" data-line="12">    return best</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive histogram trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="lr-graph" viewBox="0 0 520 300" width="100%" role="img" aria-label="Histogram bars, rectangles measured at this step and the stack of bar indices"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current bar (i)</span>
+            <span><i class="dot dot-green"></i> on the stack</span>
+            <span><i class="dot dot-blue"></i> popped (area measured)</span>
+            <span><i class="dot dot-gray"></i> not read yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="lr-step-title">Initial state</h3>
+          <p id="lr-step-text">Empty stack, best = 0.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="lr-prev">Previous</button>
+            <button type="button" id="lr-play" class="primary">Resume</button>
+            <button type="button" id="lr-next">Next</button>
+            <button type="button" id="lr-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="lr-step-counter">Step 0 / 8</span>
+            <div class="progress"><span id="lr-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i</strong><div class="state-value" id="lr-i">—</div></div>
+            <div class="state-box"><strong>h</strong><div class="state-value" id="lr-h">—</div></div>
+            <div class="state-box"><strong>Popped: height × width</strong><div class="state-value" id="lr-pop">—</div></div>
+            <div class="state-box"><strong>stack (top is right)</strong><div class="state-value" id="lr-stack">[]</div></div>
+            <div class="state-box"><strong>best</strong><div class="state-value" id="lr-best">0</div></div>
+            <div class="state-box"><strong>Returns</strong><div class="state-value" id="lr-ret">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="lr-detail"><strong>What changed:</strong> nothing read yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="lr-trace-table">
+          <thead>
+            <tr><th>Step</th><th>i</th><th>h</th><th>Popped: top (height), left wall, width, area</th><th>stack after</th><th>best</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td><code>stack = []</code>, <code>best = 0</code></td><td><code>[]</code></td><td>0</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>2</td><td>—</td><td><code>[0]</code></td><td>0</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>1</td><td>0 (2), left -1, width 1, area 2</td><td><code>[1]</code></td><td>2</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>5</td><td>—</td><td><code>[1, 2]</code></td><td>2</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>6</td><td>—</td><td><code>[1, 2, 3]</code></td><td>2</td></tr>
+            <tr data-step="5"><td>5</td><td>4</td><td>2</td><td>3 (6), left 2, width 1, area 6; 2 (5), left 1, width 2, area 10</td><td><code>[1, 4]</code></td><td>10</td></tr>
+            <tr data-step="6"><td>6</td><td>5</td><td>3</td><td>—</td><td><code>[1, 4, 5]</code></td><td>10</td></tr>
+            <tr data-step="7"><td>7</td><td>6</td><td>0 (sentinel)</td><td>5 (3), left 4, width 1, area 3; 4 (2), left 1, width 4, area 8; 1 (1), left -1, width 6, area 6</td><td><code>[6]</code></td><td>10</td></tr>
+            <tr data-step="8"><td>8</td><td>—</td><td>—</td><td><code>return best</code> &rarr; 10</td><td><code>[6]</code></td><td>10</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A bar stays on the stack while its rectangle can still grow to the right. The first shorter bar ends that growth (right wall); the bar below it on the stack is the nearest bar to its left that is not taller (left wall).</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Width <code>i - top</code> instead of <code>i - left - 1</code>. At step 7, bar 4 (height 2) spans bars 2..5, width 4, because the taller bars 2 and 3 were popped earlier. Its own index would give width 2.</p>
+        </div>
+        <div class="card">
+          <h4>Why the sentinel</h4>
+          <p>Bars that never meet a shorter bar would never be popped, so their areas would be lost: without it <code>[1, 2, 3]</code> returns 0 instead of 4. The height-0 bar at <code>i = n</code> is shorter than everything.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Always falling</button>
+        <button type="button" data-example-tab="1">Equal values</button>
+        <button type="button" data-example-tab="2">Always rising bars</button>
+        <button type="button" data-example-tab="3">Tie at the target</button>
+        <button type="button" data-example-tab="4">Single element</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: temperatures that only fall</h3>
+          <p><code>[90, 80, 70, 60]</code></p>
+          <div class="result-badge">Daily Temperatures = [0, 0, 0, 0]</div>
+          <p class="footer-note">Nothing is ever popped: every day stays on the stack and keeps its default 0. This is also the stack's largest size, <code>n</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: equal temperatures</h3>
+          <p><code>[50, 50, 50, 51]</code></p>
+          <div class="result-badge">Daily Temperatures = [3, 2, 1, 0]</div>
+          <p class="footer-note">An equal day is not warmer, so the comparison is a strict <code>&lt;</code>: the three 50s wait together and 51 pops all of them. Popping on <code>&lt;=</code> would give <code>[1, 1, 1, 0]</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: bars that only rise</h3>
+          <p><code>[1, 2, 3, 4, 5]</code></p>
+          <div class="result-badge">Largest Rectangle = 9</div>
+          <p class="footer-note">No bar meets a shorter bar until the sentinel, which pops all five; height 3 across bars 2..4 gives 9. Without the sentinel the answer would wrongly be 0.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: two cars arrive at the same moment</h3>
+          <p><code>target = 10, position = [0, 5], speed = [2, 1]</code></p>
+          <div class="result-badge">Car Fleet = 1</div>
+          <p class="footer-note">Both need 5.0 hours. Catching up exactly at the target still forms one fleet, so the merge test is <code>t &lt;= stack[-1]</code>, not <code>&lt;</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="4">
+        <div class="card">
+          <h3>Case E: a single element</h3>
+          <p><code>temperatures = [55]</code>, <code>heights = [1]</code></p>
+          <div class="result-badge">[0] and 1</div>
+          <p class="footer-note">Daily Temperatures pushes the only day and returns its default 0. Largest Rectangle pops the bar at the sentinel with left wall -1 and width 1.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Daily Temperatures</td><td>Scan right from every day</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>No early exit when the warmer day is far away.</td></tr>
+            <tr><td>Daily Temperatures</td><td>Right to left, jump along known answers</td><td><code>O(n)</code> amortized</td><td><code>O(1)</code></td><td>Saves the stack; harder to prove linear.</td></tr>
+            <tr><td>Daily Temperatures</td><td>Decreasing stack (Method 1)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>The template as is.</td></tr>
+            <tr><td>Car Fleet</td><td>Check every car ahead of every car</td><td><code>O(n²)</code></td><td><code>O(n)</code></td><td>Correct rule, quadratic search.</td></tr>
+            <tr><td>Car Fleet</td><td>Sort by position + stack of arrival times</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td><td>The sort dominates; the sweep is linear.</td></tr>
+            <tr><td>Largest Rectangle</td><td>Every pair of walls</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>Running minimum makes each pair O(1).</td></tr>
+            <tr><td>Largest Rectangle</td><td>Two passes: nearest shorter on each side</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Two stacks, then one area per bar.</td></tr>
+            <tr><td>Largest Rectangle</td><td>One-pass increasing stack (Method 2)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Both walls known at pop time.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">Complexities come from this folder's notebooks. In their doubling benchmarks the brute forces grow about 4x per doubling of <code>n</code> and the linear versions about 2x.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The brute force compares each element with everything after it: <code>O(n²)</code>. Where is the waste?</p></div>
+            <div class="timeline-step"><p>Once a later, bigger element has answered an element, that element never matters again. Remove it.</p></div>
+            <div class="timeline-step"><p>The elements still unanswered are then always in sorted order, and the newest is on top: a stack. A new element pops the ones it beats and answers them.</p></div>
+            <div class="timeline-step"><p>Store indices, because the answer is a distance or a width. Each index is pushed and popped once: <code>O(n)</code>.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Each day needs its next warmer day, so I'll keep a stack of days still waiting; their temperatures are decreasing."</li>
+            <li>"When today is warmer than the top, I pop it and its answer is <code>i - j</code>; that's why I store indices."</li>
+            <li>"For the histogram I need the nearest shorter bar on both sides, so the stack is increasing and the width is <code>i - left - 1</code>."</li>
+            <li>"Every index is pushed once and popped at most once, so it's O(n) time and O(n) space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="note-grid">
+        <div class="card">
+          <h3>Daily Temperatures</h3>
+          <ul class="mistake-list">
+            <li>Pushing temperatures instead of indices, so the distance is lost.</li>
+            <li>Popping on <code>&lt;=</code>: an equal day is not warmer.</li>
+            <li>Using an <code>if</code> instead of a <code>while</code>: one warm day can end many waits.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Car Fleet</h3>
+          <ul class="mistake-list">
+            <li>Not sorting, or sweeping from the back of the road instead of from the car closest to the target.</li>
+            <li>Merging only on <code>&lt;</code>: a tie at the target is one fleet.</li>
+            <li>Integer division <code>(target - p) // s</code>, which rounds times down and merges cars that never meet.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Largest Rectangle</h3>
+          <ul class="mistake-list">
+            <li>Width <code>i - top</code> instead of <code>i - left - 1</code>.</li>
+            <li>No sentinel or final flush, so bars that never meet a shorter bar are never measured.</li>
+            <li>Reading <code>stack[-1]</code> for the left wall without handling the empty stack (left wall = -1).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Car Fleet: <code>target = 12, position = [10, 8, 0, 5, 3], speed = [2, 4, 1, 1, 3]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> sort closest-first and turn each car into <code>(12 - p) / s</code>: 1.0, 1.0, 7.0, 3.0, 12.0. Push only when a time is larger than the top.</p>
+          <p style="margin-top:10px;">Answer: <code>3</code>. The stack goes <code>[1.0]</code>, (8 merges), <code>[1.0, 7.0]</code>, (3 merges), <code>[1.0, 7.0, 12.0]</code>. Step through it on <a href="car_fleet.html">Car Fleet</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Daily Temperatures: <code>[30, 40, 50, 60]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> every day is warmer than the one before. How big does the stack ever get?</p>
+          <p style="margin-top:10px;">Answer: <code>[1, 1, 1, 0]</code>. Each day pops exactly the previous day, so the stack never holds more than one index; day 3 stays and keeps 0. Compare all three approaches on <a href="daily_temperatures.html">Daily Temperatures</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Largest Rectangle: <code>[6, 2, 5, 4, 5, 1, 6]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> which bar's rectangle is limited only by the bars at index 1 (height 2) and index 5 (height 1)?</p>
+          <p style="margin-top:10px;">Answer: <code>12</code>: bar 3 (height 4) stretches over bars 2..4, width 3. The notebook's tests include this case. Walkthrough of the method: <a href="largest_rectangle_in_histogram.html">Largest Rectangle in Histogram</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Follow-up variant of Daily Temperatures: "how many days until a <em>colder</em> day?" for <code>[73, 74, 75, 71, 69, 72, 76, 73]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> next smaller instead of next greater. Which way does the comparison flip, and is the stack now increasing or decreasing?</p>
+          <p style="margin-top:10px;">Answer: <code>[3, 2, 1, 1, 0, 0, 1, 0]</code>. Pop while <code>temperatures[stack[-1]] &gt; t</code>, an increasing stack, the same direction as Largest Rectangle. (This variant is not a notebook problem; it is the template with one sign flipped.) Compare with <a href="daily_temperatures.html">Daily Temperatures</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Keep the unanswered indices on a stack; each new element pops the ones it beats and answers them.</strong>
+          Daily Temperatures pops cooler days and writes <code>i - j</code>, Largest Rectangle pops taller bars and writes <code>height × (i - left - 1)</code>, and Car Fleet, after sorting by position, keeps only the fleet times that increase. Each index is pushed once and popped once: one pass, O(n).
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Monotonic Stack pattern notes</a>. Code and trace values are taken from this folder's notebooks. Related pattern: <a href="../01_Stack_Simulation/README.md">Stack Simulation</a>.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const T = [73, 74, 75, 71, 69, 72, 76, 73];
+      const HB = [2, 1, 5, 6, 2, 3];
+
+      // Ground truth: instrumented run of daily_temperatures_stack on T.
+      const dtSteps = [
+        { step: 0, title: 'Initial state', text: 'Every answer starts at 0 and the stack is empty.', i: -1, pops: [], stack: [], res: [0,0,0,0,0,0,0,0], ret: '—', detail: 'Nothing has been read yet.', lines: [2, 3] },
+        { step: 1, title: 'Step 1: day 0 (73)', text: 'The stack is empty, so nothing can be popped. Push 0.', i: 0, pops: [], stack: [0], res: [0,0,0,0,0,0,0,0], ret: '—', detail: 'Day 0 waits for a warmer day.', lines: [4, 5, 8] },
+        { step: 2, title: 'Step 2: day 1 (74)', text: '74 > 73 (day 0 on top): pop 0, res[0] = 1 - 0 = 1. Push 1.', i: 1, pops: [[0, 1]], stack: [1], res: [1,0,0,0,0,0,0,0], ret: '—', detail: 'Day 0 got its answer the moment a warmer day arrived.', lines: [4, 5, 6, 7, 8] },
+        { step: 3, title: 'Step 3: day 2 (75)', text: '75 > 74: pop 1, res[1] = 1. Push 2.', i: 2, pops: [[1, 1]], stack: [2], res: [1,1,0,0,0,0,0,0], ret: '—', detail: 'The stack again holds just the newest day.', lines: [4, 5, 6, 7, 8] },
+        { step: 4, title: 'Step 4: day 3 (71)', text: '71 is not warmer than 75 on top: no pop. Push 3.', i: 3, pops: [], stack: [2, 3], res: [1,1,0,0,0,0,0,0], ret: '—', detail: 'Two days wait now; their temperatures decrease bottom to top (75, 71).', lines: [4, 5, 8] },
+        { step: 5, title: 'Step 5: day 4 (69)', text: '69 < 71: no pop. Push 4.', i: 4, pops: [], stack: [2, 3, 4], res: [1,1,0,0,0,0,0,0], ret: '—', detail: 'Stack temperatures 75, 71, 69: still decreasing.', lines: [4, 5, 8] },
+        { step: 6, title: 'Step 6: day 5 (72)', text: '72 > 69: pop 4, res[4] = 1. 72 > 71: pop 3, res[3] = 2. 72 < 75: stop. Push 5.', i: 5, pops: [[4, 1], [3, 2]], stack: [2, 5], res: [1,1,0,2,1,0,0,0], ret: '—', detail: 'One day ended two waits. The while loop stops at the first day that is at least as warm.', lines: [4, 5, 6, 7, 8] },
+        { step: 7, title: 'Step 7: day 6 (76)', text: '76 > 72: pop 5, res[5] = 1. 76 > 75: pop 2, res[2] = 6 - 2 = 4. Push 6.', i: 6, pops: [[5, 1], [2, 4]], stack: [6], res: [1,1,4,2,1,1,0,0], ret: '—', detail: 'Day 2 waited 4 days: the distance comes from the stored index.', lines: [4, 5, 6, 7, 8] },
+        { step: 8, title: 'Step 8: day 7 (73)', text: '73 is not warmer than 76: no pop. Push 7.', i: 7, pops: [], stack: [6, 7], res: [1,1,4,2,1,1,0,0], ret: '—', detail: 'The input is used up with days 6 and 7 still waiting.', lines: [4, 5, 8] },
+        { step: 9, title: 'Step 9: return', text: 'Days 6 and 7 never met a warmer day; they keep 0. Return res.', i: 8, pops: [], stack: [6, 7], res: [1,1,4,2,1,1,0,0], ret: '[1, 1, 4, 2, 1, 1, 0, 0]', detail: 'Final answer: [1, 1, 4, 2, 1, 1, 0, 0]. 8 pushes and 6 pops in total.', lines: [9] }
+      ];
+
+      // Ground truth: instrumented run of largest_rectangle_stack on HB (+ sentinel 0 at i = 6).
+      // pops: [top, left, width, area]
+      const lrSteps = [
+        { step: 0, title: 'Initial state', text: 'Empty stack, best = 0.', i: -1, pops: [], stack: [], best: 0, ret: '—', detail: 'Nothing has been read yet.', lines: [2, 3, 4] },
+        { step: 1, title: 'Step 1: i = 0 (h 2)', text: 'Stack empty: push 0.', i: 0, pops: [], stack: [0], best: 0, ret: '—', detail: 'Bar 0 can still grow to the right.', lines: [5, 6, 7, 11] },
+        { step: 2, title: 'Step 2: i = 1 (h 1)', text: 'Bar 0 (2) is taller than 1: pop. Stack empty, so left wall = -1. Width 1 - (-1) - 1 = 1, area 2. Push 1.', i: 1, pops: [[0, -1, 1, 2]], stack: [1], best: 2, ret: '—', detail: 'Bar 0 can never extend past bar 1, so its rectangle is final: 2.', lines: [5, 6, 7, 8, 9, 10, 11] },
+        { step: 3, title: 'Step 3: i = 2 (h 5)', text: '5 is taller than the top (1): push 2.', i: 2, pops: [], stack: [1, 2], best: 2, ret: '—', detail: 'Heights on the stack: 1, 5.', lines: [5, 6, 7, 11] },
+        { step: 4, title: 'Step 4: i = 3 (h 6)', text: '6 > 5: push 3.', i: 3, pops: [], stack: [1, 2, 3], best: 2, ret: '—', detail: 'Heights on the stack: 1, 5, 6. Still increasing.', lines: [5, 6, 7, 11] },
+        { step: 5, title: 'Step 5: i = 4 (h 2)', text: 'Pop 3 (6): left wall 2, width 1, area 6. Pop 2 (5): left wall 1, width 4 - 1 - 1 = 2, area 10. Bar 1 (1) is not taller: push 4.', i: 4, pops: [[3, 2, 1, 6], [2, 1, 2, 10]], stack: [1, 4], best: 10, ret: '—', detail: 'Bar 2 at height 5 spans bars 2..3: that is the answer, 10.', lines: [5, 6, 7, 8, 9, 10, 11] },
+        { step: 6, title: 'Step 6: i = 5 (h 3)', text: '3 > 2: push 5.', i: 5, pops: [], stack: [1, 4, 5], best: 10, ret: '—', detail: 'Three bars wait for a shorter bar on their right.', lines: [5, 6, 7, 11] },
+        { step: 7, title: 'Step 7: i = 6, sentinel (h 0)', text: 'Pop 5 (3): width 1, area 3. Pop 4 (2): left wall 1, width 4, area 8. Pop 1 (1): left wall -1, width 6, area 6. Push 6.', i: 6, pops: [[5, 4, 1, 3], [4, 1, 4, 8], [1, -1, 6, 6]], stack: [6], best: 10, ret: '—', detail: 'The height-0 sentinel is shorter than everything, so every waiting bar is measured.', lines: [5, 6, 7, 8, 9, 10, 11] },
+        { step: 8, title: 'Step 8: return', text: 'Return best.', i: 7, pops: [], stack: [6], best: 10, ret: '10', detail: 'Final answer: 10. Each bar was pushed once and popped once.', lines: [12] }
+      ];
+
+      const C = { gray: '#c8d2e7', blue: '#315efb', green: '#13a46b', orange: '#ff9f1c', ink: '#172033', muted: '#5d677d' };
+      const FONT = 'Inter, Arial, sans-serif';
+
+      // Temperature bars (top), answer row (middle), stack of waiting days (bottom).
+      function drawDT(step) {
+        const answered = new Set();
+        dtSteps.slice(0, step.step + 1).forEach((s) => s.pops.forEach((p) => answered.add(p[0])));
+        const popsNow = new Set(step.pops.map((p) => p[0]));
+        let s = `<text x="10" y="18" font-size="12" font-weight="700" fill="${C.ink}" font-family="${FONT}">temperatures</text>`;
+        T.forEach((t, k) => {
+          let fill = C.gray;
+          if (step.stack.includes(k)) fill = C.green;
+          if (answered.has(k)) fill = C.blue;
+          if (k === step.i) fill = C.orange;
+          const x = 22 + k * 60, hgt = (t - 60) * 5, y = 140 - hgt;
+          s += `<rect class="sim-cell" x="${x}" y="${y}" width="44" height="${hgt}" rx="6" fill="${fill}"${popsNow.has(k) ? ` stroke="${C.ink}" stroke-width="2"` : ''}/>`;
+          s += `<text x="${x + 22}" y="${y + 18}" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="${FONT}">${t}</text>`;
+          s += `<text x="${x + 22}" y="156" text-anchor="middle" font-size="11" fill="${C.muted}" font-family="${FONT}">${k}</text>`;
+          s += `<rect x="${x}" y="164" width="44" height="26" rx="6" fill="#ffffff" stroke="${answered.has(k) ? C.blue : C.gray}" stroke-width="2"/>`;
+          s += `<text x="${x + 22}" y="182" text-anchor="middle" font-size="13" font-weight="700" fill="${C.ink}" font-family="${FONT}">${step.res[k]}</text>`;
+        });
+        s += `<text x="10" y="210" font-size="12" font-weight="700" fill="${C.ink}" font-family="${FONT}">stack (bottom &#8594; top)</text>`;
+        if (!step.stack.length) s += `<text x="20" y="250" font-size="13" fill="${C.muted}" font-family="${FONT}">(empty)</text>`;
+        step.stack.forEach((k, ix) => {
+          const x = 20 + ix * 96;
+          s += `<rect class="sim-cell" x="${x}" y="222" width="86" height="40" rx="8" fill="${C.green}"/>`;
+          s += `<text x="${x + 43}" y="247" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff" font-family="${FONT}">${k} (${T[k]})</text>`;
+          if (ix === step.stack.length - 1) s += `<text x="${x + 43}" y="282" text-anchor="middle" font-size="12" font-weight="700" fill="${C.ink}" font-family="${FONT}">top</text>`;
+        });
+        document.getElementById('dt-graph').innerHTML = s;
+      }
+
+      // Histogram bars + sentinel slot, dashed outline for each rectangle measured this step, stack below.
+      function drawLR(step) {
+        const popped = new Set();
+        lrSteps.slice(0, step.step + 1).forEach((s) => s.pops.forEach((p) => popped.add(p[0])));
+        const unit = 26, base = 190, bw = 52, x0 = 30;
+        let s = `<text x="10" y="18" font-size="12" font-weight="700" fill="${C.ink}" font-family="${FONT}">heights (+ sentinel)</text>`;
+        HB.concat([0]).forEach((h, k) => {
+          const x = x0 + k * (bw + 12);
+          let fill = C.gray;
+          if (step.stack.includes(k)) fill = C.green;
+          if (popped.has(k)) fill = C.blue;
+          if (k === step.i) fill = C.orange;
+          if (k === 6) {
+            s += `<rect x="${x}" y="${base - 6}" width="${bw}" height="6" rx="2" fill="${k === step.i ? C.orange : C.gray}"/>`;
+          } else {
+            s += `<rect class="sim-cell" x="${x}" y="${base - h * unit}" width="${bw}" height="${h * unit}" rx="6" fill="${fill}"/>`;
+            s += `<text x="${x + bw / 2}" y="${base - h * unit + 18}" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="${FONT}">${h}</text>`;
+          }
+          s += `<text x="${x + bw / 2}" y="${base + 16}" text-anchor="middle" font-size="11" fill="${C.muted}" font-family="${FONT}">${k === 6 ? 'end' : k}</text>`;
+        });
+        step.pops.forEach((p) => {
+          const [top, left, width, area] = p;
+          const x = x0 + (left + 1) * (bw + 12) - 3, w = width * (bw + 12) - 6, hh = HB[top] * unit;
+          s += `<rect x="${x}" y="${base - hh - 3}" width="${w}" height="${hh + 3}" fill="none" stroke="${C.ink}" stroke-width="2" stroke-dasharray="6 4"/>`;
+          s += `<text x="${x + w / 2}" y="${base - hh - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.ink}" font-family="${FONT}">${area}</text>`;
+        });
+        s += `<text x="10" y="232" font-size="12" font-weight="700" fill="${C.ink}" font-family="${FONT}">stack (bottom &#8594; top)</text>`;
+        if (!step.stack.length) s += `<text x="20" y="268" font-size="13" fill="${C.muted}" font-family="${FONT}">(empty)</text>`;
+        step.stack.forEach((k, ix) => {
+          const x = 20 + ix * 96;
+          s += `<rect class="sim-cell" x="${x}" y="242" width="86" height="38" rx="8" fill="${C.green}"/>`;
+          s += `<text x="${x + 43}" y="266" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff" font-family="${FONT}">${k} (h ${k < 6 ? HB[k] : 0})</text>`;
+        });
+        document.getElementById('lr-graph').innerHTML = s;
+      }
+
+      function show(list) { return '[' + list.join(', ') + ']'; }
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function renderDT(step, index, max) {
+        document.getElementById('dt-step-title').textContent = step.title;
+        document.getElementById('dt-step-text').textContent = step.text;
+        document.getElementById('dt-i').textContent = step.i >= 0 && step.i < 8 ? String(step.i) : '—';
+        document.getElementById('dt-t').textContent = step.i >= 0 && step.i < 8 ? String(T[step.i]) : '—';
+        document.getElementById('dt-pop').textContent = step.pops.length ? step.pops.map((p) => `${p[0]} → ${p[1]}`).join(', ') : '—';
+        document.getElementById('dt-stack').textContent = show(step.stack);
+        document.getElementById('dt-res').textContent = show(step.res);
+        document.getElementById('dt-ret').textContent = step.ret;
+        document.getElementById('dt-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('dt-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('dt-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('dt-trace-table', step.step);
+        setCodeHighlight('dt-code', step.lines);
+        drawDT(step);
+      }
+
+      function renderLR(step, index, max) {
+        document.getElementById('lr-step-title').textContent = step.title;
+        document.getElementById('lr-step-text').textContent = step.text;
+        document.getElementById('lr-i').textContent = step.i >= 0 && step.i <= 6 ? String(step.i) : '—';
+        document.getElementById('lr-h').textContent = step.i >= 0 && step.i <= 6 ? String(step.i < 6 ? HB[step.i] : 0) : '—';
+        document.getElementById('lr-pop').textContent = step.pops.length ? step.pops.map((p) => `${HB[p[0]]} × ${p[2]} = ${p[3]}`).join('; ') : '—';
+        document.getElementById('lr-stack').textContent = show(step.stack);
+        document.getElementById('lr-best').textContent = String(step.best);
+        document.getElementById('lr-ret').textContent = step.ret;
+        document.getElementById('lr-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('lr-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('lr-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('lr-trace-table', step.step);
+        setCodeHighlight('lr-code', step.lines);
+        drawLR(step);
+      }
+
+      setupTrace({ steps: dtSteps, prefix: 'dt', render: renderDT });
+      setupTrace({ steps: lrSteps, prefix: 'lr', render: renderLR });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

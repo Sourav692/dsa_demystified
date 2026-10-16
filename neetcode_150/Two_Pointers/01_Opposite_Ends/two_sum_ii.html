@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Sum II - Input Array Is Sorted — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_opposite_ends_lesson.html">← Opposite Ends lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Two Pointers · Opposite Ends</span></div>
+<h1>167 · Two Sum II - Input Array Is Sorted</h1>
+<p class="lead">A sorted list, a target, and two fingers that squeeze in from the ends.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">The numbers are already in order, smallest to largest. Find the two that add up to the target and give their positions, counting from <b>1</b> (not 0). There is exactly one such pair. You may only use a couple of extra variables, no extra lists or maps.</p>
+<div class="idea">Example: <code>[1, 3, 4, 5, 7, 10, 11]</code>, target <code>9</code> &rarr; <code>[3, 4]</code>, because the 3rd number (4) plus the 4th number (5) is 9.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>remembered</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>the answer pair</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>ruled out</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The small grey numbers under each box are the 1-based positions the answer uses.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: try every pair</h2>
+<div class="idea">Hold the first number, try it with every number after it. Then hold the second number, and so on. Stop at the first pair that adds up to the target.</div>
+<div class="viz" id="br-viz"></div>
+<div class="badges" id="br-badges"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> checks up to every pair, so doubling the list makes it about 4&times; slower — <code>O(n²)</code> time, <code>O(1)</code> memory. It never uses the fact that the list is sorted.</p>
+<div class="trace-title">Step-by-step trace — numbers = [1, 3, 4, 5, 7, 10, 11], target = 9</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Check</th><th>i</th><th>j</th><th>numbers[i]</th><th>numbers[j]</th><th>sum</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>3</td><td>4</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>2</td><td>0</td><td>2</td><td>1</td><td>4</td><td>5</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>3</td><td>0</td><td>3</td><td>1</td><td>5</td><td>6</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>4</td><td>0</td><td>4</td><td>1</td><td>7</td><td>8</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>5</td><td>0</td><td>5</td><td>1</td><td>10</td><td>11</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>6</td><td>0</td><td>6</td><td>1</td><td>11</td><td>12</td><td class="rule">&ne; 9 &rarr; j done, next i</td></tr>
+  <tr><td>7</td><td>1</td><td>2</td><td>3</td><td>4</td><td>7</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>8</td><td>1</td><td>3</td><td>3</td><td>5</td><td>8</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>9</td><td>1</td><td>4</td><td>3</td><td>7</td><td>10</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>10</td><td>1</td><td>5</td><td>3</td><td>10</td><td>13</td><td class="rule">&ne; 9 &rarr; next j</td></tr>
+  <tr><td>11</td><td>1</td><td>6</td><td>3</td><td>11</td><td>14</td><td class="rule">&ne; 9 &rarr; j done, next i</td></tr>
+  <tr class="final"><td>12</td><td>2</td><td>3</td><td>4</td><td>5</td><td>9</td><td>= 9 &rarr; return [3, 4]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Hash map: remember what you have seen</h2>
+<div class="idea">The trick from the original Two Sum. Walk left to right. For each number, ask "have I already seen the partner that makes 9?" A hash map (a lookup table that finds a key in one step) answers instantly. It works, but it ignores the sorted order and uses extra memory the problem does not allow.</div>
+<div class="viz" id="hm-viz"></div>
+<div class="mem"><h4>seen (value &rarr; index)</h4><div class="chips" id="hm-mem"></div></div>
+<div class="caption" id="hm-cap"></div>
+<div class="controls" data-player="hm"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hm-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one pass — <code>O(n)</code> time, but the map can grow to <code>O(n)</code> memory. Fast, yet it breaks the "constant extra space" rule.</p>
+<div class="trace-title">Step-by-step trace — numbers = [1, 3, 4, 5, 7, 10, 11], target = 9</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>j</th><th>x</th><th>need = 9 - x</th><th>seen before the check</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>1</td><td>8</td><td>{}</td><td class="rule">8 not seen &rarr; store 1:0</td></tr>
+  <tr><td>2</td><td>1</td><td>3</td><td>6</td><td>{1:0}</td><td class="rule">6 not seen &rarr; store 3:1</td></tr>
+  <tr><td>3</td><td>2</td><td>4</td><td>5</td><td>{1:0, 3:1}</td><td class="rule">5 not seen &rarr; store 4:2</td></tr>
+  <tr class="final"><td>4</td><td>3</td><td>5</td><td>4</td><td>{1:0, 3:1, 4:2}</td><td>4 seen at index 2 &rarr; return [3, 4]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: two fingers from opposite ends</h2>
+<div class="idea">One finger on the smallest number (left end), one on the largest (right end). Add them. <b>Too small?</b> The left number can't reach 9 even with the biggest partner left, so drop it: move the left finger right. <b>Too big?</b> The right number overshoots even with the smallest partner left, so drop it: move the right finger left. <b>Exactly 9?</b> Done.</div>
+<div class="viz" id="tp-viz"></div>
+<div class="badges" id="tp-badges"></div>
+<div class="caption" id="tp-cap"></div>
+<div class="controls" data-player="tp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="tp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every step drops one number for good, so at most <code>n - 1</code> steps — <code>O(n)</code> time, <code>O(1)</code> memory (just two positions).</p>
+<div class="trace-title">Step-by-step trace — numbers = [1, 3, 4, 5, 7, 10, 11], target = 9</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>lo</th><th>hi</th><th>numbers[lo]</th><th>numbers[hi]</th><th>sum</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>6</td><td>1</td><td>11</td><td>12</td><td class="rule">too big &rarr; hi -= 1 (drop 11)</td></tr>
+  <tr><td>2</td><td>0</td><td>5</td><td>1</td><td>10</td><td>11</td><td class="rule">too big &rarr; hi -= 1 (drop 10)</td></tr>
+  <tr><td>3</td><td>0</td><td>4</td><td>1</td><td>7</td><td>8</td><td class="rule">too small &rarr; lo += 1 (drop 1)</td></tr>
+  <tr><td>4</td><td>1</td><td>4</td><td>3</td><td>7</td><td>10</td><td class="rule">too big &rarr; hi -= 1 (drop 7)</td></tr>
+  <tr><td>5</td><td>1</td><td>3</td><td>3</td><td>5</td><td>8</td><td class="rule">too small &rarr; lo += 1 (drop 3)</td></tr>
+  <tr class="final"><td>6</td><td>2</td><td>3</td><td>4</td><td>5</td><td>9</td><td>= 9 &rarr; return [lo + 1, hi + 1] = [3, 4]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"sorted array"</b> plus <b>"find a pair that adds up to a target"</b>, especially with <b>"constant extra space"</b>? Put a finger at each end and let the sum tell you which finger to move.
+<p><a href="01_opposite_ends_lesson.html">→ Opposite Ends: the pattern lesson and its other problems</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1100);
+  });
+  draw();
+}
+/* Boxes with the 1-based position underneath (the answer is 1-indexed). */
+function boxes(targetId, nums, marks, ptrs){
+  marks=marks||{}; ptrs=ptrs||{};
+  var h='<div class="row">';
+  for(var k=0;k<nums.length;k++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[k]||'')+'</div><div class="box '
+      +(marks[k]||'')+'">'+nums[k]+'</div><div class="idxlabel">#'+(k+1)+'</div></div>';
+  }
+  document.getElementById(targetId).innerHTML=h+'</div>';
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+
+var N=[1,3,4,5,7,10,11], T=9;
+
+/* Problem demo */
+makePlayer('pd',[
+  {cap:'Seven numbers, already sorted from small to large. Target: <b>9</b>.', m:{}},
+  {cap:'Small numbers sit on the left, big ones on the right. That order is the whole trick.', m:{0:'seen',6:'seen'}},
+  {cap:'<b>4 + 5 = 9</b>. They sit at positions <b>3</b> and <b>4</b> (counting from 1), so the answer is <b>[3, 4]</b>.', m:{2:'good',3:'good'}}
+],function(f){ boxes('pd-viz',N,f.m,{}); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: one frame per pair checked (mirrors two_sum_ii_brute). */
+(function(){
+  var fr=[], found=false;
+  for(var i=0;i<N.length && !found;i++){
+    for(var j=i+1;j<N.length;j++){
+      var s=N[i]+N[j], m={};
+      m[i]='hi'; m[j]=(s===T)?'good':'hi'; if(s===T) m[i]='good';
+      fr.push({m:m,p:(function(){var o={};o[i]='i';o[j]='j';return o;})(),s:s,checks:fr.length+1,
+        cap:(s===T)?'Pair ('+N[i]+', '+N[j]+') adds to <b>9</b>. Return <b>['+(i+1)+', '+(j+1)+']</b>. It took '+(fr.length+1)+' checks.'
+                   :N[i]+' + '+N[j]+' = '+s+', not 9. Try the next j.'});
+      if(s===T){found=true;break;}
+    }
+  }
+  makePlayer('br',fr,function(f){
+    boxes('br-viz',N,f.m,f.p);
+    badges('br-badges',[{label:'sum',val:f.s,cls:f.s===T?'good':''},{label:'pairs checked',val:f.checks}]);
+    document.getElementById('br-cap').innerHTML=f.cap;
+  });
+})();
+
+/* Hash map: one frame per element (mirrors two_sum_ii_hashmap). */
+(function(){
+  var fr=[], seen={}, order=[];
+  for(var j=0;j<N.length;j++){
+    var x=N[j], need=T-x, m={}, mem=[];
+    for(var k=0;k<order.length;k++){ m[seen[order[k]]]='seen'; mem.push({text:order[k]+' : '+seen[order[k]], cls:(order[k]===need)?'look':''}); }
+    var p={}; p[j]='j';
+    if(need in seen){
+      m[seen[need]]='good'; m[j]='good';
+      fr.push({m:m,p:p,mem:mem,cap:'x = '+x+', need '+need+'. <b>'+need+' is in the map</b> (index '+seen[need]+'). Return <b>['+(seen[need]+1)+', '+(j+1)+']</b>.'});
+      break;
+    }
+    m[j]='hi';
+    fr.push({m:m,p:p,mem:mem,cap:'x = '+x+', need '+need+'. Not seen yet, so store '+x+' &rarr; '+j+' and move on.'});
+    seen[x]=j; order.push(x);
+  }
+  makePlayer('hm',fr,function(f){ boxes('hm-viz',N,f.m,f.p); chips('hm-mem',f.mem); document.getElementById('hm-cap').innerHTML=f.cap; });
+})();
+
+/* Two pointers: one frame per comparison (mirrors two_sum_ii_two_pointers). */
+(function(){
+  var fr=[], lo=0, hi=N.length-1, out=[];
+  while(lo<hi){
+    var s=N[lo]+N[hi], m={}, p={};
+    for(var k=0;k<N.length;k++) if(k<lo||k>hi) m[k]='bad';
+    p[lo]='lo'; p[hi]='hi';
+    if(s===T){
+      m[lo]='good'; m[hi]='good';
+      fr.push({m:m,p:p,s:s,cap:N[lo]+' + '+N[hi]+' = <b>9</b>. Return <b>['+(lo+1)+', '+(hi+1)+']</b>. Six steps instead of twelve checks.'});
+      break;
+    }
+    m[lo]='hi'; m[hi]='hi';
+    if(s<T){
+      fr.push({m:m,p:p,s:s,cap:N[lo]+' + '+N[hi]+' = '+s+', <b>too small</b>. Even the biggest partner left cannot rescue '+N[lo]+', so drop it: lo moves right.'});
+      lo++;
+    } else {
+      fr.push({m:m,p:p,s:s,cap:N[lo]+' + '+N[hi]+' = '+s+', <b>too big</b>. Even the smallest partner left overshoots with '+N[hi]+', so drop it: hi moves left.'});
+      hi--;
+    }
+  }
+  makePlayer('tp',fr,function(f){
+    boxes('tp-viz',N,f.m,f.p);
+    badges('tp-badges',[{label:'sum',val:f.s,cls:f.s===T?'good':(f.s>T?'bad':'')},{label:'target',val:T}]);
+    document.getElementById('tp-cap').innerHTML=f.cap;
+  });
+})();
+</script>
+</body></html>

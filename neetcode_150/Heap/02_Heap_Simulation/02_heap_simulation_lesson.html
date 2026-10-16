@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heap Simulation — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Heap · Pattern 02 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Heap Simulation</h1>
+          <p>
+            Some problems do not ask you to find something clever. They describe a process ("each turn, take the two heaviest...") and ask what is left at the end. Run that process literally, and keep the items in a max-heap so that every "which one is biggest right now?" costs <code>O(log n)</code> instead of a full sort.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: pop the best, act, push back what is left</span>
+            <span class="chip">Method 1: Last Stone Weight</span>
+            <span class="chip">Method 2: Task Scheduler (cooldown queue)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="last_stone_weight.html">Last Stone Weight</a> · <a href="task_scheduler.html">Task Scheduler</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Last Stone Weight, <code>stones = [2,7,4,1,8,1]</code>. After <code>heapify</code>, the heaviest stone sits at the top of the tree.</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 240" width="100%" role="img" aria-label="Max-heap of the stones 8, 7, 4, 1, 2, 1 drawn as a binary tree">
+              <defs>
+                <style>
+                  .h-edge { stroke: #6c7a96; stroke-width: 4; stroke-linecap: round; }
+                  .h-top { fill: #ff9f1c; }
+                  .h-in { fill: #315efb; }
+                  .h-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-title { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <line x1="260" y1="44" x2="150" y2="124" class="h-edge" />
+              <line x1="260" y1="44" x2="370" y2="124" class="h-edge" />
+              <line x1="150" y1="124" x2="90" y2="204" class="h-edge" />
+              <line x1="150" y1="124" x2="210" y2="204" class="h-edge" />
+              <line x1="370" y1="124" x2="320" y2="204" class="h-edge" />
+              <circle cx="260" cy="44" r="25" class="h-top" />
+              <circle cx="150" cy="124" r="25" class="h-in" />
+              <circle cx="370" cy="124" r="25" class="h-in" />
+              <circle cx="90" cy="204" r="25" class="h-in" />
+              <circle cx="210" cy="204" r="25" class="h-in" />
+              <circle cx="320" cy="204" r="25" class="h-in" />
+              <text x="260" y="50" text-anchor="middle" class="h-label">8</text>
+              <text x="150" y="130" text-anchor="middle" class="h-label">7</text>
+              <text x="370" y="130" text-anchor="middle" class="h-label">4</text>
+              <text x="90" y="210" text-anchor="middle" class="h-label">1</text>
+              <text x="210" y="210" text-anchor="middle" class="h-label">2</text>
+              <text x="320" y="210" text-anchor="middle" class="h-label">1</text>
+              <text x="300" y="30" class="h-title">top = heaviest</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = 1</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Schedulers and job queues</h3>
+          <p>An operating system or a print queue always runs the most urgent job next, while new jobs keep arriving and finished jobs come back with lower priority.</p>
+        </div>
+        <div class="card">
+          <h3>Event-driven simulations</h3>
+          <p>Games, traffic models and bank-queue simulations repeatedly process "the next thing to happen", and each event can create new ones.</p>
+        </div>
+        <div class="card">
+          <h3>One loop, two problems</h3>
+          <p>Last Stone Weight and Task Scheduler share the same loop: pop the best, apply the rule, push back what is left. Task Scheduler adds one queue for items that must wait.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> when a statement says "each turn, take the largest", do not look for a formula first. Simulate it, and ask only one question: how do I get the largest item fast, every turn, while the collection keeps changing? The answer is a heap.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is heap simulation?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A <strong>simulation</strong> follows the rules of the statement step by step. A <strong>max-heap</strong> is a list arranged as a tree where every parent is at least as big as its children, so the biggest item is always at position 0. Popping it or pushing a new item moves one item along one path of the tree: <code>O(log n)</code>. Python's <code>heapq</code> is a min-heap, so we store values negated.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>A <strong>process</strong> ("each turn", "repeatedly", "until one is left", "each interval"), every step needs the <strong>current largest</strong> item, and the collection <strong>changes</strong> after each step: a smaller leftover goes back in. Twist: a used item may have to <strong>wait</strong> before it can return ("cooldown", "at least n apart").</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> sorting once does not survive the first step, because the leftover can belong anywhere in the order. A heap does not keep the whole list sorted; it only guarantees the top. That is all the process needs, and it is much cheaper to maintain.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot the process</h3>
+          <p>The answer is "whatever the repeated rule leaves behind", and each step needs the biggest item.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Build the heap</h3>
+          <p>Negate the values and <code>heapify</code> once: <code>O(n)</code>. For tasks, the values are the counts.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Pop, act, push back</h3>
+          <p>Pop the best, apply one step of the rule, and push back whatever is left of it.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Make it wait if needed</h3>
+          <p>If the leftover may not return yet, park it in a queue with its release time; push it back when that time comes.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a max-heap</h2>
+      <p>The notebook's <code>last_stone_weight_heap</code> turns the plain list of weights into a heap in two lines. The heap is still a Python list; only the order of its items changes, so that position <code>i</code> is the parent of positions <code>2i+1</code> and <code>2i+2</code>.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>stones = [2, 7, 4, 1, 8, 1]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Heap list (stored negated)</h3>
+          <div class="code-block"><code>heap = [-8, -7, -4, -1, -2, -1]
+real   = [ 8,  7,  4,  1,  2,  1]</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Negate every weight</h4>
+          <p><code>[-2, -7, -4, -1, -8, -1]</code>. Now the heaviest stone is the <em>smallest</em> number, which is what a min-heap puts on top.</p>
+        </div>
+        <div class="timeline-step">
+          <h4><code>heapq.heapify(heap)</code></h4>
+          <p>Rearranges the list in place in <code>O(n)</code> so every parent is at most its children (in negated terms). Result: <code>[-8, -7, -4, -1, -2, -1]</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read it as a tree</h4>
+          <p>Position 0 (8) is the root; positions 1 and 2 (7, 4) are its children; positions 3, 4 (1, 2) hang under 7 and position 5 (1) under 4.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Only the top is guaranteed</h4>
+          <p>The list is not sorted (2 sits after 1), and it does not need to be: each round only asks for the top, twice.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> every value going <em>into</em> the heap is negated (<code>-s</code>, <code>-(y - x)</code>) and every value coming <em>out</em> is negated back (<code>-heapq.heappop(heap)</code>). Miss one side and the heap silently orders stones lightest-first.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: max-heap simulation (Last Stone Weight)</h2>
+      <p>The template in its simplest form, line for line from the notebook's <code>last_stone_weight_heap</code>. Each round pops the two heaviest stones; if they differ, the leftover <code>y - x</code> is pushed back and competes in later rounds. The loop stops when at most one stone is left.</p>
+      <div class="code-block stepped">
+        <code id="ls-code">
+<span class="code-line" data-line="1">def last_stone_weight_heap(stones: List[int]) -&gt; int:</span>
+<span class="code-line" data-line="2">    heap = [-s for s in stones]            # negate: heapq is a min-heap, we need the max</span>
+<span class="code-line" data-line="3">    heapq.heapify(heap)                    # O(n) build; heap[0] = -(heaviest)</span>
+<span class="code-line" data-line="4">    while len(heap) &gt; 1:</span>
+<span class="code-line" data-line="5">        y = -heapq.heappop(heap)           # heaviest</span>
+<span class="code-line" data-line="6">        x = -heapq.heappop(heap)           # second heaviest</span>
+<span class="code-line" data-line="7">        if y != x:</span>
+<span class="code-line" data-line="8">            heapq.heappush(heap, -(y - x)) # leftover goes back in: it may be the max later</span>
+<span class="code-line" data-line="9">    return -heap[0] if heap else 0</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive max-heap trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="ls-graph" viewBox="0 0 520 250" width="100%" role="img" aria-label="Max-heap of stones drawn as a binary tree, updated each step">
+              <defs>
+                <style>
+                  .ls-edge { stroke: #cad3e6; stroke-width: 4; stroke-linecap: round; }
+                  .ls-node { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .ls-node.done { fill: #315efb; }
+                  .ls-node.frontier { fill: #13a46b; }
+                  .ls-node.current { fill: #ff9f1c; }
+                  .ls-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .ls-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <line x1="260" y1="45" x2="150" y2="125" class="ls-edge" data-edge="1" />
+              <line x1="260" y1="45" x2="370" y2="125" class="ls-edge" data-edge="2" />
+              <line x1="150" y1="125" x2="90" y2="205" class="ls-edge" data-edge="3" />
+              <line x1="150" y1="125" x2="210" y2="205" class="ls-edge" data-edge="4" />
+              <line x1="370" y1="125" x2="320" y2="205" class="ls-edge" data-edge="5" />
+              <g data-pos="0"><circle cx="260" cy="45" r="25" class="ls-node" /><text x="260" y="51" text-anchor="middle" class="ls-label"></text><text x="296" y="30" class="ls-idx">[0]</text></g>
+              <g data-pos="1"><circle cx="150" cy="125" r="25" class="ls-node" /><text x="150" y="131" text-anchor="middle" class="ls-label"></text><text x="186" y="110" class="ls-idx">[1]</text></g>
+              <g data-pos="2"><circle cx="370" cy="125" r="25" class="ls-node" /><text x="370" y="131" text-anchor="middle" class="ls-label"></text><text x="406" y="110" class="ls-idx">[2]</text></g>
+              <g data-pos="3"><circle cx="90" cy="205" r="25" class="ls-node" /><text x="90" y="211" text-anchor="middle" class="ls-label"></text><text x="54" y="245" class="ls-idx">[3]</text></g>
+              <g data-pos="4"><circle cx="210" cy="205" r="25" class="ls-node" /><text x="210" y="211" text-anchor="middle" class="ls-label"></text><text x="196" y="245" class="ls-idx">[4]</text></g>
+              <g data-pos="5"><circle cx="320" cy="205" r="25" class="ls-node" /><text x="320" y="211" text-anchor="middle" class="ls-label"></text><text x="306" y="245" class="ls-idx">[5]</text></g>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> top: popped next</span>
+            <span><i class="dot dot-green"></i> leftover just pushed</span>
+            <span><i class="dot dot-blue"></i> in the heap</span>
+            <span><i class="dot dot-gray"></i> not a heap yet (before heapify)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="ls-step-title">Initial state</h3>
+          <p id="ls-step-text">Negate every weight.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ls-prev">Previous</button>
+            <button type="button" id="ls-play" class="primary">Resume</button>
+            <button type="button" id="ls-next">Next</button>
+            <button type="button" id="ls-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ls-step-counter">Step 0 / 13</span>
+            <div class="progress"><span id="ls-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Round</strong><div class="state-value" id="ls-round">—</div></div>
+            <div class="state-box"><strong>len(heap)</strong><div class="state-value" id="ls-len">6</div></div>
+            <div class="state-box"><strong>y (heaviest)</strong><div class="state-value" id="ls-y">—</div></div>
+            <div class="state-box"><strong>x (second)</strong><div class="state-value" id="ls-x">—</div></div>
+            <div class="state-box"><strong>heap as real weights</strong><div class="state-value" id="ls-real">—</div></div>
+            <div class="state-box"><strong>heap as stored</strong><div class="state-value" id="ls-stored">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ls-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="ls-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Round</th><th>Action</th><th>Heap after (real weights)</th><th>y</th><th>x</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>Negate the weights</td><td><code>[2, 7, 4, 1, 8, 1]</code> (not a heap yet)</td><td>—</td><td>—</td></tr>
+            <tr data-step="1"><td>1</td><td>—</td><td><code>heapify</code></td><td><code>[8, 7, 4, 1, 2, 1]</code></td><td>—</td><td>—</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>6 &gt; 1, pop <code>y = 8</code></td><td><code>[7, 2, 4, 1, 1]</code></td><td>8</td><td>—</td></tr>
+            <tr data-step="3"><td>3</td><td>1</td><td>pop <code>x = 7</code></td><td><code>[4, 2, 1, 1]</code></td><td>8</td><td>7</td></tr>
+            <tr data-step="4"><td>4</td><td>1</td><td>8 &ne; 7, push 1</td><td><code>[4, 2, 1, 1, 1]</code></td><td>8</td><td>7</td></tr>
+            <tr data-step="5"><td>5</td><td>2</td><td>5 &gt; 1, pop <code>y = 4</code></td><td><code>[2, 1, 1, 1]</code></td><td>4</td><td>—</td></tr>
+            <tr data-step="6"><td>6</td><td>2</td><td>pop <code>x = 2</code></td><td><code>[1, 1, 1]</code></td><td>4</td><td>2</td></tr>
+            <tr data-step="7"><td>7</td><td>2</td><td>4 &ne; 2, push 2</td><td><code>[2, 1, 1, 1]</code></td><td>4</td><td>2</td></tr>
+            <tr data-step="8"><td>8</td><td>3</td><td>4 &gt; 1, pop <code>y = 2</code></td><td><code>[1, 1, 1]</code></td><td>2</td><td>—</td></tr>
+            <tr data-step="9"><td>9</td><td>3</td><td>pop <code>x = 1</code></td><td><code>[1, 1]</code></td><td>2</td><td>1</td></tr>
+            <tr data-step="10"><td>10</td><td>3</td><td>2 &ne; 1, push 1</td><td><code>[1, 1, 1]</code></td><td>2</td><td>1</td></tr>
+            <tr data-step="11"><td>11</td><td>4</td><td>3 &gt; 1, pop <code>y = 1</code></td><td><code>[1, 1]</code></td><td>1</td><td>—</td></tr>
+            <tr data-step="12"><td>12</td><td>4</td><td>pop <code>x = 1</code></td><td><code>[1]</code></td><td>1</td><td>1</td></tr>
+            <tr data-step="13"><td>13</td><td>4</td><td>1 == 1, push nothing; <code>len(heap) = 1</code>, return <code>-heap[0]</code></td><td><code>[1]</code></td><td>1</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The heap is a "biggest-first" waiting room. Each round two stones leave from the front door, and the leftover walks back in and finds its own seat: at step 7 the new 2 goes straight to the top, at step 4 the new 1 stays at the bottom.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Sorting once at the start. After round 1 the leftover 1 belongs at the bottom, but after round 2 the leftover 2 is the heaviest stone. Only a structure that re-finds the top every round gets both right.</p>
+        </div>
+        <div class="card">
+          <h4>Why a heap</h4>
+          <p>Re-sorting the pile every round also works (the notebook's brute force), but it redoes a whole sort per round. The heap does two pops and one push per round, <code>O(log n)</code> each: <code>O(n log n)</code> in total.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: max-heap plus a cooldown queue (Task Scheduler)</h2>
+      <p>Same loop, one twist: a task type that just ran may not run again for <code>n</code> ticks, so instead of going straight back into the heap it waits in a FIFO queue as <code>(copies left, release time)</code>. The heap holds only <strong>counts</strong>; the letters do not matter. Code from the notebook's <code>least_interval_heap</code>, traced on <code>tasks = [A, A, A, B, C]</code>, <code>n = 3</code> (answer 9), an example where the clock has to jump over idle ticks.</p>
+      <div class="code-block stepped">
+        <code id="tq-code">
+<span class="code-line" data-line="1">def least_interval_heap(tasks: List[Hashable], n: int) -&gt; int:</span>
+<span class="code-line" data-line="2">    heap = [-c for c in Counter(tasks).values()]   # max-heap of copies left (negated)</span>
+<span class="code-line" data-line="3">    heapq.heapify(heap)</span>
+<span class="code-line" data-line="4">    cooldown = deque()                             # (negated copies left, tick it is released)</span>
+<span class="code-line" data-line="5">    time = 0</span>
+<span class="code-line" data-line="6">    while heap or cooldown:</span>
+<span class="code-line" data-line="7">        time += 1</span>
+<span class="code-line" data-line="8">        if heap:</span>
+<span class="code-line" data-line="9">            cnt = heapq.heappop(heap) + 1          # run one copy of the biggest pile (+1 because negated)</span>
+<span class="code-line" data-line="10">            if cnt:                                # copies remain: park it for n ticks</span>
+<span class="code-line" data-line="11">                cooldown.append((cnt, time + n))</span>
+<span class="code-line" data-line="12">        else:</span>
+<span class="code-line" data-line="13">            time = cooldown[0][1]                  # nothing runnable: idle until the front is released</span>
+<span class="code-line" data-line="14">        if cooldown and cooldown[0][1] == time:    # front's cooldown ends this tick</span>
+<span class="code-line" data-line="15">            heapq.heappush(heap, cooldown.popleft()[0])</span>
+<span class="code-line" data-line="16">    return time</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive heap + cooldown trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="tq-graph" viewBox="0 0 520 170" width="100%" role="img" aria-label="Timeline of nine CPU ticks, filled as the simulation runs">
+              <defs>
+                <style>
+                  .tq-slot { fill: #c8d2e7; stroke: #ffffff; stroke-width: 2; transition: fill 0.2s ease; }
+                  .tq-slot.done { fill: #315efb; }
+                  .tq-slot.idle { fill: #edf2fa; stroke: #c8d2e7; stroke-dasharray: 5 4; }
+                  .tq-slot.current { fill: #ff9f1c; }
+                  .tq-label { font: 700 14px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .tq-label.dark { fill: #5d677d; }
+                  .tq-tick { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .tq-title { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="26" class="tq-title">CPU timeline (box = size of the pile that ran, or idle)</text>
+              <g data-tick="1"><rect x="14" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="38" y="82" text-anchor="middle" class="tq-label"></text><text x="38" y="124" text-anchor="middle" class="tq-tick">t=1</text></g>
+              <g data-tick="2"><rect x="70" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="94" y="82" text-anchor="middle" class="tq-label"></text><text x="94" y="124" text-anchor="middle" class="tq-tick">t=2</text></g>
+              <g data-tick="3"><rect x="126" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="150" y="82" text-anchor="middle" class="tq-label"></text><text x="150" y="124" text-anchor="middle" class="tq-tick">t=3</text></g>
+              <g data-tick="4"><rect x="182" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="206" y="82" text-anchor="middle" class="tq-label"></text><text x="206" y="124" text-anchor="middle" class="tq-tick">t=4</text></g>
+              <g data-tick="5"><rect x="238" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="262" y="82" text-anchor="middle" class="tq-label"></text><text x="262" y="124" text-anchor="middle" class="tq-tick">t=5</text></g>
+              <g data-tick="6"><rect x="294" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="318" y="82" text-anchor="middle" class="tq-label"></text><text x="318" y="124" text-anchor="middle" class="tq-tick">t=6</text></g>
+              <g data-tick="7"><rect x="350" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="374" y="82" text-anchor="middle" class="tq-label"></text><text x="374" y="124" text-anchor="middle" class="tq-tick">t=7</text></g>
+              <g data-tick="8"><rect x="406" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="430" y="82" text-anchor="middle" class="tq-label"></text><text x="430" y="124" text-anchor="middle" class="tq-tick">t=8</text></g>
+              <g data-tick="9"><rect x="462" y="48" width="48" height="56" rx="10" class="tq-slot" /><text x="486" y="82" text-anchor="middle" class="tq-label"></text><text x="486" y="124" text-anchor="middle" class="tq-tick">t=9</text></g>
+              <g id="tq-jump" visibility="hidden">
+                <path d="M 318 142 Q 374 166 430 142" fill="none" stroke="#ff9f1c" stroke-width="3" />
+                <text x="374" y="150" text-anchor="middle" class="tq-title">jump 6 to 8</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current tick</span>
+            <span><i class="dot dot-blue"></i> a task ran</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dashed box = idle tick</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="tq-step-title">Initial state</h3>
+          <p id="tq-step-text">Count the tasks and heapify the counts.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="tq-prev">Previous</button>
+            <button type="button" id="tq-play" class="primary">Resume</button>
+            <button type="button" id="tq-next">Next</button>
+            <button type="button" id="tq-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="tq-step-counter">Step 0 / 7</span>
+            <div class="progress"><span id="tq-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>time</strong><div class="state-value" id="tq-time">0</div></div>
+            <div class="state-box"><strong>cnt (copies left after run)</strong><div class="state-value" id="tq-cnt">—</div></div>
+            <div class="state-box"><strong>heap (copies left, real)</strong><div class="state-value" id="tq-heap">—</div></div>
+            <div class="state-box"><strong>cooldown (copies, release)</strong><div class="state-value" id="tq-cd">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="tq-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="tq-trace-table">
+          <thead>
+            <tr><th>Step</th><th>time</th><th>Action</th><th>Heap after</th><th>Cooldown after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>Counts A 3, B 1, C 1; <code>heapify</code></td><td><code>[3, 1, 1]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>1</td><td>Pop 3, run it: 2 left, park until <code>1 + 3 = 4</code></td><td><code>[1, 1]</code></td><td><code>[(2, 4)]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>2</td><td>Pop 1, run it: 0 left, not parked</td><td><code>[1]</code></td><td><code>[(2, 4)]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>3</td><td>Pop 1, run it: 0 left</td><td><code>[]</code></td><td><code>[(2, 4)]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>4</td><td>Heap empty: idle, <code>time = 4</code>; front released at 4</td><td><code>[2]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>5</td><td>Pop 2, run it: 1 left, park until <code>5 + 3 = 8</code></td><td><code>[]</code></td><td><code>[(1, 8)]</code></td></tr>
+            <tr data-step="6"><td>6</td><td>6 &rarr; 8</td><td>Heap empty: idle, jump <code>time = 8</code>; front released at 8</td><td><code>[1]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="7"><td>7</td><td>9</td><td>Pop 1, run it: 0 left; both empty, return 9</td><td><code>[]</code></td><td><code>[]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Two waiting areas. The heap holds piles that <em>may</em> run now, biggest first. The cooldown queue holds piles that <em>must</em> wait, in the order they ran, and since every wait is the same <code>n</code> ticks, the front is always the next one out.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Pushing the pile straight back into the heap after it runs. At step 1 the 2 would be popped again at time 2, running A twice in a row and returning a too-small answer.</p>
+        </div>
+        <div class="card">
+          <h4>Why the jump</h4>
+          <p>At step 6 nothing can run until time 8. Setting <code>time = cooldown[0][1]</code> skips ticks 6 to 8 in one loop pass, so the loop runs once per task or idle stretch, not once per tick: <code>O(T log k)</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Single stone</button>
+        <button type="button" data-example-tab="1">Equal pair</button>
+        <button type="button" data-example-tab="2">No cooldown</button>
+        <button type="button" data-example-tab="3">Enough tasks to fill the gaps</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: one stone</h3>
+          <p><code>stones = [1]</code></p>
+          <div class="result-badge">Last Stone Weight = 1</div>
+          <p class="footer-note"><code>len(heap) = 1</code>, so the <code>while</code> loop never runs and <code>-heap[0]</code> is returned.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: everything cancels</h3>
+          <p><code>stones = [2, 2]</code> and <code>stones = [1, 1, 1, 1]</code></p>
+          <div class="result-badge">Last Stone Weight = 0</div>
+          <p class="footer-note">Equal stones push nothing back, so the heap can end empty. The <code>if heap else 0</code> guard is what returns 0 instead of crashing on <code>heap[0]</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: cooldown of zero</h3>
+          <p><code>tasks = [A, A, A, B, B, B]</code>, <code>n = 0</code></p>
+          <div class="result-badge">Task Scheduler = 6</div>
+          <p class="footer-note">A parked pile is released at <code>time + 0</code>, the same tick, so it rejoins the heap at once and no tick is idle: the answer is <code>len(tasks)</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: other tasks fill every gap</h3>
+          <p><code>tasks = [A, C, A, B, D, B]</code>, <code>n = 1</code></p>
+          <div class="result-badge">Task Scheduler = 6</div>
+          <p class="footer-note">There is always another pile to run while one cools down, so no idle is needed. In the formula, <code>(2 - 1) * (1 + 1) + 2 = 4</code> is smaller than <code>len(tasks) = 6</code>, which is why the formula takes the <code>max</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Last Stone Weight</td><td>Re-sort every round (brute force)</td><td><code>O(n² log n)</code></td><td><code>O(n)</code></td><td>Measured about 4x per doubling: Timsort re-sorts the almost-sorted pile in about linear time.</td></tr>
+            <tr><td>Last Stone Weight</td><td>Max-heap simulation (Method 1)</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td><td>The template as is.</td></tr>
+            <tr><td>Task Scheduler</td><td>Tick by tick, scan every type (brute force)</td><td><code>O(ticks · k)</code></td><td><code>O(k)</code></td><td>Measured about 4x per doubling when <code>k</code> grows with <code>T</code>.</td></tr>
+            <tr><td>Task Scheduler</td><td>Max-heap + cooldown queue (Method 2)</td><td><code>O(T log k)</code></td><td><code>O(k)</code></td><td>The template plus a waiting queue; the interview target.</td></tr>
+            <tr><td>Task Scheduler</td><td>Counting formula</td><td><code>O(T)</code></td><td><code>O(k)</code></td><td>Fastest, but returns only the length, never the schedule.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = stones, <code>T</code> = tasks, <code>k</code> = distinct task types (at most 26 on LeetCode, where every Task Scheduler method is linear in <code>T</code>). All complexities and measured ratios come from the two notebooks in this folder.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The statement describes a repeated process; the answer is what it leaves behind.</p></div>
+            <div class="timeline-step"><p>Every step needs the current largest item, and the collection changes after every step.</p></div>
+            <div class="timeline-step"><p>Re-sorting each step works but repeats work; a max-heap gives the top in <code>O(log n)</code>.</p></div>
+            <div class="timeline-step"><p>If a used item must wait, park it in a queue with its release time and push it back when the time comes.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Each turn needs the two heaviest stones of the current pile, so I'll keep the pile in a max-heap, using <code>heapq</code> with negated values."</li>
+            <li>"Pop twice, push the difference back if it is non-zero; stop at one stone. That is <code>O(n log n)</code>."</li>
+            <li>"For the scheduler, only counts matter. Greedily run the biggest pile; a pile that just ran waits in a queue with its release time."</li>
+            <li>"When the heap is empty I jump the clock to the next release, so the loop is <code>O(T log k)</code>. If they only want the length, the frame formula gives it in <code>O(T)</code>."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Last Stone Weight</h3>
+          <ul class="mistake-list">
+            <li>Negating on the way out but not on the way in (or the reverse), so the leftover lands in the wrong place.</li>
+            <li>Sorting once and assuming the order holds after the first smash.</li>
+            <li>Returning <code>heap[0]</code> (a negative number) instead of <code>-heap[0]</code>.</li>
+            <li>Crashing on an empty heap when the last two stones were equal.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Task Scheduler</h3>
+          <ul class="mistake-list">
+            <li>Pushing a pile straight back into the heap, ignoring the cooldown.</li>
+            <li>Parking a pile with 0 copies left, which then comes back and runs a task that does not exist.</li>
+            <li>Ticking through idle time one tick at a time instead of jumping <code>time</code>.</li>
+            <li>In the formula, forgetting <code>count_max</code> or the <code>max(len(tasks), ...)</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open it only after you commit to a guess. Each links to the problem's interactive page. Questions 3 and 4 are follow-up variants of this pattern's two problems, not separate problems in this folder.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Last Stone Weight: <code>stones = [3, 3, 3]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> what happens when the two heaviest are equal?</p>
+          <p style="margin-top:10px;">Answer: <code>3</code>. The first two 3s destroy each other and push nothing back; one stone is left. Step through the smashes on <a href="last_stone_weight.html">Last Stone Weight</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Task Scheduler: <code>tasks = [A, A, A, B, B, B]</code>, <code>n = 3</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> two full frames of <code>n + 1 = 4</code> ticks, then the last frame.</p>
+          <p style="margin-top:10px;">Answer: <code>10</code>: <code>A B idle idle A B idle idle A B</code>, which is <code>(3 - 1) * 4 + 2</code>. Compare the three solutions on <a href="task_scheduler.html">Task Scheduler</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (variant of Task Scheduler) — Reorganize String (LeetCode 767): rearrange <code>"aab"</code> so no two neighbours are equal</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> it is Task Scheduler with <code>n = 1</code>, but you must output the order, and idling is not allowed. Pop the biggest pile, append its letter, and hold that pile back for exactly one step before pushing it again.</p>
+          <p style="margin-top:10px;">Answer: <code>"aba"</code>. If the heap is empty while a pile is still held back, no valid order exists (e.g. <code>"aaab"</code>): return <code>""</code>. The formula cannot do this, which is why the heap simulation is the template. Review the cooldown queue on <a href="task_scheduler.html">Task Scheduler</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 (variant of Last Stone Weight) — what changes if each turn smashes the two <em>lightest</em> stones?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> which kind of heap gives the smallest item directly?</p>
+          <p style="margin-top:10px;">Answer: use <code>heapq</code> as is, a min-heap, with no negation; the loop body stays the same shape (pop two, push the leftover). The same min-heap loop solves "Minimum Cost to Connect Sticks" (pop the two shortest, push their sum). Compare with the max-heap version on <a href="last_stone_weight.html">Last Stone Weight</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Pop the best, apply the rule, push back what is left.</strong>
+          A max-heap turns "simulate the process" into <code>O(log n)</code> per step. Last Stone Weight is the loop as is; Task Scheduler adds a cooldown queue so a used item waits before it competes again.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Heap Simulation pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of last_stone_weight_heap on [2,7,4,1,8,1].
+      // heap = real weights in list order; top = position shown orange; pushed = position of the leftover just pushed.
+      const lsSteps = [
+        { step: 0, title: 'Initial state', text: 'Negate every weight. The list is not a heap yet.', round: '—', y: '—', x: '—', heap: [2, 7, 4, 1, 8, 1], raw: true, pushed: null, detail: 'Stored as [-2, -7, -4, -1, -8, -1]. The heaviest stone (8) is at position 4, not at the top.', lines: [1, 2] },
+        { step: 1, title: 'Step 1: heapify', text: 'heapify rearranges the list in O(n) so the heaviest stone is at position 0.', round: '—', y: '—', x: '—', heap: [8, 7, 4, 1, 2, 1], pushed: null, detail: 'Every parent is now at least as heavy as its children. 8 is on top.', lines: [3] },
+        { step: 2, title: 'Step 2: round 1, pop y', text: 'Six stones remain, so the loop runs. Pop the top: y = 8.', round: '1', y: '8', x: '—', heap: [7, 2, 4, 1, 1], pushed: null, detail: 'The heap repairs itself in O(log n): 7 is the new top.', lines: [4, 5] },
+        { step: 3, title: 'Step 3: round 1, pop x', text: 'Pop the top again: x = 7.', round: '1', y: '8', x: '7', heap: [4, 2, 1, 1], pushed: null, detail: 'The two heaviest stones are out. 4 is on top.', lines: [6] },
+        { step: 4, title: 'Step 4: push the leftover 1', text: '8 != 7, so push -(8 - 7) = -1.', round: '1', y: '8', x: '7', heap: [4, 2, 1, 1, 1], pushed: 4, detail: 'The new stone is light, so it stays at the bottom (position 4).', lines: [7, 8] },
+        { step: 5, title: 'Step 5: round 2, pop y', text: 'Five stones remain. Pop y = 4.', round: '2', y: '4', x: '—', heap: [2, 1, 1, 1], pushed: null, detail: '2 rises to the top.', lines: [4, 5] },
+        { step: 6, title: 'Step 6: round 2, pop x', text: 'Pop x = 2.', round: '2', y: '4', x: '2', heap: [1, 1, 1], pushed: null, detail: 'Only 1s are left in the heap.', lines: [6] },
+        { step: 7, title: 'Step 7: push the leftover 2', text: '4 != 2, so push -(4 - 2) = -2.', round: '2', y: '4', x: '2', heap: [2, 1, 1, 1], pushed: 0, detail: 'The new stone is the heaviest, so it bubbles straight up to the top. A list sorted once at the start would have it in the wrong place.', lines: [7, 8] },
+        { step: 8, title: 'Step 8: round 3, pop y', text: 'Four stones remain. Pop y = 2.', round: '3', y: '2', x: '—', heap: [1, 1, 1], pushed: null, detail: 'The leftover from round 2 is smashed in round 3.', lines: [4, 5] },
+        { step: 9, title: 'Step 9: round 3, pop x', text: 'Pop x = 1.', round: '3', y: '2', x: '1', heap: [1, 1], pushed: null, detail: 'Two 1s remain in the heap.', lines: [6] },
+        { step: 10, title: 'Step 10: push the leftover 1', text: '2 != 1, so push -(2 - 1) = -1.', round: '3', y: '2', x: '1', heap: [1, 1, 1], pushed: 2, detail: 'Three stones of weight 1.', lines: [7, 8] },
+        { step: 11, title: 'Step 11: round 4, pop y', text: 'Three stones remain. Pop y = 1.', round: '4', y: '1', x: '—', heap: [1, 1], pushed: null, detail: 'Any 1 will do; they are equal.', lines: [4, 5] },
+        { step: 12, title: 'Step 12: round 4, pop x', text: 'Pop x = 1.', round: '4', y: '1', x: '1', heap: [1], pushed: null, detail: 'One stone is left in the heap.', lines: [6] },
+        { step: 13, title: 'Step 13: equal, then return', text: 'y == x, so nothing is pushed. len(heap) = 1 ends the loop; return -heap[0] = 1.', round: '4', y: '1', x: '1', heap: [1], pushed: null, detail: 'Final answer: 1.', lines: [7, 4, 9] }
+      ];
+
+      // Ground truth: instrumented run of least_interval_heap on tasks = [A,A,A,B,C], n = 3.
+      // slots: label per tick 1..9 so far ('idle' for idle ticks); cur: tick shown orange.
+      const tqSteps = [
+        { step: 0, title: 'Initial state', text: 'Count the letters (A 3, B 1, C 1) and heapify the counts. Letters are dropped.', time: '0', cnt: '—', heap: '[3, 1, 1]', cd: '[]', slots: [], cur: null, jump: false, detail: 'Stored negated: [-3, -1, -1]. The cooldown queue is empty.', lines: [2, 3, 4, 5] },
+        { step: 1, title: 'Step 1: time 1, run the pile of 3', text: 'Pop the biggest pile (3) and run one copy: cnt = 2. Copies remain, so park (2, 1 + 3 = 4).', time: '1', cnt: '2', heap: '[1, 1]', cd: '[(2, 4)]', slots: ['3'], cur: 1, jump: false, detail: 'The pile of A may not run again until time 4 is over. Front release is 4, not 1, so nothing is released.', lines: [6, 7, 8, 9, 10, 11, 14] },
+        { step: 2, title: 'Step 2: time 2, run a pile of 1', text: 'Pop a pile of 1 and run it: cnt = 0. Nothing left, so it is not parked.', time: '2', cnt: '0', heap: '[1]', cd: '[(2, 4)]', slots: ['3', '1'], cur: 2, jump: false, detail: 'One of B or C is finished; which one does not matter for the length.', lines: [6, 7, 8, 9, 10, 14] },
+        { step: 3, title: 'Step 3: time 3, run the other pile of 1', text: 'Pop the last pile of 1: cnt = 0.', time: '3', cnt: '0', heap: '[]', cd: '[(2, 4)]', slots: ['3', '1', '1'], cur: 3, jump: false, detail: 'The heap is empty, but A is still cooling down.', lines: [6, 7, 8, 9, 10, 14] },
+        { step: 4, title: 'Step 4: time 4, idle and release', text: 'Heap empty: this tick is idle. time = cooldown[0][1] = 4 (nothing to skip). The front is released at 4 and rejoins the heap.', time: '4', cnt: '0', heap: '[2]', cd: '[]', slots: ['3', '1', '1', 'idle'], cur: 4, jump: false, detail: 'A is allowed again from time 5.', lines: [6, 7, 8, 12, 13, 14, 15] },
+        { step: 5, title: 'Step 5: time 5, run the pile of 2', text: 'Pop 2 and run one copy: cnt = 1. Park (1, 5 + 3 = 8).', time: '5', cnt: '1', heap: '[]', cd: '[(1, 8)]', slots: ['3', '1', '1', 'idle', '2'], cur: 5, jump: false, detail: 'Only A is left, and it must rest for three ticks.', lines: [6, 7, 8, 9, 10, 11, 14] },
+        { step: 6, title: 'Step 6: idle, jump from 6 to 8', text: 'time becomes 6, the heap is empty, so time = cooldown[0][1] = 8 in one move. The front is released at 8.', time: '6 → 8', cnt: '1', heap: '[1]', cd: '[]', slots: ['3', '1', '1', 'idle', '2', 'idle', 'idle', 'idle'], cur: 8, jump: true, detail: 'Ticks 6, 7 and 8 are idle, but the loop body ran only once for all three.', lines: [6, 7, 8, 12, 13, 14, 15] },
+        { step: 7, title: 'Step 7: time 9, run the last A', text: 'Pop 1 and run it: cnt = 0. Heap and queue are both empty, so the loop ends and time = 9 is returned.', time: '9', cnt: '0', heap: '[]', cd: '[]', slots: ['3', '1', '1', 'idle', '2', 'idle', 'idle', 'idle', '1'], cur: 9, jump: true, detail: 'Final answer: 9 (A B C idle A idle idle idle A). The formula agrees: (3 - 1) * 4 + 1 = 9.', lines: [6, 7, 8, 9, 10, 14, 16] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+          stop();
+          if (index > 0) index -= 1;
+          update();
+        });
+
+        nextBtn.addEventListener('click', () => {
+          stop();
+          if (index < steps.length - 1) index += 1;
+          update();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          stop();
+          index = 0;
+          update();
+        });
+
+        playBtn.addEventListener('click', () => {
+          if (timer) {
+            stop();
+            return;
+          }
+          if (index >= steps.length - 1) {
+            index = 0;
+            update();
+          }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) {
+              stop();
+              return;
+            }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      function renderLS(step, index, max) {
+        document.getElementById('ls-step-title').textContent = step.title;
+        document.getElementById('ls-step-text').textContent = step.text;
+        document.getElementById('ls-round').textContent = step.round;
+        document.getElementById('ls-len').textContent = String(step.heap.length);
+        document.getElementById('ls-y').textContent = step.y;
+        document.getElementById('ls-x').textContent = step.x;
+        document.getElementById('ls-real').textContent = `[${step.heap.join(', ')}]`;
+        document.getElementById('ls-stored').textContent = `[${step.heap.map((v) => -v).join(', ')}]`;
+        document.getElementById('ls-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('ls-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('ls-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('ls-trace-table', step.step);
+        setCodeHighlight('ls-code', step.lines);
+        document.querySelectorAll('#ls-graph [data-pos]').forEach((g) => {
+          const pos = Number(g.dataset.pos);
+          const inHeap = pos < step.heap.length;
+          g.setAttribute('visibility', inHeap ? 'visible' : 'hidden');
+          g.querySelector('.ls-label').textContent = inHeap ? String(step.heap[pos]) : '';
+          const circle = g.querySelector('circle');
+          circle.classList.remove('done', 'frontier', 'current');
+          if (!inHeap || step.raw) return;
+          if (pos === step.pushed) circle.classList.add('frontier');
+          else if (pos === 0) circle.classList.add('current');
+          else circle.classList.add('done');
+        });
+        document.querySelectorAll('#ls-graph [data-edge]').forEach((edge) => {
+          edge.setAttribute('visibility', Number(edge.dataset.edge) < step.heap.length ? 'visible' : 'hidden');
+        });
+      }
+
+      function renderTQ(step, index, max) {
+        document.getElementById('tq-step-title').textContent = step.title;
+        document.getElementById('tq-step-text').textContent = step.text;
+        document.getElementById('tq-time').textContent = step.time;
+        document.getElementById('tq-cnt').textContent = step.cnt;
+        document.getElementById('tq-heap').textContent = step.heap;
+        document.getElementById('tq-cd').textContent = step.cd;
+        document.getElementById('tq-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('tq-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('tq-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('tq-trace-table', step.step);
+        setCodeHighlight('tq-code', step.lines);
+        document.querySelectorAll('#tq-graph [data-tick]').forEach((g) => {
+          const t = Number(g.dataset.tick);
+          const label = t <= step.slots.length ? step.slots[t - 1] : '';
+          const rect = g.querySelector('rect');
+          const text = g.querySelector('.tq-label');
+          rect.classList.remove('done', 'idle', 'current');
+          text.classList.toggle('dark', label === 'idle');
+          text.textContent = label;
+          if (t === step.cur && label !== 'idle') rect.classList.add('current');
+          else if (label === 'idle') rect.classList.add('idle');
+          else if (label) rect.classList.add('done');
+        });
+        document.getElementById('tq-jump').setAttribute('visibility', step.jump ? 'visible' : 'hidden');
+      }
+
+      setupTrace({ steps: lsSteps, prefix: 'ls', render: renderLS });
+      setupTrace({ steps: tqSteps, prefix: 'tq', render: renderTQ });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

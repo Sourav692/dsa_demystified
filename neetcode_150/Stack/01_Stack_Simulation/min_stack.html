@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Min Stack — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .vstack{display:flex;flex-direction:column-reverse;align-items:center;gap:6px;min-height:60px;padding:8px 0}
+  .slot{position:relative;min-width:150px;height:44px;border:2px solid var(--border);border-radius:10px;background:var(--card);
+    display:flex;align-items:center;justify-content:center;gap:12px;font-size:18px;font-weight:700;transition:.15s}
+  .slot .m{font-size:12px;font-weight:600;color:var(--muted)}
+  .slot .topmark{position:absolute;left:calc(100% + 8px);font-size:12px;color:var(--accent);white-space:nowrap}
+  .slot.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .slot.good{background:var(--good);border-color:var(--good-bd)}
+  .slot.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .slot.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .callrow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_stack_simulation_lesson.html">← Stack Simulation lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Stack · Stack Simulation</span></div>
+<h1>155 · Min Stack</h1>
+<p class="lead">Build a stack that can also tell you its smallest value, instantly.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">A stack is a pile: you add to the top, remove from the top, and look at the top. Build one that can also answer "what is the smallest value in the pile right now?" — and every one of the four actions must be instant, no matter how tall the pile is.</p>
+<div class="idea">Example: push <b>-2</b>, push <b>0</b>, push <b>-3</b>. Smallest? <b>-3</b>. Pop. Top? <b>0</b>. Smallest? <b>-2</b>.</div>
+<div class="idea">The hard part: after <b>-3</b> leaves, the smallest value has to go <b>back</b> to <b>-2</b>. One "smallest so far" number cannot remember that.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>just changed / being read</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>in the pile</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>removed</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="mem"><h4>outputs so far</h4><div class="chips" id="pd-out"></div></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The pile is drawn bottom to top. Watch the smallest value after the pop.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: look through the whole pile on every getMin</h2>
+<div class="idea">Keep a plain list. Push, pop and top are the normal list moves. For <code>getMin</code>, walk every value in the pile and return the smallest (<code>min(self.stack)</code>).</div>
+<div class="viz" id="br-viz"></div>
+<div class="mem"><h4>outputs so far</h4><div class="chips" id="br-out"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> push, pop and top are instant, but every <code>getMin</code> walks the whole pile — <code>O(n)</code> per call, so <code>n</code> calls can cost <code>O(n²)</code>. Memory <code>O(n)</code>.</p>
+<div class="trace-title">Step-by-step trace — push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Call</th><th>Pile after (bottom → top)</th><th>Work done</th><th>Returns</th></tr>
+  <tr><td>1</td><td>push(-2)</td><td>[-2]</td><td class="rule">append to the top</td><td>—</td></tr>
+  <tr><td>2</td><td>push(0)</td><td>[-2, 0]</td><td class="rule">append to the top</td><td>—</td></tr>
+  <tr><td>3</td><td>push(-3)</td><td>[-2, 0, -3]</td><td class="rule">append to the top</td><td>—</td></tr>
+  <tr><td>4</td><td>getMin()</td><td>[-2, 0, -3]</td><td class="rule">walk 3 values &rarr; smallest -3</td><td>-3</td></tr>
+  <tr><td>5</td><td>pop()</td><td>[-2, 0]</td><td class="rule">remove the top (-3)</td><td>—</td></tr>
+  <tr><td>6</td><td>top()</td><td>[-2, 0]</td><td class="rule">read the top</td><td>0</td></tr>
+  <tr class="final"><td>7</td><td>getMin()</td><td>[-2, 0]</td><td>walk 2 values &rarr; smallest -2</td><td>-2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — The smart way: every entry remembers the smallest value at or below it</h2>
+<div class="idea">A pile only changes at the top, so what sits <i>under</i> an entry never changes while that entry is there. So when you push a value, also write down the smallest value of the pile at that moment: <code>(val, min(val, min below))</code>. <code>getMin</code> just reads the top entry. After a pop, the new top already holds the right answer.</div>
+<div class="viz" id="op-viz"></div>
+<div class="mem"><h4>outputs so far</h4><div class="chips" id="op-out"></div></div>
+<div class="caption" id="op-cap"></div>
+<div class="controls" data-player="op"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="op-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every action reads or changes only the top — <code>O(1)</code> each. Memory <code>O(n)</code>: two numbers per entry instead of one.</p>
+<div class="trace-title">Step-by-step trace — same calls, entries shown as (value, min so far)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Call</th><th>Pile after (bottom → top)</th><th>Work done</th><th>Returns</th></tr>
+  <tr><td>1</td><td>push(-2)</td><td>[(-2, -2)]</td><td class="rule">pile empty &rarr; min = -2</td><td>—</td></tr>
+  <tr><td>2</td><td>push(0)</td><td>[(-2, -2), (0, -2)]</td><td class="rule">min(0, -2) = -2</td><td>—</td></tr>
+  <tr><td>3</td><td>push(-3)</td><td>[(-2, -2), (0, -2), (-3, -3)]</td><td class="rule">min(-3, -2) = -3</td><td>—</td></tr>
+  <tr><td>4</td><td>getMin()</td><td>[(-2, -2), (0, -2), (-3, -3)]</td><td class="rule">read the top's min</td><td>-3</td></tr>
+  <tr><td>5</td><td>pop()</td><td>[(-2, -2), (0, -2)]</td><td class="rule">remove the top pair; new top already says min -2</td><td>—</td></tr>
+  <tr><td>6</td><td>top()</td><td>[(-2, -2), (0, -2)]</td><td class="rule">read the top's value</td><td>0</td></tr>
+  <tr class="final"><td>7</td><td>getMin()</td><td>[(-2, -2), (0, -2)]</td><td>read the top's min — no walking</td><td>-2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"design a stack that also answers X instantly"</b> or <b>"retrieve the minimum in constant time"</b>? Store the answer to X next to every entry. Because a stack never changes below its top, each stored answer stays true until its entry is popped.
+<p><a href="01_stack_simulation_lesson.html">→ Stack Simulation: the pattern lesson and its other problems</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(none yet)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip look">'+items[k]+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* Draw the pile bottom-to-top. items: numbers, or [val, min] pairs. marks: {index: class}. ghost: a removed value shown in red above the top. */
+function drawStack(id, call, items, marks, ghost){
+  marks=marks||{};
+  var h='<div class="callrow"><span class="badge">'+(call||'start: empty pile')+'</span></div><div class="vstack">';
+  if(!items.length && ghost===undefined) h+='<span class="empty">(empty pile)</span>';
+  for(var k=0;k<items.length;k++){
+    var it=items[k], body=Array.isArray(it) ? it[0]+'<span class="m">min '+it[1]+'</span>' : String(it);
+    var cls=marks[k]||'seen';
+    h+='<div class="slot '+cls+'">'+body+(k===items.length-1?'<span class="topmark">&larr; top</span>':'')+'</div>';
+  }
+  if(ghost!==undefined) h+='<div class="slot bad" style="opacity:.6">'+(Array.isArray(ghost)?ghost[0]+'<span class="m">min '+ghost[1]+'</span>':ghost)+'<span class="topmark">popped</span></div>';
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+function all(n,cls){ var m={}; for(var k=0;k<n;k++) m[k]=cls; return m; }
+
+/* Problem demo (values from run_ops on the LeetCode example). */
+var PD=[
+  {call:'', st:[], out:[], cap:'An empty pile. Seven calls are coming.'},
+  {call:'push(-2)', st:[-2], m:{0:'hi'}, out:[], cap:'push(-2): the pile is [-2]. Smallest so far: -2.'},
+  {call:'push(0)', st:[-2,0], m:{1:'hi'}, out:[], cap:'push(0): 0 is bigger, so the smallest is still -2.'},
+  {call:'push(-3)', st:[-2,0,-3], m:{2:'hi'}, out:[], cap:'push(-3): a new smallest value, -3.'},
+  {call:'getMin()', st:[-2,0,-3], m:{2:'good'}, out:[-3], cap:'getMin() must return <b>-3</b>.'},
+  {call:'pop()', st:[-2,0], ghost:-3, out:[-3], cap:'pop() removes -3. The smallest value must fall back to <b>-2</b>.'},
+  {call:'top()', st:[-2,0], m:{1:'good'}, out:[-3,0], cap:'top() returns the top value, <b>0</b>.'},
+  {call:'getMin()', st:[-2,0], m:{0:'good'}, out:[-3,0,-2], cap:'getMin() now returns <b>-2</b>. Outputs: -3, 0, -2.'}
+];
+makePlayer('pd',PD,function(f){ drawStack('pd-viz',f.call,f.st,f.m,f.ghost); chips('pd-out',f.out); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Solution 1: MinStackScan, one frame per call. */
+makePlayer('br',[
+  {call:'', st:[], out:[], cap:'A plain list. Nothing extra is stored.'},
+  {call:'push(-2)', st:[-2], m:{0:'hi'}, out:[], cap:'append(-2). Instant.'},
+  {call:'push(0)', st:[-2,0], m:{1:'hi'}, out:[], cap:'append(0). Instant.'},
+  {call:'push(-3)', st:[-2,0,-3], m:{2:'hi'}, out:[], cap:'append(-3). Instant.'},
+  {call:'getMin()', st:[-2,0,-3], m:{0:'hi',1:'hi',2:'good'}, out:[-3], cap:'min(self.stack) walks all <b>3</b> values: -2, 0, -3. Smallest = <b>-3</b>.'},
+  {call:'pop()', st:[-2,0], ghost:-3, out:[-3], cap:'pop() removes -3. Instant.'},
+  {call:'top()', st:[-2,0], m:{1:'good'}, out:[-3,0], cap:'top() reads the last item: <b>0</b>.'},
+  {call:'getMin()', st:[-2,0], m:{0:'good',1:'hi'}, out:[-3,0,-2], cap:'Walk all <b>2</b> values again: -2, 0. Smallest = <b>-2</b>. A taller pile means a longer walk every time.'}
+],function(f){ drawStack('br-viz',f.call,f.st,f.m,f.ghost); chips('br-out',f.out); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Solution 2: MinStack with (val, min) pairs, one frame per call. */
+makePlayer('op',[
+  {call:'', st:[], out:[], cap:'Each entry will be a pair: (value, smallest value at or below it).'},
+  {call:'push(-2)', st:[[-2,-2]], m:{0:'hi'}, out:[], cap:'Pile is empty, so the min is the value itself: push (-2, -2).'},
+  {call:'push(0)', st:[[-2,-2],[0,-2]], m:{1:'hi'}, out:[], cap:'min(0, top\'s min -2) = -2: push (0, -2).'},
+  {call:'push(-3)', st:[[-2,-2],[0,-2],[-3,-3]], m:{2:'hi'}, out:[], cap:'min(-3, -2) = -3: push (-3, -3).'},
+  {call:'getMin()', st:[[-2,-2],[0,-2],[-3,-3]], m:{2:'good'}, out:[-3], cap:'Read the top pair\'s min: <b>-3</b>. Nothing else is touched.'},
+  {call:'pop()', st:[[-2,-2],[0,-2]], m:{1:'hi'}, ghost:[-3,-3], out:[-3], cap:'Remove the top pair. The new top, (0, -2), already says the min is -2.'},
+  {call:'top()', st:[[-2,-2],[0,-2]], m:{1:'good'}, out:[-3,0], cap:'Read the top pair\'s value: <b>0</b>.'},
+  {call:'getMin()', st:[[-2,-2],[0,-2]], m:{1:'good'}, out:[-3,0,-2], cap:'Read the top pair\'s min: <b>-2</b>. Outputs: -3, 0, -2.'}
+],function(f){ drawStack('op-viz',f.call,f.st,f.m,f.ghost); chips('op-out',f.out); document.getElementById('op-cap').innerHTML=f.cap; });
+</script>
+</body></html>

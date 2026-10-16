@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kth Largest Element in a Stream — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .svgwrap svg{display:block;margin:0 auto}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_top_k_lesson.html">← Top K lesson</a><span class="tag"><span class="dot" style="background:#22c55e"></span> Easy · Heap · Top K</span></div>
+<h1>703 · Kth Largest Element in a Stream</h1>
+<p class="lead">Scores keep arriving. After each one, report the k-th best score so far.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Think of a leaderboard that only cares about one spot: the k-th place. Every time a new score comes in, you must say who is in k-th place now. You build a small class with an <code>add(val)</code> method that answers that question after each new score.</p>
+<div class="idea">Example: <code>k = 3</code>, start with <code>[4, 5, 8, 2]</code>, then <code>add</code> 3, 5, 10, 9, 4 &rarr; returns <code>4, 5, 5, 8, 8</code>.</div>
+<div class="idea">Duplicates count: in <code>[8, 5, 5, 4]</code> both the 2nd and the 3rd place are <b>5</b>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>just arrived</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>above k-th place</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>k-th place (the answer)</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>thrown away</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The leaderboard is drawn best first. Only the green box is ever reported.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: re-sort everything on every add</h2>
+<div class="idea">Keep every score in a list, in the order it arrived. On each <code>add</code>, append the score, sort a copy of the whole list, and read the value <code>k</code> places from the end.</div>
+<div class="viz" id="br-viz"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every call sorts the whole history again — <code>O(n log n)</code> per <code>add</code>, <code>O(n)</code> memory. The notebook measured about 4–5× per doubling over <code>n</code> adds.</p>
+<div class="trace-title">Step-by-step trace — k = 3, nums = [4, 5, 8, 2], adds 3, 5, 10, 9, 4</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Call</th><th>Stream (arrival order)</th><th>Sorted copy</th><th>sorted[-3]</th><th>Decision</th></tr>
+  <tr><td>init</td><td>[4, 5, 8, 2]</td><td>—</td><td>—</td><td class="rule">Just store the list</td></tr>
+  <tr><td>add(3)</td><td>[4, 5, 8, 2, 3]</td><td>[2, 3, 4, 5, 8]</td><td>4</td><td class="rule">Re-sort 5 values &rarr; return 4</td></tr>
+  <tr><td>add(5)</td><td>[4, 5, 8, 2, 3, 5]</td><td>[2, 3, 4, 5, 5, 8]</td><td>5</td><td class="rule">Re-sort 6 values &rarr; return 5</td></tr>
+  <tr><td>add(10)</td><td>[4, 5, 8, 2, 3, 5, 10]</td><td>[2, 3, 4, 5, 5, 8, 10]</td><td>5</td><td class="rule">Re-sort 7 values &rarr; return 5</td></tr>
+  <tr><td>add(9)</td><td>[4, 5, 8, 2, 3, 5, 10, 9]</td><td>[2, 3, 4, 5, 5, 8, 9, 10]</td><td>8</td><td class="rule">Re-sort 8 values &rarr; return 8</td></tr>
+  <tr class="final"><td>add(4)</td><td>[4, 5, 8, 2, 3, 5, 10, 9, 4]</td><td>[2, 3, 4, 4, 5, 5, 8, 9, 10]</td><td>8</td><td>Re-sort 9 values &rarr; return 8. Outputs: 4, 5, 5, 8, 8</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Keep the list sorted with <code>bisect.insort</code></h2>
+<div class="idea">Sort once at the start. After that, drop each new score straight into its sorted slot (binary search finds the slot). The answer is always <code>k</code> places from the end. But to make room, every value to the right of the slot has to shift one place.</div>
+<div class="viz" id="so-viz"></div>
+<div class="caption" id="so-cap"></div>
+<div class="controls" data-player="so"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="so-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> finding the slot is fast (<code>O(log n)</code>), but the shift makes each <code>add</code> <code>O(n)</code>; memory stays <code>O(n)</code>.</p>
+<div class="trace-title">Step-by-step trace — k = 3, nums = [4, 5, 8, 2], adds 3, 5, 10, 9, 4</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Call</th><th>Slot found</th><th>Values shifted right</th><th>Sorted list after</th><th>list[-3]</th><th>Decision</th></tr>
+  <tr><td>init</td><td>—</td><td>—</td><td>[2, 4, 5, 8]</td><td>—</td><td class="rule">Sort once</td></tr>
+  <tr><td>add(3)</td><td>1</td><td>3 (4, 5, 8)</td><td>[2, 3, 4, 5, 8]</td><td>4</td><td class="rule">Return 4</td></tr>
+  <tr><td>add(5)</td><td>4</td><td>1 (8)</td><td>[2, 3, 4, 5, 5, 8]</td><td>5</td><td class="rule">Return 5</td></tr>
+  <tr><td>add(10)</td><td>6</td><td>0</td><td>[2, 3, 4, 5, 5, 8, 10]</td><td>5</td><td class="rule">Goes at the end &rarr; return 5</td></tr>
+  <tr><td>add(9)</td><td>6</td><td>1 (10)</td><td>[2, 3, 4, 5, 5, 8, 9, 10]</td><td>8</td><td class="rule">Return 8</td></tr>
+  <tr class="final"><td>add(4)</td><td>3</td><td>5 (5, 5, 8, 9, 10)</td><td>[2, 3, 4, 4, 5, 5, 8, 9, 10]</td><td>8</td><td>Return 8. Outputs: 4, 5, 5, 8, 8</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: a min-heap that holds only the top k</h2>
+<div class="idea">A <b>min-heap</b> is a pile where the smallest value is always on top and can be read instantly. Keep only the <code>k</code> best scores in it. A new score joins the pile; if the pile now has <code>k + 1</code> scores, the one on top (the weakest) leaves. The top of the pile is then the k-th best score.</div>
+<div class="viz" id="hp-viz"></div>
+<div class="mem"><h4>returned by add so far</h4><div class="chips" id="hp-out"></div></div>
+<div class="caption" id="hp-cap"></div>
+<div class="controls" data-player="hp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> the pile never holds more than <code>k + 1</code> scores — <code>O(log k)</code> per <code>add</code>, <code>O(k)</code> memory. Everything below the top k is forgotten for good.</p>
+<div class="trace-title">Step-by-step trace — k = 3, nums = [4, 5, 8, 2], adds 3, 5, 10, 9, 4</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Operation</th><th>Size after push</th><th>Popped (too small)</th><th>Heap after (array)</th><th>Returns heap[0]</th></tr>
+  <tr><td>1</td><td>init: push 4</td><td>1</td><td>—</td><td>[4]</td><td>—</td></tr>
+  <tr><td>2</td><td>init: push 5</td><td>2</td><td>—</td><td>[4, 5]</td><td>—</td></tr>
+  <tr><td>3</td><td>init: push 8</td><td>3</td><td>—</td><td>[4, 5, 8]</td><td>—</td></tr>
+  <tr><td>4</td><td>init: push 2</td><td>4 &gt; 3</td><td>2</td><td>[4, 5, 8]</td><td>—</td></tr>
+  <tr><td>5</td><td>add(3)</td><td>4 &gt; 3</td><td>3</td><td>[4, 5, 8]</td><td>4</td></tr>
+  <tr><td>6</td><td>add(5)</td><td>4 &gt; 3</td><td>4</td><td>[5, 5, 8]</td><td>5</td></tr>
+  <tr><td>7</td><td>add(10)</td><td>4 &gt; 3</td><td>5</td><td>[5, 10, 8]</td><td>5</td></tr>
+  <tr><td>8</td><td>add(9)</td><td>4 &gt; 3</td><td>5</td><td>[8, 9, 10]</td><td>8</td></tr>
+  <tr class="final"><td>9</td><td>add(4)</td><td>4 &gt; 3</td><td>4</td><td>[8, 9, 10]</td><td>8 — outputs: 4, 5, 5, 8, 8</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"k-th largest"</b>, <b>"top k"</b> or <b>"after each new value"</b>? Keep a min-heap capped at <code>k</code>: push, pop if it holds <code>k + 1</code>, and read the top.
+<p><a href="01_top_k_lesson.html">→ Top K: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* A row of value boxes. marks: {index: class}, ptrs: {index: label above}, labels: text under each box (default: index). */
+function rowHTML(vals, marks, ptrs, labels){
+  marks=marks||{}; ptrs=ptrs||{};
+  var h='<div class="row">';
+  for(var i=0;i<vals.length;i++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[i]||'')+'</div><div class="box '+(marks[i]||'')+'">'+vals[i]+'</div>'+
+       '<div class="idxlabel">'+(labels?labels[i]:i)+'</div></div>';
+  }
+  return h+'</div>';
+}
+function drawRows(id, rows){
+  var h='';
+  rows.forEach(function(r){ h+='<div class="rowlabel">'+r.label+'</div>'+(r.vals.length?rowHTML(r.vals,r.marks,r.ptrs,r.labels):'<div class="row"><span class="empty">(empty)</span></div>'); });
+  document.getElementById(id).innerHTML=h;
+}
+/* A binary heap drawn as a tree: array index i sits at level floor(log2(i+1)); children of i are 2i+1 and 2i+2. */
+function drawHeap(id, arr, marks, note){
+  marks=marks||{};
+  var W=340, GY=58, r=20, levels=1;
+  while((1<<levels)-1 < arr.length) levels++;
+  var H=levels*GY+8;
+  function lvl(i){ return Math.floor(Math.log2(i+1)); }
+  function X(i){ var L=lvl(i), p=i-((1<<L)-1); return (p+0.5)*W/(1<<L); }
+  function Y(i){ return lvl(i)*GY+r+6; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px" role="img" aria-label="heap drawn as a tree">';
+  if(!arr.length){ s+='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="var(--muted)" font-size="13">(empty heap)</text>'; }
+  for(var i=1;i<arr.length;i++){ var p=(i-1)>>1; s+='<line class="edge" x1="'+X(p)+'" y1="'+Y(p)+'" x2="'+X(i)+'" y2="'+Y(i)+'"/>'; }
+  for(var i=0;i<arr.length;i++){
+    s+='<g class="tnode '+(marks[i]||'')+'"><circle cx="'+X(i)+'" cy="'+Y(i)+'" r="'+r+'"/><text x="'+X(i)+'" y="'+(Y(i)+5)+'" text-anchor="middle">'+arr[i]+'</text></g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>'+(note?'<div class="rowlabel" style="text-align:center">'+note+'</div>':'');
+}
+
+var K=3;
+/* Problem demo: the leaderboard best-first; the box at rank k is the answer. */
+function board(desc, nw){
+  var m={}, p={}, lab=[];
+  for(var i=0;i<desc.length;i++){ m[i]= i<K-1 ? 'seen' : (i===K-1 ? 'good' : 'dim'); lab.push('#'+(i+1)); }
+  if(nw>=0){ p[nw]='new'; if(nw!==K-1) m[nw]='hi'; }
+  return {vals:desc, marks:m, ptrs:p, labels:lab, label:'leaderboard, best first (k = 3)'};
+}
+makePlayer('pd',[
+  {cap:'Start: 4, 5, 8, 2. Best first: 8, 5, <b>4</b>, 2. Third place is <b>4</b>.', r:board([8,5,4,2],-1)},
+  {cap:'add(3): it lands in 4th place. Third place is still <b>4</b> &rarr; return 4.', r:board([8,5,4,3,2],3)},
+  {cap:'add(5): a second 5 joins near the top. Third place becomes <b>5</b> &rarr; return 5.', r:board([8,5,5,4,3,2],1)},
+  {cap:'add(10): a new leader. Third place is <b>5</b> &rarr; return 5.', r:board([10,8,5,5,4,3,2],0)},
+  {cap:'add(9): second place. Everyone below shifts down; third place is <b>8</b> &rarr; return 8.', r:board([10,9,8,5,5,4,3,2],1)},
+  {cap:'add(4): far below third place, so nothing changes &rarr; return <b>8</b>. Outputs: 4, 5, 5, 8, 8.', r:board([10,9,8,5,5,4,4,3,2],5)}
+],function(f){ drawRows('pd-viz',[f.r]); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: stream in arrival order + a freshly sorted copy (values from KthLargestBrute in the notebook). */
+function brute(stream, newLast){
+  var s=stream.slice().sort(function(a,b){return a-b;}), m1={}, m2={}, p2={};
+  if(newLast) m1[stream.length-1]='hi';
+  if(newLast){ m2[s.length-K]='good'; p2[s.length-K]='sorted[-3]'; }
+  return [{vals:stream, marks:m1, label:'stream, in arrival order'}, {vals:newLast?s:[], marks:m2, ptrs:p2, label:'sorted copy, made again on this call'}];
+}
+makePlayer('br',[
+  {cap:'The constructor only stores <code>[4, 5, 8, 2]</code>.', r:brute([4,5,8,2],false)},
+  {cap:'add(3): append, sort all 5 values, read 3rd from the end &rarr; <b>4</b>.', r:brute([4,5,8,2,3],true)},
+  {cap:'add(5): append, sort all 6 values again &rarr; <b>5</b>.', r:brute([4,5,8,2,3,5],true)},
+  {cap:'add(10): sort all 7 values again &rarr; <b>5</b>.', r:brute([4,5,8,2,3,5,10],true)},
+  {cap:'add(9): sort all 8 values again &rarr; <b>8</b>.', r:brute([4,5,8,2,3,5,10,9],true)},
+  {cap:'add(4): sort all 9 values again &rarr; <b>8</b>. The work grows with the whole history.', r:brute([4,5,8,2,3,5,10,9,4],true)}
+],function(f){ drawRows('br-viz',f.r); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Sorted list + insort: slot = bisect_right position; values right of the slot shift (values from KthLargestSorted). */
+function sorted(list, slot){
+  var m={}, p={};
+  if(slot>=0){ for(var i=slot+1;i<list.length;i++) m[i]='seen'; m[slot]='hi'; p[slot]='new'; }
+  if(slot>=0) m[list.length-K]='good';
+  if(slot>=0 && list.length-K!==slot) p[list.length-K]='list[-3]';
+  return [{vals:list, marks:m, ptrs:p, label:'sorted list (purple = shifted one place right)'}];
+}
+makePlayer('so',[
+  {cap:'Sort the starting values once: <code>[2, 4, 5, 8]</code>.', r:sorted([2,4,5,8],-1)},
+  {cap:'add(3): binary search finds slot 1; 4, 5, 8 shift right. 3rd from the end = <b>4</b>.', r:sorted([2,3,4,5,8],1)},
+  {cap:'add(5): slot 4 (after the existing 5); only 8 shifts. Answer <b>5</b>.', r:sorted([2,3,4,5,5,8],4)},
+  {cap:'add(10): slot 6, the very end; nothing shifts. Answer <b>5</b>.', r:sorted([2,3,4,5,5,8,10],6)},
+  {cap:'add(9): slot 6; 10 shifts. Answer <b>8</b>.', r:sorted([2,3,4,5,5,8,9,10],6)},
+  {cap:'add(4): slot 3; five values shift. Answer <b>8</b>. Small values cost the most shifting.', r:sorted([2,3,4,4,5,5,8,9,10],3)}
+],function(f){ drawRows('so-viz',f.r); document.getElementById('so-cap').innerHTML=f.cap; });
+
+/* Size-k min-heap: one frame per push (+ trim). Heap arrays are heapq's real layout (from KthLargest in the notebook). */
+makePlayer('hp',[
+  {cap:'The heap starts empty. It will never keep more than k = 3 values.', h:[], out:[]},
+  {cap:'Constructor, push 4. Size 1.', h:[4], hi:0, out:[]},
+  {cap:'Push 5. Size 2.', h:[4,5], hi:1, out:[]},
+  {cap:'Push 8. Size 3 = k: the root <b>4</b> is now the 3rd largest.', h:[4,5,8], hi:2, root:true, out:[]},
+  {cap:'Push 2: size 4 &gt; 3, so pop the root. 2 was the smallest, so <b>2</b> leaves at once.', h:[4,5,8], root:true, ev:2, out:[]},
+  {cap:'add(3): push, size 4, pop the root <b>3</b>. Root is 4 &rarr; return <b>4</b>.', h:[4,5,8], root:true, ev:3, out:[4]},
+  {cap:'add(5): push, pop the root <b>4</b>. The top 3 are now 5, 5, 8 &rarr; return <b>5</b>.', h:[5,5,8], root:true, ev:4, out:[4,5]},
+  {cap:'add(10): push, pop a <b>5</b>. Top 3: 5, 10, 8 &rarr; return <b>5</b>.', h:[5,10,8], root:true, ev:5, out:[4,5,5]},
+  {cap:'add(9): push, pop the last <b>5</b>. Top 3: 8, 9, 10 &rarr; return <b>8</b>.', h:[8,9,10], root:true, ev:5, out:[4,5,5,8]},
+  {cap:'add(4): push, and 4 is the smallest, so it leaves at once &rarr; return <b>8</b>.', h:[8,9,10], root:true, ev:4, out:[4,5,5,8,8]}
+],function(f){
+  var m={}; if(f.root) m[0]='good'; if(f.hi!==undefined && !(f.root && f.hi===0)) m[f.hi]='hi';
+  drawHeap('hp-viz', f.h, m, f.ev!==undefined ? 'popped (evicted): <b>'+f.ev+'</b> &nbsp;·&nbsp; root = 3rd largest' : 'min-heap of the top k (root = smallest of them)');
+  chips('hp-out', f.out.map(function(v){return {text:String(v),cls:'look'};}));
+  document.getElementById('hp-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

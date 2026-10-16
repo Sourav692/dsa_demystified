@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Median of Two Sorted Arrays — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#ef4444}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:8px;min-width:min-content;justify-content:center;align-items:stretch}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:20px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:46px;height:46px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .cut{width:4px;border-radius:2px;background:var(--bad-bd);margin:20px 2px 18px}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .chip.warn{background:var(--bad);border-color:var(--bad-bd)}
+  .chip.cmp{background:var(--hi);border-color:var(--hi-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="04_partition_search_lesson.html">← Partition Search lesson</a><span class="tag"><span class="dot"></span> Hard · Binary Search · Partition Search</span></div>
+<h1>4 · Median of Two Sorted Arrays</h1>
+<p class="lead">Two sorted lists. Find the middle value of all of them together, without gluing them together.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Two teams each lined up by height, shortest first. Who would stand in the middle if both teams merged into one line? That person's height is the <b>median</b> (the middle value). With an even number of people there are two middle people, and the median is the average of their two heights.</p>
+<div class="idea">Example: <code>[1, 3]</code> and <code>[2]</code> &rarr; merged <code>[1, 2, 3]</code> &rarr; <b>2.0</b>. And <code>[1, 2]</code> and <code>[3, 4]</code> &rarr; <code>(2 + 3) / 2</code> = <b>2.5</b>.</div>
+<div class="idea">The catch: the answer must take <code>O(log (m + n))</code> time. Just reading every value is already too slow, so the fast solution never builds the merged line.</div>
+<div class="legend"><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>left half (smaller values)</span><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>being compared</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>median values</span><span><span class="sw" style="background:var(--bad-bd);border-color:var(--bad-bd)"></span>cut line</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The walkthrough below uses <code>nums1 = [2, 4, 7, 10, 14, 17]</code>, <code>nums2 = [8, 11, 16, 19]</code> (answer <b>10.5</b>), chosen so the fast method has to move in both directions.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: merge everything, then pick the middle</h2>
+<div class="idea">Put a finger on the front of each list. Copy the smaller of the two values into a new list and move that finger. When one list runs out, copy the rest of the other. Then read the middle of the new list.</div>
+<div class="viz" id="mg-viz"></div>
+<div class="caption" id="mg-cap"></div>
+<div class="controls" data-player="mg"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="mg-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every value is copied once — <code>O(m + n)</code> time — and the new list holds them all — <code>O(m + n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — nums1 = [2, 4, 7, 10, 14, 17], nums2 = [8, 11, 16, 19]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>nums1[i]</th><th>nums2[j]</th><th>Take</th><th>i, j after</th><th>merged after</th></tr>
+  <tr><td>1</td><td>2</td><td>8</td><td class="rule">2 &le; 8 &rarr; take 2</td><td>1, 0</td><td>[2]</td></tr>
+  <tr><td>2</td><td>4</td><td>8</td><td class="rule">4 &le; 8 &rarr; take 4</td><td>2, 0</td><td>[2, 4]</td></tr>
+  <tr><td>3</td><td>7</td><td>8</td><td class="rule">7 &le; 8 &rarr; take 7</td><td>3, 0</td><td>[2, 4, 7]</td></tr>
+  <tr><td>4</td><td>10</td><td>8</td><td class="rule">10 &gt; 8 &rarr; take 8</td><td>3, 1</td><td>[2, 4, 7, 8]</td></tr>
+  <tr><td>5</td><td>10</td><td>11</td><td class="rule">10 &le; 11 &rarr; take 10</td><td>4, 1</td><td>[2, 4, 7, 8, 10]</td></tr>
+  <tr><td>6</td><td>14</td><td>11</td><td class="rule">14 &gt; 11 &rarr; take 11</td><td>4, 2</td><td>[2, 4, 7, 8, 10, 11]</td></tr>
+  <tr><td>7</td><td>14</td><td>16</td><td class="rule">14 &le; 16 &rarr; take 14</td><td>5, 2</td><td>[…, 11, 14]</td></tr>
+  <tr><td>8</td><td>17</td><td>16</td><td class="rule">17 &gt; 16 &rarr; take 16</td><td>5, 3</td><td>[…, 14, 16]</td></tr>
+  <tr><td>9</td><td>17</td><td>19</td><td class="rule">17 &le; 19 &rarr; take 17</td><td>6, 3</td><td>[…, 16, 17]</td></tr>
+  <tr><td>10</td><td>—</td><td>19</td><td class="rule">nums1 used up &rarr; copy the rest [19]</td><td>6, 4</td><td>[2, 4, 7, 8, 10, 11, 14, 16, 17, 19]</td></tr>
+  <tr class="final"><td>11</td><td colspan="4">t = 10 is even &rarr; (merged[4] + merged[5]) / 2 = (10 + 11) / 2</td><td>10.5</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Better: walk to the middle and stop</h2>
+<div class="idea">Same two fingers, but stop as soon as you reach the middle, and remember only the last two values you passed (<code>prev</code> and <code>cur</code>). No new list is built. With 10 values, the middle is merged positions 4 and 5, so 6 steps are enough.</div>
+<div class="viz" id="tp-viz"></div>
+<div class="mem"><h4>remembered values</h4><div class="chips" id="tp-mem"></div></div>
+<div class="caption" id="tp-cap"></div>
+<div class="controls" data-player="tp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="tp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> about half the steps of Solution 1, but still <code>O(m + n)</code> time; only two values are kept — <code>O(1)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — nums1 = [2, 4, 7, 10, 14, 17], nums2 = [8, 11, 16, 19], t // 2 + 1 = 6 steps</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Compare</th><th>Take from</th><th>prev</th><th>cur</th><th>i, j after</th></tr>
+  <tr><td>1</td><td>2 vs 8</td><td class="rule">nums1</td><td>0</td><td>2</td><td>1, 0</td></tr>
+  <tr><td>2</td><td>4 vs 8</td><td class="rule">nums1</td><td>2</td><td>4</td><td>2, 0</td></tr>
+  <tr><td>3</td><td>7 vs 8</td><td class="rule">nums1</td><td>4</td><td>7</td><td>3, 0</td></tr>
+  <tr><td>4</td><td>10 vs 8</td><td class="rule">nums2</td><td>7</td><td>8</td><td>3, 1</td></tr>
+  <tr><td>5</td><td>10 vs 11</td><td class="rule">nums1</td><td>8</td><td>10</td><td>4, 1</td></tr>
+  <tr><td>6</td><td>14 vs 11</td><td class="rule">nums2</td><td>10</td><td>11</td><td>4, 2</td></tr>
+  <tr class="final"><td>Answer</td><td colspan="3">6 steps done; t = 10 is even &rarr; (prev + cur) / 2</td><td colspan="2">(10 + 11) / 2 = 10.5</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: binary search the cut in the smaller list</h2>
+<div class="idea">The 5 smallest values (the left half) are made of some front part of one list plus some front part of the other. If the left half takes <code>i</code> values from the smaller list <code>A</code>, it must take <code>j = 5 - i</code> from <code>B</code>. So only <code>i</code> is unknown. Guess <code>i</code> in the middle, look at the four values touching the two cuts, and they tell you to move left, move right, or stop.</div>
+<div class="viz" id="ps-viz"></div>
+<div class="mem"><h4>the four values touching the cuts (missing neighbours count as −∞ / +∞)</h4><div class="chips" id="ps-mem"></div></div>
+<div class="caption" id="ps-cap"></div>
+<div class="controls" data-player="ps"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="ps-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each guess halves the possible cuts in the smaller list — <code>O(log min(m, n))</code> time, <code>O(1)</code> memory. On a million values per list it takes about 20 guesses.</p>
+<div class="trace-title">Step-by-step trace — A = nums2 = [8, 11, 16, 19] (the smaller one), B = nums1 = [2, 4, 7, 10, 14, 17], half = (4 + 6 + 1) // 2 = 5</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Guess</th><th>lo..hi</th><th>i</th><th>j = 5 − i</th><th>a_left</th><th>a_right</th><th>b_left</th><th>b_right</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0..4</td><td>2</td><td>3</td><td>11</td><td>16</td><td>7</td><td>10</td><td class="rule">a_left 11 &gt; b_right 10 &rarr; too many from A &rarr; hi = 1</td></tr>
+  <tr><td>2</td><td>0..1</td><td>0</td><td>5</td><td>−∞</td><td>8</td><td>14</td><td>17</td><td class="rule">b_left 14 &gt; a_right 8 &rarr; too few from A &rarr; lo = 1</td></tr>
+  <tr class="final"><td>3</td><td>1..1</td><td>1</td><td>4</td><td>8</td><td>11</td><td>10</td><td>14</td><td>8 &le; 14 and 10 &le; 11 &rarr; valid; even: (max(8, 10) + min(11, 14)) / 2 = 10.5</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>two sorted lists</b> together with <b>"median"</b>, <b>"k-th smallest"</b>, or a required <b><code>O(log (m + n))</code></b>? Don't merge. Binary search how many values the left side takes from the smaller list; the other list's share is then fixed.
+<p><a href="04_partition_search_lesson.html">→ Partition Search: the pattern lesson, with variants to practise</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1400);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* One labelled row of boxes.
+   o.cls  : {index: class}      o.ptr : {index: label above the box}
+   o.cut  : position 0..len where a red cut line is drawn (null = none) */
+function row(label, arr, o){
+  o=o||{}; var cls=o.cls||{}, ptr=o.ptr||{};
+  var h='<div class="rowlabel">'+label+'</div><div class="row">';
+  for(var k=0;k<=arr.length;k++){
+    if(o.cut===k) h+='<div class="cut" title="cut"></div>';
+    if(k===arr.length) break;
+    h+='<div class="cell"><div class="ptr">'+(ptr[k]||'')+'</div><div class="box '+(cls[k]||'')+'">'+arr[k]+'</div><div class="idxlabel">'+k+'</div></div>';
+  }
+  return h+'</div>';
+}
+function range(a,b){ var r=[]; for(var k=a;k<b;k++) r.push(k); return r; }
+function mark(idxs, c, base){ base=base||{}; idxs.forEach(function(k){ base[k]=c; }); return base; }
+
+var N1=[2,4,7,10,14,17], N2=[8,11,16,19];
+var MERGED=[2,4,7,8,10,11,14,16,17,19];
+
+/* Problem demo */
+makePlayer('pd',[
+  {cap:'Two sorted lists: 6 values and 4 values, 10 in total.', h: row('nums1',N1)+row('nums2',N2)},
+  {cap:'If we merged them, the line would be this. 10 values: the left half is the 5 smallest.', h: row('nums1',N1)+row('nums2',N2)+row('merged (imagined)',MERGED,{cut:5,cls:mark(range(0,5),'seen')})},
+  {cap:'Even count, so the median is the average of the two values next to the cut: (10 + 11) / 2 = <b>10.5</b>.', h: row('merged (imagined)',MERGED,{cut:5,cls:mark([4,5],'good',mark(range(0,4),'seen'))})},
+  {cap:'Key observation: the left half is <b>4 values from nums1</b> plus <b>1 value from nums2</b>. One cut per list describes it. Finding those cuts is the whole problem.', h: row('nums1',N1,{cut:4,cls:mark(range(0,4),'seen')})+row('nums2',N2,{cut:1,cls:mark([0],'seen')})}
+],function(f){ document.getElementById('pd-viz').innerHTML=f.h; document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Solution 1: merge (values traced from find_median_merge in the notebook). */
+var MG=[[0,0,null,null],[1,0,'nums1',2],[2,0,'nums1',4],[3,0,'nums1',7],[3,1,'nums2',8],[4,1,'nums1',10],[4,2,'nums2',11],[5,2,'nums1',14],[5,3,'nums2',16],[6,3,'nums1',17]];
+var mgFrames=[];
+MG.forEach(function(s,k){
+  var i=s[0], j=s[1], taken=MERGED.slice(0,k);
+  var cap = k===0 ? 'Fingers on the front of both lists: i = 0, j = 0. merged is empty.'
+    : 'Step '+k+': compare and take the smaller &rarr; <b>'+s[3]+'</b> from '+s[2]+'. Now i = '+i+', j = '+j+'.';
+  mgFrames.push({cap:cap, i:i, j:j, m:taken, hl:k>0?[k-1]:[]});
+});
+mgFrames.push({cap:'nums1 is used up (i = 6). Copy the rest of nums2: <b>[19]</b>. merged is complete.', i:6, j:4, m:MERGED, hl:[9]});
+mgFrames.push({cap:'t = 10 is even, mid = 5: (merged[4] + merged[5]) / 2 = (10 + 11) / 2 = <b>10.5</b>.', i:6, j:4, m:MERGED, hl:[], ans:true});
+makePlayer('mg',mgFrames,function(f){
+  var p1={}, p2={}; if(f.i<N1.length) p1[f.i]='i'; if(f.j<N2.length) p2[f.j]='j';
+  var c1=mark(range(0,f.i),'dim'), c2=mark(range(0,f.j),'dim');
+  if(!f.ans){ if(f.i<N1.length) c1[f.i]='hi'; if(f.j<N2.length) c2[f.j]='hi'; }
+  var mc=f.ans?mark([4,5],'good'):mark(f.hl,'seen');
+  var h=row('nums1',N1,{cls:c1,ptr:p1})+row('nums2',N2,{cls:c2,ptr:p2});
+  h+= f.m.length? row('merged',f.m,{cls:mc}) : '<div class="rowlabel">merged</div><div class="empty" style="text-align:center">(empty)</div>';
+  document.getElementById('mg-viz').innerHTML=h; document.getElementById('mg-cap').innerHTML=f.cap;
+});
+
+/* Solution 2: two pointers to the middle (values traced from find_median_two_pointer). */
+var TP=[[0,0,0,0,null],[1,0,0,2,'nums1'],[2,0,2,4,'nums1'],[3,0,4,7,'nums1'],[3,1,7,8,'nums2'],[4,1,8,10,'nums1'],[4,2,10,11,'nums2']];
+var tpFrames=TP.map(function(s,k){
+  return {i:s[0], j:s[1], prev:s[2], cur:s[3],
+    cap: k===0 ? 't = 10, so walk t // 2 + 1 = 6 steps. prev = cur = 0 to start.'
+       : 'Step '+k+' of 6: prev = '+s[2]+', take <b>'+s[3]+'</b> from '+s[4]+' as cur. i = '+s[0]+', j = '+s[1]+'.'};
+});
+tpFrames.push({i:4,j:2,prev:10,cur:11,ans:true,cap:'6 steps done; stop here, the rest is never read. Even total: (prev + cur) / 2 = (10 + 11) / 2 = <b>10.5</b>.'});
+makePlayer('tp',tpFrames,function(f){
+  var p1={}, p2={}; if(f.i<N1.length) p1[f.i]='i'; if(f.j<N2.length) p2[f.j]='j';
+  var c1=mark(range(0,f.i),'seen'), c2=mark(range(0,f.j),'seen');
+  document.getElementById('tp-viz').innerHTML=row('nums1',N1,{cls:c1,ptr:p1})+row('nums2',N2,{cls:c2,ptr:p2});
+  chips('tp-mem',[{text:'prev = '+f.prev,cls:f.ans?'look':''},{text:'cur = '+f.cur,cls:f.ans?'look':'cmp'}]);
+  document.getElementById('tp-cap').innerHTML=f.cap;
+});
+
+/* Solution 3: partition search (values traced from find_median_partition). A = smaller list. */
+var A=[8,11,16,19], B=[2,4,7,10,14,17];
+function four(al,ar,bl,br,bad){ // bad: which pair fails ('a' = a_left>b_right, 'b' = b_left>a_right)
+  return [{text:'a_left = '+al,cls:bad==='a'?'warn':'cmp'},{text:'a_right = '+ar,cls:bad==='b'?'warn':'cmp'},
+          {text:'b_left = '+bl,cls:bad==='b'?'warn':'cmp'},{text:'b_right = '+br,cls:bad==='a'?'warn':'cmp'}];
+}
+var psFrames=[
+  {cap:'nums1 has 6 values, nums2 has 4. Swap so <b>A = [8, 11, 16, 19]</b> is the smaller one. half = (4 + 6 + 1) // 2 = 5. The cut i in A can be 0..4: lo = 0, hi = 4.', i:null, j:null, mem:[]},
+  {cap:'Guess 1: i = (0 + 4) // 2 = <b>2</b>, so j = 5 − 2 = <b>3</b>. But a_left 11 &gt; b_right 10: a big A value sits on the left. Too many from A &rarr; <b>hi = 1</b>.', i:2, j:3, mem:four(11,16,7,10,'a')},
+  {cap:'Guess 2: i = (0 + 1) // 2 = <b>0</b>, j = <b>5</b>. A has nothing on the left, so a_left = −∞. Now b_left 14 &gt; a_right 8: too few from A &rarr; <b>lo = 1</b>.', i:0, j:5, mem:four('−∞',8,14,17,'b')},
+  {cap:'Guess 3: i = <b>1</b>, j = <b>4</b>. 8 &le; 14 and 10 &le; 11: every left value &le; every right value. Valid cut!', i:1, j:4, mem:four(8,11,10,14,null)},
+  {cap:'Total 10 is even: (max(8, 10) + min(11, 14)) / 2 = (10 + 11) / 2 = <b>10.5</b>. Three guesses; the lists were never merged.', i:1, j:4, mem:[{text:'max(left) = 10',cls:'look'},{text:'min(right) = 11',cls:'look'}], ans:true}
+];
+makePlayer('ps',psFrames,function(f){
+  var h;
+  if(f.i===null){ h=row('A (smaller)',A)+row('B',B); }
+  else{
+    var ca=mark(range(0,f.i),'seen'), cb=mark(range(0,f.j),'seen');
+    var hl=f.ans?'good':'hi';
+    if(f.ans){ cb[f.j-1]='good'; ca[f.i]='good'; }   // max(left) = B[j-1] = 10, min(right) = A[i] = 11
+    else{ if(f.i>0) ca[f.i-1]=hl; if(f.i<A.length) ca[f.i]=hl; if(f.j>0) cb[f.j-1]=hl; if(f.j<B.length) cb[f.j]=hl; }
+    h=row('A (smaller), cut i = '+f.i,A,{cut:f.i,cls:ca})+row('B, cut j = '+f.j,B,{cut:f.j,cls:cb});
+  }
+  document.getElementById('ps-viz').innerHTML=h;
+  chips('ps-mem',f.mem); document.getElementById('ps-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

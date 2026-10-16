@@ -474,9 +474,9 @@
     }
 
     /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
-    .diagram-row > * { min-width: 0; }
+    .diagram-row > *, .interactive-grid > *, .details-grid > * { min-width: 0; }
     .mini-diagram .code-block { overflow-x: auto; }
-    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+    p code, li code, summary code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
 
     @media (max-width: 960px) {
       .hero-grid,

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combination Sum II — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .chip.cur{background:var(--hi);border-color:var(--hi-bd)}
+  .chips.mono .chip,.chip{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tedge{stroke:var(--border);stroke-width:2}
+  .tedge.live{stroke:var(--accent);stroke-width:3}
+  .elab{fill:var(--muted);font-size:11px;font-weight:600}
+  .tn rect{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tn text{fill:var(--fg);font-size:13px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tn.seen rect{fill:var(--seen);stroke:var(--seen-bd)}
+  .tn.good rect{fill:var(--good);stroke:var(--good-bd)}
+  .tn.bad rect{fill:var(--bad);stroke:var(--bad-bd)}
+  .tn.dead{opacity:.5}
+  .tn.cur rect{fill:var(--hi);stroke:var(--hi-bd);stroke-width:3}
+  .tn.good.cur rect{fill:var(--good);stroke:var(--hi-bd);stroke-width:3}
+  .tn.bad.cur rect{fill:var(--bad);stroke:var(--hi-bd);stroke-width:3}
+  .tn.dead.cur{opacity:1}
+  .box{width:46px;height:46px;font-size:17px}
+  @media (max-width:520px){ .counter{margin-left:0;width:100%} }
+
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_combinations_lesson.html">&larr; Combinations lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Backtracking · Combinations</span></div>
+<h1>40 · Combination Sum II</h1>
+<p class="lead">Each number once, duplicates in the input, no duplicate answers.</p>
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Now each number is a single card: you may use a card at most once. Some cards show the same number. List every different combination of cards that adds up to the target, without listing the same combination twice.</p>
+<div class="idea">Example: <code>[10, 1, 2, 7, 6, 1, 5]</code>, target <code>8</code> &rarr; <code>[[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]</code>.</div>
+<div class="viz" id="pd-box"></div>
+<div class="badges" id="pd-b"></div>
+<div class="mem"><h4>combinations</h4><div class="chips" id="pd-m0"></div></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The three solutions below are traced on the small input <code>[2, 1, 2]</code>, target <code>3</code> &rarr; <code>[[1, 2]]</code>: the two 2s are exactly the duplicate trap. Sorted, it is <code>[1, 2, 2]</code>.</p>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>visited call</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned / duplicate</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.5"></span>dead end / skipped</span></div>
+<p class="speed">In each tree, the number in a box is the amount <b>still left</b>; the edge label is the choice made.</p>
+</div>
+<div class="card"><h2>Solution 1 — Brute force: every subset, then a set removes repeats</h2>
+<div class="idea">Sort, then say yes or no to every card. Whenever the sum hits the target, put the combination (as a tuple) into a set. [1, 2] is built twice (once with each 2); the set keeps one copy, but both were built.</div>
+<div class="rowlabel">sorted candidates</div><div class="viz" id="br-box"></div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>visited call</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned / duplicate</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.5"></span>dead end / skipped</span></div>
+<div class="viz" id="br-viz"></div>
+<div class="badges" id="br-b"></div>
+<div class="mem"><h4>found so far</h4><div class="chips" id="br-m0"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> up to <code>2^n</code> subsets, each copied in <code>O(n)</code>: <code>O(2^n &middot; n)</code> time, <code>O(n)</code> depth plus the set. Here: <b>13 calls</b>.</p>
+<div class="trace-title">Step-by-step trace — candidates = [2, 1, 2] (sorted [1, 2, 2]), target = 3</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Call (i, remaining)</th><th>path</th><th>Decision</th><th>Set after</th></tr>
+  <tr><td>1</td><td>(0, 3)</td><td>[]</td><td>include 1, then exclude</td><td class="rule">&ndash;</td></tr>
+  <tr><td>2</td><td>(1, 2)</td><td>[1]</td><td>include 2, then exclude</td><td class="rule">&ndash;</td></tr>
+  <tr><td>3</td><td>(2, 0)</td><td>[1, 2]</td><td>new &rarr; add to set</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>4</td><td>(2, 2)</td><td>[1]</td><td>include 2, then exclude</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>5</td><td>(3, 0)</td><td>[1, 2]</td><td>already in set &rarr; wasted</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>6</td><td>(3, 2)</td><td>[1]</td><td>end of list &rarr; return</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>7</td><td>(1, 3)</td><td>[]</td><td>include 2, then exclude</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>8</td><td>(2, 1)</td><td>[2]</td><td>include 2, then exclude</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>9</td><td>(3, -1)</td><td>[2, 2]</td><td>overshot &rarr; return</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>10</td><td>(3, 1)</td><td>[2]</td><td>end of list &rarr; return</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>11</td><td>(2, 3)</td><td>[]</td><td>include 2, then exclude</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>12</td><td>(3, 1)</td><td>[2]</td><td>end of list &rarr; return</td><td class="rule">[1, 2]</td></tr>
+  <tr class="final"><td>13</td><td>(3, 3)</td><td>[]</td><td>end of list &rarr; return; done &rarr; answer [1, 2]</td><td>[1, 2]</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>Solution 2 — Include or exclude, but exclude a whole run of equal values</h2>
+<div class="idea">Same yes/no tree, with one fix. When you say <b>no</b> to a value, also say no to every copy of it right after (jump past the run). Saying no to the first 2 and then yes to the second 2 would only rebuild what the yes-branch already built.</div>
+<div class="rowlabel">sorted candidates</div><div class="viz" id="ie-box"></div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>visited call</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned / duplicate</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.5"></span>dead end / skipped</span></div>
+<div class="viz" id="ie-viz"></div>
+<div class="badges" id="ie-b"></div>
+<div class="mem"><h4>found so far</h4><div class="chips" id="ie-m0"></div></div>
+<div class="caption" id="ie-cap"></div>
+<div class="controls" data-player="ie"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="ie-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>O(2^n &middot; n)</code> worst case (all values different), <code>O(n)</code> depth; a run of <code>k</code> equal values now costs <code>k + 1</code> choices instead of <code>2^k</code>. Here: <b>8 calls</b>, no duplicate built.</p>
+<div class="trace-title">Step-by-step trace — sorted candidates = [1, 2, 2], target = 3</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Call (i, remaining)</th><th>path</th><th>Decision</th><th>Found after</th></tr>
+  <tr><td>1</td><td>(0, 3)</td><td>[]</td><td>include 1; exclude &rarr; go to i=1</td><td class="rule">&ndash;</td></tr>
+  <tr><td>2</td><td>(1, 2)</td><td>[1]</td><td>include 2; exclude &rarr; jump to i=3, past every copy of 2</td><td class="rule">&ndash;</td></tr>
+  <tr><td>3</td><td>(2, 0)</td><td>[1, 2]</td><td>remaining 0 &rarr; save</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>4</td><td>(3, 2)</td><td>[1]</td><td>end of list &rarr; return</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>5</td><td>(1, 3)</td><td>[]</td><td>include 2; exclude &rarr; jump to i=3, past every copy of 2</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>6</td><td>(2, 1)</td><td>[2]</td><td>2 &gt; 1 &rarr; exclude: go to i=3</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>7</td><td>(3, 1)</td><td>[2]</td><td>end of list &rarr; return</td><td class="rule">[1, 2]</td></tr>
+  <tr class="final"><td>8</td><td>(3, 3)</td><td>[]</td><td>end of list &rarr; return; done &rarr; answer [1, 2]</td><td>[1, 2]</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>Solution 3 — The smart way: start-index loop, skip sibling duplicates, recurse with i + 1</h2>
+<div class="idea">The Combination Sum loop with two changes. Recurse with <code>i + 1</code>, so each card is used once. And inside one call's loop, skip a value equal to the previous one (<code>i &gt; start and c[i] == c[i-1]</code>): as the <b>first</b> number of the rest of the path, the second 2 would grow exactly the same subtree as the first 2.</div>
+<div class="rowlabel">sorted candidates</div><div class="viz" id="si-box"></div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>visited call</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned / duplicate</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.5"></span>dead end / skipped</span></div>
+<div class="viz" id="si-viz"></div>
+<div class="badges" id="si-b"></div>
+<div class="mem"><h4>found so far</h4><div class="chips" id="si-m0"></div></div>
+<div class="caption" id="si-cap"></div>
+<div class="controls" data-player="si"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="si-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>O(2^n &middot; n)</code> worst case, <code>O(n)</code> depth; never builds a duplicate, and on inputs with many repeats it is polynomial where the brute force is exponential (see the notebook's benchmark). Here: <b>4 calls</b>.</p>
+<div class="trace-title">Step-by-step trace — sorted candidates = [1, 2, 2], target = 3</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Call (start, remain)</th><th>path</th><th>i &rarr; candidate</th><th>Decision</th><th>Found after</th></tr>
+  <tr><td>1</td><td>(0, 3)</td><td>[]</td><td>&ndash;</td><td>loop i = 0..</td><td class="rule">&ndash;</td></tr>
+  <tr><td>2</td><td>(1, 2)</td><td>[1]</td><td>&ndash;</td><td>loop i = 1..</td><td class="rule">&ndash;</td></tr>
+  <tr><td>3</td><td>(2, 0)</td><td>[1, 2]</td><td>&ndash;</td><td>remain 0 &rarr; save</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>4</td><td>(1, 2)</td><td>[1]</td><td>2 &rarr; 2</td><td>same as previous sibling &rarr; continue</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>5</td><td>(2, 1)</td><td>[2]</td><td>&ndash;</td><td>loop i = 2..</td><td class="rule">[1, 2]</td></tr>
+  <tr><td>6</td><td>(2, 1)</td><td>[2]</td><td>2 &rarr; 2</td><td>2 &gt; 1 &rarr; break</td><td class="rule">[1, 2]</td></tr>
+  <tr class="final"><td>7</td><td>(0, 3)</td><td>[]</td><td>2 &rarr; 2</td><td>same as previous sibling &rarr; continue; loops done &rarr; answer [1, 2]</td><td>[1, 2]</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>When you'd use this</h2>
+See <b>"may contain duplicates"</b>, <b>"each number used once"</b> and <b>"no duplicate combinations"</b>? Sort, recurse with <code>i + 1</code>, and skip a value equal to its previous sibling.
+<p><a href="02_combinations_lesson.html">&rarr; Combinations: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1100);
+  });
+  draw();
+}
+function chips(targetId, items){
+  var el=document.getElementById(targetId); if(!el) return;
+  if(!items.length){ el.innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  el.innerHTML=h;
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function boxes(targetId, nums, marks, ptrs){
+  var el=document.getElementById(targetId); if(!el) return;
+  var h='<div class="row">';
+  for(var k=0;k<nums.length;k++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[k]||'')+'</div><div class="box '+(marks[k]||'')+'">'+nums[k]+'</div><div class="idxlabel">'+k+'</div></div>';
+  }
+  el.innerHTML=h+'</div>';
+}
+/* Recursion tree: T.nodes[i] = {p: parent, label, edge, x (leaf slot), y (depth), w (box width)}.
+   f.n = nodes created so far, f.m = css class per node, f.live = ids on the current root-to-node path. */
+function drawTree(id, T, f){
+  var GY=60, H=T.rows*GY, W=T.cols*T.slot+8, live={};
+  (f.live||[]).forEach(function(k){ live[k]=1; });
+  function X(i){ return 4+(T.nodes[i].x+0.5)*T.slot; } function Y(i){ return 18+T.nodes[i].y*GY; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="recursion tree">';
+  for(var i=1;i<f.n;i++){
+    var p=T.nodes[i].p, on=(live[i]&&live[p]);
+    s+='<line class="tedge'+(on?' live':'')+'" x1="'+X(p)+'" y1="'+(Y(p)+13)+'" x2="'+X(i)+'" y2="'+(Y(i)-13)+'"/>';
+    if(T.nodes[i].edge){
+      var mx=X(p)+(X(i)-X(p))*0.62, my=Y(p)+(Y(i)-Y(p))*0.62+4, dx=X(i)<X(p)?-4:(X(i)>X(p)?4:6);
+      s+='<text class="elab" x="'+(mx+dx)+'" y="'+my+'" text-anchor="'+(X(i)<X(p)?'end':'start')+'">'+T.nodes[i].edge+'</text>';
+    }
+  }
+  for(var i=0;i<f.n;i++){
+    var nd=T.nodes[i];
+    s+='<g class="tn '+(f.m[i]||'')+'"><rect x="'+(X(i)-nd.w/2)+'" y="'+(Y(i)-13)+'" width="'+nd.w+'" height="26" rx="8"/><text x="'+X(i)+'" y="'+(Y(i)+5)+'" text-anchor="middle">'+nd.label+'</text></g>';
+  }
+  var host=document.getElementById(id); host.innerHTML=s+'</svg></div>';
+  var cur=-1; for(var k in f.m){ if((' '+f.m[k]+' ').indexOf(' cur ')>=0) cur=+k; }
+  if(cur>=0 && host.scrollWidth>host.clientWidth) host.scrollLeft=Math.max(0,X(cur)-host.clientWidth/2);
+}
+
+var BR_T={"nodes": [{"p": null, "label": "3", "edge": "", "x": 2.625, "y": 0, "w": 30}, {"p": 0, "label": "2", "edge": "+1", "x": 0.75, "y": 1, "w": 30}, {"p": 1, "label": "0", "edge": "+2", "x": 0, "y": 2, "w": 30}, {"p": 1, "label": "2", "edge": "skip 2", "x": 1.5, "y": 2, "w": 30}, {"p": 3, "label": "0", "edge": "+2", "x": 1, "y": 3, "w": 30}, {"p": 3, "label": "2", "edge": "skip 2", "x": 2, "y": 3, "w": 30}, {"p": 0, "label": "3", "edge": "skip 1", "x": 4.5, "y": 1, "w": 30}, {"p": 6, "label": "1", "edge": "+2", "x": 3.5, "y": 2, "w": 30}, {"p": 7, "label": "-1", "edge": "+2", "x": 3, "y": 3, "w": 30}, {"p": 7, "label": "1", "edge": "skip 2", "x": 4, "y": 3, "w": 30}, {"p": 6, "label": "3", "edge": "skip 2", "x": 5.5, "y": 2, "w": 30}, {"p": 10, "label": "1", "edge": "+2", "x": 5, "y": 3, "w": 30}, {"p": 10, "label": "3", "edge": "skip 2", "x": 6, "y": 3, "w": 30}], "slot": 64, "cols": 7, "rows": 4}, IE_T={"nodes": [{"p": null, "label": "3", "edge": "", "x": 1.5, "y": 0, "w": 30}, {"p": 0, "label": "2", "edge": "+1", "x": 0.5, "y": 1, "w": 30}, {"p": 1, "label": "0", "edge": "+2", "x": 0, "y": 2, "w": 30}, {"p": 1, "label": "2", "edge": "skip 2", "x": 1, "y": 2, "w": 30}, {"p": 0, "label": "3", "edge": "skip 1", "x": 2.5, "y": 1, "w": 30}, {"p": 4, "label": "1", "edge": "+2", "x": 2.0, "y": 2, "w": 30}, {"p": 5, "label": "1", "edge": "skip 2", "x": 2, "y": 3, "w": 30}, {"p": 4, "label": "3", "edge": "skip 2", "x": 3, "y": 2, "w": 30}], "slot": 64, "cols": 4, "rows": 4}, SI_T={"nodes": [{"p": null, "label": "3", "edge": "", "x": 1.75, "y": 0, "w": 30}, {"p": 0, "label": "2", "edge": "+1", "x": 0.5, "y": 1, "w": 30}, {"p": 1, "label": "0", "edge": "+2", "x": 0, "y": 2, "w": 30}, {"p": 1, "label": "skip", "edge": "+2", "x": 1, "y": 2, "w": 46}, {"p": 0, "label": "1", "edge": "+2", "x": 2.0, "y": 1, "w": 30}, {"p": 4, "label": "stop", "edge": "+2", "x": 2, "y": 2, "w": 46}, {"p": 0, "label": "skip", "edge": "+2", "x": 3, "y": 1, "w": 46}], "slot": 58, "cols": 4, "rows": 3};
+makePlayer('pd', [{"cap": "Candidates 10, 1, 2, 7, 6, 1, 5 and target 8. Each card can be used <b>once</b>. There are two cards showing 1.", "b": [{"label": "pick", "val": "&ndash;"}, {"label": "sum", "val": 0}], "mem": [[]], "bm": {}}, {"cap": "The first 1 plus 7 makes 8: <b>[1, 7]</b>.", "b": [{"label": "pick", "val": "1 + 7"}, {"label": "sum", "val": 8, "cls": "good"}], "mem": [[{"text": "[1, 7]", "cls": "look"}]], "bm": {"1": "good", "3": "good"}}, {"cap": "The <b>second</b> 1 plus 7 also makes 8, but it is the same combination [1, 7]. It must not be listed twice.", "b": [{"label": "pick", "val": "1 + 7"}, {"label": "sum", "val": 8, "cls": "bad"}], "mem": [[{"text": "[1, 7]", "cls": "look"}]], "bm": {"5": "bad", "3": "bad"}}, {"cap": "Using both 1s is fine: they are two different cards. 1 + 1 + 6 = 8.", "b": [{"label": "pick", "val": "1 + 1 + 6"}, {"label": "sum", "val": 8, "cls": "good"}], "mem": [[{"text": "[1, 7]", "cls": "look"}, {"text": "[1, 1, 6]", "cls": "look"}]], "bm": {"1": "good", "5": "good", "4": "good"}}, {"cap": "All of them: <b>[[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]</b>.", "b": [{"label": "answers", "val": 4, "cls": "good"}], "mem": [[{"text": "[1, 1, 6]", "cls": "look"}, {"text": "[1, 2, 5]", "cls": "look"}, {"text": "[1, 7]", "cls": "look"}, {"text": "[2, 6]", "cls": "look"}]], "bm": {}}], function(f){
+  boxes('pd-box', [10, 1, 2, 7, 6, 1, 5], f.bm||{}, f.bp||{});
+  badges('pd-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('pd-m'+k, items); });
+  document.getElementById('pd-cap').innerHTML=f.cap;
+});
+makePlayer('br', [{"cap": "Step 1. backtrack(i=0, remaining=3): include 1 (go to i=1), then exclude it (go to i=1). No check first.", "n": 1, "m": {"0": "seen cur"}, "live": [0], "b": [{"label": "i", "val": 0}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[]], "bp": {"0": "i"}, "bm": {"0": "hi"}}, {"cap": "Step 2. backtrack(i=1, remaining=2): include 2 (go to i=2), then exclude it (go to i=2). No check first.", "n": 2, "m": {"0": "seen", "1": "seen cur"}, "live": [0, 1], "b": [{"label": "i", "val": 1}, {"label": "remaining", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[]], "bp": {"1": "i"}, "bm": {"1": "hi"}}, {"cap": "Step 3. remaining = 0: add <b>[1, 2]</b> to the set. It is new.", "n": 3, "m": {"0": "seen", "1": "seen", "2": "good cur"}, "live": [0, 1, 2], "b": [{"label": "i", "val": 2}, {"label": "remaining", "val": 0, "cls": "good"}, {"label": "path", "val": "[1, 2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "i"}, "bm": {"2": "hi"}}, {"cap": "Step 4. backtrack(i=2, remaining=2): include 2 (go to i=3), then exclude it (go to i=3). No check first.", "n": 4, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen cur"}, "live": [0, 1, 3], "b": [{"label": "i", "val": 2}, {"label": "remaining", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "i"}, "bm": {"2": "hi"}}, {"cap": "Step 5. remaining = 0: <b>[1, 2]</b> again (built with the other 2). The set already has it: thrown away, but the work is done.", "n": 5, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad cur"}, "live": [0, 1, 3, 4], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 0, "cls": "good"}, {"label": "path", "val": "[1, 2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 6. i = 3: no candidates left and 2 still missing. Return.", "n": 6, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead cur"}, "live": [0, 1, 3, 5], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 7. backtrack(i=1, remaining=3): include 2 (go to i=2), then exclude it (go to i=2). No check first.", "n": 7, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen cur"}, "live": [0, 6], "b": [{"label": "i", "val": 1}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"1": "i"}, "bm": {"1": "hi"}}, {"cap": "Step 8. backtrack(i=2, remaining=1): include 2 (go to i=3), then exclude it (go to i=3). No check first.", "n": 8, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen", "7": "seen cur"}, "live": [0, 6, 7], "b": [{"label": "i", "val": 2}, {"label": "remaining", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "i"}, "bm": {"2": "hi"}}, {"cap": "Step 9. remaining = -1 &lt; 0: overshot. Return.", "n": 9, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen", "7": "seen", "8": "dead cur"}, "live": [0, 6, 7, 8], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": -1, "cls": "bad"}, {"label": "path", "val": "[2, 2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 10. i = 3: no candidates left and 1 still missing. Return.", "n": 10, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen", "7": "seen", "8": "dead", "9": "dead cur"}, "live": [0, 6, 7, 9], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 11. backtrack(i=2, remaining=3): include 2 (go to i=3), then exclude it (go to i=3). No check first.", "n": 11, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen", "7": "seen", "8": "dead", "9": "dead", "10": "seen cur"}, "live": [0, 6, 10], "b": [{"label": "i", "val": 2}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "i"}, "bm": {"2": "hi"}}, {"cap": "Step 12. i = 3: no candidates left and 1 still missing. Return.", "n": 12, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen", "7": "seen", "8": "dead", "9": "dead", "10": "seen", "11": "dead cur"}, "live": [0, 6, 10, 11], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 13. i = 3: no candidates left and 3 still missing. Return.", "n": 13, "m": {"0": "seen", "1": "seen", "2": "good", "3": "seen", "4": "bad", "5": "dead", "6": "seen", "7": "seen", "8": "dead", "9": "dead", "10": "seen", "11": "dead", "12": "dead cur"}, "live": [0, 6, 10, 12], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}], function(f){
+  drawTree('br-viz', BR_T, f);
+  boxes('br-box', [1, 2, 2], f.bm||{}, f.bp||{});
+  badges('br-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('br-m'+k, items); });
+  document.getElementById('br-cap').innerHTML=f.cap;
+});
+makePlayer('ie', [{"cap": "Step 1. backtrack(i=0, remaining=3): include 1 (go to i=1); then exclude it: go to i=1.", "n": 1, "m": {"0": "seen cur"}, "live": [0], "b": [{"label": "i", "val": 0}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[]], "bp": {"0": "i"}, "bm": {"0": "hi"}}, {"cap": "Step 2. backtrack(i=1, remaining=2): include 2 (go to i=2); then exclude it: jump to i=3, past every copy of 2.", "n": 2, "m": {"0": "seen", "1": "seen cur"}, "live": [0, 1], "b": [{"label": "i", "val": 1}, {"label": "remaining", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[]], "bp": {"1": "i"}, "bm": {"1": "hi"}}, {"cap": "Step 3. remaining = 0: save <b>[1, 2]</b>.", "n": 3, "m": {"0": "seen", "1": "seen", "2": "good cur"}, "live": [0, 1, 2], "b": [{"label": "i", "val": 2}, {"label": "remaining", "val": 0, "cls": "good"}, {"label": "path", "val": "[1, 2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "i"}, "bm": {"2": "hi"}}, {"cap": "Step 4. i = 3: past the end with 2 left. Dead end.", "n": 4, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead cur"}, "live": [0, 1, 3], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 5. backtrack(i=1, remaining=3): include 2 (go to i=2); then exclude it: jump to i=3, past every copy of 2.", "n": 5, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen cur"}, "live": [0, 4], "b": [{"label": "i", "val": 1}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"1": "i"}, "bm": {"1": "hi"}}, {"cap": "Step 6. backtrack(i=2, remaining=1): 2 does not fit. Exclude only: go to i=3.", "n": 6, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen", "5": "seen cur"}, "live": [0, 4, 5], "b": [{"label": "i", "val": 2}, {"label": "remaining", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "i"}, "bm": {"2": "hi"}}, {"cap": "Step 7. i = 3: past the end with 1 left. Dead end.", "n": 7, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen", "5": "seen", "6": "dead cur"}, "live": [0, 4, 5, 6], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}, {"cap": "Step 8. i = 3: past the end with 3 left. Dead end.", "n": 8, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen", "5": "seen", "6": "dead", "7": "dead cur"}, "live": [0, 4, 7], "b": [{"label": "i", "val": 3}, {"label": "remaining", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {}, "bm": {}}], function(f){
+  drawTree('ie-viz', IE_T, f);
+  boxes('ie-box', [1, 2, 2], f.bm||{}, f.bp||{});
+  badges('ie-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('ie-m'+k, items); });
+  document.getElementById('ie-cap').innerHTML=f.cap;
+});
+makePlayer('si', [{"cap": "Step 1. backtrack(start=0, remain=3), path []. Loop i from 0.", "n": 1, "m": {"0": "seen cur"}, "live": [0], "b": [{"label": "start", "val": 0}, {"label": "remain", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[]], "bp": {"0": "start"}, "bm": {}}, {"cap": "Step 2. backtrack(start=1, remain=2), path [1]. Loop i from 1.", "n": 2, "m": {"0": "seen", "1": "seen cur"}, "live": [0, 1], "b": [{"label": "start", "val": 1}, {"label": "remain", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[]], "bp": {"1": "start"}, "bm": {}}, {"cap": "Step 3. remain = 0: save <b>[1, 2]</b>.", "n": 3, "m": {"0": "seen", "1": "seen", "2": "good cur"}, "live": [0, 1, 2], "b": [{"label": "start", "val": 2}, {"label": "remain", "val": 0, "cls": "good"}, {"label": "path", "val": "[1, 2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "start"}, "bm": {}}, {"cap": "Step 4. i = 2: candidates[2] = 2 equals candidates[1] and i &gt; start, so it is a <b>sibling duplicate</b>: it would grow the same subtree. continue.", "n": 4, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead cur"}, "live": [0, 1, 3], "b": [{"label": "start", "val": 1}, {"label": "remain", "val": 2, "cls": ""}, {"label": "path", "val": "[1]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"1": "start", "2": "i"}, "bm": {"2": "bad"}}, {"cap": "Step 5. backtrack(start=2, remain=1), path [2]. Loop i from 2.", "n": 5, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen cur"}, "live": [0, 4], "b": [{"label": "start", "val": 2}, {"label": "remain", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "start"}, "bm": {}}, {"cap": "Step 6. candidates[2] = 2 &gt; remain 1: <b>break</b>.", "n": 6, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen", "5": "bad cur"}, "live": [0, 4, 5], "b": [{"label": "start", "val": 2}, {"label": "remain", "val": 1, "cls": ""}, {"label": "path", "val": "[2]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"2": "start, i"}, "bm": {"2": "bad"}}, {"cap": "Step 7. i = 2: candidates[2] = 2 equals candidates[1] and i &gt; start, so it is a <b>sibling duplicate</b>: it would grow the same subtree. continue.", "n": 7, "m": {"0": "seen", "1": "seen", "2": "good", "3": "dead", "4": "seen", "5": "bad", "6": "dead cur"}, "live": [0, 6], "b": [{"label": "start", "val": 0}, {"label": "remain", "val": 3, "cls": ""}, {"label": "path", "val": "[]"}], "mem": [[{"text": "[1, 2]", "cls": "look"}]], "bp": {"0": "start", "2": "i"}, "bm": {"2": "bad"}}], function(f){
+  drawTree('si-viz', SI_T, f);
+  boxes('si-box', [1, 2, 2], f.bm||{}, f.bp||{});
+  badges('si-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('si-m'+k, items); });
+  document.getElementById('si-cap').innerHTML=f.cap;
+});
+
+</script>
+</body></html>

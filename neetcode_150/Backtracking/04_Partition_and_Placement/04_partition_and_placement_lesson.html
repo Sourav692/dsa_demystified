@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partition and Placement — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Backtracking · Pattern 04 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Partition and Placement</h1>
+          <p>
+            Backtracking where each step decides where the next piece goes: where the next substring ends, or which column the next queen takes. Check one cheap rule before committing, recurse to the next position, then undo exactly what you did.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: prune a piece before recursing on it</span>
+            <span class="chip">Method 1: Palindrome Partitioning</span>
+            <span class="chip">Method 2: N-Queens with three sets</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="palindrome_partitioning.html">Palindrome Partitioning</a> · <a href="n_queens.html">N-Queens</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Palindrome Partitioning, <code>s = "aab"</code>. Each circle is a call; the number is <code>start</code>, the edge label is the piece cut.</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 270" width="100%" role="img" aria-label="Recursion tree of palindrome partitioning on aab">
+              <defs>
+                <style>
+                  .h-edge { stroke: #cad3e6; stroke-width: 3; stroke-linecap: round; }
+                  .h-elabel { font: 700 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-node { fill: #c8d2e7; stroke: #ffffff; stroke-width: 2; transition: fill 0.2s ease; }
+                  .h-node.done { fill: #315efb; }
+                  .h-node.frontier { fill: #13a46b; }
+                  .h-node.current { fill: #ff9f1c; }
+                  .h-node.recorded { fill: #315efb; stroke: #172033; stroke-width: 4; }
+                  .h-node.pruned { fill: #8a94a8; stroke: #172033; stroke-width: 2; stroke-dasharray: 4 3; }
+                  .h-label { font: 700 15px Inter, Arial, sans-serif; fill: #ffffff; pointer-events: none; }
+                </style>
+              </defs>
+              <line x1="260" y1="34" x2="120" y2="104" class="h-edge" />
+              <text x="182" y="65" text-anchor="end" class="h-elabel">"a"</text>
+              <line x1="260" y1="34" x2="300" y2="104" class="h-edge" />
+              <text x="288" y="65" text-anchor="start" class="h-elabel">"aa"</text>
+              <line x1="260" y1="34" x2="440" y2="104" class="h-edge" />
+              <text x="358" y="65" text-anchor="start" class="h-elabel">"aab"</text>
+              <line x1="120" y1="104" x2="70" y2="174" class="h-edge" />
+              <text x="87" y="135" text-anchor="end" class="h-elabel">"a"</text>
+              <line x1="120" y1="104" x2="180" y2="174" class="h-edge" />
+              <text x="158" y="135" text-anchor="start" class="h-elabel">"ab"</text>
+              <line x1="300" y1="104" x2="300" y2="174" class="h-edge" />
+              <text x="308" y="135" text-anchor="start" class="h-elabel">"b"</text>
+              <line x1="70" y1="174" x2="70" y2="244" class="h-edge" />
+              <text x="78" y="205" text-anchor="start" class="h-elabel">"b"</text>
+              <circle cx="260" cy="34" r="20" class="h-node done" data-node="" />
+              <text x="260" y="40" text-anchor="middle" class="h-label">0</text>
+              <circle cx="120" cy="104" r="20" class="h-node done" data-node="a" />
+              <text x="120" y="110" text-anchor="middle" class="h-label">1</text>
+              <circle cx="300" cy="104" r="20" class="h-node done" data-node="aa" />
+              <text x="300" y="110" text-anchor="middle" class="h-label">2</text>
+              <circle cx="440" cy="104" r="20" class="h-node pruned" data-node="aab" />
+              <text x="440" y="110" text-anchor="middle" class="h-label">x</text>
+              <circle cx="70" cy="174" r="20" class="h-node done" data-node="a|a" />
+              <text x="70" y="180" text-anchor="middle" class="h-label">2</text>
+              <circle cx="180" cy="174" r="20" class="h-node pruned" data-node="a|ab" />
+              <text x="180" y="180" text-anchor="middle" class="h-label">x</text>
+              <circle cx="300" cy="174" r="20" class="h-node recorded" data-node="aa|b" />
+              <text x="300" y="180" text-anchor="middle" class="h-label">3</text>
+              <circle cx="70" cy="244" r="20" class="h-node recorded" data-node="a|a|b" />
+              <text x="70" y="250" text-anchor="middle" class="h-label">3</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = [["a","a","b"], ["aa","b"]]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Splitting text into valid tokens</h3>
+          <p>Segmenting a string into dictionary words, IP address parts, or palindromes: every split point is a decision, and every token has a local validity test.</p>
+        </div>
+        <div class="card">
+          <h3>Placing items under constraints</h3>
+          <p>Scheduling, seating, Sudoku, puzzle boards: one slot at a time, each new item checked against the ones already placed.</p>
+        </div>
+        <div class="card">
+          <h3>One loop for both</h3>
+          <p>Palindrome Partitioning and N-Queens share the same choose, check, recurse, undo loop. Only the move, the check, and the state change.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the speed of these solutions comes almost entirely from <em>where</em> the check sits. Check before recursing and dead branches never grow; check at the end and you are back to the brute force.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is partition and placement backtracking?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>The recursion carries a <strong>position</strong>: the index where the next piece of the string starts, or the row that needs the next queen. From that position it tries every possible next move, skips the moves that break the rule, and recurses on the rest. When the position reaches the end, everything is placed and the arrangement is recorded.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Return <strong>all</strong> ways to partition / split a string so that every piece ...", or "place n items so that <strong>no two conflict</strong>, return every arrangement". The answer is a list of full arrangements, and a single new piece can be tested on its own.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> ask "what is the next position, and what are the moves from it?" For a string: position <code>start</code>, moves <code>s[start:end]</code>. For a board: position row <code>r</code>, moves column <code>c</code>. The rest is the same loop.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Name the position</h3>
+          <p><code>start</code> for a string, row <code>r</code> for a board. The goal is reached when it equals the length.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>List the moves</h3>
+          <p>Every end index <code>start+1 .. len(s)</code>, or every column <code>0 .. n-1</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Check before you choose</h3>
+          <p>Skip a piece that is not a palindrome, or a square whose column or diagonal is taken. Make the check O(1) if you can.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Choose, recurse, undo</h3>
+          <p>Apply the move, call the next position, then reverse every change the move made.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a decision tree</h2>
+      <p>The input is just a string (or just <code>n</code>). The structure the algorithm walks is never built in memory: it is the tree of recursive calls. Each call is a node, each move is an edge, and the shared <code>path</code> holds the edges from the root to the current node.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input</h3>
+          <div class="code-block"><code>s = "aab"      # 3 letters
+n = 4          # 4 x 4 board</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Implicit tree</h3>
+          <div class="code-block"><code>node  = backtrack(start)   / backtrack(r)
+edge  = piece s[start:end] / column c
+leaf  = start == len(s)    / r == n
+dead  = check fails: no recursion</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Root: <code>backtrack(0)</code></h4>
+          <p>Nothing placed yet. <code>path = []</code>, or all three sets empty.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Edge: a move that passes the check</h4>
+          <p><code>"a"</code> is a palindrome, so <code>path</code> becomes <code>["a"]</code> and the child call starts at index 1.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Dead edge: a move that fails</h4>
+          <p><code>"ab"</code> is not a palindrome. The child call is never made, so nothing below it is explored.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Leaf: the position reaches the end</h4>
+          <p><code>start == 3</code>: the pieces in <code>path</code> cover the string. Record a copy, return, and undo the last piece.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> there is only <em>one</em> <code>path</code> list (one board, one set of sets) shared by every call. That is why each choose must be undone on return, and why an answer must be recorded as a copy.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: choose the next palindromic piece (Palindrome Partitioning)</h2>
+      <p>The template on a string, taken line for line from the notebook's <code>partition_backtrack</code>. The position is <code>start</code>; the moves are the pieces <code>s[start:end]</code>; the check is "is the piece a palindrome?". Traced on <code>s = "aab"</code>.</p>
+      <div class="code-block stepped">
+        <code id="pp-code">
+<span class="code-line" data-line="1">def partition_backtrack(s: str) -&gt; List[List[str]]:</span>
+<span class="code-line" data-line="2">    out, path = [], []</span>
+<span class="code-line" data-line="3">    def backtrack(start):</span>
+<span class="code-line" data-line="4">        if start == len(s):                    # every character is in some piece</span>
+<span class="code-line" data-line="5">            out.append(path[:])                # record a COPY: path keeps changing</span>
+<span class="code-line" data-line="6">            return</span>
+<span class="code-line" data-line="7">        for end in range(start + 1, len(s) + 1):   # where does the next piece end?</span>
+<span class="code-line" data-line="8">            piece = s[start:end]</span>
+<span class="code-line" data-line="9">            if piece != piece[::-1]:           # PRUNE: not a palindrome</span>
+<span class="code-line" data-line="10">                continue</span>
+<span class="code-line" data-line="11">            path.append(piece)                 # CHOOSE</span>
+<span class="code-line" data-line="12">            backtrack(end)                     # EXPLORE: the next piece starts at end</span>
+<span class="code-line" data-line="13">            path.pop()                         # UN-CHOOSE</span>
+<span class="code-line" data-line="14">    backtrack(0)</span>
+<span class="code-line" data-line="15">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive recursion-tree trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="pp-graph" viewBox="0 0 520 270" width="100%" role="img" aria-label="Recursion tree trace for aab">
+              <defs>
+                <style>
+                  .pp-edge { stroke: #cad3e6; stroke-width: 3; stroke-linecap: round; }
+                  .pp-elabel { font: 700 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .pp-node { fill: #c8d2e7; stroke: #ffffff; stroke-width: 2; transition: fill 0.2s ease; }
+                  .pp-node.done { fill: #315efb; }
+                  .pp-node.frontier { fill: #13a46b; }
+                  .pp-node.current { fill: #ff9f1c; }
+                  .pp-node.recorded { fill: #315efb; stroke: #172033; stroke-width: 4; }
+                  .pp-node.pruned { fill: #8a94a8; stroke: #172033; stroke-width: 2; stroke-dasharray: 4 3; }
+                  .pp-label { font: 700 15px Inter, Arial, sans-serif; fill: #ffffff; pointer-events: none; }
+                </style>
+              </defs>
+              <line x1="260" y1="34" x2="120" y2="104" class="pp-edge" />
+              <text x="182" y="65" text-anchor="end" class="pp-elabel">"a"</text>
+              <line x1="260" y1="34" x2="300" y2="104" class="pp-edge" />
+              <text x="288" y="65" text-anchor="start" class="pp-elabel">"aa"</text>
+              <line x1="260" y1="34" x2="440" y2="104" class="pp-edge" />
+              <text x="358" y="65" text-anchor="start" class="pp-elabel">"aab"</text>
+              <line x1="120" y1="104" x2="70" y2="174" class="pp-edge" />
+              <text x="87" y="135" text-anchor="end" class="pp-elabel">"a"</text>
+              <line x1="120" y1="104" x2="180" y2="174" class="pp-edge" />
+              <text x="158" y="135" text-anchor="start" class="pp-elabel">"ab"</text>
+              <line x1="300" y1="104" x2="300" y2="174" class="pp-edge" />
+              <text x="308" y="135" text-anchor="start" class="pp-elabel">"b"</text>
+              <line x1="70" y1="174" x2="70" y2="244" class="pp-edge" />
+              <text x="78" y="205" text-anchor="start" class="pp-elabel">"b"</text>
+              <circle cx="260" cy="34" r="20" class="pp-node" data-node="" />
+              <text x="260" y="40" text-anchor="middle" class="pp-label">0</text>
+              <circle cx="120" cy="104" r="20" class="pp-node" data-node="a" />
+              <text x="120" y="110" text-anchor="middle" class="pp-label">1</text>
+              <circle cx="300" cy="104" r="20" class="pp-node" data-node="aa" />
+              <text x="300" y="110" text-anchor="middle" class="pp-label">2</text>
+              <circle cx="440" cy="104" r="20" class="pp-node" data-node="aab" />
+              <text x="440" y="110" text-anchor="middle" class="pp-label">x</text>
+              <circle cx="70" cy="174" r="20" class="pp-node" data-node="a|a" />
+              <text x="70" y="180" text-anchor="middle" class="pp-label">2</text>
+              <circle cx="180" cy="174" r="20" class="pp-node" data-node="a|ab" />
+              <text x="180" y="180" text-anchor="middle" class="pp-label">x</text>
+              <circle cx="300" cy="174" r="20" class="pp-node" data-node="aa|b" />
+              <text x="300" y="180" text-anchor="middle" class="pp-label">3</text>
+              <circle cx="70" cy="244" r="20" class="pp-node" data-node="a|a|b" />
+              <text x="70" y="250" text-anchor="middle" class="pp-label">3</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> just tried / undone</span>
+            <span><i class="dot dot-green"></i> on the current path</span>
+            <span><i class="dot dot-blue"></i> finished (dark ring = answer recorded)</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dark gray dashed circle with x = pruned</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="pp-step-title">Initial state</h3>
+          <p id="pp-step-text"></p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="pp-prev">Previous</button>
+            <button type="button" id="pp-play" class="primary">Resume</button>
+            <button type="button" id="pp-next">Next</button>
+            <button type="button" id="pp-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="pp-step-counter">Step 0 / 15</span>
+            <div class="progress"><span id="pp-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>start</strong><div class="state-value" id="pp-start">0</div></div>
+            <div class="state-box"><strong>piece</strong><div class="state-value" id="pp-piece">—</div></div>
+            <div class="state-box"><strong>action</strong><div class="state-value" id="pp-action">—</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="pp-path">[]</div></div>
+            <div class="state-box"><strong>out</strong><div class="state-value" id="pp-out">[]</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="pp-trace-table">
+          <thead>
+            <tr><th>Step</th><th>start</th><th>piece</th><th>Action</th><th>path after</th><th>out after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>—</td><td>Call <code>backtrack(0)</code></td><td><code>[]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td><code>&quot;a&quot;</code></td><td>palindrome &rarr; choose, recurse</td><td><code>[&quot;a&quot;]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td><code>&quot;a&quot;</code></td><td>palindrome &rarr; choose, recurse</td><td><code>[&quot;a&quot;, &quot;a&quot;]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td><code>&quot;b&quot;</code></td><td>palindrome &rarr; choose, recurse</td><td><code>[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]</code></td><td><code>[]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>—</td><td><code>start == len(s)</code> &rarr; record copy</td><td><code>[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>2</td><td><code>&quot;b&quot;</code></td><td>un-choose</td><td><code>[&quot;a&quot;, &quot;a&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="6"><td>6</td><td>1</td><td><code>&quot;a&quot;</code></td><td>un-choose</td><td><code>[&quot;a&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="7"><td>7</td><td>1</td><td><code>&quot;ab&quot;</code></td><td>not a palindrome &rarr; prune</td><td><code>[&quot;a&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="8"><td>8</td><td>0</td><td><code>&quot;a&quot;</code></td><td>un-choose</td><td><code>[]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="9"><td>9</td><td>0</td><td><code>&quot;aa&quot;</code></td><td>palindrome &rarr; choose, recurse</td><td><code>[&quot;aa&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="10"><td>10</td><td>2</td><td><code>&quot;b&quot;</code></td><td>palindrome &rarr; choose, recurse</td><td><code>[&quot;aa&quot;, &quot;b&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="11"><td>11</td><td>3</td><td>—</td><td><code>start == len(s)</code> &rarr; record copy</td><td><code>[&quot;aa&quot;, &quot;b&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;], [&quot;aa&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="12"><td>12</td><td>2</td><td><code>&quot;b&quot;</code></td><td>un-choose</td><td><code>[&quot;aa&quot;]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;], [&quot;aa&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="13"><td>13</td><td>0</td><td><code>&quot;aa&quot;</code></td><td>un-choose</td><td><code>[]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;], [&quot;aa&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="14"><td>14</td><td>0</td><td><code>&quot;aab&quot;</code></td><td>not a palindrome &rarr; prune</td><td><code>[]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;], [&quot;aa&quot;, &quot;b&quot;]]</code></td></tr>
+            <tr data-step="15"><td>15</td><td>0</td><td>—</td><td>loops exhausted &rarr; return</td><td><code>[]</code></td><td><code>[[&quot;a&quot;, &quot;a&quot;, &quot;b&quot;], [&quot;aa&quot;, &quot;b&quot;]]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p><code>path</code> is a stack of pieces that mirrors the recursion: every <code>append</code> is a step down the tree, every <code>pop</code> a step back up. At step 7 the stack is <code>["a"]</code> again, so trying <code>"ab"</code> starts from a clean state.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p><code>out.append(path)</code> without the copy. At step 15 <code>path</code> is <code>[]</code>, so both recorded answers would print as empty lists.</p>
+        </div>
+        <div class="card">
+          <h4>Why prune first</h4>
+          <p><code>"ab"</code> and <code>"aab"</code> are rejected without a recursive call. On a palindrome-poor string like <code>"abcabc…"</code> the notebook measures backtracking near 1x per extra letter, while the enumerate-then-filter brute force grows 2x.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: place one queen per row with three sets (N-Queens)</h2>
+      <p>The same loop on a board, from the notebook's <code>solve_n_queens_sets</code>. The position is the row <code>r</code>; the moves are the columns <code>c</code>; the check is three set lookups. A <code>\</code> diagonal keeps <code>r - c</code> constant and a <code>/</code> diagonal keeps <code>r + c</code> constant, so <code>diag</code> and <code>anti</code> store those numbers. Traced on <code>n = 4</code>; blocked squares tried in a row are shown with the next placement or removal.</p>
+      <div class="code-block stepped">
+        <code id="nq-code">
+<span class="code-line" data-line="1">def solve_n_queens_sets(n: int) -&gt; List[List[str]]:</span>
+<span class="code-line" data-line="2">    out, cols, diag, anti = [], set(), set(), set()      # blocked columns, r-c ids, r+c ids</span>
+<span class="code-line" data-line="3">    board = [[&quot;.&quot;] * n for _ in range(n)]</span>
+<span class="code-line" data-line="4">    def backtrack(r):</span>
+<span class="code-line" data-line="5">        if r == n:                                       # a queen in every row</span>
+<span class="code-line" data-line="6">            out.append([&quot;&quot;.join(row) for row in board])  # record a COPY of the board</span>
+<span class="code-line" data-line="7">            return</span>
+<span class="code-line" data-line="8">        for c in range(n):                               # which column in row r?</span>
+<span class="code-line" data-line="9">            if c in cols or (r - c) in diag or (r + c) in anti:</span>
+<span class="code-line" data-line="10">                continue                                 # PRUNE: attacked by a queen above</span>
+<span class="code-line" data-line="11">            cols.add(c); diag.add(r - c); anti.add(r + c); board[r][c] = &quot;Q&quot;        # CHOOSE</span>
+<span class="code-line" data-line="12">            backtrack(r + 1)                                                        # EXPLORE</span>
+<span class="code-line" data-line="13">            cols.remove(c); diag.remove(r - c); anti.remove(r + c); board[r][c] = &quot;.&quot;   # UN-CHOOSE</span>
+<span class="code-line" data-line="14">    backtrack(0)</span>
+<span class="code-line" data-line="15">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive board trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="nq-graph" viewBox="0 0 310 300" width="100%" style="max-width:360px; display:block; margin:0 auto;" role="img" aria-label="4 by 4 board for the N-Queens trace">
+              <defs>
+                <style>
+                  .nq-cell { fill: #f4f7fc; stroke: #d9e1ef; stroke-width: 2; transition: fill 0.2s ease; }
+                  .nq-cell.attacked { fill: #c8d2e7; }
+                  .nq-cell.queen { fill: #315efb; }
+                  .nq-cell.blocked { fill: #fff4df; stroke: #c97a10; }
+                  .nq-cell.current { stroke: #ff9f1c; stroke-width: 5; }
+                  .nq-q { font: 800 24px Inter, Arial, sans-serif; fill: #ffffff; pointer-events: none; }
+                  .nq-q.x { fill: #172033; font-size: 18px; }
+                  .nq-head { font: 700 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <rect x="40" y="30" width="58" height="58" rx="8" class="nq-cell" data-cell="0,0" /><text x="69" y="67" text-anchor="middle" class="nq-q" data-q="0,0"></text>
+              <rect x="104" y="30" width="58" height="58" rx="8" class="nq-cell" data-cell="0,1" /><text x="133" y="67" text-anchor="middle" class="nq-q" data-q="0,1"></text>
+              <rect x="168" y="30" width="58" height="58" rx="8" class="nq-cell" data-cell="0,2" /><text x="197" y="67" text-anchor="middle" class="nq-q" data-q="0,2"></text>
+              <rect x="232" y="30" width="58" height="58" rx="8" class="nq-cell" data-cell="0,3" /><text x="261" y="67" text-anchor="middle" class="nq-q" data-q="0,3"></text>
+              <rect x="40" y="94" width="58" height="58" rx="8" class="nq-cell" data-cell="1,0" /><text x="69" y="131" text-anchor="middle" class="nq-q" data-q="1,0"></text>
+              <rect x="104" y="94" width="58" height="58" rx="8" class="nq-cell" data-cell="1,1" /><text x="133" y="131" text-anchor="middle" class="nq-q" data-q="1,1"></text>
+              <rect x="168" y="94" width="58" height="58" rx="8" class="nq-cell" data-cell="1,2" /><text x="197" y="131" text-anchor="middle" class="nq-q" data-q="1,2"></text>
+              <rect x="232" y="94" width="58" height="58" rx="8" class="nq-cell" data-cell="1,3" /><text x="261" y="131" text-anchor="middle" class="nq-q" data-q="1,3"></text>
+              <rect x="40" y="158" width="58" height="58" rx="8" class="nq-cell" data-cell="2,0" /><text x="69" y="195" text-anchor="middle" class="nq-q" data-q="2,0"></text>
+              <rect x="104" y="158" width="58" height="58" rx="8" class="nq-cell" data-cell="2,1" /><text x="133" y="195" text-anchor="middle" class="nq-q" data-q="2,1"></text>
+              <rect x="168" y="158" width="58" height="58" rx="8" class="nq-cell" data-cell="2,2" /><text x="197" y="195" text-anchor="middle" class="nq-q" data-q="2,2"></text>
+              <rect x="232" y="158" width="58" height="58" rx="8" class="nq-cell" data-cell="2,3" /><text x="261" y="195" text-anchor="middle" class="nq-q" data-q="2,3"></text>
+              <rect x="40" y="222" width="58" height="58" rx="8" class="nq-cell" data-cell="3,0" /><text x="69" y="259" text-anchor="middle" class="nq-q" data-q="3,0"></text>
+              <rect x="104" y="222" width="58" height="58" rx="8" class="nq-cell" data-cell="3,1" /><text x="133" y="259" text-anchor="middle" class="nq-q" data-q="3,1"></text>
+              <rect x="168" y="222" width="58" height="58" rx="8" class="nq-cell" data-cell="3,2" /><text x="197" y="259" text-anchor="middle" class="nq-q" data-q="3,2"></text>
+              <rect x="232" y="222" width="58" height="58" rx="8" class="nq-cell" data-cell="3,3" /><text x="261" y="259" text-anchor="middle" class="nq-q" data-q="3,3"></text>
+              <text x="69" y="20" text-anchor="middle" class="nq-head">c=0</text>
+              <text x="133" y="20" text-anchor="middle" class="nq-head">c=1</text>
+              <text x="197" y="20" text-anchor="middle" class="nq-head">c=2</text>
+              <text x="261" y="20" text-anchor="middle" class="nq-head">c=3</text>
+              <text x="20" y="64" text-anchor="middle" class="nq-head">r=0</text>
+              <text x="20" y="128" text-anchor="middle" class="nq-head">r=1</text>
+              <text x="20" y="192" text-anchor="middle" class="nq-head">r=2</text>
+              <text x="20" y="256" text-anchor="middle" class="nq-head">r=3</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-blue"></i> queen placed</span>
+            <span><i class="dot dot-gray"></i> attacked (in a set)</span>
+            <span><i class="dot" style="background:#fff4df; border:2px solid #c97a10;"></i> tried and blocked (x)</span>
+            <span><i class="dot dot-orange"></i> square just placed / removed</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="nq-step-title">Initial state</h3>
+          <p id="nq-step-text"></p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="nq-prev">Previous</button>
+            <button type="button" id="nq-play" class="primary">Resume</button>
+            <button type="button" id="nq-next">Next</button>
+            <button type="button" id="nq-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="nq-step-counter">Step 0 / 35</span>
+            <div class="progress"><span id="nq-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>row r</strong><div class="state-value" id="nq-row">—</div></div>
+            <div class="state-box"><strong>queens (column per row)</strong><div class="state-value" id="nq-queens">[]</div></div>
+            <div class="state-box"><strong>cols</strong><div class="state-value" id="nq-cols">[]</div></div>
+            <div class="state-box"><strong>diag (r - c)</strong><div class="state-value" id="nq-diag">[]</div></div>
+            <div class="state-box"><strong>anti (r + c)</strong><div class="state-value" id="nq-anti">[]</div></div>
+            <div class="state-box"><strong>boards recorded</strong><div class="state-value" id="nq-boards">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="nq-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Action</th><th>queens after</th><th>cols</th><th>diag</th><th>anti</th><th>boards</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>start at row 0</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>0</td></tr>
+            <tr data-step="1"><td>1</td><td>place (0,0)</td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td>0</td></tr>
+            <tr data-step="2"><td>2</td><td>blocked (1,0), (1,1); place (1,2)</td><td><code>[0, 2]</code></td><td><code>[0, 2]</code></td><td><code>[-1, 0]</code></td><td><code>[0, 3]</code></td><td>0</td></tr>
+            <tr data-step="3"><td>3</td><td>blocked (2,0), (2,1), (2,2), (2,3); remove (1,2)</td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td>0</td></tr>
+            <tr data-step="4"><td>4</td><td>place (1,3)</td><td><code>[0, 3]</code></td><td><code>[0, 3]</code></td><td><code>[-2, 0]</code></td><td><code>[0, 4]</code></td><td>0</td></tr>
+            <tr data-step="5"><td>5</td><td>blocked (2,0); place (2,1)</td><td><code>[0, 3, 1]</code></td><td><code>[0, 1, 3]</code></td><td><code>[-2, 0, 1]</code></td><td><code>[0, 3, 4]</code></td><td>0</td></tr>
+            <tr data-step="6"><td>6</td><td>blocked (3,0), (3,1), (3,2), (3,3); remove (2,1)</td><td><code>[0, 3]</code></td><td><code>[0, 3]</code></td><td><code>[-2, 0]</code></td><td><code>[0, 4]</code></td><td>0</td></tr>
+            <tr data-step="7"><td>7</td><td>blocked (2,2), (2,3); remove (1,3)</td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td>0</td></tr>
+            <tr data-step="8"><td>8</td><td>remove (0,0)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>0</td></tr>
+            <tr data-step="9"><td>9</td><td>place (0,1)</td><td><code>[1]</code></td><td><code>[1]</code></td><td><code>[-1]</code></td><td><code>[1]</code></td><td>0</td></tr>
+            <tr data-step="10"><td>10</td><td>blocked (1,0), (1,1), (1,2); place (1,3)</td><td><code>[1, 3]</code></td><td><code>[1, 3]</code></td><td><code>[-2, -1]</code></td><td><code>[1, 4]</code></td><td>0</td></tr>
+            <tr data-step="11"><td>11</td><td>place (2,0)</td><td><code>[1, 3, 0]</code></td><td><code>[0, 1, 3]</code></td><td><code>[-2, -1, 2]</code></td><td><code>[1, 2, 4]</code></td><td>0</td></tr>
+            <tr data-step="12"><td>12</td><td>blocked (3,0), (3,1); place (3,2)</td><td><code>[1, 3, 0, 2]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>0</td></tr>
+            <tr data-step="13"><td>13</td><td>all rows filled &rarr; record board</td><td><code>[1, 3, 0, 2]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>1</td></tr>
+            <tr data-step="14"><td>14</td><td>remove (3,2)</td><td><code>[1, 3, 0]</code></td><td><code>[0, 1, 3]</code></td><td><code>[-2, -1, 2]</code></td><td><code>[1, 2, 4]</code></td><td>1</td></tr>
+            <tr data-step="15"><td>15</td><td>blocked (3,3); remove (2,0)</td><td><code>[1, 3]</code></td><td><code>[1, 3]</code></td><td><code>[-2, -1]</code></td><td><code>[1, 4]</code></td><td>1</td></tr>
+            <tr data-step="16"><td>16</td><td>blocked (2,1), (2,2), (2,3); remove (1,3)</td><td><code>[1]</code></td><td><code>[1]</code></td><td><code>[-1]</code></td><td><code>[1]</code></td><td>1</td></tr>
+            <tr data-step="17"><td>17</td><td>remove (0,1)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>1</td></tr>
+            <tr data-step="18"><td>18</td><td>place (0,2)</td><td><code>[2]</code></td><td><code>[2]</code></td><td><code>[-2]</code></td><td><code>[2]</code></td><td>1</td></tr>
+            <tr data-step="19"><td>19</td><td>place (1,0)</td><td><code>[2, 0]</code></td><td><code>[0, 2]</code></td><td><code>[-2, 1]</code></td><td><code>[1, 2]</code></td><td>1</td></tr>
+            <tr data-step="20"><td>20</td><td>blocked (2,0), (2,1), (2,2); place (2,3)</td><td><code>[2, 0, 3]</code></td><td><code>[0, 2, 3]</code></td><td><code>[-2, -1, 1]</code></td><td><code>[1, 2, 5]</code></td><td>1</td></tr>
+            <tr data-step="21"><td>21</td><td>blocked (3,0); place (3,1)</td><td><code>[2, 0, 3, 1]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>1</td></tr>
+            <tr data-step="22"><td>22</td><td>all rows filled &rarr; record board</td><td><code>[2, 0, 3, 1]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>2</td></tr>
+            <tr data-step="23"><td>23</td><td>remove (3,1)</td><td><code>[2, 0, 3]</code></td><td><code>[0, 2, 3]</code></td><td><code>[-2, -1, 1]</code></td><td><code>[1, 2, 5]</code></td><td>2</td></tr>
+            <tr data-step="24"><td>24</td><td>blocked (3,2), (3,3); remove (2,3)</td><td><code>[2, 0]</code></td><td><code>[0, 2]</code></td><td><code>[-2, 1]</code></td><td><code>[1, 2]</code></td><td>2</td></tr>
+            <tr data-step="25"><td>25</td><td>remove (1,0)</td><td><code>[2]</code></td><td><code>[2]</code></td><td><code>[-2]</code></td><td><code>[2]</code></td><td>2</td></tr>
+            <tr data-step="26"><td>26</td><td>blocked (1,1), (1,2), (1,3); remove (0,2)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>2</td></tr>
+            <tr data-step="27"><td>27</td><td>place (0,3)</td><td><code>[3]</code></td><td><code>[3]</code></td><td><code>[-3]</code></td><td><code>[3]</code></td><td>2</td></tr>
+            <tr data-step="28"><td>28</td><td>place (1,0)</td><td><code>[3, 0]</code></td><td><code>[0, 3]</code></td><td><code>[-3, 1]</code></td><td><code>[1, 3]</code></td><td>2</td></tr>
+            <tr data-step="29"><td>29</td><td>blocked (2,0), (2,1); place (2,2)</td><td><code>[3, 0, 2]</code></td><td><code>[0, 2, 3]</code></td><td><code>[-3, 0, 1]</code></td><td><code>[1, 3, 4]</code></td><td>2</td></tr>
+            <tr data-step="30"><td>30</td><td>blocked (3,0), (3,1), (3,2), (3,3); remove (2,2)</td><td><code>[3, 0]</code></td><td><code>[0, 3]</code></td><td><code>[-3, 1]</code></td><td><code>[1, 3]</code></td><td>2</td></tr>
+            <tr data-step="31"><td>31</td><td>blocked (2,3); remove (1,0)</td><td><code>[3]</code></td><td><code>[3]</code></td><td><code>[-3]</code></td><td><code>[3]</code></td><td>2</td></tr>
+            <tr data-step="32"><td>32</td><td>place (1,1)</td><td><code>[3, 1]</code></td><td><code>[1, 3]</code></td><td><code>[-3, 0]</code></td><td><code>[2, 3]</code></td><td>2</td></tr>
+            <tr data-step="33"><td>33</td><td>blocked (2,0), (2,1), (2,2), (2,3); remove (1,1)</td><td><code>[3]</code></td><td><code>[3]</code></td><td><code>[-3]</code></td><td><code>[3]</code></td><td>2</td></tr>
+            <tr data-step="34"><td>34</td><td>blocked (1,2), (1,3); remove (0,3)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>2</td></tr>
+            <tr data-step="35"><td>35</td><td>row 0 exhausted &rarr; return</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>2</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>One queen per row turns "choose 4 of 16 squares" into "choose a column, row by row". The three sets are a summary of every queen above: one lookup each replaces a scan over the placed queens.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Undoing only some of the four changes. If <code>anti.remove(r + c)</code> is missing, a queen that is gone still blocks a <code>/</code> diagonal and solutions disappear.</p>
+        </div>
+        <div class="card">
+          <h4>Why sets</h4>
+          <p>The notebook's scan version checks each square against every queen above, O(n) per check. With sets the check is O(1); at n = 9 the set version measured about 5 ms against about 14 ms for the scan and 130 ms for the permutation brute force.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Single letter</button>
+        <button type="button" data-example-tab="1">Every cut works</button>
+        <button type="button" data-example-tab="2">No long palindromes</button>
+        <button type="button" data-example-tab="3">Boards with no answer</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: one character, one queen</h3>
+          <p><code>s = "a"</code> and <code>n = 1</code></p>
+          <div class="result-badge">[["a"]] · [["Q"]]</div>
+          <p class="footer-note">One move, then the position equals the length and the single arrangement is recorded. The brute force's <code>range(1 &lt;&lt; (n - 1))</code> is <code>range(1)</code>: one empty cut pattern.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: every piece is a palindrome</h3>
+          <p><code>s = "aaa"</code></p>
+          <div class="result-badge">4 partitions = 2^(3-1)</div>
+          <p class="footer-note"><code>[["a","a","a"], ["a","aa"], ["aa","a"], ["aaa"]]</code>. Nothing is pruned, so this is the worst case: the output itself is exponential, and the notebook measures about 2x per extra letter for every approach.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: only single letters are palindromes</h3>
+          <p><code>s = "ab"</code></p>
+          <div class="result-badge">[["a","b"]]</div>
+          <p class="footer-note">Every longer piece is pruned at once. This is where backtracking beats the brute force most: one answer, almost no work.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: n = 2 and n = 3</h3>
+          <p><code>n = 2</code>, <code>n = 3</code></p>
+          <div class="result-badge">[] · []</div>
+          <p class="footer-note">The search runs, every branch dies, and <code>out</code> stays empty. The counts for <code>n = 1..8</code> are <code>1, 0, 0, 2, 10, 4, 40, 92</code>, asserted in the notebook.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Palindrome Partitioning</td><td>Brute force: every cut pattern (bitmask), then filter</td><td><code>O(n · 2^n)</code></td><td><code>O(n)</code></td><td>Exponential on every input, about 2x per letter even on <code>"abcabc…"</code>.</td></tr>
+            <tr><td>Palindrome Partitioning</td><td>Backtracking (Method 1)</td><td><code>O(n · 2^n)</code></td><td><code>O(n)</code></td><td>Same worst case, but invalid pieces are cut before recursing.</td></tr>
+            <tr><td>Palindrome Partitioning</td><td>Backtracking + <code>is_pal</code> table</td><td><code>O(n · 2^n)</code></td><td><code>O(n²)</code></td><td>Each check becomes an O(1) lookup.</td></tr>
+            <tr><td>N-Queens</td><td>Brute force: every column permutation</td><td><code>O(n · n!)</code></td><td><code>O(n)</code></td><td>Measured roughly n x per extra row.</td></tr>
+            <tr><td>N-Queens</td><td>Backtracking, scan the queens above</td><td><code>O(n · n!)</code> bound</td><td><code>O(n)</code></td><td>Pruned, but each check is O(n).</td></tr>
+            <tr><td>N-Queens</td><td>Backtracking with three sets (Method 2)</td><td><code>O(n!)</code> bound</td><td><code>O(n²)</code></td><td>Pruned, O(1) checks; fastest measured.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = string length or board size; space excludes the output. Complexities and measurements come from the two notebooks in this folder.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>"Return all ..." means I must enumerate arrangements, so the answer may be exponential.</p></div>
+            <div class="timeline-step"><p>An arrangement is built piece by piece from a position (the next start index, the next row).</p></div>
+            <div class="timeline-step"><p>Each new piece can be checked on its own: palindrome, or column and diagonals free. Put that check before the recursive call.</p></div>
+            <div class="timeline-step"><p>Make the check cheap (sets for N-Queens, an <code>is_pal</code> table if asked) and undo every change after the call.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"I need every partition, so I'll backtrack on where the next piece ends."</li>
+            <li>"I skip a piece that is not a palindrome before recursing, so no work is wasted under it."</li>
+            <li>"For N-Queens there is one queen per row, so I choose a column per row and keep columns, <code>r - c</code> and <code>r + c</code> in sets for O(1) checks."</li>
+            <li>"The output can be exponential: <code>O(n · 2^n)</code> for partitioning, at most <code>n!</code> placements for N-Queens; the recursion uses O(n) extra space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Palindrome Partitioning</h3>
+          <ul class="mistake-list">
+            <li>Recording <code>path</code> instead of <code>path[:]</code>.</li>
+            <li>Forgetting <code>path.pop()</code>, so pieces leak into the next branch.</li>
+            <li>Looping <code>end</code> to <code>len(s) - 1</code> with slicing, which never takes the last letter.</li>
+            <li>Filling <code>is_pal</code> from the top row down, before <code>is_pal[i+1][j-1]</code> exists.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>N-Queens</h3>
+          <ul class="mistake-list">
+            <li>Checking only one diagonal direction.</li>
+            <li>Undoing the sets but not <code>board[r][c] = "."</code>, or the reverse.</li>
+            <li>Appending the board rows by reference instead of building new strings.</li>
+            <li>Trying every square of the board instead of one row at a time, which multiplies the search.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Questions 3 and 4 are follow-up variants of this pattern's two problems; their links go to the related problem page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Palindrome Partitioning: <code>s = "abba"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> which pieces starting at index 0 are palindromes? Then at index 1?</p>
+          <p style="margin-top:10px;">Answer: <code>[["a","b","b","a"], ["a","bb","a"], ["abba"]]</code>, as asserted in the notebook. From start 0 only <code>"a"</code> and <code>"abba"</code> pass; from start 1, <code>"b"</code> and <code>"bb"</code>. Step through the method on <a href="palindrome_partitioning.html">the Palindrome Partitioning page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — N-Queens: why is <code>(1, 2)</code> blocked once a queen sits at <code>(0, 1)</code>?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> compute <code>r - c</code> and <code>r + c</code> for both squares.</p>
+          <p style="margin-top:10px;">Answer: <code>(0, 1)</code> has <code>r - c = -1</code>; <code>(1, 2)</code> also has <code>r - c = -1</code>, so they share a <code>\</code> diagonal and <code>diag</code> already holds <code>-1</code>. Watch the sets change on <a href="n_queens.html">the N-Queens page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (follow-up variant) — N-Queens II: return only the number of solutions.</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> what does the leaf do now, and do you still need the board?</p>
+          <p style="margin-top:10px;">Answer: keep the same three-set backtracking, but increment a counter at <code>r == n</code> and drop the board entirely; the three sets alone decide safety. For <code>n = 8</code> it returns 92. The search is the one traced on <a href="n_queens.html">the N-Queens page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 (follow-up variant) — Palindrome Partitioning II: the minimum number of cuts.</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> is enumerating every partition still necessary when only the best one matters?</p>
+          <p style="margin-top:10px;">Answer: no. It asks for a minimum, not all arrangements, so it leaves this pattern: reuse the <code>is_pal</code> table from the notebook's third approach and compute <code>cuts[j]</code> = fewest cuts for <code>s[0..j]</code> with dynamic programming in <code>O(n²)</code>, instead of the exponential enumeration. The table is shown filling up on <a href="palindrome_partitioning.html">the Palindrome Partitioning page</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Position, moves, check, choose, recurse, undo.</strong>
+          Palindrome Partitioning moves the next piece's end; N-Queens moves the next queen's column. Both win by rejecting a move before recursing on it, and both stay correct only because every choice is undone and every answer is recorded as a copy.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Partition and Placement pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of partition_backtrack on "aab".
+      const ppSteps = [{"step": 0, "title": "Initial state", "text": "Call backtrack(0): the next piece starts at index 0. path = [].", "start": "0", "piece": "—", "path": "[]", "out": "[]", "action": "Call backtrack(0)", "marks": {"": "hi"}, "lines": [2, 14]}, {"step": 1, "title": "Try \"a\" at start 0: keep", "text": "start = 0: try s[0:1] = \"a\". It is a palindrome → choose it and recurse with backtrack(1).", "start": "0", "piece": "\"a\"", "path": "[\"a\"]", "out": "[]", "action": "palindrome → choose, recurse", "marks": {"": "seen", "a": "hi"}, "lines": [7, 8, 9, 11, 12]}, {"step": 2, "title": "Try \"a\" at start 1: keep", "text": "start = 1: try s[1:2] = \"a\". It is a palindrome → choose it and recurse with backtrack(2).", "start": "1", "piece": "\"a\"", "path": "[\"a\", \"a\"]", "out": "[]", "action": "palindrome → choose, recurse", "marks": {"": "seen", "a": "seen", "a|a": "hi"}, "lines": [7, 8, 9, 11, 12]}, {"step": 3, "title": "Try \"b\" at start 2: keep", "text": "start = 2: try s[2:3] = \"b\". It is a palindrome → choose it and recurse with backtrack(3).", "start": "2", "piece": "\"b\"", "path": "[\"a\", \"a\", \"b\"]", "out": "[]", "action": "palindrome → choose, recurse", "marks": {"": "seen", "a": "seen", "a|a": "seen", "a|a|b": "hi"}, "lines": [7, 8, 9, 11, 12]}, {"step": 4, "title": "Reached the end: record", "text": "start = 3 = len(s): every letter is covered → record a copy of path = [\"a\", \"a\", \"b\"].", "start": "3", "piece": "—", "path": "[\"a\", \"a\", \"b\"]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "start == len(s) → record copy", "marks": {"": "seen", "a": "seen", "a|a": "seen", "a|a|b": "good"}, "lines": [4, 5, 6]}, {"step": 5, "title": "Pop \"b\"", "text": "Back from backtrack(3): un-choose \"b\". path = [\"a\", \"a\"]; try the next end for start 2.", "start": "2", "piece": "\"b\"", "path": "[\"a\", \"a\"]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "un-choose", "marks": {"": "seen", "a": "seen", "a|a": "hi", "a|a|b": "good"}, "lines": [13]}, {"step": 6, "title": "Pop \"a\"", "text": "Back from backtrack(2): un-choose \"a\". path = [\"a\"]; try the next end for start 1.", "start": "1", "piece": "\"a\"", "path": "[\"a\"]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "un-choose", "marks": {"": "seen", "a": "hi", "a|a": "done", "a|a|b": "good"}, "lines": [13]}, {"step": 7, "title": "Try \"ab\" at start 1: prune", "text": "start = 1: try s[1:3] = \"ab\". Not a palindrome → prune (skip, no recursion).", "start": "1", "piece": "\"ab\"", "path": "[\"a\"]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "not a palindrome → prune", "marks": {"": "seen", "a": "seen", "a|a": "done", "a|a|b": "good", "a|ab": "hi"}, "lines": [7, 8, 9, 10]}, {"step": 8, "title": "Pop \"a\"", "text": "Back from backtrack(1): un-choose \"a\". path = []; try the next end for start 0.", "start": "0", "piece": "\"a\"", "path": "[]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "un-choose", "marks": {"": "hi", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad"}, "lines": [13]}, {"step": 9, "title": "Try \"aa\" at start 0: keep", "text": "start = 0: try s[0:2] = \"aa\". It is a palindrome → choose it and recurse with backtrack(2).", "start": "0", "piece": "\"aa\"", "path": "[\"aa\"]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "palindrome → choose, recurse", "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "hi"}, "lines": [7, 8, 9, 11, 12]}, {"step": 10, "title": "Try \"b\" at start 2: keep", "text": "start = 2: try s[2:3] = \"b\". It is a palindrome → choose it and recurse with backtrack(3).", "start": "2", "piece": "\"b\"", "path": "[\"aa\", \"b\"]", "out": "[[\"a\", \"a\", \"b\"]]", "action": "palindrome → choose, recurse", "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "seen", "aa|b": "hi"}, "lines": [7, 8, 9, 11, 12]}, {"step": 11, "title": "Reached the end: record", "text": "start = 3 = len(s): every letter is covered → record a copy of path = [\"aa\", \"b\"].", "start": "3", "piece": "—", "path": "[\"aa\", \"b\"]", "out": "[[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]", "action": "start == len(s) → record copy", "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "seen", "aa|b": "good"}, "lines": [4, 5, 6]}, {"step": 12, "title": "Pop \"b\"", "text": "Back from backtrack(3): un-choose \"b\". path = [\"aa\"]; try the next end for start 2.", "start": "2", "piece": "\"b\"", "path": "[\"aa\"]", "out": "[[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]", "action": "un-choose", "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "hi", "aa|b": "good"}, "lines": [13]}, {"step": 13, "title": "Pop \"aa\"", "text": "Back from backtrack(2): un-choose \"aa\". path = []; try the next end for start 0.", "start": "0", "piece": "\"aa\"", "path": "[]", "out": "[[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]", "action": "un-choose", "marks": {"": "hi", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "done", "aa|b": "good"}, "lines": [13]}, {"step": 14, "title": "Try \"aab\" at start 0: prune", "text": "start = 0: try s[0:3] = \"aab\". Not a palindrome → prune (skip, no recursion).", "start": "0", "piece": "\"aab\"", "path": "[]", "out": "[[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]", "action": "not a palindrome → prune", "marks": {"": "seen", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "done", "aa|b": "good", "aab": "hi"}, "lines": [7, 8, 9, 10]}, {"step": 15, "title": "Loop finished: return", "text": "No more ends to try at start 0. Return out = [[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]: 2 partitions.", "start": "0", "piece": "—", "path": "[]", "out": "[[\"a\", \"a\", \"b\"], [\"aa\", \"b\"]]", "action": "loops exhausted → return", "marks": {"": "done", "a": "done", "a|a": "done", "a|a|b": "good", "a|ab": "bad", "aa": "done", "aa|b": "good", "aab": "done"}, "lines": [15]}];
+      // Ground truth: instrumented run of solve_n_queens_sets on n = 4.
+      const nqSteps = [{"step": 0, "title": "Initial state", "text": "Call backtrack(0): row 0 needs a queen. All sets empty.", "row": "—", "queens": "[]", "cols": "[]", "diag": "[]", "anti": "[]", "boards": "0", "qs": [], "cur": null, "blocked": [], "act": "init", "lines": [2, 3, 14]}, {"step": 1, "title": "Row 0: place at column 0", "text": "(0,0) is safe → place a queen, add c=0, r-c=0, r+c=0, recurse to row 1.", "row": "0", "queens": "[0]", "cols": "[0]", "diag": "[0]", "anti": "[0]", "boards": "0", "qs": [0], "cur": [0, 0], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 2, "title": "Row 1: place at column 2", "text": "(1,0) blocked by column; (1,1) blocked by \\ diagonal (r-c). (1,2) is safe → place a queen, add c=2, r-c=-1, r+c=3, recurse to row 2.", "row": "1", "queens": "[0, 2]", "cols": "[0, 2]", "diag": "[-1, 0]", "anti": "[0, 3]", "boards": "0", "qs": [0, 2], "cur": [1, 2], "blocked": [[1, 0], [1, 1]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 3, "title": "Row 2 blocked: remove (1,2)", "text": "(2,0) blocked by column; (2,1) blocked by / diagonal (r+c); (2,2) blocked by column; (2,3) blocked by \\ diagonal (r-c). Row 2 has no safe column left: dead end. Back in row 1: remove the queen at (1,2) from the board and all three sets.", "row": "1", "queens": "[0]", "cols": "[0]", "diag": "[0]", "anti": "[0]", "boards": "0", "qs": [0], "cur": [1, 2], "blocked": [[2, 0], [2, 1], [2, 2], [2, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 4, "title": "Row 1: place at column 3", "text": "(1,3) is safe → place a queen, add c=3, r-c=-2, r+c=4, recurse to row 2.", "row": "1", "queens": "[0, 3]", "cols": "[0, 3]", "diag": "[-2, 0]", "anti": "[0, 4]", "boards": "0", "qs": [0, 3], "cur": [1, 3], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 5, "title": "Row 2: place at column 1", "text": "(2,0) blocked by column. (2,1) is safe → place a queen, add c=1, r-c=1, r+c=3, recurse to row 3.", "row": "2", "queens": "[0, 3, 1]", "cols": "[0, 1, 3]", "diag": "[-2, 0, 1]", "anti": "[0, 3, 4]", "boards": "0", "qs": [0, 3, 1], "cur": [2, 1], "blocked": [[2, 0]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 6, "title": "Row 3 blocked: remove (2,1)", "text": "(3,0) blocked by column; (3,1) blocked by column; (3,2) blocked by \\ diagonal (r-c); (3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: remove the queen at (2,1) from the board and all three sets.", "row": "2", "queens": "[0, 3]", "cols": "[0, 3]", "diag": "[-2, 0]", "anti": "[0, 4]", "boards": "0", "qs": [0, 3], "cur": [2, 1], "blocked": [[3, 0], [3, 1], [3, 2], [3, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 7, "title": "Row 2 blocked: remove (1,3)", "text": "(2,2) blocked by \\ diagonal (r-c); (2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: remove the queen at (1,3) from the board and all three sets.", "row": "1", "queens": "[0]", "cols": "[0]", "diag": "[0]", "anti": "[0]", "boards": "0", "qs": [0], "cur": [1, 3], "blocked": [[2, 2], [2, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 8, "title": "Remove (0,0)", "text": "Back from row 1: remove the queen at (0,0) and try the next column of row 0.", "row": "0", "queens": "[]", "cols": "[]", "diag": "[]", "anti": "[]", "boards": "0", "qs": [], "cur": [0, 0], "blocked": [], "act": "remove", "lines": [13]}, {"step": 9, "title": "Row 0: place at column 1", "text": "(0,1) is safe → place a queen, add c=1, r-c=-1, r+c=1, recurse to row 1.", "row": "0", "queens": "[1]", "cols": "[1]", "diag": "[-1]", "anti": "[1]", "boards": "0", "qs": [1], "cur": [0, 1], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 10, "title": "Row 1: place at column 3", "text": "(1,0) blocked by / diagonal (r+c); (1,1) blocked by column; (1,2) blocked by \\ diagonal (r-c). (1,3) is safe → place a queen, add c=3, r-c=-2, r+c=4, recurse to row 2.", "row": "1", "queens": "[1, 3]", "cols": "[1, 3]", "diag": "[-2, -1]", "anti": "[1, 4]", "boards": "0", "qs": [1, 3], "cur": [1, 3], "blocked": [[1, 0], [1, 1], [1, 2]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 11, "title": "Row 2: place at column 0", "text": "(2,0) is safe → place a queen, add c=0, r-c=2, r+c=2, recurse to row 3.", "row": "2", "queens": "[1, 3, 0]", "cols": "[0, 1, 3]", "diag": "[-2, -1, 2]", "anti": "[1, 2, 4]", "boards": "0", "qs": [1, 3, 0], "cur": [2, 0], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 12, "title": "Row 3: place at column 2", "text": "(3,0) blocked by column; (3,1) blocked by column. (3,2) is safe → place a queen, add c=2, r-c=1, r+c=5, recurse to row 4.", "row": "3", "queens": "[1, 3, 0, 2]", "cols": "[0, 1, 2, 3]", "diag": "[-2, -1, 1, 2]", "anti": "[1, 2, 4, 5]", "boards": "0", "qs": [1, 3, 0, 2], "cur": [3, 2], "blocked": [[3, 0], [3, 1]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 13, "title": "Solution 1 found", "text": "r = 4: every row has a queen → record board #1 (columns [1, 3, 0, 2]).", "row": "—", "queens": "[1, 3, 0, 2]", "cols": "[0, 1, 2, 3]", "diag": "[-2, -1, 1, 2]", "anti": "[1, 2, 4, 5]", "boards": "1", "qs": [1, 3, 0, 2], "cur": null, "blocked": [], "act": "found", "lines": [5, 6, 7]}, {"step": 14, "title": "Remove (3,2)", "text": "Back from row 4: remove the queen at (3,2) and try the next column of row 3.", "row": "3", "queens": "[1, 3, 0]", "cols": "[0, 1, 3]", "diag": "[-2, -1, 2]", "anti": "[1, 2, 4]", "boards": "1", "qs": [1, 3, 0], "cur": [3, 2], "blocked": [], "act": "remove", "lines": [13]}, {"step": 15, "title": "Row 3 blocked: remove (2,0)", "text": "(3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: remove the queen at (2,0) from the board and all three sets.", "row": "2", "queens": "[1, 3]", "cols": "[1, 3]", "diag": "[-2, -1]", "anti": "[1, 4]", "boards": "1", "qs": [1, 3], "cur": [2, 0], "blocked": [[3, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 16, "title": "Row 2 blocked: remove (1,3)", "text": "(2,1) blocked by column; (2,2) blocked by / diagonal (r+c); (2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: remove the queen at (1,3) from the board and all three sets.", "row": "1", "queens": "[1]", "cols": "[1]", "diag": "[-1]", "anti": "[1]", "boards": "1", "qs": [1], "cur": [1, 3], "blocked": [[2, 1], [2, 2], [2, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 17, "title": "Remove (0,1)", "text": "Back from row 1: remove the queen at (0,1) and try the next column of row 0.", "row": "0", "queens": "[]", "cols": "[]", "diag": "[]", "anti": "[]", "boards": "1", "qs": [], "cur": [0, 1], "blocked": [], "act": "remove", "lines": [13]}, {"step": 18, "title": "Row 0: place at column 2", "text": "(0,2) is safe → place a queen, add c=2, r-c=-2, r+c=2, recurse to row 1.", "row": "0", "queens": "[2]", "cols": "[2]", "diag": "[-2]", "anti": "[2]", "boards": "1", "qs": [2], "cur": [0, 2], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 19, "title": "Row 1: place at column 0", "text": "(1,0) is safe → place a queen, add c=0, r-c=1, r+c=1, recurse to row 2.", "row": "1", "queens": "[2, 0]", "cols": "[0, 2]", "diag": "[-2, 1]", "anti": "[1, 2]", "boards": "1", "qs": [2, 0], "cur": [1, 0], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 20, "title": "Row 2: place at column 3", "text": "(2,0) blocked by column; (2,1) blocked by \\ diagonal (r-c); (2,2) blocked by column. (2,3) is safe → place a queen, add c=3, r-c=-1, r+c=5, recurse to row 3.", "row": "2", "queens": "[2, 0, 3]", "cols": "[0, 2, 3]", "diag": "[-2, -1, 1]", "anti": "[1, 2, 5]", "boards": "1", "qs": [2, 0, 3], "cur": [2, 3], "blocked": [[2, 0], [2, 1], [2, 2]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 21, "title": "Row 3: place at column 1", "text": "(3,0) blocked by column. (3,1) is safe → place a queen, add c=1, r-c=2, r+c=4, recurse to row 4.", "row": "3", "queens": "[2, 0, 3, 1]", "cols": "[0, 1, 2, 3]", "diag": "[-2, -1, 1, 2]", "anti": "[1, 2, 4, 5]", "boards": "1", "qs": [2, 0, 3, 1], "cur": [3, 1], "blocked": [[3, 0]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 22, "title": "Solution 2 found", "text": "r = 4: every row has a queen → record board #2 (columns [2, 0, 3, 1]).", "row": "—", "queens": "[2, 0, 3, 1]", "cols": "[0, 1, 2, 3]", "diag": "[-2, -1, 1, 2]", "anti": "[1, 2, 4, 5]", "boards": "2", "qs": [2, 0, 3, 1], "cur": null, "blocked": [], "act": "found", "lines": [5, 6, 7]}, {"step": 23, "title": "Remove (3,1)", "text": "Back from row 4: remove the queen at (3,1) and try the next column of row 3.", "row": "3", "queens": "[2, 0, 3]", "cols": "[0, 2, 3]", "diag": "[-2, -1, 1]", "anti": "[1, 2, 5]", "boards": "2", "qs": [2, 0, 3], "cur": [3, 1], "blocked": [], "act": "remove", "lines": [13]}, {"step": 24, "title": "Row 3 blocked: remove (2,3)", "text": "(3,2) blocked by column; (3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: remove the queen at (2,3) from the board and all three sets.", "row": "2", "queens": "[2, 0]", "cols": "[0, 2]", "diag": "[-2, 1]", "anti": "[1, 2]", "boards": "2", "qs": [2, 0], "cur": [2, 3], "blocked": [[3, 2], [3, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 25, "title": "Remove (1,0)", "text": "Back from row 2: remove the queen at (1,0) and try the next column of row 1.", "row": "1", "queens": "[2]", "cols": "[2]", "diag": "[-2]", "anti": "[2]", "boards": "2", "qs": [2], "cur": [1, 0], "blocked": [], "act": "remove", "lines": [13]}, {"step": 26, "title": "Row 1 blocked: remove (0,2)", "text": "(1,1) blocked by / diagonal (r+c); (1,2) blocked by column; (1,3) blocked by \\ diagonal (r-c). Row 1 has no safe column left: dead end. Back in row 0: remove the queen at (0,2) from the board and all three sets.", "row": "0", "queens": "[]", "cols": "[]", "diag": "[]", "anti": "[]", "boards": "2", "qs": [], "cur": [0, 2], "blocked": [[1, 1], [1, 2], [1, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 27, "title": "Row 0: place at column 3", "text": "(0,3) is safe → place a queen, add c=3, r-c=-3, r+c=3, recurse to row 1.", "row": "0", "queens": "[3]", "cols": "[3]", "diag": "[-3]", "anti": "[3]", "boards": "2", "qs": [3], "cur": [0, 3], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 28, "title": "Row 1: place at column 0", "text": "(1,0) is safe → place a queen, add c=0, r-c=1, r+c=1, recurse to row 2.", "row": "1", "queens": "[3, 0]", "cols": "[0, 3]", "diag": "[-3, 1]", "anti": "[1, 3]", "boards": "2", "qs": [3, 0], "cur": [1, 0], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 29, "title": "Row 2: place at column 2", "text": "(2,0) blocked by column; (2,1) blocked by \\ diagonal (r-c). (2,2) is safe → place a queen, add c=2, r-c=0, r+c=4, recurse to row 3.", "row": "2", "queens": "[3, 0, 2]", "cols": "[0, 2, 3]", "diag": "[-3, 0, 1]", "anti": "[1, 3, 4]", "boards": "2", "qs": [3, 0, 2], "cur": [2, 2], "blocked": [[2, 0], [2, 1]], "act": "place", "lines": [8, 9, 10, 11, 12]}, {"step": 30, "title": "Row 3 blocked: remove (2,2)", "text": "(3,0) blocked by column; (3,1) blocked by / diagonal (r+c); (3,2) blocked by column; (3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: remove the queen at (2,2) from the board and all three sets.", "row": "2", "queens": "[3, 0]", "cols": "[0, 3]", "diag": "[-3, 1]", "anti": "[1, 3]", "boards": "2", "qs": [3, 0], "cur": [2, 2], "blocked": [[3, 0], [3, 1], [3, 2], [3, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 31, "title": "Row 2 blocked: remove (1,0)", "text": "(2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: remove the queen at (1,0) from the board and all three sets.", "row": "1", "queens": "[3]", "cols": "[3]", "diag": "[-3]", "anti": "[3]", "boards": "2", "qs": [3], "cur": [1, 0], "blocked": [[2, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 32, "title": "Row 1: place at column 1", "text": "(1,1) is safe → place a queen, add c=1, r-c=0, r+c=2, recurse to row 2.", "row": "1", "queens": "[3, 1]", "cols": "[1, 3]", "diag": "[-3, 0]", "anti": "[2, 3]", "boards": "2", "qs": [3, 1], "cur": [1, 1], "blocked": [], "act": "place", "lines": [8, 9, 11, 12]}, {"step": 33, "title": "Row 2 blocked: remove (1,1)", "text": "(2,0) blocked by / diagonal (r+c); (2,1) blocked by column; (2,2) blocked by \\ diagonal (r-c); (2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: remove the queen at (1,1) from the board and all three sets.", "row": "1", "queens": "[3]", "cols": "[3]", "diag": "[-3]", "anti": "[3]", "boards": "2", "qs": [3], "cur": [1, 1], "blocked": [[2, 0], [2, 1], [2, 2], [2, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 34, "title": "Row 1 blocked: remove (0,3)", "text": "(1,2) blocked by / diagonal (r+c); (1,3) blocked by column. Row 1 has no safe column left: dead end. Back in row 0: remove the queen at (0,3) from the board and all three sets.", "row": "0", "queens": "[]", "cols": "[]", "diag": "[]", "anti": "[]", "boards": "2", "qs": [], "cur": [0, 3], "blocked": [[1, 2], [1, 3]], "act": "remove", "lines": [8, 9, 10, 13]}, {"step": 35, "title": "Return", "text": "Every column of row 0 has been tried. Return the 2 boards.", "row": "—", "queens": "[]", "cols": "[]", "diag": "[]", "anti": "[]", "boards": "2", "qs": [], "cur": null, "blocked": [], "act": "done", "lines": [15]}];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1500);
+        });
+        update();
+      }
+
+      const MARK = { hi: 'current', seen: 'frontier', good: 'recorded', bad: 'pruned', done: 'done' };
+
+      function renderPP(step, index, max) {
+        document.getElementById('pp-step-title').textContent = step.title;
+        document.getElementById('pp-step-text').textContent = step.text;
+        document.getElementById('pp-start').textContent = step.start;
+        document.getElementById('pp-piece').textContent = step.piece;
+        document.getElementById('pp-action').textContent = step.action;
+        document.getElementById('pp-path').textContent = step.path;
+        document.getElementById('pp-out').textContent = step.out;
+        document.getElementById('pp-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('pp-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('pp-trace-table', step.step);
+        setCodeHighlight('pp-code', step.lines);
+        document.querySelectorAll('#pp-graph [data-node]').forEach((node) => {
+          node.classList.remove('done', 'frontier', 'current', 'recorded', 'pruned');
+          const m = step.marks[node.dataset.node];
+          if (m) node.classList.add(MARK[m]);
+        });
+      }
+
+      function renderNQ(step, index, max) {
+        document.getElementById('nq-step-title').textContent = step.title;
+        document.getElementById('nq-step-text').textContent = step.text;
+        document.getElementById('nq-row').textContent = step.row;
+        document.getElementById('nq-queens').textContent = step.queens;
+        document.getElementById('nq-cols').textContent = step.cols;
+        document.getElementById('nq-diag').textContent = step.diag;
+        document.getElementById('nq-anti').textContent = step.anti;
+        document.getElementById('nq-boards').textContent = step.boards;
+        document.getElementById('nq-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('nq-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('nq-trace-table', step.step);
+        setCodeHighlight('nq-code', step.lines);
+        document.querySelectorAll('#nq-graph [data-cell]').forEach((cell) => {
+          const [r, c] = cell.dataset.cell.split(',').map(Number);
+          const label = document.querySelector(`#nq-graph [data-q="${r},${c}"]`);
+          const isQueen = step.qs[r] === c;
+          const attacked = step.qs.some((qc, qr) => qc === c || qr - qc === r - c || qr + qc === r + c);
+          const blocked = step.blocked.some(([br, bc]) => br === r && bc === c);
+          cell.classList.remove('queen', 'attacked', 'blocked', 'current');
+          label.classList.remove('x');
+          label.textContent = '';
+          if (isQueen) { cell.classList.add('queen'); label.textContent = 'Q'; }
+          else if (blocked) { cell.classList.add('blocked'); label.classList.add('x'); label.textContent = 'x'; }
+          else if (attacked) cell.classList.add('attacked');
+          if (step.cur && step.cur[0] === r && step.cur[1] === c) cell.classList.add('current');
+        });
+      }
+
+      setupTrace({ steps: ppSteps, prefix: 'pp', render: renderPP });
+      setupTrace({ steps: nqSteps, prefix: 'nq', render: renderNQ });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

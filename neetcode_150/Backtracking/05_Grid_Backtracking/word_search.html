@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Search — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0;text-align:center}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.3}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:44px;height:44px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.seen{background:var(--seen);border-color:var(--seen-bd)} .gcell.bad{background:var(--bad);border-color:var(--bad-bd)} .gcell.dim{opacity:.3}
+  .ivbar{fill:var(--accent-soft);stroke:var(--border);stroke-width:1.5}
+  .ivbar.hi{fill:var(--hi);stroke:var(--hi-bd)} .ivbar.good{fill:var(--good);stroke:var(--good-bd)}
+  .ivbar.bad{fill:var(--bad);stroke:var(--bad-bd)} .ivbar.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="05_grid_backtracking_lesson.html">← Grid Backtracking lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Backtracking · Grid Backtracking</span></div>
+<h1>79 · Word Search</h1>
+<p class="lead">Can you spell the word by walking from letter to neighbouring letter, never stepping on the same square twice?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You get a grid of letters and a word. Walk up, down, left or right from cell to cell. Can the letters you step on spell the word, using each cell at most once?</p>
+<p>Think of a word-search puzzle where the word is allowed to bend around corners.</p>
+<div class="idea">Below: the path that spells <code>ABCCED</code> on the LeetCode example board. Press Next to follow it.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>on the current path (marked)</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>match / answer</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>ruled out</span></div>
+<div class="viz" id="ws-viz"></div><div class="badges" id="ws-b"></div><div class="caption" id="ws-cap"></div>
+<div class="controls" data-player="ws"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="ws-count"></span></div>
+</div>
+
+<div class="card"><h2>Approach 1 — Brute force: try every path, compare at the end</h2>
+<div class="idea">From every start cell, build <b>every</b> path of exactly <code>len(word)</code> neighbouring cells that never repeats a cell. Only when a path is complete, read its letters and compare them with the word. The letters never steer the search.</div>
+<p>Sample: board <code>[["A","B"],["C","D"]]</code>, word <code>"BDC"</code>. Watch how it builds two full paths from <b>A</b> even though the word starts with <b>B</b>.</p>
+<div class="viz" id="bf-viz"></div><div class="badges" id="bf-b"></div><div class="caption" id="bf-cap"></div>
+<div class="controls" data-player="bf"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="bf-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every path of length <code>L</code> from every cell, each copied and joined: <code>O(rows·cols·3^L·L)</code> time, <code>O(L)</code> memory. It does the same work whatever the letters are.</p>
+<div class="trace-title">Step-by-step trace — board = [["A","B"],["C","D"]], word = "BDC"</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Path (cells)</th><th>Letters</th><th>Decision</th></tr>
+  <tr><td>1</td><td>(0,0)</td><td>"A"</td><td>new start cell, extend</td></tr>
+  <tr><td>2</td><td>(0,0) (1,0)</td><td>"AC"</td><td>extend (letters not checked)</td></tr>
+  <tr><td>3</td><td>(0,0) (1,0) (1,1)</td><td>"ACD"</td><td>full path: "ACD" == "BDC"? no, try the next path</td></tr>
+  <tr><td>4</td><td>(0,0) (0,1)</td><td>"AB"</td><td>extend (letters not checked)</td></tr>
+  <tr><td>5</td><td>(0,0) (0,1) (1,1)</td><td>"ABD"</td><td>full path: "ABD" == "BDC"? no, try the next path</td></tr>
+  <tr><td>6</td><td>(0,1)</td><td>"B"</td><td>new start cell, extend</td></tr>
+  <tr><td>7</td><td>(0,1) (1,1)</td><td>"BD"</td><td>extend (letters not checked)</td></tr>
+  <tr class="final"><td>8</td><td>(0,1) (1,1) (1,0)</td><td>"BDC"</td><td>full path: "BDC" == "BDC"? yes: return True</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Approach 2 — Backtracking DFS: prune, mark, restore</h2>
+<div class="idea">Grow <b>one</b> path, letter by letter. A call <code>dfs(r, c, i)</code> asks "can the word from letter <code>i</code> on start at cell (r, c)?". If the cell is off the board or holds the wrong letter, stop at once (prune). Otherwise <b>mark</b> it <code>#</code> so this path can't step on it again, try the 4 neighbours for the next letter, then <b>restore</b> the letter on the way back so other paths can use the cell.</div>
+<p>Sample: the LeetCode board, word <code>"ABCCED"</code>. Neighbours are tried in the code's order: down, up, right, left.</p>
+<div class="viz" id="bt-viz"></div><div class="badges" id="bt-b"></div><div class="caption" id="bt-cap"></div>
+<div class="controls" data-player="bt"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="bt-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> worst case <code>O(rows·cols·3^L)</code> (a board of all one letter), but a wrong letter ends a path after one step, so ordinary boards finish far sooner. <code>O(L)</code> memory: just the recursion; the mark lives in the board.</p>
+<div class="trace-title">Step-by-step trace — word = "ABCCED" (every call, in order)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Call</th><th>Cell</th><th>word[i]</th><th>Result</th><th>Marked path after</th></tr>
+  <tr><td>1</td><td>dfs(0, 0, 0)</td><td>A</td><td>A</td><td>'A' == word[0]: mark # and go deeper</td><td>(0,0)</td></tr>
+  <tr><td>2</td><td>dfs(1, 0, 1)</td><td>S</td><td>B</td><td>'S' != 'B': return False</td><td>(0,0)</td></tr>
+  <tr><td>3</td><td>dfs(-1, 0, 1)</td><td>—</td><td>B</td><td>off the board: return False</td><td>(0,0)</td></tr>
+  <tr><td>4</td><td>dfs(0, 1, 1)</td><td>B</td><td>B</td><td>'B' == word[1]: mark # and go deeper</td><td>(0,0) (0,1)</td></tr>
+  <tr><td>5</td><td>dfs(1, 1, 2)</td><td>F</td><td>C</td><td>'F' != 'C': return False</td><td>(0,0) (0,1)</td></tr>
+  <tr><td>6</td><td>dfs(-1, 1, 2)</td><td>—</td><td>C</td><td>off the board: return False</td><td>(0,0) (0,1)</td></tr>
+  <tr><td>7</td><td>dfs(0, 2, 2)</td><td>C</td><td>C</td><td>'C' == word[2]: mark # and go deeper</td><td>(0,0) (0,1) (0,2)</td></tr>
+  <tr><td>8</td><td>dfs(1, 2, 3)</td><td>C</td><td>C</td><td>'C' == word[3]: mark # and go deeper</td><td>(0,0) (0,1) (0,2) (1,2)</td></tr>
+  <tr><td>9</td><td>dfs(2, 2, 4)</td><td>E</td><td>E</td><td>'E' == word[4]: mark # and go deeper</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+  <tr><td>10</td><td>dfs(3, 2, 5)</td><td>—</td><td>D</td><td>off the board: return False</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+  <tr><td>11</td><td>dfs(1, 2, 5)</td><td>#</td><td>D</td><td>cell is # (on this path): return False</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+  <tr><td>12</td><td>dfs(2, 3, 5)</td><td>E</td><td>D</td><td>'E' != 'D': return False</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+  <tr><td>13</td><td>dfs(2, 1, 5)</td><td>D</td><td>D</td><td>'D' == word[5]: mark # and go deeper</td><td>(0,0) (0,1) (0,2) (1,2) (2,2) (2,1)</td></tr>
+  <tr><td>14</td><td>dfs(3, 1, 6)</td><td>—</td><td>—</td><td>i == len(word): return True</td><td>(0,0) (0,1) (0,2) (1,2) (2,2) (2,1)</td></tr>
+  <tr><td>15</td><td>dfs(2, 1, 5) ends</td><td># → D</td><td>D</td><td>restore 'D', return True</td><td>(0,0) (0,1) (0,2) (1,2) (2,2)</td></tr>
+  <tr><td>16</td><td>dfs(2, 2, 4) ends</td><td># → E</td><td>E</td><td>restore 'E', return True</td><td>(0,0) (0,1) (0,2) (1,2)</td></tr>
+  <tr><td>17</td><td>dfs(1, 2, 3) ends</td><td># → C</td><td>C</td><td>restore 'C', return True</td><td>(0,0) (0,1) (0,2)</td></tr>
+  <tr><td>18</td><td>dfs(0, 2, 2) ends</td><td># → C</td><td>C</td><td>restore 'C', return True</td><td>(0,0) (0,1)</td></tr>
+  <tr><td>19</td><td>dfs(0, 1, 1) ends</td><td># → B</td><td>B</td><td>restore 'B', return True</td><td>(0,0)</td></tr>
+  <tr class="final"><td>20</td><td>dfs(0, 0, 0) ends</td><td># → A</td><td>A</td><td>restore 'A', return True: answer True</td><td>—</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+<p>See <b>"find a word / path in a grid, each cell used once"</b>? That is grid backtracking: DFS from every cell, mark the cell, explore its neighbours, restore it.</p>
+<p>Not the same as <b>flood fill</b> (Number of Islands): there a visited cell stays visited for good. Here the mark is undone on the way back, because a different path may need that cell.</p>
+<p><a href="05_grid_backtracking_lesson.html">→ Grid Backtracking: the pattern lesson</a> · <a href="README.md">pattern notes</a></p></div>
+</div>
+<script>
+"use strict";
+window.addEventListener('DOMContentLoaded', function(){
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1100);
+  });
+  draw();
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function renderGrid(id, board, marks){
+  marks=marks||{};
+  var s='<div class="grid2" style="grid-template-columns:repeat('+board[0].length+',auto)">';
+  for(var r=0;r<board.length;r++) for(var c=0;c<board[0].length;c++)
+    s+='<div class="gcell '+(marks[r+","+c]||'')+'">'+board[r][c]+'</div>';
+  document.getElementById(id).innerHTML=s+'</div>';
+}
+
+// Problem demo: the answer path for ABCCED.
+var B=[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]];
+var WORD="ABCCED";
+var path=[[0,0],[0,1],[0,2],[1,2],[2,2],[2,1]];
+var fr=[{cap:'Looking for "'+WORD+'". Start where the first letter matches.',k:-1}];
+for(var k=0;k<path.length;k++) fr.push({cap:'Letter '+(k+1)+' "'+WORD[k]+'" at ('+path[k][0]+','+path[k][1]+'), a neighbour of the previous one.',k:k});
+fr.push({cap:'Whole word "'+WORD+'" found along a connected path, no cell used twice.',k:path.length,fin:true});
+makePlayer('ws',fr,function(f){
+  var m={}; for(var k=0;k<Math.min(f.k+1,path.length);k++){ m[path[k][0]+','+path[k][1]]=(f.fin?'good':(k===f.k?'hi':'seen')); }
+  renderGrid('ws-viz',B,m);
+  badges('ws-b',[{label:'matched',val:f.k<0?'—':WORD.slice(0,Math.min(f.k+1,WORD.length)),cls:f.fin?'good':''}]);
+  document.getElementById('ws-cap').innerHTML=f.cap;
+});
+
+// Approach 1 frames: generated by running exist_brute (instrumented) on [["A","B"],["C","D"]], "BDC".
+var BF_B=[["A","B"],["C","D"]], BF_W="BDC";
+var bfFrames=[{"path":[],"full":false,"cap":"Looking for \"BDC\" on a 2×2 board. The brute force lists every 3-cell path from every start cell."},{"path":[[0,0]],"full":false,"cap":"Start a path at (0,0) = \"A\". The brute force does not look at the letter, it just grows the path."},{"path":[[0,0],[1,0]],"full":false,"cap":"Extend to (1,0). Path letters so far \"AC\". Still no check against the word."},{"path":[[0,0],[1,0],[1,1]],"full":true,"s":"ACD","eq":false,"cap":"Path has 3 cells, so compare its letters: \"ACD\" vs \"BDC\". Different. Back up and try the next path."},{"path":[[0,0],[0,1]],"full":false,"cap":"Extend to (0,1). Path letters so far \"AB\". Still no check against the word."},{"path":[[0,0],[0,1],[1,1]],"full":true,"s":"ABD","eq":false,"cap":"Path has 3 cells, so compare its letters: \"ABD\" vs \"BDC\". Different. Back up and try the next path."},{"path":[[0,1]],"full":false,"cap":"Start a path at (0,1) = \"B\". The brute force does not look at the letter, it just grows the path."},{"path":[[0,1],[1,1]],"full":false,"cap":"Extend to (1,1). Path letters so far \"BD\". Still no check against the word."},{"path":[[0,1],[1,1],[1,0]],"full":true,"s":"BDC","eq":true,"cap":"Path has 3 cells, so compare its letters: \"BDC\" vs \"BDC\". Match! Return True."}];
+makePlayer('bf',bfFrames,function(f){
+  var m={}, p=f.path, s='';
+  for(var k=0;k<p.length;k++){ s+=BF_B[p[k][0]][p[k][1]]; m[p[k][0]+','+p[k][1]]=(k===p.length-1?'hi':'seen'); }
+  if(f.full){ for(var k=0;k<p.length;k++) m[p[k][0]+','+p[k][1]]=(f.eq?'good':'bad'); }
+  renderGrid('bf-viz',BF_B,m);
+  badges('bf-b',[{label:'path letters',val:s?'"'+s+'"':'—',cls:f.full?(f.eq?'good':'bad'):''},{label:'word',val:'"'+BF_W+'"'}]);
+  document.getElementById('bf-cap').innerHTML=f.cap;
+});
+
+// Approach 2 frames: generated by running exist (instrumented) on the LeetCode board, "ABCCED".
+var btFrames=[{"cap":"Looking for \"ABCCED\". <code>any(...)</code> tries start cells in row order, beginning with (0,0).","kind":"init","r":-9,"c":-9,"path":[]},{"cap":"<code>dfs(0, 0, 0)</code>: the cell holds <b>A</b>, the word needs <b>A</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[1].","kind":"mark","r":0,"c":0,"path":[[0,0]]},{"cap":"<code>dfs(1, 0, 1)</code>: the cell holds <b>S</b> but the word needs <b>B</b>. Prune: return False at once.","kind":"miss","r":1,"c":0,"path":[[0,0]]},{"cap":"<code>dfs(-1, 0, 1)</code>: (-1,0) is off the board. Return False.","kind":"off","r":-1,"c":0,"path":[[0,0]]},{"cap":"<code>dfs(0, 1, 1)</code>: the cell holds <b>B</b>, the word needs <b>B</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[2].","kind":"mark","r":0,"c":1,"path":[[0,0],[0,1]]},{"cap":"<code>dfs(1, 1, 2)</code>: the cell holds <b>F</b> but the word needs <b>C</b>. Prune: return False at once.","kind":"miss","r":1,"c":1,"path":[[0,0],[0,1]]},{"cap":"<code>dfs(-1, 1, 2)</code>: (-1,1) is off the board. Return False.","kind":"off","r":-1,"c":1,"path":[[0,0],[0,1]]},{"cap":"<code>dfs(0, 2, 2)</code>: the cell holds <b>C</b>, the word needs <b>C</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[3].","kind":"mark","r":0,"c":2,"path":[[0,0],[0,1],[0,2]]},{"cap":"<code>dfs(1, 2, 3)</code>: the cell holds <b>C</b>, the word needs <b>C</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[4].","kind":"mark","r":1,"c":2,"path":[[0,0],[0,1],[0,2],[1,2]]},{"cap":"<code>dfs(2, 2, 4)</code>: the cell holds <b>E</b>, the word needs <b>E</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[5].","kind":"mark","r":2,"c":2,"path":[[0,0],[0,1],[0,2],[1,2],[2,2]]},{"cap":"<code>dfs(3, 2, 5)</code>: (3,2) is off the board. Return False.","kind":"off","r":3,"c":2,"path":[[0,0],[0,1],[0,2],[1,2],[2,2]]},{"cap":"<code>dfs(1, 2, 5)</code>: this cell is marked <code>#</code>, it is already on the current path. A cell can't be used twice, so return False.","kind":"used","r":1,"c":2,"path":[[0,0],[0,1],[0,2],[1,2],[2,2]]},{"cap":"<code>dfs(2, 3, 5)</code>: the cell holds <b>E</b> but the word needs <b>D</b>. Prune: return False at once.","kind":"miss","r":2,"c":3,"path":[[0,0],[0,1],[0,2],[1,2],[2,2]]},{"cap":"<code>dfs(2, 1, 5)</code>: the cell holds <b>D</b>, the word needs <b>D</b>. Match: mark it <code>#</code> and try its 4 neighbours for word[6].","kind":"mark","r":2,"c":1,"path":[[0,0],[0,1],[0,2],[1,2],[2,2],[2,1]]},{"cap":"<code>dfs(3, 1, 6)</code>: i = 6 = len(word). Every letter matched, return True.","kind":"done","r":3,"c":1,"path":[[0,0],[0,1],[0,2],[1,2],[2,2],[2,1]]},{"cap":"Back in <code>dfs(2, 1, 5)</code>: put <b>D</b> back in (2,1) and return True to the caller.","kind":"restore","r":2,"c":1,"path":[[0,0],[0,1],[0,2],[1,2],[2,2]]},{"cap":"Back in <code>dfs(2, 2, 4)</code>: put <b>E</b> back in (2,2) and return True to the caller.","kind":"restore","r":2,"c":2,"path":[[0,0],[0,1],[0,2],[1,2]]},{"cap":"Back in <code>dfs(1, 2, 3)</code>: put <b>C</b> back in (1,2) and return True to the caller.","kind":"restore","r":1,"c":2,"path":[[0,0],[0,1],[0,2]]},{"cap":"Back in <code>dfs(0, 2, 2)</code>: put <b>C</b> back in (0,2) and return True to the caller.","kind":"restore","r":0,"c":2,"path":[[0,0],[0,1]]},{"cap":"Back in <code>dfs(0, 1, 1)</code>: put <b>B</b> back in (0,1) and return True to the caller.","kind":"restore","r":0,"c":1,"path":[[0,0]]},{"cap":"Back in <code>dfs(0, 0, 0)</code>: put <b>A</b> back in (0,0) and return True to the caller. <b>Answer: True</b>, and the board is back to its original letters.","kind":"restore","r":0,"c":0,"path":[]}];
+makePlayer('bt',btFrames,function(f, idx){
+  var m={}, onPath={};
+  for(var k=0;k<f.path.length;k++){ m[f.path[k][0]+','+f.path[k][1]]='seen'; onPath[f.path[k][0]+','+f.path[k][1]]=1; }
+  var key=f.r+','+f.c, inside=f.r>=0&&f.c>=0&&f.r<B.length&&f.c<B[0].length;
+  if(f.kind==='mark'||f.kind==='restore') m[key]='hi';
+  if((f.kind==='miss'||f.kind==='used')&&inside) m[key]='bad';
+  if(idx===btFrames.length-1){ path.forEach(function(p){ m[p[0]+','+p[1]]='good'; }); }
+  var shown=B.map(function(row,r){ return row.map(function(ch,c){ return onPath[r+','+c]?'#':ch; }); });
+  renderGrid('bt-viz',shown,m);
+  badges('bt-b',[{label:'call',val:f.kind==='init'?'—':'dfs('+f.r+', '+f.c+', …)'},{label:'marked cells',val:f.path.length},{label:'answer',val:idx===btFrames.length-1?'True':'…',cls:idx===btFrames.length-1?'good':''}]);
+  document.getElementById('bt-cap').innerHTML=f.cap;
+});
+});
+</script>
+</body></html>

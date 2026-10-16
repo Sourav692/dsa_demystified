@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subsets — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+
+  .tnode rect{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode.hi rect{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good rect{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.seen rect{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.cur rect{stroke-width:3.5}
+  .tnode text{font-size:12px}
+  .edge.ex{stroke-dasharray:5 4}
+  .elabel{fill:var(--muted);font-size:10.5px;font-weight:600}
+  .bitrow .ptr{color:var(--muted)}
+  .maskline{text-align:center;font-size:14px;color:var(--muted);margin-top:6px}
+  .maskline b{color:var(--fg);font-family:ui-monospace,Menlo,Consolas,monospace}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_subsets_lesson.html">← Subsets lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Backtracking · Subsets</span></div>
+<h1>78 · Subsets</h1>
+<p class="lead">List every possible selection of a set of distinct numbers.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You have a few different items. List every possible selection of them: taking none, taking one, taking two, and so on up to taking all of them. Order inside a selection does not matter, and no selection may appear twice.</p>
+<div class="idea">Example: <code>[1, 2, 3]</code> &rarr; <code>[[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]]</code>. Think "which toppings could go on a pizza": each topping is on or off.</div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>in this subset</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.35"></span>left out</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="mem"><h4>subsets listed so far</h4><div class="chips" id="pd-out"></div></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Every extra item doubles the count: 3 items give 8 subsets, 10 items give 1024.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: count in binary</h2>
+<div class="idea">Write the numbers 0 to 7 in binary: <code>000</code>, <code>001</code>, &hellip;, <code>111</code>. Each pattern of three on/off bits is one subset: bit <code>i</code> on means "take <code>nums[i]</code>". Eight numbers, eight subsets, none repeated.</div>
+<div class="viz" id="bm-viz"></div>
+<div class="mem"><h4>out</h4><div class="chips" id="bm-out"></div></div>
+<div class="caption" id="bm-cap"></div>
+<div class="controls" data-player="bm"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="bm-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>2ⁿ</code> masks, each checking <code>n</code> bits — <code>O(n·2ⁿ)</code> time, <code>O(n)</code> extra memory besides the answer. No method can be faster: the answer itself has <code>2ⁿ</code> lists.</p>
+<div class="trace-title">Step-by-step trace — nums = [1, 2, 3]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>mask</th><th>binary</th><th>subset built</th><th>out size</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td><code>000</code></td><td><code>[]</code></td><td>1</td><td class="rule">mask 0 = 000: keep nothing</td></tr>
+  <tr><td>2</td><td>1</td><td><code>001</code></td><td><code>[1]</code></td><td>2</td><td class="rule">mask 1 = 001: keep nums[0]</td></tr>
+  <tr><td>3</td><td>2</td><td><code>010</code></td><td><code>[2]</code></td><td>3</td><td class="rule">mask 2 = 010: keep nums[1]</td></tr>
+  <tr><td>4</td><td>3</td><td><code>011</code></td><td><code>[1, 2]</code></td><td>4</td><td class="rule">mask 3 = 011: keep nums[0], nums[1]</td></tr>
+  <tr><td>5</td><td>4</td><td><code>100</code></td><td><code>[3]</code></td><td>5</td><td class="rule">mask 4 = 100: keep nums[2]</td></tr>
+  <tr><td>6</td><td>5</td><td><code>101</code></td><td><code>[1, 3]</code></td><td>6</td><td class="rule">mask 5 = 101: keep nums[0], nums[2]</td></tr>
+  <tr><td>7</td><td>6</td><td><code>110</code></td><td><code>[2, 3]</code></td><td>7</td><td class="rule">mask 6 = 110: keep nums[1], nums[2]</td></tr>
+  <tr class="final"><td>8</td><td>7</td><td><code>111</code></td><td><code>[1, 2, 3]</code></td><td>8</td><td>mask 7 = 111: keep nums[0], nums[1], nums[2] &rarr; return all 8</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Backtracking: include or exclude each number (the pattern)</h2>
+<div class="idea">Walk the numbers left to right. At each one, make a yes/no choice. First say <b>yes</b>: add it to <code>path</code>, decide the rest, then take it back out (<code>pop</code>). Then say <b>no</b>: decide the rest without it. When every number is decided, <code>path</code> is one subset: save a copy.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>on the call stack</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>recorded in out</span><span><span class="sw" style="background:var(--card);border-color:var(--border)"></span>finished</span><span>faded = not reached yet · dashed edge = exclude branch</span></div>
+<div class="viz" id="ie-viz"></div>
+<div class="mem"><h4>path (the shared working list)</h4><div class="chips" id="ie-path"></div></div>
+<div class="mem"><h4>out (recorded copies)</h4><div class="chips" id="ie-out"></div></div>
+<div class="caption" id="ie-cap"></div>
+<div class="controls" data-player="ie"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="ie-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> the tree has <code>2ⁿ</code> leaves, one per subset, and each leaf copies up to <code>n</code> numbers — <code>O(n·2ⁿ)</code> time; the call stack is <code>n</code> deep — <code>O(n)</code> extra memory.</p>
+<div class="trace-title">Step-by-step trace — nums = [1, 2, 3]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>i</th><th>path after</th><th>out size</th><th>Action</th></tr>
+  <tr><td>1</td><td>0</td><td><code>[]</code></td><td>0</td><td class="rule">Call backtrack(0)</td></tr>
+  <tr><td>2</td><td>0</td><td><code>[1]</code></td><td>0</td><td class="rule">INCLUDE nums[0] = 1</td></tr>
+  <tr><td>3</td><td>1</td><td><code>[1, 2]</code></td><td>0</td><td class="rule">INCLUDE nums[1] = 2</td></tr>
+  <tr><td>4</td><td>2</td><td><code>[1, 2, 3]</code></td><td>0</td><td class="rule">INCLUDE nums[2] = 3</td></tr>
+  <tr><td>5</td><td>3</td><td><code>[1, 2, 3]</code></td><td>1</td><td class="rule">i == 3: record [1, 2, 3]</td></tr>
+  <tr><td>6</td><td>2 &rarr; 3</td><td><code>[1, 2]</code></td><td>1</td><td class="rule">pop 3; EXCLUDE nums[2] = 3</td></tr>
+  <tr><td>7</td><td>3</td><td><code>[1, 2]</code></td><td>2</td><td class="rule">i == 3: record [1, 2]</td></tr>
+  <tr><td>8</td><td>1 &rarr; 2</td><td><code>[1]</code></td><td>2</td><td class="rule">pop 2; EXCLUDE nums[1] = 2</td></tr>
+  <tr><td>9</td><td>2</td><td><code>[1, 3]</code></td><td>2</td><td class="rule">INCLUDE nums[2] = 3</td></tr>
+  <tr><td>10</td><td>3</td><td><code>[1, 3]</code></td><td>3</td><td class="rule">i == 3: record [1, 3]</td></tr>
+  <tr><td>11</td><td>2 &rarr; 3</td><td><code>[1]</code></td><td>3</td><td class="rule">pop 3; EXCLUDE nums[2] = 3</td></tr>
+  <tr><td>12</td><td>3</td><td><code>[1]</code></td><td>4</td><td class="rule">i == 3: record [1]</td></tr>
+  <tr><td>13</td><td>0 &rarr; 1</td><td><code>[]</code></td><td>4</td><td class="rule">pop 1; EXCLUDE nums[0] = 1</td></tr>
+  <tr><td>14</td><td>1</td><td><code>[2]</code></td><td>4</td><td class="rule">INCLUDE nums[1] = 2</td></tr>
+  <tr><td>15</td><td>2</td><td><code>[2, 3]</code></td><td>4</td><td class="rule">INCLUDE nums[2] = 3</td></tr>
+  <tr><td>16</td><td>3</td><td><code>[2, 3]</code></td><td>5</td><td class="rule">i == 3: record [2, 3]</td></tr>
+  <tr><td>17</td><td>2 &rarr; 3</td><td><code>[2]</code></td><td>5</td><td class="rule">pop 3; EXCLUDE nums[2] = 3</td></tr>
+  <tr><td>18</td><td>3</td><td><code>[2]</code></td><td>6</td><td class="rule">i == 3: record [2]</td></tr>
+  <tr><td>19</td><td>1 &rarr; 2</td><td><code>[]</code></td><td>6</td><td class="rule">pop 2; EXCLUDE nums[1] = 2</td></tr>
+  <tr><td>20</td><td>2</td><td><code>[3]</code></td><td>6</td><td class="rule">INCLUDE nums[2] = 3</td></tr>
+  <tr><td>21</td><td>3</td><td><code>[3]</code></td><td>7</td><td class="rule">i == 3: record [3]</td></tr>
+  <tr><td>22</td><td>2 &rarr; 3</td><td><code>[]</code></td><td>7</td><td class="rule">pop 3; EXCLUDE nums[2] = 3</td></tr>
+  <tr class="final"><td>23</td><td>3</td><td><code>[]</code></td><td>8</td><td>i == 3: record [] &rarr; return <code>[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3], []]</code></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — Backtracking: pick the next number from the right (start index)</h2>
+<div class="idea">Every partial selection is already a subset, so save it the moment you arrive. Then try each number <b>to the right</b> of the last one picked as the next pick. Only moving right means <code>[1, 2]</code> gets built but <code>[2, 1]</code> never does.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>on the call stack</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>recorded in out</span><span><span class="sw" style="background:var(--card);border-color:var(--border)"></span>finished</span><span>faded = not reached yet · dashed edge = exclude branch</span></div>
+<div class="viz" id="si-viz"></div>
+<div class="mem"><h4>path (the shared working list)</h4><div class="chips" id="si-path"></div></div>
+<div class="mem"><h4>out (recorded copies)</h4><div class="chips" id="si-out"></div></div>
+<div class="caption" id="si-cap"></div>
+<div class="controls" data-player="si"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="si-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> exactly one call per subset (<code>2ⁿ</code> calls), each copying up to <code>n</code> numbers — <code>O(n·2ⁿ)</code> time, <code>O(n)</code> extra memory. Same subsets as Solution 2, in a different order.</p>
+<div class="trace-title">Step-by-step trace — nums = [1, 2, 3]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>start</th><th>path after</th><th>out size</th><th>Action</th></tr>
+  <tr><td>1</td><td>0</td><td><code>[]</code></td><td>1</td><td class="rule">backtrack(0): record []</td></tr>
+  <tr><td>2</td><td>1</td><td><code>[1]</code></td><td>2</td><td class="rule">CHOOSE nums[0] = 1; record [1]</td></tr>
+  <tr><td>3</td><td>2</td><td><code>[1, 2]</code></td><td>3</td><td class="rule">CHOOSE nums[1] = 2; record [1, 2]</td></tr>
+  <tr><td>4</td><td>3</td><td><code>[1, 2, 3]</code></td><td>4</td><td class="rule">CHOOSE nums[2] = 3; record [1, 2, 3]</td></tr>
+  <tr><td>5</td><td>2</td><td><code>[1, 2]</code></td><td>4</td><td class="rule">UN-CHOOSE: pop 3</td></tr>
+  <tr><td>6</td><td>1</td><td><code>[1]</code></td><td>4</td><td class="rule">UN-CHOOSE: pop 2</td></tr>
+  <tr><td>7</td><td>3</td><td><code>[1, 3]</code></td><td>5</td><td class="rule">CHOOSE nums[2] = 3; record [1, 3]</td></tr>
+  <tr><td>8</td><td>1</td><td><code>[1]</code></td><td>5</td><td class="rule">UN-CHOOSE: pop 3</td></tr>
+  <tr><td>9</td><td>0</td><td><code>[]</code></td><td>5</td><td class="rule">UN-CHOOSE: pop 1</td></tr>
+  <tr><td>10</td><td>2</td><td><code>[2]</code></td><td>6</td><td class="rule">CHOOSE nums[1] = 2; record [2]</td></tr>
+  <tr><td>11</td><td>3</td><td><code>[2, 3]</code></td><td>7</td><td class="rule">CHOOSE nums[2] = 3; record [2, 3]</td></tr>
+  <tr><td>12</td><td>2</td><td><code>[2]</code></td><td>7</td><td class="rule">UN-CHOOSE: pop 3</td></tr>
+  <tr><td>13</td><td>0</td><td><code>[]</code></td><td>7</td><td class="rule">UN-CHOOSE: pop 2</td></tr>
+  <tr><td>14</td><td>3</td><td><code>[3]</code></td><td>8</td><td class="rule">CHOOSE nums[2] = 3; record [3]</td></tr>
+  <tr class="final"><td>15</td><td>0</td><td><code>[]</code></td><td>8</td><td>UN-CHOOSE: pop 3 &rarr; return <code>[[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]</code></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"all subsets"</b>, <b>"power set"</b>, <b>"every combination of any size"</b>, or "each item is either picked or not"? Use the include/exclude backtracking template. If the input can repeat values, sort and skip: <a href="subsets_ii.html">Subsets II</a>.
+<p><a href="01_subsets_lesson.html">→ Subsets: the pattern lesson and the other problem that uses it</a></p></div>
+
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+
+/* Recursion-tree drawing. Node x = leaf order (parents centred over their children), y = depth.
+   Frame fields: cur (node id), onpath (ids on the call stack), visited, rec (recorded ids). */
+function drawTree(id, T, f){
+  var GX=76, GY=64, NW=64, NH=26, maxd=0;
+  T.nodes.forEach(function(n){ maxd=Math.max(maxd,n.depth); });
+  var W=T.leaves*GX+10, H=(maxd+1)*GY+6;
+  function X(n){ return n.x*GX+GX/2+5; } function Y(n){ return n.depth*GY+NH/2+8; }
+  var vis={}, onp={}, rec={};
+  f.visited.forEach(function(v){vis[v]=1;}); f.onpath.forEach(function(v){onp[v]=1;}); f.rec.forEach(function(v){rec[v]=1;});
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px" role="img" aria-label="recursion tree">';
+  T.nodes.forEach(function(n){
+    if(n.parent===null) return;
+    var p=T.nodes[n.parent], x1=X(p), y1=Y(p)+NH/2, x2=X(n), y2=Y(n)-NH/2;
+    var dim=vis[n.id]?'':' style="opacity:.25"';
+    s+='<line class="edge'+(n.dashed?' ex':'')+'"'+dim+' x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"/>';
+    var mx=(x1+x2)/2, my=(y1+y2)/2+4, left=x2<x1, anchor=x2===x1?'start':(left?'end':'start'), dx=x2===x1?6:(left?-5:5);
+    s+='<text class="elabel"'+dim+' x="'+(mx+dx)+'" y="'+my+'" text-anchor="'+anchor+'">'+n.edge+'</text>';
+  });
+  T.nodes.forEach(function(n){
+    var c=rec[n.id]?'good':(n.id===f.cur?'hi':(onp[n.id]?'seen':(vis[n.id]?'':'dim')));
+    if(n.id===f.cur) c+=' cur';
+    s+='<g class="tnode '+c+'"><rect x="'+(X(n)-NW/2)+'" y="'+(Y(n)-NH/2)+'" width="'+NW+'" height="'+NH+'" rx="8"/>'+
+       '<text x="'+X(n)+'" y="'+(Y(n)+4)+'" text-anchor="middle">'+n.label+'</text></g>';
+  });
+  document.getElementById(id).innerHTML=s+'</svg></div>';
+}
+/* Bitmask drawing: one box per nums[i], the bit that controls it above, index below. */
+function drawBits(id, nums, f){
+  var h='<div class="row bitrow">';
+  for(var i=0;i<nums.length;i++){
+    var on=f.take.indexOf(i)>=0;
+    h+='<div class="cell"><div class="ptr">bit '+i+' = '+(on?1:0)+'</div><div class="box '+(on?'good':'dim')+'">'+nums[i]+'</div><div class="idxlabel">nums['+i+']</div></div>';
+  }
+  h+='</div><div class="maskline">mask = <b>'+f.mask+'</b> = binary <b>'+f.bits+'</b> (bit 0 is the rightmost digit) &rarr; subset <b>'+fmt(f.subset)+'</b></div>';
+  document.getElementById(id).innerHTML=h;
+}
+function fmt(a){ return '['+a.join(', ')+']'; }
+function listChips(a, cls){ return a.map(function(s){ return {text:fmt(s), cls:cls||'look'}; }); }
+function cap(id, t){ document.getElementById(id).textContent=t; }
+
+var NUMS=[1, 2, 3];
+var PD=[{"take": [], "subset": null, "out": [], "text": "Three numbers. Each one is either IN the subset or OUT of it: 2 x 2 x 2 = 8 choices in total."}, {"take": [], "subset": [], "out": [[]], "text": "Subset 1 of 8: [] (nothing picked: the empty subset counts)."}, {"take": [0], "subset": [1], "out": [[], [1]], "text": "Subset 2 of 8: [1]."}, {"take": [1], "subset": [2], "out": [[], [1], [2]], "text": "Subset 3 of 8: [2]."}, {"take": [2], "subset": [3], "out": [[], [1], [2], [3]], "text": "Subset 4 of 8: [3]."}, {"take": [0, 1], "subset": [1, 2], "out": [[], [1], [2], [3], [1, 2]], "text": "Subset 5 of 8: [1, 2]."}, {"take": [0, 2], "subset": [1, 3], "out": [[], [1], [2], [3], [1, 2], [1, 3]], "text": "Subset 6 of 8: [1, 3]."}, {"take": [1, 2], "subset": [2, 3], "out": [[], [1], [2], [3], [1, 2], [1, 3], [2, 3]], "text": "Subset 7 of 8: [2, 3]."}, {"take": [0, 1, 2], "subset": [1, 2, 3], "out": [[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]], "text": "Subset 8 of 8: [1, 2, 3] (everything picked). That is all 8, the power set."}];
+makePlayer('pd',PD,function(f){
+  var h='<div class="row">';
+  for(var i=0;i<NUMS.length;i++){ var on=f.take.indexOf(i)>=0; h+='<div class="cell"><div class="ptr">'+(f.subset===null?'':(on?'IN':'out'))+'</div><div class="box '+(f.subset===null?'':(on?'good':'dim'))+'">'+NUMS[i]+'</div></div>'; }
+  document.getElementById('pd-viz').innerHTML=h+'</div>';
+  chips('pd-out',listChips(f.out)); cap('pd-cap',f.text);
+});
+var BM=[{"mask": 0, "bits": "000", "take": [], "subset": [], "out": [[]], "act": "mask 0 = 000: keep nothing", "text": "mask = 0 is 000 in binary (bit 0 on the right). No bits on: the empty subset."}, {"mask": 1, "bits": "001", "take": [0], "subset": [1], "out": [[], [1]], "act": "mask 1 = 001: keep nums[0]", "text": "mask = 1 is 001 in binary (bit 0 on the right). Bits on at positions 0, so the subset is [1]."}, {"mask": 2, "bits": "010", "take": [1], "subset": [2], "out": [[], [1], [2]], "act": "mask 2 = 010: keep nums[1]", "text": "mask = 2 is 010 in binary (bit 0 on the right). Bits on at positions 1, so the subset is [2]."}, {"mask": 3, "bits": "011", "take": [0, 1], "subset": [1, 2], "out": [[], [1], [2], [1, 2]], "act": "mask 3 = 011: keep nums[0], nums[1]", "text": "mask = 3 is 011 in binary (bit 0 on the right). Bits on at positions 0, 1, so the subset is [1, 2]."}, {"mask": 4, "bits": "100", "take": [2], "subset": [3], "out": [[], [1], [2], [1, 2], [3]], "act": "mask 4 = 100: keep nums[2]", "text": "mask = 4 is 100 in binary (bit 0 on the right). Bits on at positions 2, so the subset is [3]."}, {"mask": 5, "bits": "101", "take": [0, 2], "subset": [1, 3], "out": [[], [1], [2], [1, 2], [3], [1, 3]], "act": "mask 5 = 101: keep nums[0], nums[2]", "text": "mask = 5 is 101 in binary (bit 0 on the right). Bits on at positions 0, 2, so the subset is [1, 3]."}, {"mask": 6, "bits": "110", "take": [1, 2], "subset": [2, 3], "out": [[], [1], [2], [1, 2], [3], [1, 3], [2, 3]], "act": "mask 6 = 110: keep nums[1], nums[2]", "text": "mask = 6 is 110 in binary (bit 0 on the right). Bits on at positions 1, 2, so the subset is [2, 3]."}, {"mask": 7, "bits": "111", "take": [0, 1, 2], "subset": [1, 2, 3], "out": [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]], "act": "mask 7 = 111: keep nums[0], nums[1], nums[2]", "text": "mask = 7 is 111 in binary (bit 0 on the right). Bits on at positions 0, 1, 2, so the subset is [1, 2, 3]. Last mask (2^3 - 1): return all 8 subsets.", "final": true}];
+makePlayer('bm',BM,function(f){ drawBits('bm-viz',NUMS,f); chips('bm-out',listChips(f.out)); cap('bm-cap',f.text); });
+
+var IE={"nodes": [{"id": 0, "parent": null, "depth": 0, "label": "[]", "edge": "", "dashed": false, "x": 3.5}, {"id": 1, "parent": 0, "depth": 1, "label": "[1]", "edge": "+1", "dashed": false, "x": 1.5}, {"id": 2, "parent": 1, "depth": 2, "label": "[1, 2]", "edge": "+2", "dashed": false, "x": 0.5}, {"id": 3, "parent": 2, "depth": 3, "label": "[1, 2, 3]", "edge": "+3", "dashed": false, "x": 0}, {"id": 4, "parent": 2, "depth": 3, "label": "[1, 2]", "edge": "skip 3", "dashed": true, "x": 1}, {"id": 5, "parent": 1, "depth": 2, "label": "[1]", "edge": "skip 2", "dashed": true, "x": 2.5}, {"id": 6, "parent": 5, "depth": 3, "label": "[1, 3]", "edge": "+3", "dashed": false, "x": 2}, {"id": 7, "parent": 5, "depth": 3, "label": "[1]", "edge": "skip 3", "dashed": true, "x": 3}, {"id": 8, "parent": 0, "depth": 1, "label": "[]", "edge": "skip 1", "dashed": true, "x": 5.5}, {"id": 9, "parent": 8, "depth": 2, "label": "[2]", "edge": "+2", "dashed": false, "x": 4.5}, {"id": 10, "parent": 9, "depth": 3, "label": "[2, 3]", "edge": "+3", "dashed": false, "x": 4}, {"id": 11, "parent": 9, "depth": 3, "label": "[2]", "edge": "skip 3", "dashed": true, "x": 5}, {"id": 12, "parent": 8, "depth": 2, "label": "[]", "edge": "skip 2", "dashed": true, "x": 6.5}, {"id": 13, "parent": 12, "depth": 3, "label": "[3]", "edge": "+3", "dashed": false, "x": 6}, {"id": 14, "parent": 12, "depth": 3, "label": "[]", "edge": "skip 3", "dashed": true, "x": 7}], "leaves": 8, "frames": [{"onpath": [0], "visited": [0], "rec": [], "kind": "start", "cur": 0, "i": 0, "path": [], "out": [], "act": "Call backtrack(0)", "text": "Start at index 0 with an empty path. Nothing is recorded until every element is decided.", "lines": "start"}, {"onpath": [0, 1], "visited": [0, 1], "rec": [], "kind": "include", "cur": 1, "i": 0, "path": [1], "out": [], "act": "INCLUDE nums[0] = 1", "text": "Include nums[0] = 1: append it, path becomes [1], then recurse into backtrack(1).", "lines": "include"}, {"onpath": [0, 1, 2], "visited": [0, 1, 2], "rec": [], "kind": "include", "cur": 2, "i": 1, "path": [1, 2], "out": [], "act": "INCLUDE nums[1] = 2", "text": "Include nums[1] = 2: append it, path becomes [1, 2], then recurse into backtrack(2).", "lines": "include"}, {"onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [], "kind": "include", "cur": 3, "i": 2, "path": [1, 2, 3], "out": [], "act": "INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [1, 2, 3], then recurse into backtrack(3).", "lines": "include"}, {"onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [3], "kind": "record", "cur": 3, "i": 3, "path": [1, 2, 3], "out": [[1, 2, 3]], "act": "i == 3: record [1, 2, 3]", "text": "Every element is decided, so path [1, 2, 3] is a finished subset. Record a copy (subset #1).", "lines": "record"}, {"onpath": [0, 1, 2, 4], "visited": [0, 1, 2, 3, 4], "rec": [3], "kind": "exclude", "cur": 4, "i": 2, "j": 3, "path": [1, 2], "out": [[1, 2, 3]], "act": "pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to [1, 2]. Now the exclude branch: call backtrack(3) without 3.", "lines": "exclude"}, {"onpath": [0, 1, 2, 4], "visited": [0, 1, 2, 3, 4], "rec": [3, 4], "kind": "record", "cur": 4, "i": 3, "path": [1, 2], "out": [[1, 2, 3], [1, 2]], "act": "i == 3: record [1, 2]", "text": "Every element is decided, so path [1, 2] is a finished subset. Record a copy (subset #2).", "lines": "record"}, {"onpath": [0, 1, 5], "visited": [0, 1, 2, 3, 4, 5], "rec": [3, 4], "kind": "exclude", "cur": 5, "i": 1, "j": 2, "path": [1], "out": [[1, 2, 3], [1, 2]], "act": "pop 2; EXCLUDE nums[1] = 2", "text": "Un-choose: pop 2, path back to [1]. Now the exclude branch: call backtrack(2) without 2.", "lines": "exclude"}, {"onpath": [0, 1, 5, 6], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [3, 4], "kind": "include", "cur": 6, "i": 2, "path": [1, 3], "out": [[1, 2, 3], [1, 2]], "act": "INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [1, 3], then recurse into backtrack(3).", "lines": "include"}, {"onpath": [0, 1, 5, 6], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [3, 4, 6], "kind": "record", "cur": 6, "i": 3, "path": [1, 3], "out": [[1, 2, 3], [1, 2], [1, 3]], "act": "i == 3: record [1, 3]", "text": "Every element is decided, so path [1, 3] is a finished subset. Record a copy (subset #3).", "lines": "record"}, {"onpath": [0, 1, 5, 7], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [3, 4, 6], "kind": "exclude", "cur": 7, "i": 2, "j": 3, "path": [1], "out": [[1, 2, 3], [1, 2], [1, 3]], "act": "pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to [1]. Now the exclude branch: call backtrack(3) without 3.", "lines": "exclude"}, {"onpath": [0, 1, 5, 7], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [3, 4, 6, 7], "kind": "record", "cur": 7, "i": 3, "path": [1], "out": [[1, 2, 3], [1, 2], [1, 3], [1]], "act": "i == 3: record [1]", "text": "Every element is decided, so path [1] is a finished subset. Record a copy (subset #4).", "lines": "record"}, {"onpath": [0, 8], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8], "rec": [3, 4, 6, 7], "kind": "exclude", "cur": 8, "i": 0, "j": 1, "path": [], "out": [[1, 2, 3], [1, 2], [1, 3], [1]], "act": "pop 1; EXCLUDE nums[0] = 1", "text": "Un-choose: pop 1, path back to []. Now the exclude branch: call backtrack(1) without 1.", "lines": "exclude"}, {"onpath": [0, 8, 9], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "rec": [3, 4, 6, 7], "kind": "include", "cur": 9, "i": 1, "path": [2], "out": [[1, 2, 3], [1, 2], [1, 3], [1]], "act": "INCLUDE nums[1] = 2", "text": "Include nums[1] = 2: append it, path becomes [2], then recurse into backtrack(2).", "lines": "include"}, {"onpath": [0, 8, 9, 10], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "rec": [3, 4, 6, 7], "kind": "include", "cur": 10, "i": 2, "path": [2, 3], "out": [[1, 2, 3], [1, 2], [1, 3], [1]], "act": "INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [2, 3], then recurse into backtrack(3).", "lines": "include"}, {"onpath": [0, 8, 9, 10], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "rec": [3, 4, 6, 7, 10], "kind": "record", "cur": 10, "i": 3, "path": [2, 3], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3]], "act": "i == 3: record [2, 3]", "text": "Every element is decided, so path [2, 3] is a finished subset. Record a copy (subset #5).", "lines": "record"}, {"onpath": [0, 8, 9, 11], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "rec": [3, 4, 6, 7, 10], "kind": "exclude", "cur": 11, "i": 2, "j": 3, "path": [2], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3]], "act": "pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to [2]. Now the exclude branch: call backtrack(3) without 3.", "lines": "exclude"}, {"onpath": [0, 8, 9, 11], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "rec": [3, 4, 6, 7, 10, 11], "kind": "record", "cur": 11, "i": 3, "path": [2], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2]], "act": "i == 3: record [2]", "text": "Every element is decided, so path [2] is a finished subset. Record a copy (subset #6).", "lines": "record"}, {"onpath": [0, 8, 12], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "rec": [3, 4, 6, 7, 10, 11], "kind": "exclude", "cur": 12, "i": 1, "j": 2, "path": [], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2]], "act": "pop 2; EXCLUDE nums[1] = 2", "text": "Un-choose: pop 2, path back to []. Now the exclude branch: call backtrack(2) without 2.", "lines": "exclude"}, {"onpath": [0, 8, 12, 13], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "rec": [3, 4, 6, 7, 10, 11], "kind": "include", "cur": 13, "i": 2, "path": [3], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2]], "act": "INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [3], then recurse into backtrack(3).", "lines": "include"}, {"onpath": [0, 8, 12, 13], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "rec": [3, 4, 6, 7, 10, 11, 13], "kind": "record", "cur": 13, "i": 3, "path": [3], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3]], "act": "i == 3: record [3]", "text": "Every element is decided, so path [3] is a finished subset. Record a copy (subset #7).", "lines": "record"}, {"onpath": [0, 8, 12, 14], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "rec": [3, 4, 6, 7, 10, 11, 13], "kind": "exclude", "cur": 14, "i": 2, "j": 3, "path": [], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3]], "act": "pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to []. Now the exclude branch: call backtrack(3) without 3.", "lines": "exclude"}, {"onpath": [0, 8, 12, 14], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "rec": [3, 4, 6, 7, 10, 11, 13, 14], "kind": "record", "cur": 14, "i": 3, "path": [], "out": [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3], []], "act": "i == 3: record []", "text": "Every element is decided, so path [] is a finished subset. Record a copy (subset #8). That was the last leaf: return 8 subsets.", "lines": "record", "final": true}]};
+makePlayer('ie',IE.frames,function(f){ drawTree('ie-viz',IE,f); chips('ie-path',f.path.map(function(v){return {text:String(v)};})); chips('ie-out',listChips(f.out)); cap('ie-cap',f.text); });
+
+var SI={"nodes": [{"id": 0, "parent": null, "depth": 0, "label": "[]", "edge": "", "dashed": false, "x": 1.8333333333333333}, {"id": 1, "parent": 0, "depth": 1, "label": "[1]", "edge": "+1", "dashed": false, "x": 0.5}, {"id": 2, "parent": 1, "depth": 2, "label": "[1, 2]", "edge": "+2", "dashed": false, "x": 0.0}, {"id": 3, "parent": 2, "depth": 3, "label": "[1, 2, 3]", "edge": "+3", "dashed": false, "x": 0}, {"id": 4, "parent": 1, "depth": 2, "label": "[1, 3]", "edge": "+3", "dashed": false, "x": 1}, {"id": 5, "parent": 0, "depth": 1, "label": "[2]", "edge": "+2", "dashed": false, "x": 2.0}, {"id": 6, "parent": 5, "depth": 2, "label": "[2, 3]", "edge": "+3", "dashed": false, "x": 2}, {"id": 7, "parent": 0, "depth": 1, "label": "[3]", "edge": "+3", "dashed": false, "x": 3}], "leaves": 4, "frames": [{"onpath": [0], "visited": [0], "rec": [0], "kind": "record", "cur": 0, "start": 0, "path": [], "out": [[]], "act": "backtrack(0): record []", "text": "Enter backtrack(0) and record the empty path first: every node of this tree is a subset.", "lines": "record"}, {"onpath": [0, 1], "visited": [0, 1], "rec": [0, 1], "kind": "record", "cur": 1, "start": 1, "path": [1], "out": [[], [1]], "act": "CHOOSE nums[0] = 1; record [1]", "text": "Choose nums[0] = 1, enter backtrack(1) and record [1] on entry (subset #2).", "lines": "choose"}, {"onpath": [0, 1, 2], "visited": [0, 1, 2], "rec": [0, 1, 2], "kind": "record", "cur": 2, "start": 2, "path": [1, 2], "out": [[], [1], [1, 2]], "act": "CHOOSE nums[1] = 2; record [1, 2]", "text": "Choose nums[1] = 2, enter backtrack(2) and record [1, 2] on entry (subset #3).", "lines": "choose"}, {"onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "kind": "record", "cur": 3, "start": 3, "path": [1, 2, 3], "out": [[], [1], [1, 2], [1, 2, 3]], "act": "CHOOSE nums[2] = 3; record [1, 2, 3]", "text": "Choose nums[2] = 3, enter backtrack(3) and record [1, 2, 3] on entry (subset #4).", "lines": "choose"}, {"onpath": [0, 1, 2], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "kind": "pop", "cur": 2, "start": 2, "path": [1, 2], "out": [[], [1], [1, 2], [1, 2, 3]], "act": "UN-CHOOSE: pop 3", "text": "Back in backtrack(2): pop 3, path is [1, 2] again; the loop moves on.", "lines": "pop"}, {"onpath": [0, 1], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "kind": "pop", "cur": 1, "start": 1, "path": [1], "out": [[], [1], [1, 2], [1, 2, 3]], "act": "UN-CHOOSE: pop 2", "text": "Back in backtrack(1): pop 2, path is [1] again; the loop moves on.", "lines": "pop"}, {"onpath": [0, 1, 4], "visited": [0, 1, 2, 3, 4], "rec": [0, 1, 2, 3, 4], "kind": "record", "cur": 4, "start": 3, "path": [1, 3], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3]], "act": "CHOOSE nums[2] = 3; record [1, 3]", "text": "Choose nums[2] = 3, enter backtrack(3) and record [1, 3] on entry (subset #5).", "lines": "choose"}, {"onpath": [0, 1], "visited": [0, 1, 2, 3, 4], "rec": [0, 1, 2, 3, 4], "kind": "pop", "cur": 1, "start": 1, "path": [1], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3]], "act": "UN-CHOOSE: pop 3", "text": "Back in backtrack(1): pop 3, path is [1] again; the loop moves on.", "lines": "pop"}, {"onpath": [0], "visited": [0, 1, 2, 3, 4], "rec": [0, 1, 2, 3, 4], "kind": "pop", "cur": 0, "start": 0, "path": [], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3]], "act": "UN-CHOOSE: pop 1", "text": "Back in backtrack(0): pop 1, path is [] again; the loop moves on.", "lines": "pop"}, {"onpath": [0, 5], "visited": [0, 1, 2, 3, 4, 5], "rec": [0, 1, 2, 3, 4, 5], "kind": "record", "cur": 5, "start": 2, "path": [2], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2]], "act": "CHOOSE nums[1] = 2; record [2]", "text": "Choose nums[1] = 2, enter backtrack(2) and record [2] on entry (subset #6).", "lines": "choose"}, {"onpath": [0, 5, 6], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [0, 1, 2, 3, 4, 5, 6], "kind": "record", "cur": 6, "start": 3, "path": [2, 3], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3]], "act": "CHOOSE nums[2] = 3; record [2, 3]", "text": "Choose nums[2] = 3, enter backtrack(3) and record [2, 3] on entry (subset #7).", "lines": "choose"}, {"onpath": [0, 5], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [0, 1, 2, 3, 4, 5, 6], "kind": "pop", "cur": 5, "start": 2, "path": [2], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3]], "act": "UN-CHOOSE: pop 3", "text": "Back in backtrack(2): pop 3, path is [2] again; the loop moves on.", "lines": "pop"}, {"onpath": [0], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [0, 1, 2, 3, 4, 5, 6], "kind": "pop", "cur": 0, "start": 0, "path": [], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3]], "act": "UN-CHOOSE: pop 2", "text": "Back in backtrack(0): pop 2, path is [] again; the loop moves on.", "lines": "pop"}, {"onpath": [0, 7], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [0, 1, 2, 3, 4, 5, 6, 7], "kind": "record", "cur": 7, "start": 3, "path": [3], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]], "act": "CHOOSE nums[2] = 3; record [3]", "text": "Choose nums[2] = 3, enter backtrack(3) and record [3] on entry (subset #8).", "lines": "choose"}, {"onpath": [0], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [0, 1, 2, 3, 4, 5, 6, 7], "kind": "pop", "cur": 0, "start": 0, "path": [], "out": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]], "act": "UN-CHOOSE: pop 3", "text": "Back in backtrack(0): pop 3, path is [] again; the loop moves on. The loop in backtrack(0) is done: return 8 subsets.", "lines": "pop", "final": true}]};
+makePlayer('si',SI.frames,function(f){ drawTree('si-viz',SI,f); chips('si-path',f.path.map(function(v){return {text:String(v)};})); chips('si-out',listChips(f.out)); cap('si-cap',f.text); });
+
+</script>
+</body></html>

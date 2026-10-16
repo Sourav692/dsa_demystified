@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Twitter — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0;text-align:center}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.3}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:44px;height:44px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.seen{background:var(--seen);border-color:var(--seen-bd)} .gcell.bad{background:var(--bad);border-color:var(--bad-bd)} .gcell.dim{opacity:.3}
+  .ivbar{fill:var(--accent-soft);stroke:var(--border);stroke-width:1.5}
+  .ivbar.hi{fill:var(--hi);stroke:var(--hi-bd)} .ivbar.good{fill:var(--good);stroke:var(--good-bd)}
+  .ivbar.bad{fill:var(--bad);stroke:var(--bad-bd)} .ivbar.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .chip.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .chip.dim{opacity:.35}
+  .urow{display:flex;align-items:center;gap:10px;margin:6px 0;flex-wrap:wrap}
+  .ulabel{font-size:13px;font-weight:700;min-width:78px;color:var(--muted)}
+  .ulabel.on{color:var(--accent)}
+  .tsub{font-size:11px;font-weight:500;color:var(--muted);margin-left:3px}
+  table.trace td.rule{color:var(--muted)}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="03_k_way_merge_lesson.html">← K Way Merge lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Heap · K Way Merge</span></div>
+<h1>355 · Design Twitter</h1>
+<p class="lead">Build a tiny Twitter: post, follow, unfollow, and show the 10 newest tweets in your feed.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Every user can post tweets and follow other users. Your feed is the <b>10 most recent</b> tweets written by you or by anyone you follow, newest first. Following yourself, or unfollowing yourself, changes nothing: you always see your own tweets.</p>
+<div class="idea">Each tweet gets a time stamp from one shared clock (0, 1, 2, &hellip;). A bigger time means a newer tweet. Each user's own tweets are stored in the order they were posted, so <b>every user's list is already sorted by time</b>. That is the whole trick.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at / in the heap</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>stored tweet</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>in the feed (answer)</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Tweets are shown as <code>id</code> with their time stamp <code>t</code>. Posting only appends to the end of one user's list.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: gather everything, sort, keep 10</h2>
+<div class="idea">To build user 1's feed, copy user 1's tweets and every followee's tweets into one pile, sort the pile newest first, and return the first 10 ids. Simple, but it sorts <b>every</b> tweet even though only 10 are needed.</div>
+<div class="mem"><h4>pile of (time, id)</h4><div class="chips" id="br-pool"></div></div>
+<div class="mem"><h4>feed</h4><div class="chips" id="br-out"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> post / follow / unfollow are instant, <code>O(1)</code>. Each feed copies and sorts all <code>T</code> tweets of you and your followees — <code>O(T log T)</code> time, <code>O(T)</code> memory. In the notebook, doubling the tweets roughly doubles the feed time.</p>
+<div class="trace-title">Step-by-step trace — user 1 follows users 2 and 3 (demo above)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Action</th><th>Pile (time:id)</th><th>Decision</th></tr>
+  <tr><td>1</td><td>copy own tweets</td><td>0:11, 4:12</td><td class="rule">You always see your own tweets</td></tr>
+  <tr><td>2</td><td>add user 2</td><td>0:11, 4:12, 1:21, 3:22, 6:23</td><td class="rule">Followee &rarr; all of their tweets</td></tr>
+  <tr><td>3</td><td>add user 3</td><td>0:11, 4:12, 1:21, 3:22, 6:23, 2:31, 5:32</td><td class="rule">Pile has T = 7 tweets</td></tr>
+  <tr><td>4</td><td>sort newest first</td><td>6:23, 5:32, 4:12, 3:22, 2:31, 1:21, 0:11</td><td class="rule">O(T log T) work on the whole pile</td></tr>
+  <tr class="final"><td>5</td><td>take first 10 ids</td><td>only 7 exist</td><td>Feed = [23, 32, 12, 22, 31, 21, 11]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — The smart way: merge the k timelines with a heap</h2>
+<div class="idea">Treat each user (you plus each followee) as one sorted list and read it from the newest end. Put each list's newest tweet into a heap that always hands back the most recent one. Pop it into the feed, then push the next-older tweet <b>from the same user</b>. Stop after 10 pops. This is Merge k Sorted Lists, run backwards in time.</div>
+<div class="viz" id="hp-viz"></div>
+<div class="mem"><h4>heap (most recent first) — id with time</h4><div class="chips" id="hp-heap"></div></div>
+<div class="mem"><h4>feed</h4><div class="chips" id="hp-out"></div></div>
+<div class="caption" id="hp-cap"></div>
+<div class="controls" data-player="hp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> with <code>k</code> = followees + 1, a feed costs <code>O(k + 10 log k)</code> time and <code>O(k)</code> memory, no matter how many tweets exist. In the notebook its time stays flat (about 1x) while the tweets double.</p>
+<div class="trace-title">Step-by-step trace — same demo; heap entry = (-time, id, user, index)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Pop (time:id, user)</th><th>Push (older tweet, same user)</th><th>Heap after (time:id)</th><th>Feed after</th></tr>
+  <tr><td>0</td><td>—</td><td>newest of each: 6:23, 5:32, 4:12</td><td>6:23, 5:32, 4:12</td><td>[]</td></tr>
+  <tr><td>1</td><td>6:23, user 2</td><td>3:22</td><td>5:32, 4:12, 3:22</td><td>[23]</td></tr>
+  <tr><td>2</td><td>5:32, user 3</td><td>2:31</td><td>4:12, 3:22, 2:31</td><td>[23, 32]</td></tr>
+  <tr><td>3</td><td>4:12, user 1</td><td>0:11</td><td>3:22, 2:31, 0:11</td><td>[23, 32, 12]</td></tr>
+  <tr><td>4</td><td>3:22, user 2</td><td>1:21</td><td>2:31, 1:21, 0:11</td><td>[23, 32, 12, 22]</td></tr>
+  <tr><td>5</td><td>2:31, user 3</td><td>— user 3 has no older tweet</td><td>1:21, 0:11</td><td>[23, 32, 12, 22, 31]</td></tr>
+  <tr><td>6</td><td>1:21, user 2</td><td>— user 2 has no older tweet</td><td>0:11</td><td>[23, 32, 12, 22, 31, 21]</td></tr>
+  <tr class="final"><td>7</td><td>0:11, user 1</td><td>— heap empty, stop</td><td>(empty)</td><td>[23, 32, 12, 22, 31, 21, 11]</td></tr>
+</table>
+</div>
+<p class="speed">Here the heap runs dry after 7 pops. With more tweets, the loop would stop at 10 pops and never look at the rest.</p>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"the N most recent across several feeds"</b>, <b>"news feed / timeline"</b> or <b>"merge k sorted streams"</b>? Keep each source sorted as it grows, then merge them with a heap and stop as soon as you have N items.
+<p><a href="03_k_way_merge_lesson.html">→ K Way Merge: the pattern lesson and the other problem that uses it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* The demo, exactly as in the notebook's Example 2: [time, user, id] in posting order. */
+var POSTS=[[0,1,11],[1,2,21],[2,3,31],[3,2,22],[4,1,12],[5,3,32],[6,2,23]];
+function tw(t,id){ return id+'<span class="tsub">t'+t+'</span>'; }
+/* rows: draw each user's timeline (oldest -> newest); cls(t) picks a class per tweet; upTo = posts shown. */
+function rows(target, upTo, cls, follows){
+  var h='';
+  [1,2,3].forEach(function(u){
+    var on = (u===1) || follows.indexOf(u)>=0;
+    h+='<div class="urow"><span class="ulabel'+(on&&follows.length?' on':'')+'">user '+u+(u===1?' (me)':(follows.indexOf(u)>=0?' (followed)':''))+'</span>';
+    var any=false;
+    POSTS.slice(0,upTo).forEach(function(p){ if(p[1]===u){ any=true; h+='<span class="chip '+(cls?cls(p[0]):'')+'">'+tw(p[0],p[2])+'</span>'; } });
+    if(!any) h+='<span class="empty">(no tweets)</span>';
+    h+='</div>';
+  });
+  document.getElementById(target).innerHTML=h;
+}
+
+/* Problem demo: replay the posts, then the follows, then the feed. */
+var pd=[{cap:'Three users, no tweets yet. The clock starts at t = 0.', n:0, f:[], feed:null}];
+POSTS.forEach(function(p,k){ pd.push({cap:'postTweet('+p[1]+', '+p[2]+') at t = '+p[0]+' &rarr; appended to the end of user '+p[1]+'’s list.', n:k+1, f:[], feed:null, last:p[0]}); });
+pd.push({cap:'follow(1, 2): user 1 now sees user 2’s tweets too.', n:7, f:[2], feed:null});
+pd.push({cap:'follow(1, 3): user 1 now follows 2 and 3.', n:7, f:[2,3], feed:null});
+pd.push({cap:'getNewsFeed(1): the newest tweets of users 1, 2, 3 &rarr; <b>[23, 32, 12, 22, 31, 21, 11]</b> (only 7 exist, so fewer than 10).', n:7, f:[2,3], feed:true});
+makePlayer('pd',pd,function(f){
+  rows('pd-viz', f.n, function(t){ return f.feed?'look':(t===f.last?'hi':''); }, f.f);
+  document.getElementById('pd-cap').innerHTML=f.cap;
+});
+
+/* Brute force: values traced from TwitterBrute.getNewsFeed in the notebook. */
+function pile(a){ return a.map(function(p){ return {text:tw(p[0],p[1])}; }); }
+var own=[[0,11],[4,12]], u2=[[1,21],[3,22],[6,23]], u3=[[2,31],[5,32]];
+var all=own.concat(u2,u3), sorted=all.slice().sort(function(a,b){return b[0]-a[0];});
+makePlayer('br',[
+  {cap:'Start an empty pile for user 1’s feed.', pool:[], out:[]},
+  {cap:'Copy user 1’s own tweets: 11 (t0) and 12 (t4).', pool:own, out:[]},
+  {cap:'User 1 follows user 2: add <b>all</b> of user 2’s tweets.', pool:own.concat(u2), out:[]},
+  {cap:'User 1 follows user 3: add all of user 3’s tweets. The pile holds T = 7 tweets.', pool:all, out:[]},
+  {cap:'Sort the whole pile, newest time first. This is the expensive step: O(T log T).', pool:sorted, out:[]},
+  {cap:'Take the first 10 ids (only 7 exist). Feed = <b>[23, 32, 12, 22, 31, 21, 11]</b>.', pool:sorted, out:sorted.map(function(p){return p[1];})}
+],function(f){
+  chips('br-pool', pile(f.pool));
+  chips('br-out', f.out.map(function(v){return {text:String(v),cls:'look'};}));
+  document.getElementById('br-cap').innerHTML=f.cap;
+});
+
+/* Heap merge: frames from an instrumented run of Twitter.getNewsFeed(1) on the demo. heap = [time, id] sorted most recent first. */
+var HP=[
+  {cap:'Seed the heap with the newest tweet of each source: user 1 → 12 (t4), user 2 → 23 (t6), user 3 → 32 (t5).', heap:[[6,23],[5,32],[4,12]], feed:[]},
+  {cap:'Pop the most recent: <b>23</b> (t6, user 2). Push user 2’s next-older tweet, 22 (t3).', heap:[[5,32],[4,12],[3,22]], feed:[23]},
+  {cap:'Pop <b>32</b> (t5, user 3). Push user 3’s next-older tweet, 31 (t2).', heap:[[4,12],[3,22],[2,31]], feed:[23,32]},
+  {cap:'Pop <b>12</b> (t4, user 1). Push user 1’s next-older tweet, 11 (t0).', heap:[[3,22],[2,31],[0,11]], feed:[23,32,12]},
+  {cap:'Pop <b>22</b> (t3, user 2). Push 21 (t1).', heap:[[2,31],[1,21],[0,11]], feed:[23,32,12,22]},
+  {cap:'Pop <b>31</b> (t2, user 3). User 3 has nothing older, so nothing is pushed.', heap:[[1,21],[0,11]], feed:[23,32,12,22,31]},
+  {cap:'Pop <b>21</b> (t1, user 2). Nothing older for user 2.', heap:[[0,11]], feed:[23,32,12,22,31,21]},
+  {cap:'Pop <b>11</b> (t0, user 1). The heap is empty, so stop. Feed = <b>[23, 32, 12, 22, 31, 21, 11]</b>.', heap:[], feed:[23,32,12,22,31,21,11]}
+];
+var TIME_OF={}; POSTS.forEach(function(p){ TIME_OF[p[2]]=p[0]; });
+makePlayer('hp',HP,function(f){
+  var inHeap={}, inFeed={};
+  f.heap.forEach(function(h){ inHeap[h[0]]=1; });
+  f.feed.forEach(function(id){ inFeed[TIME_OF[id]]=1; });
+  rows('hp-viz', 7, function(t){ return inFeed[t]?'look':(inHeap[t]?'hi':'dim'); }, [2,3]);
+  chips('hp-heap', f.heap.map(function(h,k){ return {text:tw(h[0],h[1]), cls:(k===0?'hi':'')}; }));
+  chips('hp-out', f.feed.map(function(v){return {text:String(v),cls:'look'};}));
+  document.getElementById('hp-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

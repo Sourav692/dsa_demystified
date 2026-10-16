@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search a 2D Matrix — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+<style>
+  .gwrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .strip .box{width:40px;height:40px;font-size:15px}
+  .strip .row{gap:5px}
+  .rc{font-size:10px;color:var(--muted)}
+  .gcell.bad{background:var(--bad);border-color:var(--bad-bd)}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_sorted_search_lesson.html">← Sorted Search lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Binary Search · Sorted Search</span></div>
+<h1>74 · Search a 2D Matrix</h1>
+<p class="lead">A grid of sorted numbers. Is the target in it?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You get a grid (rows and columns) of numbers. Each row goes from small to large, and each row starts with a number bigger than the last number of the row above. Answer yes or no: is the target somewhere in the grid? You must be as fast as one binary search over all the cells.</p>
+<div class="idea">Read the grid like a book, left to right and top to bottom, and you get <b>one long sorted list</b>. That is the whole trick: binary search that list without ever building it.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer / in range</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>not a match</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.35"></span>ruled out</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The strip under the grid is the same 12 numbers read row by row. Index <code>i</code> in the strip lives at row <code>i // 4</code>, column <code>i % 4</code>.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: check every cell</h2>
+<div class="idea">Go row by row, cell by cell, and compare each number with the target. It ignores all the sorting, so a missing target costs a look at every cell.</div>
+<div class="viz" id="br-viz"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> all <code>m·n</code> cells in the worst case — <code>O(m·n)</code> time, <code>O(1)</code> memory. Measured: about 2× per doubling of the cell count.</p>
+<div class="trace-title">Step-by-step trace — target = 13</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>row</th><th>col</th><th>value</th><th>== 13?</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>2</td><td>0</td><td>1</td><td>3</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>3</td><td>0</td><td>2</td><td>5</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>4</td><td>0</td><td>3</td><td>7</td><td>no</td><td class="rule">End of row &rarr; next row</td></tr>
+  <tr><td>5</td><td>1</td><td>0</td><td>10</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>6</td><td>1</td><td>1</td><td>11</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>7</td><td>1</td><td>2</td><td>16</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>8</td><td>1</td><td>3</td><td>20</td><td>no</td><td class="rule">End of row &rarr; next row</td></tr>
+  <tr><td>9</td><td>2</td><td>0</td><td>23</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>10</td><td>2</td><td>1</td><td>30</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr><td>11</td><td>2</td><td>2</td><td>34</td><td>no</td><td class="rule">Next cell</td></tr>
+  <tr class="final"><td>12</td><td>2</td><td>3</td><td>60</td><td>no</td><td>Last cell, no match &rarr; return False</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Better: walk a staircase from the top-right corner</h2>
+<div class="idea">Stand on the top-right cell. Everything left of it in its row is smaller; everything below it in its column is bigger. Too big? The whole column below is too big as well: step <b>left</b>. Too small? The whole row to the left is too small: step <b>down</b>. Each step throws away a whole row or column.</div>
+<div class="viz" id="st-viz"></div>
+<div class="caption" id="st-cap"></div>
+<div class="controls" data-player="st"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="st-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> at most one step per row plus one per column — <code>O(m + n)</code> time, <code>O(1)</code> memory. On a square grid that is about 1.4× per doubling of the cell count (the notebook measures about 1.5×).</p>
+<div class="trace-title">Step-by-step trace — target = 13</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>r</th><th>c</th><th>matrix[r][c]</th><th>Compare</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>3</td><td>7</td><td>7 &lt; 13</td><td class="rule">Row 0 too small &rarr; r = 1</td></tr>
+  <tr><td>2</td><td>1</td><td>3</td><td>20</td><td>20 &gt; 13</td><td class="rule">Column 3 too big &rarr; c = 2</td></tr>
+  <tr><td>3</td><td>1</td><td>2</td><td>16</td><td>16 &gt; 13</td><td class="rule">Column 2 too big &rarr; c = 1</td></tr>
+  <tr><td>4</td><td>1</td><td>1</td><td>11</td><td>11 &lt; 13</td><td class="rule">Row 1 too small &rarr; r = 2</td></tr>
+  <tr><td>5</td><td>2</td><td>1</td><td>30</td><td>30 &gt; 13</td><td class="rule">Column 1 too big &rarr; c = 0</td></tr>
+  <tr class="final"><td>6</td><td>2</td><td>0</td><td>23</td><td>23 &gt; 13</td><td>c = -1, walked off the grid &rarr; return False</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: one binary search over the "flat" list</h2>
+<div class="idea">Pretend the grid is the strip of 12 numbers. Binary search positions <code>0</code> to <code>11</code> with <code>lo</code>, <code>hi</code>, <code>mid</code>, exactly as in plain Binary Search. To read position <code>mid</code>, turn it into a cell: <code>r, c = divmod(mid, 4)</code> (row = <code>mid // 4</code>, column = <code>mid % 4</code>, where 4 is the number of columns).</div>
+<div class="viz" id="fl-viz"></div>
+<div class="caption" id="fl-cap"></div>
+<div class="controls" data-player="fl"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="fl-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one binary search over <code>m·n</code> positions — <code>O(log(m·n))</code> time, <code>O(1)</code> memory (the strip is never built). Measured: about 1× per doubling.</p>
+<div class="trace-title">Step-by-step trace — target = 13 (4 columns)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>lo</th><th>hi</th><th>mid</th><th>divmod(mid, 4)</th><th>value</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>11</td><td>5</td><td>(1, 1)</td><td>11</td><td class="rule">11 &lt; 13 &rarr; lo = 6</td></tr>
+  <tr><td>2</td><td>6</td><td>11</td><td>8</td><td>(2, 0)</td><td>23</td><td class="rule">23 &gt; 13 &rarr; hi = 7</td></tr>
+  <tr><td>3</td><td>6</td><td>7</td><td>6</td><td>(1, 2)</td><td>16</td><td class="rule">16 &gt; 13 &rarr; hi = 5</td></tr>
+  <tr class="final"><td>4</td><td>6</td><td>5</td><td>—</td><td>—</td><td>—</td><td>lo &gt; hi, nothing left &rarr; return False</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"each row is sorted"</b> and <b>"each row starts after the previous row ends"</b>? The grid is one sorted list in disguise: binary search the positions and convert each one with <code>divmod</code>. If rows are sorted but do <b>not</b> chain, use the staircase instead.
+<p><a href="01_sorted_search_lesson.html">→ Sorted Search: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+var M=[[1,3,5,7],[10,11,16,20],[23,30,34,60]], R=3, C=4;
+/* cls: array of 12 class names, one per flat index. strip: {lo,hi,mid} pointer labels, or null to hide the strip */
+function draw(id, cls, strip){
+  var h='<div class="gwrap"><div class="grid2" style="grid-template-columns:repeat('+C+',46px)">';
+  for(var k=0;k<R*C;k++){ h+='<div class="gcell '+(cls[k]||'')+'">'+M[Math.floor(k/C)][k%C]+'</div>'; }
+  h+='</div>';
+  if(strip){
+    h+='<div class="rowlabel">read row by row (flat index underneath)</div><div class="strip"><div class="row">';
+    for(var k=0;k<R*C;k++){
+      var lab=[]; if(strip.lo===k)lab.push('lo'); if(strip.mid===k)lab.push('mid'); if(strip.hi===k)lab.push('hi');
+      h+='<div class="cell"><div class="ptr">'+lab.join(' ')+'</div><div class="box '+(cls[k]||'')+'">'+M[Math.floor(k/C)][k%C]+'</div><div class="idxlabel">'+k+'</div><div class="rc">('+Math.floor(k/C)+','+(k%C)+')</div></div>';
+    }
+    h+='</div></div>';
+  }
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+function fill(fn){ var a=[]; for(var k=0;k<R*C;k++) a.push(fn(Math.floor(k/C),k%C,k)); return a; }
+
+/* Problem demo */
+makePlayer('pd',[
+  {cap:'3 rows, 4 columns. Each row is sorted, and each row starts above where the previous one ended (7 &lt; 10, 20 &lt; 23).', cls:fill(function(){return '';}), strip:null},
+  {cap:'Read it row by row: one sorted list of 12 numbers. Index 6 is row 6 // 4 = 1, column 6 % 4 = 2, the 16.', cls:fill(function(r,c,k){return k===6?'hi':'';}), strip:{}},
+  {cap:'Target <b>13</b> would sit between 11 and 16, but it is not there. Answer <b>False</b>.', cls:fill(function(r,c,k){return (k===5||k===6)?'bad':'';}), strip:{}}
+],function(f){ draw('pd-viz',f.cls,f.strip); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: every cell (values traced from search_matrix_brute) */
+var brFrames=[{cap:'Start at the top-left cell and compare every cell with 13.', cls:fill(function(){return '';})}];
+for(var s=0;s<R*C;s++){
+  (function(s){
+    var r=Math.floor(s/C), c=s%C, v=M[r][c];
+    brFrames.push({cap:(s===R*C-1?'Last cell: <b>60</b> is not 13 either. Every cell checked, so return <b>False</b>.':'Row '+r+', column '+c+': <b>'+v+'</b> is not 13. Next cell.'),
+      cls:fill(function(rr,cc,k){ return k<s?'bad':(k===s?(s===R*C-1?'bad':'hi'):''); })});
+  })(s);
+}
+makePlayer('br',brFrames,function(f){ draw('br-viz',f.cls,null); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Staircase (values traced from search_matrix_staircase): rows above r and columns right of c are ruled out */
+function stair(r,c){ return fill(function(rr,cc){ if(rr<r||cc>c) return 'dim'; return (rr===r&&cc===c)?'hi':''; }); }
+makePlayer('st',[
+  {cap:'Start top-right at (0, 3): <b>7</b>. It is the biggest in its row and the smallest in its column.', cls:stair(0,3)},
+  {cap:'7 &lt; 13: all of row 0 is too small. Step <b>down</b> to (1, 3): <b>20</b>.', cls:stair(1,3)},
+  {cap:'20 &gt; 13: column 3 (from here down) is too big. Step <b>left</b> to (1, 2): <b>16</b>.', cls:stair(1,2)},
+  {cap:'16 &gt; 13: column 2 is too big. Step <b>left</b> to (1, 1): <b>11</b>.', cls:stair(1,1)},
+  {cap:'11 &lt; 13: row 1 (from here left) is too small. Step <b>down</b> to (2, 1): <b>30</b>.', cls:stair(2,1)},
+  {cap:'30 &gt; 13: column 1 is too big. Step <b>left</b> to (2, 0): <b>23</b>.', cls:stair(2,0)},
+  {cap:'23 &gt; 13: step left to column -1, off the grid. Nothing is left: return <b>False</b>. 6 looks instead of 12.', cls:stair(2,-1)}
+],function(f){ draw('st-viz',f.cls,null); document.getElementById('st-cap').innerHTML=f.cap; });
+
+/* Flat binary search (values traced from search_matrix_flat) */
+function flat(lo,hi,mid){ return fill(function(r,c,k){ if(k<lo||k>hi) return 'dim'; return k===mid?'hi':''; }); }
+makePlayer('fl',[
+  {cap:'lo = 0, hi = 11: every position of the 12-number strip is still possible.', cls:flat(0,11,-1), strip:{lo:0,hi:11}},
+  {cap:'mid = (0 + 11) // 2 = <b>5</b> &rarr; divmod(5, 4) = (1, 1) &rarr; <b>11</b>. 11 &lt; 13, so lo = <b>6</b>.', cls:flat(0,11,5), strip:{lo:0,hi:11,mid:5}},
+  {cap:'Range [6, 11]. mid = <b>8</b> &rarr; (2, 0) &rarr; <b>23</b>. 23 &gt; 13, so hi = <b>7</b>.', cls:flat(6,11,8), strip:{lo:6,hi:11,mid:8}},
+  {cap:'Range [6, 7]. mid = <b>6</b> &rarr; (1, 2) &rarr; <b>16</b>. 16 &gt; 13, so hi = <b>5</b>.', cls:flat(6,7,6), strip:{lo:6,hi:7,mid:6}},
+  {cap:'lo = 6 is past hi = 5: the range is empty. Return <b>False</b> after 3 looks.', cls:flat(6,5,-1), strip:{lo:6,hi:5}}
+],function(f){ draw('fl-viz',f.cls,f.strip); document.getElementById('fl-cap').innerHTML=f.cap; });
+</script>
+</body></html>

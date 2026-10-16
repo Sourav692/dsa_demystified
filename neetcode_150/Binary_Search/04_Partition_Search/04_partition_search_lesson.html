@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partition Search — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Binary Search · Pattern 04 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Partition Search</h1>
+          <p>
+            Binary search for a cut, not for a value. To find the median of two sorted arrays, decide how many values the left half takes from the smaller array. The other array's share is then forced, and four boundary values tell you whether to move the cut left, move it right, or stop.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: search the cut <code>i</code>, derive <code>j = half - i</code></span>
+            <span class="chip">Method 1: partition search, O(log min(m, n))</span>
+            <span class="chip">Method 2: two-pointer walk to the middle, O(m + n)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="median_of_two_sorted_arrays.html">Median of Two Sorted Arrays</a> · <a href="README.md">pattern notes (README)</a> · look-alike: <a href="../01_Sorted_Search/README.md">Sorted Search</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Median of Two Sorted Arrays, the notebook's worked example: <code>nums1 = [2, 4, 7, 10, 14, 17]</code>, <code>nums2 = [8, 11, 16, 19]</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 220" width="100%" role="img" aria-label="Smaller array 8, 11, 16, 19 cut after one value; larger array cut after four values; median is the average of 10 and 11">
+              <defs>
+                <style>
+                  .h-cell { fill: #c8d2e7; }
+                  .h-left { fill: #315efb; }
+                  .h-med { fill: #13a46b; }
+                  .h-cut { stroke: #ff9f1c; stroke-width: 5; stroke-linecap: round; }
+                  .h-label { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-dark { font: 700 17px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="10" y="64" class="h-title">A (smaller)</text>
+              <text x="10" y="164" class="h-title">B</text>
+              <rect x="110" y="38" width="52" height="44" rx="10" class="h-left" />
+              <rect x="174" y="38" width="52" height="44" rx="10" class="h-med" />
+              <rect x="238" y="38" width="52" height="44" rx="10" class="h-cell" />
+              <rect x="302" y="38" width="52" height="44" rx="10" class="h-cell" />
+              <text x="136" y="66" text-anchor="middle" class="h-label">8</text>
+              <text x="200" y="66" text-anchor="middle" class="h-label">11</text>
+              <text x="264" y="66" text-anchor="middle" class="h-dark">16</text>
+              <text x="328" y="66" text-anchor="middle" class="h-dark">19</text>
+              <line x1="168" y1="28" x2="168" y2="92" class="h-cut" />
+              <text x="168" y="20" text-anchor="middle" class="h-title">i = 1</text>
+              <rect x="110" y="138" width="52" height="44" rx="10" class="h-left" />
+              <rect x="174" y="138" width="52" height="44" rx="10" class="h-left" />
+              <rect x="238" y="138" width="52" height="44" rx="10" class="h-left" />
+              <rect x="302" y="138" width="52" height="44" rx="10" class="h-med" />
+              <rect x="366" y="138" width="52" height="44" rx="10" class="h-cell" />
+              <rect x="430" y="138" width="52" height="44" rx="10" class="h-cell" />
+              <text x="136" y="166" text-anchor="middle" class="h-label">2</text>
+              <text x="200" y="166" text-anchor="middle" class="h-label">4</text>
+              <text x="264" y="166" text-anchor="middle" class="h-label">7</text>
+              <text x="328" y="166" text-anchor="middle" class="h-label">10</text>
+              <text x="392" y="166" text-anchor="middle" class="h-dark">14</text>
+              <text x="456" y="166" text-anchor="middle" class="h-dark">17</text>
+              <line x1="360" y1="128" x2="360" y2="192" class="h-cut" />
+              <text x="360" y="120" text-anchor="middle" class="h-title">j = 4</text>
+              <text x="10" y="212" class="h-title">left: 8, 2, 4, 7, 10      right: 11, 16, 19, 14, 17</text>
+            </svg>
+          </div>
+          <div class="result-badge">Median = (max(8, 10) + min(11, 14)) / 2 = 10.5</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Percentiles across sorted shards</h3>
+          <p>Two services each keep their response times sorted. The overall median, or any percentile, can be read without copying either list into a merged one.</p>
+        </div>
+        <div class="card">
+          <h3>The k-th smallest of two sorted lists</h3>
+          <p>The same cut answers "which value is k-th overall": make the left side hold exactly <code>k</code> values and read its largest one.</p>
+        </div>
+        <div class="card">
+          <h3>Binary search beyond "find x"</h3>
+          <p>The search space here is a set of cut positions, not stored values. Seeing that is what turns a linear merge into a logarithmic search.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> this is the hardest problem in NeetCode's Binary Search list, but the loop is ordinary binary search. Everything difficult sits in two lines: <code>j = half - i</code> and the four-value check.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is partition search?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A <strong>cut</strong> at position <code>i</code> splits a sorted array into <code>A[:i]</code> and <code>A[i:]</code>. Partition search binary searches the cut position in one array so that, together with a matching cut in the other array, the left pieces hold exactly the <code>half</code> smallest values. The median sits right at that boundary.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p><strong>Two sorted arrays</strong> plus a question about their <strong>combined order</strong>: "median of the two arrays", "k-th smallest of the union". A required <code>O(log (m + n))</code> rules out merging.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> you are not looking for a number, you are looking for <em>how many</em> numbers the left half borrows from the smaller array. Once that count <code>i</code> is fixed, the count from the other array is <code>half - i</code>, no choice left.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Pick the smaller array</h3>
+          <p>Swap so <code>A</code> has <code>m &le; n</code> values. Then every cut <code>i</code> in <code>0..m</code> gives a legal <code>j</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Fix the left-half size</h3>
+          <p><code>half = (m + n + 1) // 2</code>. Guess <code>i</code> in the middle of <code>lo..hi</code>; set <code>j = half - i</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Check four values</h3>
+          <p><code>A[i-1] &le; B[j]</code> and <code>B[j-1] &le; A[i]</code>, with <code>-inf</code> / <code>+inf</code> for missing neighbours.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Move or answer</h3>
+          <p><code>A[i-1]</code> too big: <code>hi = i - 1</code>. <code>B[j-1]</code> too big: <code>lo = i + 1</code>. Both fine: read the median at the cut.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a cut position</h2>
+      <p>The input is two sorted lists. The search never touches a merged list; it works on a single integer <code>i</code> (how many values of the smaller array go left). Everything else is derived from <code>i</code>.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input arrays</h3>
+          <div class="code-block"><code>nums1 = [2, 4, 7, 10, 14, 17]   # m = 6
+nums2 = [8, 11, 16, 19]          # n = 4</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Search space and derived values</h3>
+          <div class="code-block"><code>A = [8, 11, 16, 19]   B = nums1   # swapped
+half = (4 + 6 + 1) // 2 = 5
+i in 0..4             j = 5 - i
+a_left = A[i-1]  a_right = A[i]
+b_left = B[j-1]  b_right = B[j]</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Swap so <code>A</code> is the smaller array</h4>
+          <p><code>nums2</code> has 4 values, <code>nums1</code> has 6, so <code>A = nums2</code>, <code>B = nums1</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Compute <code>half = 5</code></h4>
+          <p>10 values in total, so the left half holds 5. For an odd total the <code>+ 1</code> puts the middle value on the left.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>The search space is <code>i = 0..4</code></h4>
+          <p>The left half can take none, some, or all 4 values of <code>A</code>. That is 5 possible cuts, not 10 values.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Each <code>i</code> fixes <code>j</code> and four boundary values</h4>
+          <p><code>j = 5 - i</code> is between 1 and 5, always inside <code>B</code>. A cut at an edge reads <code>-inf</code> or <code>+inf</code> for its missing neighbour.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the check only needs the four values next to the cuts. Inside each array the order is already sorted, so <code>A[:i]</code> is below <code>A[i:]</code> for free; only the two cross-array pairs can break the split.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: partition search on the smaller array (Median of Two Sorted Arrays)</h2>
+      <p>The template, line for line from the notebook's <code>find_median_partition</code>. Each pass of the loop is one guess for <code>i</code>; the four boundary values decide which half of <code>lo..hi</code> survives.</p>
+      <div class="code-block stepped">
+        <code id="ps-code">
+<span class="code-line" data-line="1">def find_median_partition(nums1: List[int], nums2: List[int]) -&gt; float:</span>
+<span class="code-line" data-line="2">    A, B = nums1, nums2</span>
+<span class="code-line" data-line="3">    if len(A) &gt; len(B):</span>
+<span class="code-line" data-line="4">        A, B = B, A                            # search the smaller array</span>
+<span class="code-line" data-line="5">    m, n = len(A), len(B)</span>
+<span class="code-line" data-line="6">    half = (m + n + 1) // 2                    # size of the left half</span>
+<span class="code-line" data-line="7">    lo, hi = 0, m                              # i = how many values the left half takes from A</span>
+<span class="code-line" data-line="8">    while lo &lt;= hi:</span>
+<span class="code-line" data-line="9">        i = (lo + hi) // 2                     # cut in A</span>
+<span class="code-line" data-line="10">        j = half - i                           # cut in B is forced</span>
+<span class="code-line" data-line="11">        a_left = A[i - 1] if i &gt; 0 else float("-inf")</span>
+<span class="code-line" data-line="12">        a_right = A[i] if i &lt; m else float("inf")</span>
+<span class="code-line" data-line="13">        b_left = B[j - 1] if j &gt; 0 else float("-inf")</span>
+<span class="code-line" data-line="14">        b_right = B[j] if j &lt; n else float("inf")</span>
+<span class="code-line" data-line="15">        if a_left &lt;= b_right and b_left &lt;= a_right:     # valid cut</span>
+<span class="code-line" data-line="16">            if (m + n) % 2:</span>
+<span class="code-line" data-line="17">                return float(max(a_left, b_left))</span>
+<span class="code-line" data-line="18">            return (max(a_left, b_left) + min(a_right, b_right)) / 2</span>
+<span class="code-line" data-line="19">        elif a_left &gt; b_right:</span>
+<span class="code-line" data-line="20">            hi = i - 1                         # took too many from A: move the cut left</span>
+<span class="code-line" data-line="21">        else:</span>
+<span class="code-line" data-line="22">            lo = i + 1                         # took too few from A: move the cut right</span>
+<span class="code-line" data-line="23">    raise ValueError("inputs must be sorted")  # unreachable for sorted input</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive partition-search trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="ps-graph" viewBox="0 0 520 220" width="100%" role="img" aria-label="Partition search trace on A = 8, 11, 16, 19 and B = 2, 4, 7, 10, 14, 17">
+              <defs>
+                <style>
+                  .ps-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .ps-cell.left { fill: #315efb; }
+                  .ps-cell.edge { fill: #ff9f1c; }
+                  .ps-cell.median { fill: #13a46b; }
+                  .ps-text { font: 700 17px Inter, Arial, sans-serif; fill: #172033; }
+                  .ps-text.lit { fill: #ffffff; }
+                  .ps-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .ps-idx { font: 600 11px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .ps-cut { stroke: #182132; stroke-width: 5; stroke-linecap: round; }
+                </style>
+              </defs>
+              <text x="10" y="64" class="ps-title">A</text>
+              <text x="10" y="164" class="ps-title">B</text>
+              <g id="ps-cells"></g>
+              <line id="ps-cut-a" x1="0" y1="28" x2="0" y2="92" class="ps-cut" visibility="hidden" />
+              <text id="ps-cut-a-label" x="0" y="20" text-anchor="middle" class="ps-title" visibility="hidden">i</text>
+              <line id="ps-cut-b" x1="0" y1="128" x2="0" y2="192" class="ps-cut" visibility="hidden" />
+              <text id="ps-cut-b-label" x="0" y="120" text-anchor="middle" class="ps-title" visibility="hidden">j</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-blue"></i> left half under this cut</span>
+            <span><i class="dot dot-orange"></i> boundary values being compared</span>
+            <span><i class="dot dot-green"></i> values that form the median</span>
+            <span><i class="dot dot-gray"></i> right half</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="ps-step-title">Initial state</h3>
+          <p id="ps-step-text">nums1 has 6 values and nums2 has 4.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ps-prev">Previous</button>
+            <button type="button" id="ps-play" class="primary">Resume</button>
+            <button type="button" id="ps-next">Next</button>
+            <button type="button" id="ps-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ps-step-counter">Step 0 / 11</span>
+            <div class="progress"><span id="ps-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>lo..hi (cuts left)</strong><div class="state-value" id="ps-range">—</div></div>
+            <div class="state-box"><strong>i / j</strong><div class="state-value" id="ps-ij">—</div></div>
+            <div class="state-box"><strong>a_left | a_right</strong><div class="state-value" id="ps-a">—</div></div>
+            <div class="state-box"><strong>b_left | b_right</strong><div class="state-value" id="ps-b">—</div></div>
+            <div class="state-box"><strong>Check</strong><div class="state-value" id="ps-check">—</div></div>
+            <div class="state-box"><strong>Answer</strong><div class="state-value" id="ps-ans">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ps-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="ps-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Action</th><th>lo..hi</th><th>i, j</th><th>a_left, a_right</th><th>b_left, b_right</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td><code>len(nums1) = 6 &gt; 4</code>: swap</td><td>—</td><td>—</td><td>—</td><td>—</td><td><code>A = [8, 11, 16, 19]</code></td></tr>
+            <tr data-step="1"><td>1</td><td><code>m = 4, n = 6, half = 5</code></td><td>0..4</td><td>—</td><td>—</td><td>—</td><td>search starts</td></tr>
+            <tr data-step="2"><td>2</td><td>Guess 1: cut A, cut B</td><td>0..4</td><td>2, 3</td><td>—</td><td>—</td><td>left = 8 11 | 2 4 7</td></tr>
+            <tr data-step="3"><td>3</td><td>Read the four boundary values</td><td>0..4</td><td>2, 3</td><td>11, 16</td><td>7, 10</td><td>—</td></tr>
+            <tr data-step="4"><td>4</td><td><code>11 &gt; 10</code>: too many from A</td><td>0..1</td><td>2, 3</td><td>11, 16</td><td>7, 10</td><td><code>hi = 1</code></td></tr>
+            <tr data-step="5"><td>5</td><td>Guess 2: cut A, cut B</td><td>0..1</td><td>0, 5</td><td>—</td><td>—</td><td>left = (none) | 2 4 7 10 14</td></tr>
+            <tr data-step="6"><td>6</td><td>Read the four boundary values</td><td>0..1</td><td>0, 5</td><td>−∞, 8</td><td>14, 17</td><td>—</td></tr>
+            <tr data-step="7"><td>7</td><td><code>14 &gt; 8</code>: too few from A</td><td>1..1</td><td>0, 5</td><td>−∞, 8</td><td>14, 17</td><td><code>lo = 1</code></td></tr>
+            <tr data-step="8"><td>8</td><td>Guess 3: cut A, cut B</td><td>1..1</td><td>1, 4</td><td>—</td><td>—</td><td>left = 8 | 2 4 7 10</td></tr>
+            <tr data-step="9"><td>9</td><td>Read the four boundary values</td><td>1..1</td><td>1, 4</td><td>8, 11</td><td>10, 14</td><td>—</td></tr>
+            <tr data-step="10"><td>10</td><td><code>8 &le; 14</code> and <code>10 &le; 11</code></td><td>1..1</td><td>1, 4</td><td>8, 11</td><td>10, 14</td><td>valid cut</td></tr>
+            <tr data-step="11"><td>11</td><td>Total 10 is even: average</td><td>1..1</td><td>1, 4</td><td>8, 11</td><td>10, 14</td><td><code>(10 + 11) / 2 = 10.5</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Picture two sliders, one per array, tied together so their positions always add up to <code>half</code>. Moving the A-slider right moves the B-slider left. You binary search the position where neither side holds a value that belongs on the other side.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Searching the larger array. In this example, cutting the 6-value array at <code>i = 0..6</code> with <code>j = 5 - i</code> allows <code>i = 6</code>, <code>j = -1</code>: the 4-value array's <code>[j - 1]</code> becomes index <code>-2</code>, which Python silently reads from the end of the list.</p>
+        </div>
+        <div class="card">
+          <h4>Why sentinels</h4>
+          <p>At step 6 the cut leaves nothing of <code>A</code> on the left. Treating the missing <code>a_left</code> as <code>-inf</code> makes <code>a_left &le; b_right</code> automatically true, so the same two comparisons handle every edge cut.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: walk two pointers to the middle (the linear method it replaces)</h2>
+      <p>The notebook's <code>find_median_two_pointer</code>: the merge step of merge sort, stopped at the middle and keeping only the last two values. It is the natural first answer, correct and <code>O(1)</code> space, but it still walks <code>t // 2 + 1</code> steps, so it is <code>O(m + n)</code>. Traced on the same input.</p>
+      <div class="code-block stepped">
+        <code id="tp-code">
+<span class="code-line" data-line="1">def find_median_two_pointer(nums1: List[int], nums2: List[int]) -&gt; float:</span>
+<span class="code-line" data-line="2">    m, n = len(nums1), len(nums2)</span>
+<span class="code-line" data-line="3">    t = m + n</span>
+<span class="code-line" data-line="4">    i = j = 0</span>
+<span class="code-line" data-line="5">    prev = cur = 0</span>
+<span class="code-line" data-line="6">    for _ in range(t // 2 + 1):                # walk to merged index t // 2, no further</span>
+<span class="code-line" data-line="7">        prev = cur                             # remember the value one position back</span>
+<span class="code-line" data-line="8">        if i &lt; m and (j &gt;= n or nums1[i] &lt;= nums2[j]):</span>
+<span class="code-line" data-line="9">            cur = nums1[i]; i += 1</span>
+<span class="code-line" data-line="10">        else:</span>
+<span class="code-line" data-line="11">            cur = nums2[j]; j += 1</span>
+<span class="code-line" data-line="12">    if t % 2:</span>
+<span class="code-line" data-line="13">        return float(cur)</span>
+<span class="code-line" data-line="14">    return (prev + cur) / 2</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive two-pointer trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="tp-graph" viewBox="0 0 520 220" width="100%" role="img" aria-label="Two-pointer walk over nums1 = 2, 4, 7, 10, 14, 17 and nums2 = 8, 11, 16, 19">
+              <defs>
+                <style>
+                  .tp-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .tp-cell.done { fill: #315efb; }
+                  .tp-cell.front { fill: #13a46b; }
+                  .tp-cell.current { fill: #ff9f1c; }
+                  .tp-text { font: 700 17px Inter, Arial, sans-serif; fill: #172033; }
+                  .tp-text.lit { fill: #ffffff; }
+                  .tp-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="10" y="64" class="tp-title">nums1</text>
+              <text x="10" y="164" class="tp-title">nums2</text>
+              <g id="tp-cells"></g>
+              <text id="tp-ptr-i" x="0" y="28" text-anchor="middle" class="tp-title">i</text>
+              <text id="tp-ptr-j" x="0" y="128" text-anchor="middle" class="tp-title">j</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> value just taken (cur)</span>
+            <span><i class="dot dot-green"></i> front values compared next</span>
+            <span><i class="dot dot-blue"></i> already passed</span>
+            <span><i class="dot dot-gray"></i> not taken</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="tp-step-title">Initial state</h3>
+          <p id="tp-step-text">Both pointers at the front.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="tp-prev">Previous</button>
+            <button type="button" id="tp-play" class="primary">Resume</button>
+            <button type="button" id="tp-next">Next</button>
+            <button type="button" id="tp-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="tp-step-counter">Step 0 / 7</span>
+            <div class="progress"><span id="tp-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Loop pass</strong><div class="state-value" id="tp-pass">—</div></div>
+            <div class="state-box"><strong>Compared</strong><div class="state-value" id="tp-cmp">—</div></div>
+            <div class="state-box"><strong>i, j</strong><div class="state-value" id="tp-ij">0, 0</div></div>
+            <div class="state-box"><strong>prev</strong><div class="state-value" id="tp-prevv">0</div></div>
+            <div class="state-box"><strong>cur</strong><div class="state-value" id="tp-cur">0</div></div>
+            <div class="state-box"><strong>Answer</strong><div class="state-value" id="tp-ans">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="tp-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="tp-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Compare</th><th>Take from</th><th>prev</th><th>cur</th><th>i, j after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td colspan="2"><code>t = 10</code>, loop runs <code>t // 2 + 1 = 6</code> times</td><td>0</td><td>0</td><td>0, 0</td></tr>
+            <tr data-step="1"><td>1</td><td>2 vs 8</td><td>nums1</td><td>0</td><td>2</td><td>1, 0</td></tr>
+            <tr data-step="2"><td>2</td><td>4 vs 8</td><td>nums1</td><td>2</td><td>4</td><td>2, 0</td></tr>
+            <tr data-step="3"><td>3</td><td>7 vs 8</td><td>nums1</td><td>4</td><td>7</td><td>3, 0</td></tr>
+            <tr data-step="4"><td>4</td><td>10 vs 8</td><td>nums2</td><td>7</td><td>8</td><td>3, 1</td></tr>
+            <tr data-step="5"><td>5</td><td>10 vs 11</td><td>nums1</td><td>8</td><td>10</td><td>4, 1</td></tr>
+            <tr data-step="6"><td>6</td><td>14 vs 11</td><td>nums2</td><td>10</td><td>11</td><td>4, 2</td></tr>
+            <tr data-step="7"><td>7</td><td colspan="2">Loop done; <code>t</code> even: <code>(prev + cur) / 2</code></td><td>10</td><td>11</td><td><code>10.5</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Two people at the front of two sorted queues; the shorter one steps forward each time. After <code>t // 2 + 1</code> steps, the last two people who stepped forward are the middle of the combined line.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Forgetting <code>j &gt;= n</code> in the condition: once <code>nums2</code> runs out, <code>nums2[j]</code> raises <code>IndexError</code>. The check must also take from <code>nums1</code> whenever <code>nums2</code> is used up.</p>
+        </div>
+        <div class="card">
+          <h4>Why it is not enough</h4>
+          <p>It takes half of all values. In the notebook its time roughly doubled each time the input doubled, while the partition search stayed about flat (17 to 20 loop passes from 125,000 to 1,000,000 values per array).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">One array empty</button>
+        <button type="button" data-example-tab="1">Odd total</button>
+        <button type="button" data-example-tab="2">All of A before B</button>
+        <button type="button" data-example-tab="3">Duplicates</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: one array is empty</h3>
+          <p><code>nums1 = []</code>, <code>nums2 = [2, 3]</code></p>
+          <div class="result-badge">Median = 2.5</div>
+          <p class="footer-note"><code>A = []</code>, so <code>lo = hi = 0</code> and the only cut is <code>i = 0</code>, <code>j = half = 1</code>. Both A-values are sentinels (<code>-inf</code>, <code>+inf</code>), the check passes at once, and the answer is <code>(2 + 3) / 2</code> from <code>B</code> alone.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: odd total length</h3>
+          <p><code>nums1 = [1, 3]</code>, <code>nums2 = [2]</code></p>
+          <div class="result-badge">Median = 2.0</div>
+          <p class="footer-note"><code>half = (1 + 2 + 1) // 2 = 2</code>, so the left half holds the middle value. The valid cut is <code>i = 1, j = 1</code> (left = <code>2 | 1</code>), and the answer is <code>max(a_left, b_left) = max(2, 1)</code>, returned as a float.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: every value of A is smaller than every value of B</h3>
+          <p><code>nums1 = [1, 2, 3]</code>, <code>nums2 = [4, 5, 6, 7]</code></p>
+          <div class="result-badge">Median = 4.0</div>
+          <p class="footer-note">The valid cut takes all of <code>A</code>: <code>i = m = 3</code>, <code>j = 1</code>. <code>a_right</code> is the <code>+inf</code> sentinel. The search moves right on every guess, which is also why the notebook's benchmark uses this shape as the worst case.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: equal values on both sides of the cut</h3>
+          <p><code>nums1 = [1, 1, 1]</code>, <code>nums2 = [1, 1]</code></p>
+          <div class="result-badge">Median = 1.0</div>
+          <p class="footer-note">The check uses <code>&le;</code>, not <code>&lt;</code>, so equal values on both sides still count as a valid split. With strict <code>&lt;</code> no cut would ever pass.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Time</th><th>Extra space</th><th>Measured per doubling</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Merge, then pick the middle</td><td><code>O(m + n)</code></td><td><code>O(m + n)</code></td><td>about 2x</td><td>Builds the whole merged list.</td></tr>
+            <tr><td>Two-pointer walk to the middle (Method 2)</td><td><code>O(m + n)</code></td><td><code>O(1)</code></td><td>about 2x</td><td>Half the steps, no list, still linear.</td></tr>
+            <tr><td>Partition search on the smaller array (Method 1)</td><td><code>O(log min(m, n))</code></td><td><code>O(1)</code></td><td>about 1x</td><td>Meets the required <code>O(log (m + n))</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">Measured in the notebook on two arrays of <code>n</code> values each, <code>n</code> from 125,000 to 1,000,000. The partition row times 1000 calls per size, because a single call takes only microseconds.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Merging works but is <code>O(m + n)</code>; the required <code>O(log (m + n))</code> means binary search.</p></div>
+            <div class="timeline-step"><p>There is no single sorted array to search, so ask: what number, if I knew it, would give me the answer? How many values the left half takes from <code>A</code>.</p></div>
+            <div class="timeline-step"><p>That count <code>i</code> fixes <code>j = half - i</code>. The split is right when <code>A[i-1] &le; B[j]</code> and <code>B[j-1] &le; A[i]</code>.</p></div>
+            <div class="timeline-step"><p>If <code>A[i-1]</code> is too big, fewer from <code>A</code>; otherwise more. That one-way answer makes <code>i</code> binary-searchable. Search the smaller array, add sentinels, read the median at the cut.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Merging is linear, but the target is logarithmic, so I won't build the merged array."</li>
+            <li>"I'll binary search how many elements the left half takes from the smaller array; the rest come from the other one."</li>
+            <li>"A cut is valid when both cross pairs are in order; missing neighbours are minus and plus infinity."</li>
+            <li>"I search the smaller array so <code>j</code> stays in range: O(log min(m, n)) time and O(1) space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Partition search</h3>
+          <ul class="mistake-list">
+            <li>Searching the larger array, so <code>j</code> leaves <code>0..n</code>.</li>
+            <li>Setting <code>hi = m - 1</code> instead of <code>m</code>: the cut "take all of A" becomes impossible (Case C).</li>
+            <li>Mixing <code>half = (m + n) // 2</code> with the odd answer <code>max(left)</code>: one convention or the other.</li>
+            <li>Averaging with <code>//</code>: <code>(10 + 11) // 2</code> is 10, not 10.5.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Merge and two-pointer walk</h3>
+          <ul class="mistake-list">
+            <li>Not handling one array running out (<code>j &gt;= n</code>), which raises <code>IndexError</code>.</li>
+            <li>Walking <code>t // 2</code> steps instead of <code>t // 2 + 1</code>, so <code>cur</code> stops one short of the middle.</li>
+            <li>Forgetting to update <code>prev</code> before overwriting <code>cur</code>, which breaks even totals.</li>
+            <li>Calling it optimal: it is <code>O(m + n)</code>, the problem asks for <code>O(log (m + n))</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>This pattern has a single NeetCode problem, so questions 2 to 5 are <strong>follow-up variants</strong> of it. Try each before opening the hint, then the answer. The interactive page is <a href="median_of_two_sorted_arrays.html">Median of Two Sorted Arrays</a>.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Median of Two Sorted Arrays: <code>nums1 = [1, 2]</code>, <code>nums2 = [3, 4]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> both arrays have 2 values, so no swap; <code>half = 2</code>. Start with <code>i = 1</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>2.5</code>. <code>i = 1, j = 1</code>: <code>a_left = 1 &le; b_right = 4</code>, but <code>b_left = 3 &gt; a_right = 2</code>, so <code>lo = 2</code>. <code>i = 2, j = 0</code>: <code>a_left = 2 &le; b_right = 3</code> and <code>b_left = -inf &le; a_right = +inf</code>, valid: <code>(2 + 3) / 2</code>. Compare with the walkthrough on <a href="median_of_two_sorted_arrays.html">the problem page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Variant: odd total, <code>nums1 = [1, 3]</code>, <code>nums2 = [2]</code>. Which cut is valid, and which value is returned?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> <code>A = [2]</code> (smaller), <code>B = [1, 3]</code>, <code>half = 2</code>; the left half gets the extra value.</p>
+          <p style="margin-top:10px;">Answer: <code>i = 0, j = 2</code> fails (<code>b_left = 3 &gt; a_right = 2</code>, so <code>lo = 1</code>); <code>i = 1, j = 1</code> is valid. Odd total, so return <code>max(a_left, b_left) = max(2, 1) = 2.0</code>. See <a href="median_of_two_sorted_arrays.html">Median of Two Sorted Arrays</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Variant: one array empty, <code>nums1 = []</code>, <code>nums2 = [2, 3]</code>. Does the template need a special case?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> what is <code>lo..hi</code> when <code>m = 0</code>, and what do the sentinels give?</p>
+          <p style="margin-top:10px;">Answer: no special case. <code>lo = hi = 0</code>, so the only guess is <code>i = 0</code>, <code>j = half = 1</code>; <code>a_left = -inf</code>, <code>a_right = +inf</code> pass every check, and the answer comes from <code>B</code>: <code>(2 + 3) / 2 = 2.5</code>. The notebook tests this case.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Variant: the k-th smallest value of two sorted arrays. What changes in the template?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the left side should hold exactly <code>k</code> values instead of <code>half</code>. Which <code>i</code> keep <code>j = k - i</code> inside <code>0..n</code>?</p>
+          <p style="margin-top:10px;">Answer: set <code>j = k - i</code>, search <code>i</code> in <code>max(0, k - n) .. min(k, m)</code> so <code>j</code> stays legal, and return <code>max(a_left, b_left)</code> once the cut is valid. On this lesson's example, <code>k = 5</code> gives 10 and <code>k = 6</code> gives 11, the two middle values. (Not a notebook problem; checked against sorting on random inputs while writing this lesson.)</p>
+        </details>
+        <details>
+          <summary>Practice 5 — Variant: why must the search run on the smaller array?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> in the canonical example, try searching <code>B</code> (6 values) with <code>half = 5</code>.</p>
+          <p style="margin-top:10px;">Answer: cutting the 6-value array allows <code>i = 6</code>, which gives <code>j = -1</code>, outside the 4-value array; Python would read index <code>-2</code> silently instead of failing. With <code>m &le; n</code>, <code>j = half - i</code> is always in <code>0..n</code>. As a bonus the search is <code>O(log min(m, n))</code>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Search the cut, not the value.</strong>
+          Choose how many values the left half takes from the smaller array, let the other array fill the rest, and check the four values that touch the cuts. If the left side of <code>A</code> is too big, move left; if the left side of <code>B</code> is too big, move right; otherwise the median is on the boundary. Same binary search loop, a new search space.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Partition Search pattern notes</a>. Code, trace values and timings are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const A = [8, 11, 16, 19];
+      const B = [2, 4, 7, 10, 14, 17];
+      const N1 = [2, 4, 7, 10, 14, 17];
+      const N2 = [8, 11, 16, 19];
+      const X0 = 110;
+      const DX = 64;
+      const ROW_Y = [38, 138];
+
+      // Draw one row of cells into a <g>; returns nothing. Cells carry data-row / data-idx for colouring.
+      function drawCells(groupId, rows, cellClass, textClass) {
+        const ns = 'http://www.w3.org/2000/svg';
+        const g = document.getElementById(groupId);
+        rows.forEach((arr, r) => {
+          arr.forEach((v, k) => {
+            const rect = document.createElementNS(ns, 'rect');
+            rect.setAttribute('x', X0 + k * DX);
+            rect.setAttribute('y', ROW_Y[r]);
+            rect.setAttribute('width', 52);
+            rect.setAttribute('height', 44);
+            rect.setAttribute('rx', 10);
+            rect.setAttribute('class', cellClass);
+            rect.dataset.row = r;
+            rect.dataset.idx = k;
+            g.appendChild(rect);
+            const t = document.createElementNS(ns, 'text');
+            t.setAttribute('x', X0 + k * DX + 26);
+            t.setAttribute('y', ROW_Y[r] + 28);
+            t.setAttribute('text-anchor', 'middle');
+            t.setAttribute('class', textClass);
+            t.dataset.row = r;
+            t.dataset.idx = k;
+            t.textContent = v;
+            g.appendChild(t);
+          });
+        });
+      }
+
+      // Colour cells: classes = { 'row,idx': 'className' }
+      function paint(groupId, cellClass, textClass, classes) {
+        document.querySelectorAll(`#${groupId} rect`).forEach((rect) => {
+          const c = classes[`${rect.dataset.row},${rect.dataset.idx}`] || '';
+          rect.setAttribute('class', `${cellClass} ${c}`.trim());
+        });
+        document.querySelectorAll(`#${groupId} text`).forEach((t) => {
+          const c = classes[`${t.dataset.row},${t.dataset.idx}`];
+          t.setAttribute('class', c ? `${textClass} lit` : textClass);
+        });
+      }
+
+      function cutX(p) { return X0 + p * DX - 6; }
+
+      // Ground truth: instrumented run of find_median_partition on nums1 = [2,4,7,10,14,17], nums2 = [8,11,16,19].
+      const psSteps = [
+        { step: 0, title: 'Initial state: swap', text: 'nums1 has 6 values, nums2 has 4. Swap so A is the smaller array.', range: '—', ij: '—', a: '—', b: '—', check: '—', ans: '—', i: null, j: null, edge: [], median: [], detail: 'A = [8, 11, 16, 19], B = [2, 4, 7, 10, 14, 17]. Searching the smaller array keeps j in range.', lines: [2, 3, 4] },
+        { step: 1, title: 'Step 1: set up the search', text: 'm = 4, n = 6, half = (4 + 6 + 1) // 2 = 5. The cut i in A can be 0..4.', range: '0..4', ij: '—', a: '—', b: '—', check: '—', ans: '—', i: null, j: null, edge: [], median: [], detail: 'The left half must hold 5 values. Five possible cuts in A, so lo = 0, hi = 4.', lines: [5, 6, 7] },
+        { step: 2, title: 'Step 2: guess 1', text: 'i = (0 + 4) // 2 = 2, so j = 5 - 2 = 3.', range: '0..4', ij: '2 / 3', a: '—', b: '—', check: '—', ans: '—', i: 2, j: 3, edge: [], median: [], detail: 'Left half would be 8, 11 from A and 2, 4, 7 from B: 5 values.', lines: [8, 9, 10] },
+        { step: 3, title: 'Step 3: read the boundary values', text: 'a_left = A[1] = 11, a_right = A[2] = 16, b_left = B[2] = 7, b_right = B[3] = 10.', range: '0..4', ij: '2 / 3', a: '11 | 16', b: '7 | 10', check: '—', ans: '—', i: 2, j: 3, edge: ['0,1', '0,2', '1,2', '1,3'], median: [], detail: 'Only these four values can break the split; each array is sorted on its own.', lines: [11, 12, 13, 14] },
+        { step: 4, title: 'Step 4: too many from A', text: 'a_left 11 > b_right 10: a value on the left is bigger than one on the right.', range: '0..1', ij: '2 / 3', a: '11 | 16', b: '7 | 10', check: '11 > 10', ans: '—', i: 2, j: 3, edge: ['0,1', '1,3'], median: [], detail: 'A gave too many values to the left. Every cut i >= 2 is too far right: hi = i - 1 = 1.', lines: [15, 19, 20] },
+        { step: 5, title: 'Step 5: guess 2', text: 'i = (0 + 1) // 2 = 0, so j = 5 - 0 = 5.', range: '0..1', ij: '0 / 5', a: '—', b: '—', check: '—', ans: '—', i: 0, j: 5, edge: [], median: [], detail: 'Now the left half takes nothing from A and 2, 4, 7, 10, 14 from B.', lines: [8, 9, 10] },
+        { step: 6, title: 'Step 6: read the boundary values', text: 'i = 0, so a_left is the -inf sentinel. a_right = 8, b_left = 14, b_right = 17.', range: '0..1', ij: '0 / 5', a: '-inf | 8', b: '14 | 17', check: '—', ans: '—', i: 0, j: 5, edge: ['0,0', '1,4', '1,5'], median: [], detail: 'The sentinel stands in for the missing left neighbour in A.', lines: [11, 12, 13, 14] },
+        { step: 7, title: 'Step 7: too few from A', text: '-inf <= 17 holds, but b_left 14 > a_right 8.', range: '1..1', ij: '0 / 5', a: '-inf | 8', b: '14 | 17', check: '14 > 8', ans: '—', i: 0, j: 5, edge: ['0,0', '1,4'], median: [], detail: 'B gave too many values, so A gave too few. Move the cut right: lo = i + 1 = 1.', lines: [15, 19, 21, 22] },
+        { step: 8, title: 'Step 8: guess 3', text: 'i = (1 + 1) // 2 = 1, so j = 5 - 1 = 4.', range: '1..1', ij: '1 / 4', a: '—', b: '—', check: '—', ans: '—', i: 1, j: 4, edge: [], median: [], detail: 'Left half: 8 from A and 2, 4, 7, 10 from B.', lines: [8, 9, 10] },
+        { step: 9, title: 'Step 9: read the boundary values', text: 'a_left = 8, a_right = 11, b_left = 10, b_right = 14.', range: '1..1', ij: '1 / 4', a: '8 | 11', b: '10 | 14', check: '—', ans: '—', i: 1, j: 4, edge: ['0,0', '0,1', '1,3', '1,4'], median: [], detail: 'Check both cross pairs next.', lines: [11, 12, 13, 14] },
+        { step: 10, title: 'Step 10: valid cut', text: '8 <= 14 and 10 <= 11: every left value is <= every right value.', range: '1..1', ij: '1 / 4', a: '8 | 11', b: '10 | 14', check: 'both hold', ans: '—', i: 1, j: 4, edge: ['0,0', '0,1', '1,3', '1,4'], median: [], detail: 'The left pieces are exactly the 5 smallest values of the two arrays.', lines: [15] },
+        { step: 11, title: 'Step 11: read the median', text: 'Total 10 is even: (max(8, 10) + min(11, 14)) / 2 = (10 + 11) / 2 = 10.5.', range: '1..1', ij: '1 / 4', a: '8 | 11', b: '10 | 14', check: 'both hold', ans: '10.5', i: 1, j: 4, edge: [], median: ['1,3', '0,1'], detail: 'Three guesses; the merged array was never built.', lines: [16, 18] }
+      ];
+
+      // Ground truth: instrumented run of find_median_two_pointer on the same input.
+      const tpSteps = [
+        { step: 0, title: 'Initial state', text: 't = 10, so the loop runs t // 2 + 1 = 6 times. Both pointers at the front.', pass: '—', cmp: '—', i: 0, j: 0, prev: '0', cur: '0', ans: '—', taken: null, detail: 'prev and cur start at 0; nothing has been read.', lines: [2, 3, 4, 5] },
+        { step: 1, title: 'Step 1: take 2', text: 'Compare 2 and 8. 2 is smaller: cur = 2, i = 1.', pass: '1 of 6', cmp: '2 vs 8', i: 1, j: 0, prev: '0', cur: '2', ans: '—', taken: '0,0', detail: 'prev = 0 (old cur), cur = 2.', lines: [6, 7, 8, 9] },
+        { step: 2, title: 'Step 2: take 4', text: 'Compare 4 and 8. Take 4 from nums1: i = 2.', pass: '2 of 6', cmp: '4 vs 8', i: 2, j: 0, prev: '2', cur: '4', ans: '—', taken: '0,1', detail: 'prev = 2, cur = 4.', lines: [6, 7, 8, 9] },
+        { step: 3, title: 'Step 3: take 7', text: 'Compare 7 and 8. Take 7 from nums1: i = 3.', pass: '3 of 6', cmp: '7 vs 8', i: 3, j: 0, prev: '4', cur: '7', ans: '—', taken: '0,2', detail: 'prev = 4, cur = 7.', lines: [6, 7, 8, 9] },
+        { step: 4, title: 'Step 4: take 8', text: 'Compare 10 and 8. 8 is smaller: take it from nums2, j = 1.', pass: '4 of 6', cmp: '10 vs 8', i: 3, j: 1, prev: '7', cur: '8', ans: '—', taken: '1,0', detail: 'The else branch runs: prev = 7, cur = 8.', lines: [6, 7, 8, 10, 11] },
+        { step: 5, title: 'Step 5: take 10', text: 'Compare 10 and 11. Take 10 from nums1: i = 4.', pass: '5 of 6', cmp: '10 vs 11', i: 4, j: 1, prev: '8', cur: '10', ans: '—', taken: '0,3', detail: 'prev = 8, cur = 10. This is merged position 4.', lines: [6, 7, 8, 9] },
+        { step: 6, title: 'Step 6: take 11', text: 'Compare 14 and 11. Take 11 from nums2: j = 2.', pass: '6 of 6', cmp: '14 vs 11', i: 4, j: 2, prev: '10', cur: '11', ans: '—', taken: '1,1', detail: 'prev = 10, cur = 11: merged positions 4 and 5, the middle pair.', lines: [6, 7, 8, 10, 11] },
+        { step: 7, title: 'Step 7: return', text: 'The loop is done. t = 10 is even: (prev + cur) / 2 = (10 + 11) / 2 = 10.5.', pass: 'done', cmp: '—', i: 4, j: 2, prev: '10', cur: '11', ans: '10.5', taken: null, detail: '17, 16 and 19 were never read (14 was only compared), but 6 of the 10 values were taken: still linear.', lines: [12, 14] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+          stop();
+          if (index > 0) index -= 1;
+          update();
+        });
+
+        nextBtn.addEventListener('click', () => {
+          stop();
+          if (index < steps.length - 1) index += 1;
+          update();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          stop();
+          index = 0;
+          update();
+        });
+
+        playBtn.addEventListener('click', () => {
+          if (timer) {
+            stop();
+            return;
+          }
+          if (index >= steps.length - 1) {
+            index = 0;
+            update();
+          }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) {
+              stop();
+              return;
+            }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      drawCells('ps-cells', [A, B], 'ps-cell', 'ps-text');
+      drawCells('tp-cells', [N1, N2], 'tp-cell', 'tp-text');
+
+      function renderPS(step, index, max) {
+        document.getElementById('ps-step-title').textContent = step.title;
+        document.getElementById('ps-step-text').textContent = step.text;
+        document.getElementById('ps-range').textContent = step.range;
+        document.getElementById('ps-ij').textContent = step.ij;
+        document.getElementById('ps-a').textContent = step.a;
+        document.getElementById('ps-b').textContent = step.b;
+        document.getElementById('ps-check').textContent = step.check;
+        document.getElementById('ps-ans').textContent = step.ans;
+        document.getElementById('ps-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('ps-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('ps-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('ps-trace-table', step.step);
+        setCodeHighlight('ps-code', step.lines);
+
+        const classes = {};
+        if (step.i !== null) {
+          for (let k = 0; k < step.i; k += 1) classes[`0,${k}`] = 'left';
+          for (let k = 0; k < step.j; k += 1) classes[`1,${k}`] = 'left';
+        }
+        step.edge.forEach((key) => { classes[key] = 'edge'; });
+        step.median.forEach((key) => { classes[key] = 'median'; });
+        paint('ps-cells', 'ps-cell', 'ps-text', classes);
+
+        [['ps-cut-a', step.i, 'i'], ['ps-cut-b', step.j, 'j']].forEach(([id, p, name]) => {
+          const line = document.getElementById(id);
+          const label = document.getElementById(`${id}-label`);
+          const show = p !== null;
+          line.setAttribute('visibility', show ? 'visible' : 'hidden');
+          label.setAttribute('visibility', show ? 'visible' : 'hidden');
+          if (show) {
+            line.setAttribute('x1', cutX(p));
+            line.setAttribute('x2', cutX(p));
+            label.setAttribute('x', cutX(p));
+            label.textContent = `${name} = ${p}`;
+          }
+        });
+      }
+
+      function renderTP(step, index, max) {
+        document.getElementById('tp-step-title').textContent = step.title;
+        document.getElementById('tp-step-text').textContent = step.text;
+        document.getElementById('tp-pass').textContent = step.pass;
+        document.getElementById('tp-cmp').textContent = step.cmp;
+        document.getElementById('tp-ij').textContent = `${step.i}, ${step.j}`;
+        document.getElementById('tp-prevv').textContent = step.prev;
+        document.getElementById('tp-cur').textContent = step.cur;
+        document.getElementById('tp-ans').textContent = step.ans;
+        document.getElementById('tp-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('tp-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('tp-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('tp-trace-table', step.step);
+        setCodeHighlight('tp-code', step.lines);
+
+        const classes = {};
+        for (let k = 0; k < step.i; k += 1) classes[`0,${k}`] = 'done';
+        for (let k = 0; k < step.j; k += 1) classes[`1,${k}`] = 'done';
+        if (step.ans === '—') {
+          if (step.i < N1.length) classes[`0,${step.i}`] = 'front';
+          if (step.j < N2.length) classes[`1,${step.j}`] = 'front';
+        }
+        if (step.taken) classes[step.taken] = 'current';
+        paint('tp-cells', 'tp-cell', 'tp-text', classes);
+
+        const pi = document.getElementById('tp-ptr-i');
+        const pj = document.getElementById('tp-ptr-j');
+        pi.setAttribute('x', X0 + step.i * DX + 26);
+        pj.setAttribute('x', X0 + step.j * DX + 26);
+      }
+
+      setupTrace({ steps: psSteps, prefix: 'ps', render: renderPS });
+      setupTrace({ steps: tpSteps, prefix: 'tp', render: renderTP });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

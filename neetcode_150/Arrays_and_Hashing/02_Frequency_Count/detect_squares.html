@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detect Squares — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em;overflow-wrap:anywhere}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .gridline{stroke:var(--border);stroke-width:1}
+  .axis{fill:var(--muted);font-size:11px}
+  .pt circle{fill:var(--card);stroke:var(--muted);stroke-width:2;transition:.15s}
+  .pt text{fill:var(--fg);font-size:12px;font-weight:700}
+  .pt .mult{fill:var(--accent);font-size:12px;font-weight:800}
+  .pt.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .pt.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .pt.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .pt.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .query rect{fill:var(--accent);stroke:var(--accent)}
+  .query text{fill:var(--accent);font-size:12px;font-weight:800}
+  .sq{fill:none;stroke:var(--good-bd);stroke-width:3;stroke-dasharray:7 5}
+  .sq.try{stroke:var(--hi-bd)}
+
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_frequency_count_lesson.html">← Frequency Count lesson</a><span class="tag"><span class="dot"></span> Medium · Math &amp; Geometry · Frequency Count</span></div>
+<h1>2013 · Detect Squares</h1>
+<p class="lead">Points keep arriving on a grid. For a query point, how many squares can it close?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You build a small "point keeper" with two buttons. <b>add</b> drops a pin on a grid (the same spot can get several pins). <b>count</b> takes a new point and asks: how many ways can I pick three pins so that, with this point, they make a square with straight sides (horizontal and vertical) and a size bigger than zero?</p>
+<div class="idea">Example: pins at <code>(3,10)</code>, <code>(11,2)</code>, <code>(3,2)</code>. Query <code>(11,10)</code> &rarr; <b>1</b> square. Add a second pin at <code>(11,2)</code> and the same query gives <b>2</b>: each copy of that pin makes its own square.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>stored pin</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>corner of a square</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>ruled out</span><span><span class="sw" style="background:var(--accent);border-color:var(--accent)"></span>query point</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The blue "×2" next to a pin means two pins sit on that spot.</p>
+</div>
+
+<div class="card"><h2>The key fact</h2>
+<p>Pick the pin <b>diagonally opposite</b> the query. That one pin fixes the whole square: the two other corners must be at <code>(query x, pin y)</code> and <code>(pin x, query y)</code>. A pin is a diagonal partner only when it is as far away sideways as it is up or down (<code>|dx| == |dy|</code>) and not in the same column (<code>dx != 0</code>, else the square has no area).</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: keep a list, rescan it for each corner</h2>
+<div class="idea">Keep every pin in a plain list. For a query, try each pin as the diagonal partner. When one fits, walk the <b>whole list again</b> to count the pins on each of the two other corners, and multiply.</div>
+<div class="viz" id="br-viz"></div>
+<div class="mem"><h4>the list (every pin, duplicates kept)</h4><div class="chips" id="br-list"></div></div>
+<div class="mem"><h4>squares so far (res)</h4><div class="chips" id="br-out"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>add</code> is instant, <code>O(1)</code>. But <code>count</code> may rescan the list once per diagonal pin: <code>O(n²)</code> per query. The notebook measured about 4× slower per doubling of the pins. Memory <code>O(n)</code>.</p>
+<div class="trace-title">Step-by-step trace — list = [(3,10), (11,2), (3,2), (11,2)], count((11,10))</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Pin p</th><th>|dx|, |dy|</th><th>Pins at (11, py)</th><th>Pins at (px, 10)</th><th>Decision</th><th>res after</th></tr>
+  <tr><td>1</td><td>(3,10)</td><td>8, 0</td><td>—</td><td>—</td><td class="rule">Not diagonal &rarr; skip</td><td>0</td></tr>
+  <tr><td>2</td><td>(11,2)</td><td>0, 8</td><td>—</td><td>—</td><td class="rule">Same column (zero width) &rarr; skip</td><td>0</td></tr>
+  <tr><td>3</td><td>(3,2)</td><td>8, 8</td><td>(11,2): 2</td><td>(3,10): 1</td><td class="rule">Diagonal &rarr; rescan list, add 2 × 1</td><td>2</td></tr>
+  <tr class="final"><td>4</td><td>(11,2)</td><td>0, 8</td><td>—</td><td>—</td><td>Same column &rarr; skip; list done &rarr; return 2</td><td>2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — The smart way: count the pins in a map</h2>
+<div class="idea">When a pin is added, bump its tally in a map: <code>cnt[(x, y)] += 1</code>. For a query, loop over each <b>distinct</b> spot once. If it is a diagonal partner, the number of squares it makes is (pins here) × (pins on corner 1) × (pins on corner 2) — three instant map lookups, no rescans.</div>
+<div class="viz" id="ct-viz"></div>
+<div class="mem"><h4>the map (spot &rarr; how many pins)</h4><div class="chips" id="ct-map"></div></div>
+<div class="mem"><h4>squares so far (res)</h4><div class="chips" id="ct-out"></div></div>
+<div class="caption" id="ct-cap"></div>
+<div class="controls" data-player="ct"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="ct-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>add</code> is <code>O(1)</code>. <code>count</code> looks at each distinct spot once with instant lookups: <code>O(n)</code> per query (the notebook measured about 2× per doubling). Memory <code>O(n)</code>, one entry per distinct spot.</p>
+<div class="trace-title">Step-by-step trace — cnt = {(3,10):1, (11,2):2, (3,2):1}, count((11,10))</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Spot p (pins)</th><th>|dx|, |dy|</th><th>cnt[(11, py)]</th><th>cnt[(px, 10)]</th><th>Decision</th><th>res after</th></tr>
+  <tr><td>1</td><td>(3,10) ×1</td><td>8, 0</td><td>—</td><td>—</td><td class="rule">Not diagonal &rarr; skip</td><td>0</td></tr>
+  <tr><td>2</td><td>(11,2) ×2</td><td>0, 8</td><td>—</td><td>—</td><td class="rule">Same column &rarr; skip</td><td>0</td></tr>
+  <tr class="final"><td>3</td><td>(3,2) ×1</td><td>8, 8</td><td>2</td><td>1</td><td>Diagonal &rarr; add 1 × 2 × 1; map done &rarr; return 2</td><td>2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"duplicates count as different"</b>, <b>"how many ways"</b>, or a stream of items with a question about how many of them fit a shape? Count the items in a hash map as they arrive, then answer by multiplying counts instead of searching.
+<p><a href="02_frequency_count_lesson.html">→ Frequency Count: the pattern lesson and its other problems</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1400);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* Grid drawing. pins: {"x,y": count}; marks: {"x,y": cls}; q: [x,y] or null;
+   sq: [x1,y1,x2,y2,cls] square outline between two opposite corners, or null. */
+var GX=30, PADL=30, PADB=26, MAXX=15, MAXY=11;
+var W=PADL+MAXX*GX+20, H=MAXY*GX+PADB+14;
+function X(x){ return PADL+x*GX; } function Y(y){ return H-PADB-y*GX; }
+function drawGrid(id, pins, marks, q, sq){
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px" role="img" aria-label="points on a grid">';
+  for(var x=0;x<=MAXX;x++){ s+='<line class="gridline" x1="'+X(x)+'" y1="'+Y(0)+'" x2="'+X(x)+'" y2="'+Y(MAXY)+'"/>'; if(x%2===0) s+='<text class="axis" x="'+X(x)+'" y="'+(Y(0)+16)+'" text-anchor="middle">'+x+'</text>'; }
+  for(var y=0;y<=MAXY;y++){ s+='<line class="gridline" x1="'+X(0)+'" y1="'+Y(y)+'" x2="'+X(MAXX)+'" y2="'+Y(y)+'"/>'; if(y%2===0) s+='<text class="axis" x="'+(X(0)-8)+'" y="'+(Y(y)+4)+'" text-anchor="end">'+y+'</text>'; }
+  if(sq){
+    var x1=Math.min(sq[0],sq[2]), x2=Math.max(sq[0],sq[2]), y1=Math.min(sq[1],sq[3]), y2=Math.max(sq[1],sq[3]);
+    s+='<rect class="sq '+(sq[4]||'')+'" x="'+X(x1)+'" y="'+Y(y2)+'" width="'+(X(x2)-X(x1))+'" height="'+(Y(y1)-Y(y2))+'"/>';
+  }
+  for(var key in pins){
+    var p=key.split(',').map(Number), c=pins[key];
+    s+='<g class="pt '+((marks&&marks[key])||'seen')+'"><circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="9"/>';
+    s+='<text x="'+(X(p[0])-12)+'" y="'+(Y(p[1])-13)+'" text-anchor="middle">('+p[0]+','+p[1]+')</text>';
+    if(c>1) s+='<text class="mult" x="'+(X(p[0])+14)+'" y="'+(Y(p[1])+4)+'">×'+c+'</text>';
+    s+='</g>';
+  }
+  if(q){
+    s+='<g class="query"><rect x="'+(X(q[0])-8)+'" y="'+(Y(q[1])-8)+'" width="16" height="16" rx="3" transform="rotate(45 '+X(q[0])+' '+Y(q[1])+')"/>';
+    var right=q[0]>10;   /* near the right edge: put the label on the left so it is not clipped */
+    s+='<text x="'+(X(q[0])+(right?-12:12))+'" y="'+(Y(q[1])-12)+'" text-anchor="'+(right?'end':'start')+'">query ('+q[0]+','+q[1]+')</text></g>';
+  }
+  document.getElementById(id).innerHTML=s+'</svg></div>';
+}
+var P3={'3,10':1,'11,2':1,'3,2':1}, P4={'3,10':1,'11,2':2,'3,2':1};
+
+/* Problem demo: the LeetCode operation list (outputs from run_ops in the notebook). */
+makePlayer('pd',[
+  {cap:'<code>DetectSquares()</code>: an empty grid, no pins yet.', p:{}, m:{}, q:null, sq:null},
+  {cap:'<code>add([3,10])</code>: one pin at (3,10).', p:{'3,10':1}, m:{'3,10':'hi'}, q:null, sq:null},
+  {cap:'<code>add([11,2])</code>: one pin at (11,2).', p:{'3,10':1,'11,2':1}, m:{'11,2':'hi'}, q:null, sq:null},
+  {cap:'<code>add([3,2])</code>: one pin at (3,2).', p:P3, m:{'3,2':'hi'}, q:null, sq:null},
+  {cap:'<code>count([11,10])</code> &rarr; <b>1</b>. The three pins close one 8 × 8 square with the query.', p:P3, m:{'3,10':'good','11,2':'good','3,2':'good'}, q:[11,10], sq:[3,2,11,10]},
+  {cap:'<code>count([14,8])</code> &rarr; <b>0</b>. No pin is the same distance across as it is up or down from (14,8).', p:P3, m:{'3,10':'bad','11,2':'bad','3,2':'bad'}, q:[14,8], sq:null},
+  {cap:'<code>add([11,2])</code> again: the spot (11,2) now holds <b>2</b> pins. They count as different points.', p:P4, m:{'11,2':'hi'}, q:null, sq:null},
+  {cap:'<code>count([11,10])</code> &rarr; <b>2</b>. Same square shape, but either of the two pins at (11,2) can be used: 1 × 2 × 1 = 2.', p:P4, m:{'3,10':'good','11,2':'good','3,2':'good'}, q:[11,10], sq:[3,2,11,10]}
+],function(f){ drawGrid('pd-viz',f.p,f.m,f.q,f.sq); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: one frame per list entry (traced from DetectSquaresBrute.count). */
+var LIST=['(3,10)','(11,2)','(3,2)','(11,2)'];
+function lst(hiIdx, cls){ return LIST.map(function(t,k){ return {text:t, cls:(k===hiIdx?cls:'')}; }); }
+function res(v){ return [{text:String(v), cls:'look'}]; }
+makePlayer('br',[
+  {cap:'The list holds 4 entries (two of them are (11,2)). Query (11,10). res = 0.', m:{}, li:-1, lc:'', r:0, sq:null},
+  {cap:'Entry 1: (3,10). Across 8, up/down 0: not a diagonal partner. Skip.', m:{'3,10':'bad'}, li:0, lc:'bad', r:0, sq:null},
+  {cap:'Entry 2: (11,2). Same column as the query (across 0): the square would have no width. Skip.', m:{'3,10':'bad','11,2':'bad'}, li:1, lc:'bad', r:0, sq:null},
+  {cap:'Entry 3: (3,2). Across 8, down 8: diagonal! Rescan the whole list: (11,2) appears 2 times, (3,10) 1 time. res += 2 × 1 = <b>2</b>.', m:{'3,2':'hi','11,2':'good','3,10':'good'}, li:2, lc:'hi', r:2, sq:[3,2,11,10,'try']},
+  {cap:'Entry 4: (11,2) again, same column. Skip. The list is done: return <b>2</b>. Note the two full rescans hidden inside step 3.', m:{'3,2':'good','11,2':'good','3,10':'good'}, li:3, lc:'bad', r:2, sq:[3,2,11,10]}
+],function(f){ drawGrid('br-viz',P4,f.m,[11,10],f.sq); chips('br-list',lst(f.li,f.lc)); chips('br-out',res(f.r)); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Counter: one frame per distinct spot (traced from DetectSquares.count). */
+var MAP=['(3,10): 1','(11,2): 2','(3,2): 1'];
+function mp(hiIdx, cls, look){ return MAP.map(function(t,k){ return {text:t, cls:(k===hiIdx?cls:(look&&look.indexOf(k)>=0?'look':''))}; }); }
+makePlayer('ct',[
+  {cap:'The map has 3 distinct spots; (11,2) holds 2 pins. Query (11,10). res = 0.', m:{}, hi:-1, c:'', look:[], r:0, sq:null},
+  {cap:'Spot (3,10), 1 pin. Across 8, up/down 0: not diagonal. Skip.', m:{'3,10':'bad'}, hi:0, c:'bad', look:[], r:0, sq:null},
+  {cap:'Spot (11,2), 2 pins. Same column as the query: zero width. Skip.', m:{'3,10':'bad','11,2':'bad'}, hi:1, c:'bad', look:[], r:0, sq:null},
+  {cap:'Spot (3,2), 1 pin. Diagonal! Look up cnt[(11,2)] = 2 and cnt[(3,10)] = 1. res += 1 × 2 × 1 = <b>2</b>. Map done: return 2.', m:{'3,2':'hi','11,2':'good','3,10':'good'}, hi:2, c:'hi', look:[0,1], r:2, sq:[3,2,11,10]}
+],function(f){ drawGrid('ct-viz',P4,f.m,[11,10],f.sq); chips('ct-map',mp(f.hi,f.c,f.look)); chips('ct-out',res(f.r)); document.getElementById('ct-cap').innerHTML=f.cap; });
+</script>
+</body></html>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sliding Window Maximum — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:8px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:20px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:44px;height:44px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .chip.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .row .box{width:48px}
+  .wbar{font-size:13px;color:var(--muted);text-align:center;margin-top:6px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_fixed_window_lesson.html">← Fixed Window lesson</a><span class="tag"><span class="dot" style="background:#dc2626"></span> Hard · Sliding Window · Fixed Window</span></div>
+<h1>239 · Sliding Window Maximum</h1>
+<p class="lead">A frame of width <code>k</code> slides along the numbers. What is the biggest number inside the frame at each stop?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Lay a frame that covers <code>k</code> numbers over the start of the list. Write down the largest number inside it. Slide the frame one step right and repeat until it reaches the end.</p>
+<div class="idea">Think of a 3-day weather report: each day you list the hottest temperature of the last 3 days.</div>
+<div class="idea">Example: <code>nums = [1, 3, -1, -3, 5, 3, 6, 7]</code>, <code>k = 3</code> &rarr; <code>[3, 3, 5, 5, 6, 7]</code>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>inside the frame</span><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>number entering</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>number leaving / thrown away</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>the frame's maximum</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="mem"><h4>answer so far</h4><div class="chips" id="pd-out"></div></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The solutions below use a smaller input, <code>nums = [5, 4, 3, 2, 6, 1]</code>, <code>k = 3</code> &rarr; <code>[5, 4, 6, 6]</code>, because on it every move of the fast algorithm happens at least once.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: rescan every frame</h2>
+<div class="idea">For each position of the frame, look at all <code>k</code> numbers inside and take the biggest. Simple, but neighbouring frames share <code>k - 1</code> numbers and we look at them again every time.</div>
+<div class="viz" id="br-viz"></div>
+<div class="mem"><h4>answer so far</h4><div class="chips" id="br-out"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>k</code> numbers per frame, about <code>n</code> frames — <code>O(n·k)</code> time (about 4x slower per doubling when <code>k = n/2</code>); <code>O(k)</code> memory for the slice.</p>
+<div class="trace-title">Step-by-step trace — nums = [5, 4, 3, 2, 6, 1], k = 3</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Start l</th><th>Frame nums[l:l+3]</th><th>max</th><th>Decision</th><th>Answer after</th></tr>
+  <tr><td>1</td><td>0</td><td>[5, 4, 3]</td><td>5</td><td class="rule">Scan 3 numbers</td><td>[5]</td></tr>
+  <tr><td>2</td><td>1</td><td>[4, 3, 2]</td><td>4</td><td class="rule">Scan 3 numbers again</td><td>[5, 4]</td></tr>
+  <tr><td>3</td><td>2</td><td>[3, 2, 6]</td><td>6</td><td class="rule">Scan 3 numbers again</td><td>[5, 4, 6]</td></tr>
+  <tr class="final"><td>4</td><td>3</td><td>[2, 6, 1]</td><td>6</td><td>Last frame &rarr; done</td><td>[5, 4, 6, 6]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Better: a max-heap that cleans up lazily</h2>
+<div class="idea">A heap always hands you its biggest item in one look. Push every number as <code>(value, index)</code>. A heap can't cheaply remove a number from the middle, so when one slides out of the frame we just <b>leave it there</b>. Only when an old number sits on <b>top</b> do we throw it away. Old numbers buried lower down do no harm.</div>
+<div class="viz" id="hp-viz"></div>
+<div class="mem"><h4>heap items as value@index, biggest first (red = already outside the frame, still stored)</h4><div class="chips" id="hp-heap"></div></div>
+<div class="mem"><h4>answer so far</h4><div class="chips" id="hp-out"></div></div>
+<div class="caption" id="hp-cap"></div>
+<div class="controls" data-player="hp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each push or pop costs <code>O(log n)</code> — <code>O(n log n)</code> time; stale items can pile up — <code>O(n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — nums = [5, 4, 3, 2, 6, 1], k = 3</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>r</th><th>Push</th><th>Frame full?</th><th>Stale tops popped</th><th>Heap after (biggest first)</th><th>Answer after</th></tr>
+  <tr><td>1</td><td>0</td><td>5@0</td><td>no</td><td>—</td><td>5@0</td><td>[]</td></tr>
+  <tr><td>2</td><td>1</td><td>4@1</td><td>no</td><td>—</td><td>5@0, 4@1</td><td>[]</td></tr>
+  <tr><td>3</td><td>2</td><td>3@2</td><td>yes</td><td>none (0 &gt; -1)</td><td>5@0, 4@1, 3@2</td><td>[5]</td></tr>
+  <tr><td>4</td><td>3</td><td>2@3</td><td>yes</td><td>5@0 (index 0 &le; 0)</td><td>4@1, 3@2, 2@3</td><td>[5, 4]</td></tr>
+  <tr><td>5</td><td>4</td><td>6@4</td><td>yes</td><td>none (top 6@4 is inside)</td><td>6@4, 4@1, 3@2, 2@3</td><td>[5, 4, 6]</td></tr>
+  <tr class="final"><td>6</td><td>5</td><td>1@5</td><td>yes</td><td>none (4@1, 3@2 stale but not on top)</td><td>6@4, 4@1, 3@2, 2@3, 1@5</td><td>[5, 4, 6, 6]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: a line of candidates that only gets smaller</h2>
+<div class="idea">If a newer number is at least as big as an older one, the older one can <b>never</b> be a frame's maximum again: the newer one stays in the frame longer and beats it. So throw it away. Keep the survivors in a <b>deque</b> (a line you can add to or remove from at both ends), stored by index, biggest at the front. The front is always the answer. When the front's index slides out of the frame, drop it.</div>
+<div class="viz" id="dq-viz"></div>
+<div class="mem"><h4>deque, front first, as value@index</h4><div class="chips" id="dq-q"></div></div>
+<div class="mem"><h4>answer so far</h4><div class="chips" id="dq-out"></div></div>
+<div class="caption" id="dq-cap"></div>
+<div class="controls" data-player="dq"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="dq-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every index joins the deque once and leaves at most once — <code>O(n)</code> time in total, even when one step throws away several; the deque holds at most <code>k</code> indices — <code>O(k)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — nums = [5, 4, 3, 2, 6, 1], k = 3</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>r</th><th>nums[r]</th><th>Thrown from back</th><th>Front leaves (index r-3)?</th><th>Deque after</th><th>Answer after</th></tr>
+  <tr><td>1</td><td>0</td><td>5</td><td>—</td><td>no</td><td>5@0</td><td>[]</td></tr>
+  <tr><td>2</td><td>1</td><td>4</td><td>— (5 &gt; 4)</td><td>no</td><td>5@0, 4@1</td><td>[]</td></tr>
+  <tr><td>3</td><td>2</td><td>3</td><td>— (4 &gt; 3)</td><td>no</td><td>5@0, 4@1, 3@2</td><td>[5]</td></tr>
+  <tr><td>4</td><td>3</td><td>2</td><td>— (3 &gt; 2)</td><td>yes: 5@0</td><td>4@1, 3@2, 2@3</td><td>[5, 4]</td></tr>
+  <tr><td>5</td><td>4</td><td>6</td><td>2@3, 3@2, 4@1</td><td>no</td><td>6@4</td><td>[5, 4, 6]</td></tr>
+  <tr class="final"><td>6</td><td>5</td><td>1</td><td>— (6 &gt; 1)</td><td>no (front is 4, not 2)</td><td>6@4, 1@5</td><td>[5, 4, 6, 6]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"maximum (or minimum) of every window of size k"</b>? The frame has a fixed width, so slide it one step at a time. A plain running total can't forget a maximum that leaves, so keep a deque of the candidates that can still win.
+<p><a href="02_fixed_window_lesson.html">→ Fixed Window: the pattern lesson and the other problem that uses it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* Draw nums as boxes. f.lo..f.hi = frame (inclusive); f.enter / f.leave = index; f.best = index of the frame max; f.gone = indices thrown away this step. */
+function drawRow(id, nums, f){
+  var h='<div class="row">';
+  for(var j=0;j<nums.length;j++){
+    var cls='', p='';
+    if(f.lo!=null && j>=f.lo && j<=f.hi) cls='seen';
+    if(j===f.enter) cls='hi';
+    if(j===f.leave || (f.gone && f.gone.indexOf(j)>=0)) cls='bad';
+    if(j===f.best) cls='good';
+    if(f.lo!=null && j===f.lo) p+='l';
+    if(f.lo!=null && j===f.hi) p+=(p?' ':'')+'r';
+    h+='<div class="cell"><div class="ptr">'+p+'</div><div class="box '+cls+'">'+nums[j]+'</div><div class="idxlabel">'+j+'</div></div>';
+  }
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+function outs(a){ return a.map(function(v){return {text:String(v),cls:'look'};}); }
+function vi(list, staleBelow){ return list.map(function(p){ return {text:p[0]+'@'+p[1], cls:(staleBelow!=null && p[1]<=staleBelow)?'bad':''}; }); }
+
+/* Problem demo on the LeetCode example. */
+var EX=[1,3,-1,-3,5,3,6,7];
+makePlayer('pd',[
+  {cap:'Frame of width k = 3 over the first three numbers. Six positions in total.', f:{}, out:[]},
+  {cap:'Frame [1, 3, -1]: biggest is <b>3</b>.', f:{lo:0,hi:2,best:1}, out:[3]},
+  {cap:'Slide: 1 leaves, -3 enters. Frame [3, -1, -3]: biggest is still <b>3</b>.', f:{lo:1,hi:3,best:1}, out:[3,3]},
+  {cap:'Slide: 3 leaves, 5 enters. Frame [-1, -3, 5]: <b>5</b>.', f:{lo:2,hi:4,best:4}, out:[3,3,5]},
+  {cap:'Frame [-3, 5, 3]: <b>5</b>.', f:{lo:3,hi:5,best:4}, out:[3,3,5,5]},
+  {cap:'Frame [5, 3, 6]: <b>6</b>.', f:{lo:4,hi:6,best:6}, out:[3,3,5,5,6]},
+  {cap:'Frame [3, 6, 7]: <b>7</b>. Answer <b>[3, 3, 5, 5, 6, 7]</b>.', f:{lo:5,hi:7,best:7}, out:[3,3,5,5,6,7]}
+],function(fr){ drawRow('pd-viz',EX,fr.f); chips('pd-out',outs(fr.out)); document.getElementById('pd-cap').innerHTML=fr.cap; });
+
+var N=[5,4,3,2,6,1];
+/* Solution 1: values traced from max_sliding_window_brute. */
+makePlayer('br',[
+  {cap:'k = 3, so there are 6 - 3 + 1 = 4 frames.', f:{}, out:[]},
+  {cap:'l = 0: scan 5, 4, 3 &rarr; max <b>5</b>.', f:{lo:0,hi:2,best:0}, out:[5]},
+  {cap:'l = 1: scan 4, 3, 2 &rarr; max <b>4</b>. (4 and 3 were already looked at.)', f:{lo:1,hi:3,best:1}, out:[5,4]},
+  {cap:'l = 2: scan 3, 2, 6 &rarr; max <b>6</b>.', f:{lo:2,hi:4,best:4}, out:[5,4,6]},
+  {cap:'l = 3: scan 2, 6, 1 &rarr; max <b>6</b>. Answer <b>[5, 4, 6, 6]</b>.', f:{lo:3,hi:5,best:4}, out:[5,4,6,6]}
+],function(fr){ drawRow('br-viz',N,fr.f); chips('br-out',outs(fr.out)); document.getElementById('br-cap').innerHTML=fr.cap; });
+
+/* Solution 2: values traced from max_sliding_window_heap (heap shown biggest first). */
+makePlayer('hp',[
+  {cap:'Empty heap. Each number goes in as value@index.', f:{}, h:[], st:null, out:[]},
+  {cap:'r = 0: push 5@0. The frame is not full yet.', f:{lo:0,hi:0,enter:0}, h:[[5,0]], st:null, out:[]},
+  {cap:'r = 1: push 4@1. Not full yet.', f:{lo:0,hi:1,enter:1}, h:[[5,0],[4,1]], st:null, out:[]},
+  {cap:'r = 2: push 3@2. Frame [0..2] is full. Top 5@0 is inside (0 &gt; r-k = -1) &rarr; record <b>5</b>.', f:{lo:0,hi:2,enter:2,best:0}, h:[[5,0],[4,1],[3,2]], st:-1, out:[5]},
+  {cap:'r = 3: push 2@3. Top 5@0 has left the frame (0 &le; r-k = 0) &rarr; pop it. New top 4@1 is inside &rarr; record <b>4</b>.', f:{lo:1,hi:3,enter:3,leave:0,best:1}, h:[[4,1],[3,2],[2,3]], st:0, out:[5,4]},
+  {cap:'r = 4: push 6@4. It goes straight to the top and it is inside &rarr; record <b>6</b>.', f:{lo:2,hi:4,enter:4,best:4}, h:[[6,4],[4,1],[3,2],[2,3]], st:1, out:[5,4,6]},
+  {cap:'r = 5: push 1@5. Top 6@4 is inside &rarr; record <b>6</b>. 4@1 and 3@2 are outside the frame (red) but not on top, so they just stay. Answer <b>[5, 4, 6, 6]</b>.', f:{lo:3,hi:5,enter:5,best:4}, h:[[6,4],[4,1],[3,2],[2,3],[1,5]], st:2, out:[5,4,6,6]}
+],function(fr){ drawRow('hp-viz',N,fr.f); chips('hp-heap',vi(fr.h,fr.st)); chips('hp-out',outs(fr.out)); document.getElementById('hp-cap').innerHTML=fr.cap; });
+
+/* Solution 3: values traced from max_sliding_window_deque. */
+makePlayer('dq',[
+  {cap:'Empty deque. It will hold indices whose values get smaller from front to back.', f:{}, q:[], out:[]},
+  {cap:'r = 0: nothing to throw away. Push 5@0. Frame not full yet.', f:{lo:0,hi:0,enter:0}, q:[[5,0]], out:[]},
+  {cap:'r = 1: 4 does not beat 5, so 5 stays. Push 4@1.', f:{lo:0,hi:1,enter:1}, q:[[5,0],[4,1]], out:[]},
+  {cap:'r = 2: 3 beats nobody. Push 3@2. Frame full: front 5@0 &rarr; record <b>5</b>.', f:{lo:0,hi:2,enter:2,best:0}, q:[[5,0],[4,1],[3,2]], out:[5]},
+  {cap:'r = 3: push 2@3. Index r-k = 0 leaves the frame and it is the front &rarr; popleft 5@0. Front 4@1 &rarr; record <b>4</b>.', f:{lo:1,hi:3,enter:3,leave:0,best:1}, q:[[4,1],[3,2],[2,3]], out:[5,4]},
+  {cap:'r = 4: 6 beats 2, 3 and 4: throw all three away from the back (none can win again). Push 6@4 &rarr; record <b>6</b>.', f:{lo:2,hi:4,enter:4,best:4,gone:[1,2,3]}, q:[[6,4]], out:[5,4,6]},
+  {cap:'r = 5: 1 beats nobody. Push 1@5. Index 2 leaves, but it was already thrown away. Front 6@4 &rarr; record <b>6</b>. Answer <b>[5, 4, 6, 6]</b>.', f:{lo:3,hi:5,enter:5,best:4}, q:[[6,4],[1,5]], out:[5,4,6,6]}
+],function(fr){ drawRow('dq-viz',N,fr.f); chips('dq-q',vi(fr.q,null)); chips('dq-out',outs(fr.out)); document.getElementById('dq-cap').innerHTML=fr.cap; });
+</script>
+</body></html>

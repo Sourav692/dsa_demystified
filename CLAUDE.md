@@ -23,7 +23,7 @@ DSA study repo: Jupyter notebooks + self-contained interactive HTML lessons + ma
 
 ## Python
 
-- Code is stdlib-only; `matplotlib` is optional (import guarded). There is no committed env, and the pyenv `jupyter` shim is broken. Run/verify a notebook with `uvx --python 3.12 --with ipykernel --from nbconvert jupyter-nbconvert --to notebook --execute --inplace --ExecutePreprocessor.kernel_name=python3 "<nb>"` — nonzero exit = failed cell/assert. Don't pipe it into `tail` (hides the exit code).
+- Code is stdlib-only; `matplotlib` is optional (import guarded). There is no committed env, and the pyenv `jupyter` shim is broken. Run/verify a notebook with `uvx --python 3.12 --with ipykernel --with matplotlib --from nbconvert jupyter-nbconvert --to notebook --execute --inplace --ExecutePreprocessor.kernel_name=python3 "<nb>"` — nonzero exit = failed cell/assert. Don't pipe it into `tail` (hides the exit code).
 - `bench_utils.py` lives once at the repo root. Notebooks locate it by walking up ≤5 parent dirs onto `sys.path`; don't replace that with a relative import or add another copy.
 - Commit notebooks with executed outputs (do not strip them). Re-run the notebook after editing code cells so outputs match.
 

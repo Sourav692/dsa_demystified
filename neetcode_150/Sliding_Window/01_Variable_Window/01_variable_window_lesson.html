@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Variable Window — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+
+  <style>
+    .sw-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+    .sw-cell.win { fill: #315efb; }
+    .sw-cell.drop { fill: #13a46b; }
+    .sw-cell.cur { fill: #ff9f1c; }
+    .sw-label { font: 700 20px Inter, Arial, sans-serif; fill: #172033; }
+    .sw-label.on { fill: #ffffff; }
+    .sw-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+    .sw-mark { font: 800 14px Inter, Arial, sans-serif; fill: #172033; }
+    .sw-win { fill: none; stroke: #172033; stroke-width: 2.5; stroke-dasharray: 6 4; }
+    .sw-best { fill: #172033; }
+    .mw-label { font: 700 16px Inter, Arial, sans-serif; fill: #172033; }
+    .mw-label.on { fill: #ffffff; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Sliding Window · Pattern 01 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Variable Window</h1>
+          <p>
+            Keep a window <code>s[left..right]</code> over a string or array. Move <code>right</code> one step at a time to grow it, and move <code>left</code> forward only when the window breaks the rule (or, for "shortest" problems, while it still keeps the rule). Each index enters the window once and leaves once, so a problem that looks like "check every substring" becomes one <code>O(n)</code> pass.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: grow right, shrink left, never move backwards</span>
+            <span class="chip">Method 1: longest valid window (set)</span>
+            <span class="chip">Method 2: shortest valid window (need / missing)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="best_time_to_buy_and_sell_stock.html">Best Time to Buy and Sell Stock</a> · <a href="longest_substring_without_repeating.html">Longest Substring Without Repeating Characters</a> · <a href="longest_repeating_character_replacement.html">Longest Repeating Character Replacement</a> · <a href="minimum_window_substring.html">Minimum Window Substring</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Longest Substring Without Repeating Characters, <code>s = "abcabcbb"</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 160" width="100%" role="img" aria-label="The string abcabcbb with the window abc at indices 0 to 2 outlined">
+              <rect x="24" y="44" width="178" height="62" rx="12" class="sw-win" />
+              <rect x="30" y="50" width="50" height="50" rx="10" class="sw-cell win" />
+              <rect x="88" y="50" width="50" height="50" rx="10" class="sw-cell win" />
+              <rect x="146" y="50" width="50" height="50" rx="10" class="sw-cell win" />
+              <rect x="204" y="50" width="50" height="50" rx="10" class="sw-cell" />
+              <rect x="262" y="50" width="50" height="50" rx="10" class="sw-cell" />
+              <rect x="320" y="50" width="50" height="50" rx="10" class="sw-cell" />
+              <rect x="378" y="50" width="50" height="50" rx="10" class="sw-cell" />
+              <rect x="436" y="50" width="50" height="50" rx="10" class="sw-cell" />
+              <text x="55" y="82" text-anchor="middle" class="sw-label on">a</text>
+              <text x="113" y="82" text-anchor="middle" class="sw-label on">b</text>
+              <text x="171" y="82" text-anchor="middle" class="sw-label on">c</text>
+              <text x="229" y="82" text-anchor="middle" class="sw-label">a</text>
+              <text x="287" y="82" text-anchor="middle" class="sw-label">b</text>
+              <text x="345" y="82" text-anchor="middle" class="sw-label">c</text>
+              <text x="403" y="82" text-anchor="middle" class="sw-label">b</text>
+              <text x="461" y="82" text-anchor="middle" class="sw-label">b</text>
+              <text x="55" y="36" text-anchor="middle" class="sw-mark">left</text>
+              <text x="171" y="36" text-anchor="middle" class="sw-mark">right</text>
+              <text x="113" y="130" text-anchor="middle" class="sw-idx">window "abc": no repeats, length 3</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = 3</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Longest stretch that obeys a rule</h3>
+          <p>The longest run of a playlist with no song repeated, the longest period a sensor stayed within limits: you want the biggest contiguous range that stays valid.</p>
+        </div>
+        <div class="card">
+          <h3>Shortest stretch that covers a need</h3>
+          <p>The smallest snippet of a document that contains every search term is exactly Minimum Window Substring: grow until covered, then trim.</p>
+        </div>
+        <div class="card">
+          <h3>One template, four problems</h3>
+          <p>All four problems in this folder use the same loop. Only the window's bookkeeping (a set, a count map, a need counter, a running minimum) and the validity test change.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the brute force checks every <code>(start, end)</code> pair, <code>O(n²)</code> windows. The variable window reuses the work: when <code>right</code> moves, the window keeps everything it already knew and updates its state in <code>O(1)</code>.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is a variable window?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Two indices, <code>left</code> and <code>right</code>, mark a contiguous range. A small piece of <strong>state</strong> (a set, a count map, a counter) always describes what is inside that range. <code>right</code> moves forward every loop; <code>left</code> moves forward only when the rule says so. Neither index ever moves back.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Longest / shortest <strong>substring</strong> or <strong>subarray</strong>" (contiguous) with a property: "without repeating characters", "after at most <code>k</code> changes", "containing all characters of <code>t</code>". The property must be checkable from the window's state alone.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> ask "if a window breaks the rule, does every bigger window that contains it also break it?" If yes, shrinking from the left is safe, and the variable window works. Best Time to Buy and Sell Stock is the degenerate case: <code>left</code> is the cheapest day so far and simply jumps to any new low.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot the window</h3>
+          <p>Contiguous range plus "longest" or "shortest". Brute force would be every pair of ends.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Pick the state</h3>
+          <p>What must you know about the window to test the rule in <code>O(1)</code>? A <code>set</code>, a count <code>dict</code>, a <code>need</code> counter with <code>missing</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Grow, then fix</h3>
+          <p>Add <code>s[right]</code> to the state. Longest: shrink <em>while invalid</em>. Shortest: shrink <em>while valid</em>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Record at the right moment</h3>
+          <p>Longest: after the shrink, the window is valid, so update <code>best</code>. Shortest: inside the shrink loop, before each drop.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a window and its state</h2>
+      <p>The input is just a string. The algorithm never builds substrings; it keeps two indices and a summary of the characters between them. For Method 1 that summary is the set <code>seen</code>, which always equals the set of characters in <code>s[left..right]</code>.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input string</h3>
+          <div class="code-block"><code>s = "abcabcbb"
+     01234567</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Window + state (after right = 5)</h3>
+          <div class="code-block"><code>left = 3, right = 5
+window = s[3:6] = "abc"
+seen = {a, b, c}</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4><code>right</code> moves one step every loop</h4>
+          <p>The new character <code>s[right]</code> is about to join the window.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>If it would break the rule, <code>left</code> moves first</h4>
+          <p>Each move removes <code>s[left]</code> from the state, until the new character can join safely.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>The new character joins the state</h4>
+          <p><code>seen.add(s[right])</code>. The window <code>s[left..right]</code> is valid again.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Record the answer</h4>
+          <p><code>right - left + 1</code> is the window's length. Keep the largest.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the state must be updated on <em>both</em> moves: add on <code>right</code>, remove on <code>left</code>. Forget the remove and the set describes characters that already left the window.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: longest valid window (Longest Substring Without Repeating Characters)</h2>
+      <p>The template in its plainest form, taken line for line from the notebook's <code>length_window_set</code>. The rule is "no character twice", the state is a set, and the window shrinks <em>while invalid</em>: while the incoming character is already inside.</p>
+      <div class="code-block stepped">
+        <code id="set-code">
+<span class="code-line" data-line="1">def length_window_set(s: str) -&gt; int:</span>
+<span class="code-line" data-line="2">    seen = set()                           # characters currently inside the window</span>
+<span class="code-line" data-line="3">    left = best = 0                        # left edge of the window; best length so far</span>
+<span class="code-line" data-line="4">    for right in range(len(s)):            # right edge sweeps across the string</span>
+<span class="code-line" data-line="5">        while s[right] in seen:            # new char already inside -&gt; shrink from the left</span>
+<span class="code-line" data-line="6">            seen.remove(s[left])           # drop the leftmost char</span>
+<span class="code-line" data-line="7">            left += 1                      # move the left edge right</span>
+<span class="code-line" data-line="8">        seen.add(s[right])                 # now safe to add the new character</span>
+<span class="code-line" data-line="9">        best = max(best, right - left + 1) # update the best window length</span>
+<span class="code-line" data-line="10">    return best</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive window trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="set-graph" viewBox="0 0 520 165" width="100%" role="img" aria-label="Sliding window trace over the string abcabcbb">
+              <rect id="set-win" x="24" y="44" width="62" height="62" rx="12" class="sw-win" visibility="hidden" />
+              <rect x="30" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="0" />
+              <rect x="88" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="1" />
+              <rect x="146" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="2" />
+              <rect x="204" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="3" />
+              <rect x="262" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="4" />
+              <rect x="320" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="5" />
+              <rect x="378" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="6" />
+              <rect x="436" y="50" width="50" height="50" rx="10" class="sw-cell" data-i="7" />
+              <text x="55" y="82" text-anchor="middle" class="sw-label" data-t="0">a</text>
+              <text x="113" y="82" text-anchor="middle" class="sw-label" data-t="1">b</text>
+              <text x="171" y="82" text-anchor="middle" class="sw-label" data-t="2">c</text>
+              <text x="229" y="82" text-anchor="middle" class="sw-label" data-t="3">a</text>
+              <text x="287" y="82" text-anchor="middle" class="sw-label" data-t="4">b</text>
+              <text x="345" y="82" text-anchor="middle" class="sw-label" data-t="5">c</text>
+              <text x="403" y="82" text-anchor="middle" class="sw-label" data-t="6">b</text>
+              <text x="461" y="82" text-anchor="middle" class="sw-label" data-t="7">b</text>
+              <text x="55" y="124" text-anchor="middle" class="sw-idx">0</text>
+              <text x="113" y="124" text-anchor="middle" class="sw-idx">1</text>
+              <text x="171" y="124" text-anchor="middle" class="sw-idx">2</text>
+              <text x="229" y="124" text-anchor="middle" class="sw-idx">3</text>
+              <text x="287" y="124" text-anchor="middle" class="sw-idx">4</text>
+              <text x="345" y="124" text-anchor="middle" class="sw-idx">5</text>
+              <text x="403" y="124" text-anchor="middle" class="sw-idx">6</text>
+              <text x="461" y="124" text-anchor="middle" class="sw-idx">7</text>
+              <text id="set-L" x="55" y="34" text-anchor="middle" class="sw-mark">left</text>
+              <text id="set-R" x="55" y="152" text-anchor="middle" class="sw-mark" visibility="hidden">right</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> s[right], the incoming character</span>
+            <span><i class="dot dot-blue"></i> inside the window (in <code>seen</code>)</span>
+            <span><i class="dot dot-green"></i> just dropped from the left</span>
+            <span><i class="dot dot-gray"></i> outside the window</span>
+            <span>dashed outline = the window</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="set-step-title">Initial state</h3>
+          <p id="set-step-text">Empty window.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="set-prev">Previous</button>
+            <button type="button" id="set-play" class="primary">Resume</button>
+            <button type="button" id="set-next">Next</button>
+            <button type="button" id="set-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="set-step-counter">Step 0 / 13</span>
+            <div class="progress"><span id="set-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>right</strong><div class="state-value" id="set-right">—</div></div>
+            <div class="state-box"><strong>left</strong><div class="state-value" id="set-left">0</div></div>
+            <div class="state-box"><strong>seen</strong><div class="state-value" id="set-seen">set()</div></div>
+            <div class="state-box"><strong>window s[left..right]</strong><div class="state-value" id="set-window">""</div></div>
+            <div class="state-box"><strong>best</strong><div class="state-value" id="set-best">0</div></div>
+          </div>
+          <div class="explainer">
+            <p id="set-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="set-trace-table">
+          <thead>
+            <tr><th>Step</th><th>right</th><th>Action</th><th>left after</th><th>window after</th><th>seen after</th><th>best</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td><code>seen = set()</code>, <code>left = best = 0</code></td><td>0</td><td><code>""</code></td><td><code>set()</code></td><td>0</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>Add <code>'a'</code>, new best 1</td><td>0</td><td><code>"a"</code></td><td><code>{a}</code></td><td>1</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>Add <code>'b'</code>, new best 2</td><td>0</td><td><code>"ab"</code></td><td><code>{a, b}</code></td><td>2</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>Add <code>'c'</code>, new best 3</td><td>0</td><td><code>"abc"</code></td><td><code>{a, b, c}</code></td><td>3</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>Repeat: drop 'a', <code>left</code> 0 &rarr; 1</td><td>1</td><td><code>"bc"</code></td><td><code>{b, c}</code></td><td>3</td></tr>
+            <tr data-step="5"><td>5</td><td>3</td><td>Add <code>'a'</code></td><td>1</td><td><code>"bca"</code></td><td><code>{a, b, c}</code></td><td>3</td></tr>
+            <tr data-step="6"><td>6</td><td>4</td><td>Repeat: drop 'b', <code>left</code> 1 &rarr; 2</td><td>2</td><td><code>"ca"</code></td><td><code>{a, c}</code></td><td>3</td></tr>
+            <tr data-step="7"><td>7</td><td>4</td><td>Add <code>'b'</code></td><td>2</td><td><code>"cab"</code></td><td><code>{a, b, c}</code></td><td>3</td></tr>
+            <tr data-step="8"><td>8</td><td>5</td><td>Repeat: drop 'c', <code>left</code> 2 &rarr; 3</td><td>3</td><td><code>"ab"</code></td><td><code>{a, b}</code></td><td>3</td></tr>
+            <tr data-step="9"><td>9</td><td>5</td><td>Add <code>'c'</code></td><td>3</td><td><code>"abc"</code></td><td><code>{a, b, c}</code></td><td>3</td></tr>
+            <tr data-step="10"><td>10</td><td>6</td><td>Repeat: drop 'a', 'b', <code>left</code> 3 &rarr; 5</td><td>5</td><td><code>"c"</code></td><td><code>{c}</code></td><td>3</td></tr>
+            <tr data-step="11"><td>11</td><td>6</td><td>Add <code>'b'</code></td><td>5</td><td><code>"cb"</code></td><td><code>{b, c}</code></td><td>3</td></tr>
+            <tr data-step="12"><td>12</td><td>7</td><td>Repeat: drop 'c', 'b', <code>left</code> 5 &rarr; 7</td><td>7</td><td><code>""</code></td><td><code>set()</code></td><td>3</td></tr>
+            <tr data-step="13"><td>13</td><td>7</td><td>Add <code>'b'</code>; return 3</td><td>7</td><td><code>"b"</code></td><td><code>{b}</code></td><td>3</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The window is a caterpillar: the head (<code>right</code>) always crawls forward, the tail (<code>left</code>) catches up only when the body breaks the rule. Over the whole run <code>left</code> moves at most <code>n</code> times, so the inner <code>while</code> costs <code>O(n)</code> in total, not per step.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Using <code>if</code> instead of <code>while</code> to shrink. At step 10 (<code>right = 6</code>, <code>'b'</code>) the window is <code>"abc"</code> and the repeat sits in the middle: two drops, <code>'a'</code> then <code>'b'</code>, are needed before <code>'b'</code> can join.</p>
+        </div>
+        <div class="card">
+          <h4>Why a set, and the map refinement</h4>
+          <p>Membership in a set is <code>O(1)</code> on average. The notebook's optimal version, <code>length_window_map</code>, stores each character's last index and jumps <code>left = last[c] + 1</code> in one move (guarded by <code>last[c] &gt;= left</code>); same <code>O(n)</code>, fewer steps.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: shortest valid window (Minimum Window Substring)</h2>
+      <p>The same loop, with the shrink condition flipped. Now the goal is the <em>shortest</em> window that covers every character of <code>t</code>, so the window grows until it is valid (<code>missing == 0</code>) and then shrinks <em>while it stays valid</em>, recording the best before each drop. Code from the notebook's <code>min_window_slide</code>, traced on <code>s = "ADOBECODEBANC"</code>, <code>t = "ABC"</code>.</p>
+      <div class="code-block stepped">
+        <code id="mw-code">
+<span class="code-line" data-line="1">def min_window_slide(s: str, t: str) -&gt; str:</span>
+<span class="code-line" data-line="2">    if not t or not s:</span>
+<span class="code-line" data-line="3">        return ""</span>
+<span class="code-line" data-line="4">    need = Counter(t)                      # remaining count needed for each character</span>
+<span class="code-line" data-line="5">    missing = len(t)                       # total characters still to cover (with repeats)</span>
+<span class="code-line" data-line="6">    left = 0                               # left edge of the window</span>
+<span class="code-line" data-line="7">    best = (float("inf"), 0, 0)            # (window length, start, end+1) of the best so far</span>
+<span class="code-line" data-line="8">    for right, c in enumerate(s):          # right edge sweeps across s</span>
+<span class="code-line" data-line="9">        if need[c] &gt; 0:                    # c is a character we still needed</span>
+<span class="code-line" data-line="10">            missing -= 1                   # one fewer to cover</span>
+<span class="code-line" data-line="11">        need[c] -= 1                       # (can go negative for extra copies)</span>
+<span class="code-line" data-line="12">        while missing == 0:                # window covers all of t -&gt; try to shrink it</span>
+<span class="code-line" data-line="13">            if right - left + 1 &lt; best[0]:</span>
+<span class="code-line" data-line="14">                best = (right - left + 1, left, right + 1)   # record a smaller window</span>
+<span class="code-line" data-line="15">            need[s[left]] += 1             # about to drop the leftmost char</span>
+<span class="code-line" data-line="16">            if need[s[left]] &gt; 0:          # dropping it breaks coverage</span>
+<span class="code-line" data-line="17">                missing += 1               # we now need that character again</span>
+<span class="code-line" data-line="18">            left += 1                      # move the left edge right</span>
+<span class="code-line" data-line="19">    return "" if best[0] == float("inf") else s[best[1]:best[2]]</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive minimum-window trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="mw-graph" viewBox="0 0 520 175" width="100%" role="img" aria-label="Minimum window trace over ADOBECODEBANC with target ABC">
+              <rect id="mw-win" x="10" y="44" width="42" height="56" rx="10" class="sw-win" visibility="hidden" />
+              <rect id="mw-best" x="14" y="128" width="34" height="8" rx="4" class="sw-best" visibility="hidden" />
+              <rect x="14" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="0" />
+              <rect x="52" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="1" />
+              <rect x="90" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="2" />
+              <rect x="128" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="3" />
+              <rect x="166" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="4" />
+              <rect x="204" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="5" />
+              <rect x="242" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="6" />
+              <rect x="280" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="7" />
+              <rect x="318" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="8" />
+              <rect x="356" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="9" />
+              <rect x="394" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="10" />
+              <rect x="432" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="11" />
+              <rect x="470" y="50" width="34" height="44" rx="8" class="sw-cell" data-i="12" />
+              <text x="31" y="78" text-anchor="middle" class="mw-label" data-t="0">A</text>
+              <text x="69" y="78" text-anchor="middle" class="mw-label" data-t="1">D</text>
+              <text x="107" y="78" text-anchor="middle" class="mw-label" data-t="2">O</text>
+              <text x="145" y="78" text-anchor="middle" class="mw-label" data-t="3">B</text>
+              <text x="183" y="78" text-anchor="middle" class="mw-label" data-t="4">E</text>
+              <text x="221" y="78" text-anchor="middle" class="mw-label" data-t="5">C</text>
+              <text x="259" y="78" text-anchor="middle" class="mw-label" data-t="6">O</text>
+              <text x="297" y="78" text-anchor="middle" class="mw-label" data-t="7">D</text>
+              <text x="335" y="78" text-anchor="middle" class="mw-label" data-t="8">E</text>
+              <text x="373" y="78" text-anchor="middle" class="mw-label" data-t="9">B</text>
+              <text x="411" y="78" text-anchor="middle" class="mw-label" data-t="10">A</text>
+              <text x="449" y="78" text-anchor="middle" class="mw-label" data-t="11">N</text>
+              <text x="487" y="78" text-anchor="middle" class="mw-label" data-t="12">C</text>
+              <text x="31" y="116" text-anchor="middle" class="sw-idx">0</text>
+              <text x="69" y="116" text-anchor="middle" class="sw-idx">1</text>
+              <text x="107" y="116" text-anchor="middle" class="sw-idx">2</text>
+              <text x="145" y="116" text-anchor="middle" class="sw-idx">3</text>
+              <text x="183" y="116" text-anchor="middle" class="sw-idx">4</text>
+              <text x="221" y="116" text-anchor="middle" class="sw-idx">5</text>
+              <text x="259" y="116" text-anchor="middle" class="sw-idx">6</text>
+              <text x="297" y="116" text-anchor="middle" class="sw-idx">7</text>
+              <text x="335" y="116" text-anchor="middle" class="sw-idx">8</text>
+              <text x="373" y="116" text-anchor="middle" class="sw-idx">9</text>
+              <text x="411" y="116" text-anchor="middle" class="sw-idx">10</text>
+              <text x="449" y="116" text-anchor="middle" class="sw-idx">11</text>
+              <text x="487" y="116" text-anchor="middle" class="sw-idx">12</text>
+              <text id="mw-L" x="31" y="34" text-anchor="middle" class="sw-mark">left</text>
+              <text id="mw-R" x="31" y="162" text-anchor="middle" class="sw-mark" visibility="hidden">right</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> s[right], just read</span>
+            <span><i class="dot dot-blue"></i> inside the window</span>
+            <span><i class="dot dot-green"></i> just squeezed out from the left</span>
+            <span><i class="dot dot-gray"></i> outside the window</span>
+            <span>dark bar = best window so far</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="mw-step-title">Initial state</h3>
+          <p id="mw-step-text">Nothing read yet.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="mw-prev">Previous</button>
+            <button type="button" id="mw-play" class="primary">Resume</button>
+            <button type="button" id="mw-next">Next</button>
+            <button type="button" id="mw-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="mw-step-counter">Step 0 / 16</span>
+            <div class="progress"><span id="mw-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>right</strong><div class="state-value" id="mw-right">—</div></div>
+            <div class="state-box"><strong>left</strong><div class="state-value" id="mw-left">0</div></div>
+            <div class="state-box"><strong>need (for A, B, C)</strong><div class="state-value" id="mw-need">A:1 B:1 C:1</div></div>
+            <div class="state-box"><strong>missing</strong><div class="state-value" id="mw-missing">3</div></div>
+            <div class="state-box"><strong>best window</strong><div class="state-value" id="mw-best-val">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="mw-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="mw-trace-table">
+          <thead>
+            <tr><th>Step</th><th>right</th><th>Action</th><th>need after</th><th>missing</th><th>left after</th><th>best after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td><code>need = {A:1, B:1, C:1}</code>, <code>missing = 3</code></td><td><code>A:1 B:1 C:1</code></td><td>3</td><td>0</td><td>—</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>Read <code>'A'</code>: needed, <code>missing</code> = 2</td><td><code>A:0 B:1 C:1</code></td><td>2</td><td>0</td><td>—</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>Read <code>'D'</code>: not in t</td><td><code>A:0 B:1 C:1</code></td><td>2</td><td>0</td><td>—</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>Read <code>'O'</code>: not in t</td><td><code>A:0 B:1 C:1</code></td><td>2</td><td>0</td><td>—</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>Read <code>'B'</code>: needed, <code>missing</code> = 1</td><td><code>A:0 B:0 C:1</code></td><td>1</td><td>0</td><td>—</td></tr>
+            <tr data-step="5"><td>5</td><td>4</td><td>Read <code>'E'</code>: not in t</td><td><code>A:0 B:0 C:1</code></td><td>1</td><td>0</td><td>—</td></tr>
+            <tr data-step="6"><td>6</td><td>5</td><td>Read <code>'C'</code>: needed, <code>missing</code> = 0</td><td><code>A:0 B:0 C:0</code></td><td>0</td><td>0</td><td>—</td></tr>
+            <tr data-step="7"><td>7</td><td>5</td><td>Squeeze: drop 'A', <code>left</code> 0 &rarr; 1, record <code>"ADOBEC"</code></td><td><code>A:1 B:0 C:0</code></td><td>1</td><td>1</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="8"><td>8</td><td>6</td><td>Read <code>'O'</code>: not in t</td><td><code>A:1 B:0 C:0</code></td><td>1</td><td>1</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="9"><td>9</td><td>7</td><td>Read <code>'D'</code>: not in t</td><td><code>A:1 B:0 C:0</code></td><td>1</td><td>1</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="10"><td>10</td><td>8</td><td>Read <code>'E'</code>: not in t</td><td><code>A:1 B:0 C:0</code></td><td>1</td><td>1</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="11"><td>11</td><td>9</td><td>Read <code>'B'</code>: extra copy, need goes to -1</td><td><code>A:1 B:-1 C:0</code></td><td>1</td><td>1</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="12"><td>12</td><td>10</td><td>Read <code>'A'</code>: needed, <code>missing</code> = 0</td><td><code>A:0 B:-1 C:0</code></td><td>0</td><td>1</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="13"><td>13</td><td>10</td><td>Squeeze: drop 'D', 'O', 'B', 'E', 'C', <code>left</code> 1 &rarr; 6</td><td><code>A:0 B:0 C:1</code></td><td>1</td><td>6</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="14"><td>14</td><td>11</td><td>Read <code>'N'</code>: not in t</td><td><code>A:0 B:0 C:1</code></td><td>1</td><td>6</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="15"><td>15</td><td>12</td><td>Read <code>'C'</code>: needed, <code>missing</code> = 0</td><td><code>A:0 B:0 C:0</code></td><td>0</td><td>6</td><td>"ADOBEC" (len 6)</td></tr>
+            <tr data-step="16"><td>16</td><td>12</td><td>Squeeze: drop 'O', 'D', 'E', 'B', <code>left</code> 6 &rarr; 10, record <code>"EBANC"</code>, <code>"BANC"</code>; return <code>"BANC"</code></td><td><code>A:0 B:1 C:0</code></td><td>1</td><td>10</td><td>"BANC" (len 4)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Longest problems shrink to <em>repair</em> an invalid window and record after. Shortest problems shrink to <em>improve</em> a valid window and record before each drop. Same two pointers, opposite reason to move <code>left</code>.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Decrementing <code>missing</code> for every needed letter, even extra copies. At step 11 (<code>'B'</code> again) <code>need['B']</code> is already 0, so <code>missing</code> must stay 1. Only <code>need[c] &gt; 0</code> counts.</p>
+        </div>
+        <div class="card">
+          <h4>Why one counter</h4>
+          <p><code>missing</code> turns "does the window cover <code>t</code>?" into one comparison. Re-checking every letter's count each step is what makes the brute force <code>O(n²·m)</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Empty input</button>
+        <button type="button" data-example-tab="1">All the same</button>
+        <button type="button" data-example-tab="2">Stale last index</button>
+        <button type="button" data-example-tab="3">No valid window</button>
+        <button type="button" data-example-tab="4">Prices only fall</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: empty string</h3>
+          <p>Longest Substring, <code>s = ""</code></p>
+          <div class="result-badge">Answer = 0</div>
+          <p class="footer-note">The <code>for</code> loop never runs, so <code>best</code> keeps its starting value 0. No special case is needed.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: every character the same</h3>
+          <p>Longest Substring, <code>s = "bbbbb"</code></p>
+          <div class="result-badge">Answer = 1</div>
+          <p class="footer-note">Every new <code>'b'</code> forces one drop. The window never grows past length 1, and <code>left</code> still moves only <code>n</code> times in total.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: a remembered index that is already outside the window</h3>
+          <p>Longest Substring with the last-seen map, <code>s = "abba"</code></p>
+          <div class="result-badge">Answer = 2</div>
+          <p class="footer-note">At the final <code>'a'</code>, <code>last['a'] = 0</code> but <code>left</code> is already 2. Without the <code>last[c] &gt;= left</code> guard, <code>left</code> would jump back to 1 and the answer would be 3, which is wrong.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: <code>t</code> needs more copies than <code>s</code> has</h3>
+          <p>Minimum Window Substring, <code>s = "a"</code>, <code>t = "aa"</code></p>
+          <div class="result-badge">Answer = ""</div>
+          <p class="footer-note"><code>missing</code> only reaches 1, the shrink loop never runs, and <code>best</code> stays at infinity, so the function returns the empty string.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="4">
+        <div class="card">
+          <h3>Case E: no profitable trade</h3>
+          <p>Best Time to Buy and Sell Stock, <code>prices = [7, 6, 4, 3, 1]</code></p>
+          <div class="result-badge">Answer = 0</div>
+          <p class="footer-note">Every day is a new minimum, so the window restarts each day and <code>price - min_price</code> is always 0. Starting <code>best</code> at 0 (not <code>-inf</code>) means "don't trade".</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Best Time to Buy and Sell Stock</td><td>Brute force: every buy/sell pair</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>Measured about 4x per doubling.</td></tr>
+            <tr><td>Best Time to Buy and Sell Stock</td><td>Running minimum (degenerate window)</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td><code>left</code> = cheapest day so far; it jumps, never crawls.</td></tr>
+            <tr><td>Longest Substring Without Repeating</td><td>Brute force: every start</td><td><code>O(n²)</code></td><td><code>O(n)</code></td><td>Worst case: all characters distinct.</td></tr>
+            <tr><td>Longest Substring Without Repeating</td><td>Window + set (Method 1)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>The template as is.</td></tr>
+            <tr><td>Longest Substring Without Repeating</td><td>Window + last-seen map</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td><code>left</code> jumps past the previous copy.</td></tr>
+            <tr><td>Longest Repeating Character Replacement</td><td>Brute force: every start</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>Worst case: one repeated letter, no early break.</td></tr>
+            <tr><td>Longest Repeating Character Replacement</td><td>Window + count map + <code>maxf</code></td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>Valid while <code>length - maxf &lt;= k</code>.</td></tr>
+            <tr><td>Minimum Window Substring</td><td>Brute force: every start</td><td><code>O(n²·m)</code></td><td><code>O(m)</code></td><td>Re-checks coverage of all of <code>t</code> each step.</td></tr>
+            <tr><td>Minimum Window Substring</td><td>Window + need / missing (Method 2)</td><td><code>O(n)</code></td><td><code>O(m)</code></td><td>Shrink while valid, record before each drop.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = length of the input, <code>m</code> = length of <code>t</code>. The complexities and the doubling ratios (about 4x for each brute force, about 2x for each window) come from the benchmark cells of the four notebooks in this folder.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The answer is a contiguous range, and brute force tries all <code>O(n²)</code> of them.</p></div>
+            <div class="timeline-step"><p>If a window breaks the rule, so does every window that contains it. So once a start fails, moving it forward is safe.</p></div>
+            <div class="timeline-step"><p>Then both ends only move forward: <code>right</code> once per loop, <code>left</code> at most <code>n</code> times overall.</p></div>
+            <div class="timeline-step"><p>Choose the state that answers "is the window valid?" in <code>O(1)</code>, and decide whether to record after shrinking (longest) or before each drop (shortest).</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"This is a longest-substring question with a rule I can check incrementally, so I'll use a variable sliding window."</li>
+            <li>"I keep a set of the characters inside <code>s[left..right]</code>. Each step I add <code>s[right]</code>; while it is a repeat, I remove <code>s[left]</code> and move left."</li>
+            <li>"After the shrink the window is valid, so I update the best length with <code>right - left + 1</code>."</li>
+            <li>"Each index enters and leaves at most once: O(n) time, O(n) space for the set (O(1) for a fixed alphabet)."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Longest-window problems</h3>
+          <ul class="mistake-list">
+            <li>Shrinking with <code>if</code> instead of <code>while</code>, so the window can stay invalid.</li>
+            <li>Updating <code>best</code> before the shrink, recording an invalid window.</li>
+            <li>Forgetting to remove <code>s[left]</code> from the state when <code>left</code> moves.</li>
+            <li>With a last-seen map, jumping <code>left</code> backwards to a stale index (missing <code>last[c] &gt;= left</code>).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Shortest-window problems</h3>
+          <ul class="mistake-list">
+            <li>Shrinking before the window is valid, or recording after the drop that broke it.</li>
+            <li>Decrementing <code>missing</code> for extra copies of a letter.</li>
+            <li>Not restoring <code>need[s[left]]</code> when the left character leaves.</li>
+            <li>Returning a window when none was found: check <code>best</code> is still infinity.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Best Time to Buy and Sell Stock: <code>prices = [7, 1, 5, 3, 6, 4]</code>. Where is the window?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> treat <code>left</code> as the buy day and <code>right</code> as today. When does <code>left</code> move?</p>
+          <p style="margin-top:10px;">Answer: <code>5</code>. <code>min_price</code> is <code>prices[left]</code>. It only moves when a cheaper day appears (day 1, price 1), and then it jumps straight to that day, because any window starting earlier is now worse. Best window: buy day 1, sell day 4, <code>6 - 1 = 5</code>. Step through it: <a href="best_time_to_buy_and_sell_stock.html">Best Time to Buy and Sell Stock</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Longest Repeating Character Replacement: <code>s = "AABABBA"</code>, <code>k = 1</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> a window is valid while <code>(window length) - (count of its most common letter) &lt;= k</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>4</code>. <code>"AABA"</code> (indices 0 to 3) needs one change. From <code>right = 4</code> on, each step makes the window need 2 changes, so <code>left</code> moves once and the length stays 4. Walkthrough: <a href="longest_repeating_character_replacement.html">Longest Repeating Character Replacement</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Minimum Window Substring: <code>s = "aa"</code>, <code>t = "aa"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> <code>need['a']</code> starts at 2 and <code>missing</code> at 2. When does <code>missing</code> hit 0?</p>
+          <p style="margin-top:10px;">Answer: <code>"aa"</code>. Both reads decrement <code>missing</code>; at <code>right = 1</code> it is 0, the window <code>"aa"</code> is recorded, and dropping the first <code>'a'</code> breaks coverage at once. See the trace on <a href="minimum_window_substring.html">Minimum Window Substring</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Longest Substring Without Repeating Characters: <code>s = "pwwkew"</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the second <code>'w'</code> forces <code>left</code> past the first one.</p>
+          <p style="margin-top:10px;">Answer: <code>3</code> (<code>"wke"</code>). <code>"pwke"</code> is not a substring, so it does not count. Compare the set and map versions on <a href="longest_substring_without_repeating.html">Longest Substring Without Repeating Characters</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Grow <code>right</code> every step, move <code>left</code> only when the rule says so, and keep a state that tests the rule in <code>O(1)</code>.</strong>
+          For "longest", shrink while invalid and record after. For "shortest", shrink while valid and record before each drop. Best Time to Buy and Sell Stock is the same idea with the shrink collapsed into a jump to the new minimum.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Variable Window pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of length_window_set on "abcabcbb".
+      const setSteps = [
+        {"step": 0, "title": "Initial state", "text": "Empty window: seen = set(), left = 0, best = 0.", "detail": "Nothing is inside the window yet.", "right": "—", "left": "0", "seen": "set()", "window": "\"\"", "best": "0", "cur": null, "lo": 0, "hi": -1, "drop": [], "lines": [2, 3]},
+        {"step": 1, "title": "Step 1: right = 0, add 'a'", "text": "'a' is not in seen, so the while loop does not run. Add it. Window = \"a\", length 1.", "detail": "New best: 1.", "right": "0", "left": "0", "seen": "{a}", "window": "\"a\"", "best": "1", "cur": 0, "lo": 0, "hi": 0, "drop": [], "lines": [4, 5, 8, 9]},
+        {"step": 2, "title": "Step 2: right = 1, add 'b'", "text": "'b' is not in seen, so the while loop does not run. Add it. Window = \"ab\", length 2.", "detail": "New best: 2.", "right": "1", "left": "0", "seen": "{a, b}", "window": "\"ab\"", "best": "2", "cur": 1, "lo": 0, "hi": 1, "drop": [], "lines": [4, 5, 8, 9]},
+        {"step": 3, "title": "Step 3: right = 2, add 'c'", "text": "'c' is not in seen, so the while loop does not run. Add it. Window = \"abc\", length 3.", "detail": "New best: 3.", "right": "2", "left": "0", "seen": "{a, b, c}", "window": "\"abc\"", "best": "3", "cur": 2, "lo": 0, "hi": 2, "drop": [], "lines": [4, 5, 8, 9]},
+        {"step": 4, "title": "Step 4: right = 3, 'a' is a repeat", "text": "'a' is already in seen, so the while loop runs: drop 'a' from the left until 'a' is gone. left moves 0 -> 1.", "detail": "The window would be invalid with a second copy, so it shrinks first. The new character has not entered yet.", "right": "3", "left": "1", "seen": "{b, c}", "window": "\"bc\"", "best": "3", "cur": 3, "lo": 1, "hi": 2, "drop": [0], "lines": [4, 5, 6, 7]},
+        {"step": 5, "title": "Step 5: add 'a'", "text": "Now 'a' is safe to add. Window = \"bca\", length 3.", "detail": "Length 3 does not beat best = 3.", "right": "3", "left": "1", "seen": "{a, b, c}", "window": "\"bca\"", "best": "3", "cur": 3, "lo": 1, "hi": 3, "drop": [], "lines": [8, 9]},
+        {"step": 6, "title": "Step 6: right = 4, 'b' is a repeat", "text": "'b' is already in seen, so the while loop runs: drop 'b' from the left until 'b' is gone. left moves 1 -> 2.", "detail": "The window would be invalid with a second copy, so it shrinks first. The new character has not entered yet.", "right": "4", "left": "2", "seen": "{a, c}", "window": "\"ca\"", "best": "3", "cur": 4, "lo": 2, "hi": 3, "drop": [1], "lines": [4, 5, 6, 7]},
+        {"step": 7, "title": "Step 7: add 'b'", "text": "Now 'b' is safe to add. Window = \"cab\", length 3.", "detail": "Length 3 does not beat best = 3.", "right": "4", "left": "2", "seen": "{a, b, c}", "window": "\"cab\"", "best": "3", "cur": 4, "lo": 2, "hi": 4, "drop": [], "lines": [8, 9]},
+        {"step": 8, "title": "Step 8: right = 5, 'c' is a repeat", "text": "'c' is already in seen, so the while loop runs: drop 'c' from the left until 'c' is gone. left moves 2 -> 3.", "detail": "The window would be invalid with a second copy, so it shrinks first. The new character has not entered yet.", "right": "5", "left": "3", "seen": "{a, b}", "window": "\"ab\"", "best": "3", "cur": 5, "lo": 3, "hi": 4, "drop": [2], "lines": [4, 5, 6, 7]},
+        {"step": 9, "title": "Step 9: add 'c'", "text": "Now 'c' is safe to add. Window = \"abc\", length 3.", "detail": "Length 3 does not beat best = 3.", "right": "5", "left": "3", "seen": "{a, b, c}", "window": "\"abc\"", "best": "3", "cur": 5, "lo": 3, "hi": 5, "drop": [], "lines": [8, 9]},
+        {"step": 10, "title": "Step 10: right = 6, 'b' is a repeat", "text": "'b' is already in seen, so the while loop runs: drop 'a', 'b' from the left until 'b' is gone. left moves 3 -> 5.", "detail": "The window would be invalid with a second copy, so it shrinks first. The new character has not entered yet.", "right": "6", "left": "5", "seen": "{c}", "window": "\"c\"", "best": "3", "cur": 6, "lo": 5, "hi": 5, "drop": [3, 4], "lines": [4, 5, 6, 7]},
+        {"step": 11, "title": "Step 11: add 'b'", "text": "Now 'b' is safe to add. Window = \"cb\", length 2.", "detail": "Length 2 does not beat best = 3.", "right": "6", "left": "5", "seen": "{b, c}", "window": "\"cb\"", "best": "3", "cur": 6, "lo": 5, "hi": 6, "drop": [], "lines": [8, 9]},
+        {"step": 12, "title": "Step 12: right = 7, 'b' is a repeat", "text": "'b' is already in seen, so the while loop runs: drop 'c', 'b' from the left until 'b' is gone. left moves 5 -> 7.", "detail": "The window would be invalid with a second copy, so it shrinks first. The new character has not entered yet.", "right": "7", "left": "7", "seen": "set()", "window": "\"\"", "best": "3", "cur": 7, "lo": 7, "hi": 6, "drop": [5, 6], "lines": [4, 5, 6, 7]},
+        {"step": 13, "title": "Step 13: add 'b'", "text": "Now 'b' is safe to add. Window = \"b\", length 1. The loop ends; return best = 3.", "detail": "Final answer: 3 (the window \"abc\").", "right": "7", "left": "7", "seen": "{b}", "window": "\"b\"", "best": "3", "cur": 7, "lo": 7, "hi": 7, "drop": [], "lines": [8, 9, 10]}
+      ];
+
+      // Ground truth: instrumented run of min_window_slide on "ADOBECODEBANC", "ABC".
+      const mwSteps = [
+        {"step": 0, "title": "Initial state", "text": "need = Counter('ABC'), missing = 3, left = 0, no best window yet.", "detail": "need says how many of each letter the window still owes; missing is their total.", "right": "—", "left": "0", "need": "A:1 B:1 C:1", "missing": "3", "best": "—", "cur": null, "lo": 0, "hi": -1, "drop": [], "bs": null, "be": null, "lines": [4, 5, 6, 7]},
+        {"step": 1, "title": "Step 1: right = 0, read 'A'", "text": "'A' was still needed, so missing drops to 2.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "0", "left": "0", "need": "A:0 B:1 C:1", "missing": "2", "best": "—", "cur": 0, "lo": 0, "hi": 0, "drop": [], "bs": null, "be": null, "lines": [8, 9, 10, 11]},
+        {"step": 2, "title": "Step 2: right = 1, read 'D'", "text": "'D' is not in t. need['D'] goes negative; missing stays 2.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "1", "left": "0", "need": "A:0 B:1 C:1", "missing": "2", "best": "—", "cur": 1, "lo": 0, "hi": 1, "drop": [], "bs": null, "be": null, "lines": [8, 9, 11]},
+        {"step": 3, "title": "Step 3: right = 2, read 'O'", "text": "'O' is not in t. need['O'] goes negative; missing stays 2.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "2", "left": "0", "need": "A:0 B:1 C:1", "missing": "2", "best": "—", "cur": 2, "lo": 0, "hi": 2, "drop": [], "bs": null, "be": null, "lines": [8, 9, 11]},
+        {"step": 4, "title": "Step 4: right = 3, read 'B'", "text": "'B' was still needed, so missing drops to 1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "3", "left": "0", "need": "A:0 B:0 C:1", "missing": "1", "best": "—", "cur": 3, "lo": 0, "hi": 3, "drop": [], "bs": null, "be": null, "lines": [8, 9, 10, 11]},
+        {"step": 5, "title": "Step 5: right = 4, read 'E'", "text": "'E' is not in t. need['E'] goes negative; missing stays 1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "4", "left": "0", "need": "A:0 B:0 C:1", "missing": "1", "best": "—", "cur": 4, "lo": 0, "hi": 4, "drop": [], "bs": null, "be": null, "lines": [8, 9, 11]},
+        {"step": 6, "title": "Step 6: right = 5, read 'C'", "text": "'C' was still needed, so missing drops to 0.", "detail": "missing == 0: the window covers all of t. Next, squeeze it.", "right": "5", "left": "0", "need": "A:0 B:0 C:0", "missing": "0", "best": "—", "cur": 5, "lo": 0, "hi": 5, "drop": [], "bs": null, "be": null, "lines": [8, 9, 10, 11]},
+        {"step": 7, "title": "Step 7: squeeze from the left", "text": "While missing == 0: Recorded \"ADOBEC\" as the best window. Dropped 'A'; left moves 0 -> 1.", "detail": "Dropping 'A' made need['A'] positive again, so missing = 1 and the squeeze stops.", "right": "5", "left": "1", "need": "A:1 B:0 C:0", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 5, "lo": 1, "hi": 5, "drop": [0], "bs": 0, "be": 5, "lines": [12, 13, 14, 15, 16, 17, 18]},
+        {"step": 8, "title": "Step 8: right = 6, read 'O'", "text": "'O' is not in t. need['O'] goes negative; missing stays 1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "6", "left": "1", "need": "A:1 B:0 C:0", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 6, "lo": 1, "hi": 6, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 11]},
+        {"step": 9, "title": "Step 9: right = 7, read 'D'", "text": "'D' is not in t. need['D'] goes negative; missing stays 1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "7", "left": "1", "need": "A:1 B:0 C:0", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 7, "lo": 1, "hi": 7, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 11]},
+        {"step": 10, "title": "Step 10: right = 8, read 'E'", "text": "'E' is not in t. need['E'] goes negative; missing stays 1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "8", "left": "1", "need": "A:1 B:0 C:0", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 8, "lo": 1, "hi": 8, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 11]},
+        {"step": 11, "title": "Step 11: right = 9, read 'B'", "text": "'B' is an extra copy (need['B'] was already 0), so missing stays 1; need['B'] goes to -1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "9", "left": "1", "need": "A:1 B:-1 C:0", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 9, "lo": 1, "hi": 9, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 11]},
+        {"step": 12, "title": "Step 12: right = 10, read 'A'", "text": "'A' was still needed, so missing drops to 0.", "detail": "missing == 0: the window covers all of t. Next, squeeze it.", "right": "10", "left": "1", "need": "A:0 B:-1 C:0", "missing": "0", "best": "\"ADOBEC\" (len 6)", "cur": 10, "lo": 1, "hi": 10, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 10, 11]},
+        {"step": 13, "title": "Step 13: squeeze from the left", "text": "While missing == 0: No window here is shorter than the best (length 6). Dropped 'D', 'O', 'B', 'E', 'C'; left moves 1 -> 6.", "detail": "Dropping 'C' made need['C'] positive again, so missing = 1 and the squeeze stops.", "right": "10", "left": "6", "need": "A:0 B:0 C:1", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 10, "lo": 6, "hi": 10, "drop": [1, 2, 3, 4, 5], "bs": 0, "be": 5, "lines": [12, 13, 14, 15, 16, 17, 18]},
+        {"step": 14, "title": "Step 14: right = 11, read 'N'", "text": "'N' is not in t. need['N'] goes negative; missing stays 1.", "detail": "missing > 0, so the window does not cover t yet; keep growing.", "right": "11", "left": "6", "need": "A:0 B:0 C:1", "missing": "1", "best": "\"ADOBEC\" (len 6)", "cur": 11, "lo": 6, "hi": 11, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 11]},
+        {"step": 15, "title": "Step 15: right = 12, read 'C'", "text": "'C' was still needed, so missing drops to 0.", "detail": "missing == 0: the window covers all of t. Next, squeeze it.", "right": "12", "left": "6", "need": "A:0 B:0 C:0", "missing": "0", "best": "\"ADOBEC\" (len 6)", "cur": 12, "lo": 6, "hi": 12, "drop": [], "bs": 0, "be": 5, "lines": [8, 9, 10, 11]},
+        {"step": 16, "title": "Step 16: squeeze from the left", "text": "While missing == 0: Recorded \"EBANC\" then \"BANC\" as the best window. Dropped 'O', 'D', 'E', 'B'; left moves 6 -> 10. The for loop ends; return \"BANC\".", "detail": "Final answer: \"BANC\".", "right": "12", "left": "10", "need": "A:0 B:1 C:0", "missing": "1", "best": "\"BANC\" (len 4)", "cur": 12, "lo": 10, "hi": 12, "drop": [6, 7, 8, 9], "bs": 9, "be": 12, "lines": [12, 13, 14, 15, 16, 17, 18, 19]}
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      // Colors the character cells and moves the window outline and the left/right markers.
+      function paintWindow(prefix, step, x0, pitch, width) {
+        const svg = document.getElementById(`${prefix}-graph`);
+        const n = svg.querySelectorAll('[data-i]').length;
+        svg.querySelectorAll('[data-i]').forEach((cell) => {
+          const i = Number(cell.dataset.i);
+          let cls = '';
+          if (i >= step.lo && i <= step.hi) cls = 'win';
+          if (step.drop.includes(i)) cls = 'drop';
+          if (step.cur === i) cls = 'cur';
+          cell.classList.remove('win', 'drop', 'cur');
+          if (cls) cell.classList.add(cls);
+          const label = svg.querySelector(`[data-t="${i}"]`);
+          label.classList.toggle('on', cls !== '');
+        });
+        const win = document.getElementById(`${prefix}-win`);
+        if (step.hi >= step.lo) {
+          win.setAttribute('x', x0 + step.lo * pitch - 6);
+          win.setAttribute('width', (step.hi - step.lo) * pitch + width + 12);
+          win.setAttribute('visibility', 'visible');
+        } else {
+          win.setAttribute('visibility', 'hidden');
+        }
+        const L = document.getElementById(`${prefix}-L`);
+        L.setAttribute('visibility', step.lo < n ? 'visible' : 'hidden');
+        L.setAttribute('x', x0 + Math.min(step.lo, n - 1) * pitch + width / 2);
+        const R = document.getElementById(`${prefix}-R`);
+        R.setAttribute('visibility', step.cur === null ? 'hidden' : 'visible');
+        if (step.cur !== null) R.setAttribute('x', x0 + step.cur * pitch + width / 2);
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function renderCommon(prefix, step, index, max) {
+        document.getElementById(`${prefix}-step-title`).textContent = step.title;
+        document.getElementById(`${prefix}-step-text`).textContent = step.text;
+        document.getElementById(`${prefix}-right`).textContent = step.right;
+        document.getElementById(`${prefix}-left`).textContent = step.left;
+        document.getElementById(`${prefix}-detail`).innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById(`${prefix}-step-counter`).textContent = `Step ${step.step} / ${max}`;
+        document.getElementById(`${prefix}-progress`).style.width = `${(index / max) * 100}%`;
+        markActiveRow(`${prefix}-trace-table`, step.step);
+        setCodeHighlight(`${prefix}-code`, step.lines);
+      }
+
+      function renderSet(step, index, max) {
+        renderCommon('set', step, index, max);
+        document.getElementById('set-seen').textContent = step.seen;
+        document.getElementById('set-window').textContent = step.window;
+        document.getElementById('set-best').textContent = step.best;
+        paintWindow('set', step, 30, 58, 50);
+      }
+
+      function renderMW(step, index, max) {
+        renderCommon('mw', step, index, max);
+        document.getElementById('mw-need').textContent = step.need;
+        document.getElementById('mw-missing').textContent = step.missing;
+        document.getElementById('mw-best-val').textContent = step.best;
+        paintWindow('mw', step, 14, 38, 34);
+        const bar = document.getElementById('mw-best');
+        if (step.bs === null) {
+          bar.setAttribute('visibility', 'hidden');
+        } else {
+          bar.setAttribute('x', 14 + step.bs * 38);
+          bar.setAttribute('width', (step.be - step.bs) * 38 + 34);
+          bar.setAttribute('visibility', 'visible');
+        }
+      }
+
+      setupTrace({ steps: setSteps, prefix: 'set', render: renderSet });
+      setupTrace({ steps: mwSteps, prefix: 'mw', render: renderMW });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

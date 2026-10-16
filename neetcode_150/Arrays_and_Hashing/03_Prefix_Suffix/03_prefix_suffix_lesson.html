@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prefix Suffix — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Arrays and Hashing · Pattern 03 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Prefix Suffix</h1>
+          <p>
+            When every answer means "combine everything except position <code>i</code>", split the rest of the array into the part left of <code>i</code> and the part right of <code>i</code>. One pass builds the left aggregate, a second pass walks back with the right aggregate, and each slot costs one operation instead of a rescan.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: left part × right part</span>
+            <span class="chip">Method 1: two-pass prefix × suffix</span>
+            <span class="chip">Method 2: the brute force it replaces</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="product_of_array_except_self.html">Product of Array Except Self</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Product of Array Except Self, <code>nums = [1, 2, 3, 4]</code>. For index 2 the answer is (left of it) × (right of it).</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 220" width="100%" role="img" aria-label="Array 1, 2, 3, 4; for index 2 the left product 1 times 2 equals 2 and the right product is 4, so the answer is 8">
+              <defs>
+                <style>
+                  .h-cell { stroke: #ffffff; stroke-width: 3; }
+                  .h-left { fill: #315efb; }
+                  .h-right { fill: #13a46b; }
+                  .h-cur { fill: #ff9f1c; }
+                  .h-val { font: 700 22px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-note { font: 700 15px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-brace { stroke: #172033; stroke-width: 2; fill: none; }
+                </style>
+              </defs>
+              <text x="115" y="40" text-anchor="middle" class="h-idx">i = 0</text>
+              <text x="210" y="40" text-anchor="middle" class="h-idx">i = 1</text>
+              <text x="305" y="40" text-anchor="middle" class="h-idx">i = 2</text>
+              <text x="400" y="40" text-anchor="middle" class="h-idx">i = 3</text>
+              <rect x="75" y="52" width="80" height="60" rx="12" class="h-cell h-left" />
+              <rect x="170" y="52" width="80" height="60" rx="12" class="h-cell h-left" />
+              <rect x="265" y="52" width="80" height="60" rx="12" class="h-cell h-cur" />
+              <rect x="360" y="52" width="80" height="60" rx="12" class="h-cell h-right" />
+              <text x="115" y="90" text-anchor="middle" class="h-val">1</text>
+              <text x="210" y="90" text-anchor="middle" class="h-val">2</text>
+              <text x="305" y="90" text-anchor="middle" class="h-val">3</text>
+              <text x="400" y="90" text-anchor="middle" class="h-val">4</text>
+              <path d="M 80 128 L 80 138 L 245 138 L 245 128" class="h-brace" />
+              <path d="M 365 128 L 365 138 L 435 138 L 435 128" class="h-brace" />
+              <text x="162" y="164" text-anchor="middle" class="h-note">left = 1 × 2 = 2</text>
+              <text x="400" y="164" text-anchor="middle" class="h-note">right = 4</text>
+              <text x="305" y="204" text-anchor="middle" class="h-note">out[2] = 2 × 4 = 8 (skip the 3)</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = [24, 12, 8, 6]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>"Everything except me" answers</h3>
+          <p>Each position needs an aggregate of all the others. Recomputing it per position costs <code>O(n)</code> each, <code>O(n²)</code> total. Two running aggregates bring it to <code>O(n)</code>.</p>
+        </div>
+        <div class="card">
+          <h3>When you cannot "subtract one out"</h3>
+          <p>For sums you could take the total and subtract <code>nums[i]</code>. For products that needs division, which the problem forbids and which breaks on a zero. Prefix and suffix never remove anything, so they always work.</p>
+        </div>
+        <div class="card">
+          <h3>Range queries in general</h3>
+          <p>The additive cousin, prefix sums, turns every "sum of <code>nums[l..r]</code>" query into one subtraction after one <code>O(n)</code> pass.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the whole pattern is one sentence: "the answer at <code>i</code> is (everything before <code>i</code>) combined with (everything after <code>i</code>)". Once you say that out loud, the two passes write themselves.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the prefix suffix pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A <strong>prefix</strong> aggregate at <code>i</code> combines <code>nums[0..i-1]</code>; a <strong>suffix</strong> aggregate combines <code>nums[i+1..]</code>. Both can be carried in a single running variable: walking forward, the prefix gains one element per step; walking backward, the suffix does the same. Combine the two at each index and you have "everything except <code>nums[i]</code>".</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Product (or sum) of all elements <strong>except</strong> <code>nums[i]</code>", "<strong>without using division</strong>" next to an <code>O(n)</code> requirement, an answer that depends on what lies to the left and to the right of each index, or many range-sum queries over a fixed array.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> the order of two lines carries the whole "except" part. Store first (<code>out[i] = prefix</code>), then extend (<code>prefix *= nums[i]</code>). Storing first means the stored product has not seen <code>nums[i]</code> yet.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Split around i</h3>
+          <p>"All except <code>nums[i]</code>" = (everything left of <code>i</code>) × (everything right of <code>i</code>).</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Left pass</h3>
+          <p>Walk left to right with <code>prefix = 1</code>. Write <code>out[i] = prefix</code>, then <code>prefix *= nums[i]</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Right pass</h3>
+          <p>Walk right to left with <code>suffix = 1</code>. Do <code>out[i] *= suffix</code>, then <code>suffix *= nums[i]</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Return out</h3>
+          <p>Every slot now holds left × right. Two linear passes, one extra variable at a time.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes left and right products</h2>
+      <p>The input is a plain list. The algorithm never stores a second list of its own: conceptually there are two helper arrays, <code>L[i]</code> (product of everything before <code>i</code>) and <code>R[i]</code> (product of everything after <code>i</code>), and the answer is <code>L[i] × R[i]</code>. The optimal code writes <code>L</code> straight into <code>out</code> and replaces <code>R</code> with a single running number.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>nums = [1, 2, 3, 4]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Left and right products</h3>
+          <div class="code-block"><code>L   = [1,  1,  2,  6]    # product before i
+R   = [24, 12, 4,  1]    # product after i
+out = [24, 12, 8,  6]    # L[i] * R[i]</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Start with the empty product <code>1</code></h4>
+          <p>Nothing lies left of index 0, so <code>L[0] = 1</code>: multiplying by 1 changes nothing. The same holds for <code>R[3]</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Each <code>L</code> entry extends the previous one</h4>
+          <p><code>L[i] = L[i-1] × nums[i-1]</code>: 1, then 1 × 1 = 1, then 1 × 2 = 2, then 2 × 3 = 6.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Each <code>R</code> entry extends the one to its right</h4>
+          <p><code>R[i] = R[i+1] × nums[i+1]</code>: 1, then 1 × 4 = 4, then 4 × 3 = 12, then 12 × 2 = 24.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Multiply pairwise</h4>
+          <p><code>[1 × 24, 1 × 12, 2 × 4, 6 × 1] = [24, 12, 8, 6]</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> since <code>R[i]</code> is only ever needed once, at the moment the right-to-left pass reaches <code>i</code>, it can live in one variable (<code>suffix</code>). And <code>L</code> can live in <code>out</code> itself. That is how the two passes get to <code>O(1)</code> extra space.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: two-pass prefix × suffix (Product of Array Except Self)</h2>
+      <p>The notebook's <code>product_except_self_optimal</code>, line for line. The first loop leaves <code>out = [1, 1, 2, 6]</code> (the <code>L</code> array). The second loop carries <code>suffix</code> from the right and multiplies it into each slot.</p>
+      <div class="code-block stepped">
+        <code id="ps-code">
+<span class="code-line" data-line="1">def product_except_self_optimal(nums: List[int]) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    n = len(nums)</span>
+<span class="code-line" data-line="3">    out = [1] * n</span>
+<span class="code-line" data-line="4">    prefix = 1                             # running product of everything to the LEFT</span>
+<span class="code-line" data-line="5">    for i in range(n):</span>
+<span class="code-line" data-line="6">        out[i] = prefix                    # store product of all elements before i</span>
+<span class="code-line" data-line="7">        prefix *= nums[i]                  # extend the running left-product</span>
+<span class="code-line" data-line="8">    suffix = 1                             # running product of everything to the RIGHT</span>
+<span class="code-line" data-line="9">    for i in range(n - 1, -1, -1):         # sweep right to left</span>
+<span class="code-line" data-line="10">        out[i] *= suffix                   # multiply in the product of all elements after i</span>
+<span class="code-line" data-line="11">        suffix *= nums[i]                  # extend the running right-product</span>
+<span class="code-line" data-line="12">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive two-pass trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="ps-graph" viewBox="0 0 520 230" width="100%" role="img" aria-label="Two-pass prefix and suffix trace on nums 1, 2, 3, 4">
+              <defs>
+                <style>
+                  .ps-cell { fill: #c8d2e7; stroke: #ffffff; stroke-width: 3; transition: fill 0.2s ease; }
+                  .ps-cell.left { fill: #315efb; }
+                  .ps-cell.right { fill: #13a46b; }
+                  .ps-cell.current { fill: #ff9f1c; }
+                  .ps-out { fill: #ffffff; stroke: #c8d2e7; stroke-width: 3; transition: fill 0.2s ease, stroke 0.2s ease; }
+                  .ps-out.current { fill: #fff4df; stroke: #ff9f1c; }
+                  .ps-out.done { fill: #eaf0ff; stroke: #315efb; }
+                  .ps-val { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .ps-oval { font: 700 20px Inter, Arial, sans-serif; fill: #172033; }
+                  .ps-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .ps-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <text x="125" y="30" text-anchor="middle" class="ps-idx">i = 0</text>
+              <text x="220" y="30" text-anchor="middle" class="ps-idx">i = 1</text>
+              <text x="315" y="30" text-anchor="middle" class="ps-idx">i = 2</text>
+              <text x="410" y="30" text-anchor="middle" class="ps-idx">i = 3</text>
+              <text x="14" y="76" class="ps-title">nums</text>
+              <text x="14" y="176" class="ps-title">out</text>
+              <rect x="85" y="42" width="80" height="56" rx="12" class="ps-cell" data-cell="0" />
+              <rect x="180" y="42" width="80" height="56" rx="12" class="ps-cell" data-cell="1" />
+              <rect x="275" y="42" width="80" height="56" rx="12" class="ps-cell" data-cell="2" />
+              <rect x="370" y="42" width="80" height="56" rx="12" class="ps-cell" data-cell="3" />
+              <text x="125" y="78" text-anchor="middle" class="ps-val">1</text>
+              <text x="220" y="78" text-anchor="middle" class="ps-val">2</text>
+              <text x="315" y="78" text-anchor="middle" class="ps-val">3</text>
+              <text x="410" y="78" text-anchor="middle" class="ps-val">4</text>
+              <rect x="85" y="142" width="80" height="56" rx="12" class="ps-out" data-out="0" />
+              <rect x="180" y="142" width="80" height="56" rx="12" class="ps-out" data-out="1" />
+              <rect x="275" y="142" width="80" height="56" rx="12" class="ps-out" data-out="2" />
+              <rect x="370" y="142" width="80" height="56" rx="12" class="ps-out" data-out="3" />
+              <text x="125" y="178" text-anchor="middle" class="ps-oval" data-outval="0">1</text>
+              <text x="220" y="178" text-anchor="middle" class="ps-oval" data-outval="1">1</text>
+              <text x="315" y="178" text-anchor="middle" class="ps-oval" data-outval="2">1</text>
+              <text x="410" y="178" text-anchor="middle" class="ps-oval" data-outval="3">1</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> index i being processed</span>
+            <span><i class="dot dot-blue"></i> left of i (inside out[i] already)</span>
+            <span><i class="dot dot-green"></i> right of i (inside suffix)</span>
+            <span><i class="dot dot-gray"></i> not part of out[i] yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="ps-step-title">Initial state</h3>
+          <p id="ps-step-text">Allocate the output and start the left product at 1.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ps-prev">Previous</button>
+            <button type="button" id="ps-play" class="primary">Resume</button>
+            <button type="button" id="ps-next">Next</button>
+            <button type="button" id="ps-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ps-step-counter">Step 0 / 10</span>
+            <div class="progress"><span id="ps-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Pass</strong><div class="state-value" id="ps-pass">—</div></div>
+            <div class="state-box"><strong>i, nums[i]</strong><div class="state-value" id="ps-i">—</div></div>
+            <div class="state-box"><strong>prefix (after line 7)</strong><div class="state-value" id="ps-prefix">1</div></div>
+            <div class="state-box"><strong>suffix (after line 11)</strong><div class="state-value" id="ps-suffix">—</div></div>
+            <div class="state-box"><strong>out</strong><div class="state-value" id="ps-out">[1, 1, 1, 1]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ps-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="ps-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Pass</th><th>i</th><th>Action</th><th>prefix / suffix after</th><th>out after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td><code>out = [1] * 4</code>, <code>prefix = 1</code></td><td><code>prefix = 1</code></td><td><code>[1, 1, 1, 1]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>left</td><td>0</td><td><code>out[0] = 1</code>; <code>prefix = 1 × 1</code></td><td><code>prefix = 1</code></td><td><code>[1, 1, 1, 1]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>left</td><td>1</td><td><code>out[1] = 1</code>; <code>prefix = 1 × 2</code></td><td><code>prefix = 2</code></td><td><code>[1, 1, 1, 1]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>left</td><td>2</td><td><code>out[2] = 2</code>; <code>prefix = 2 × 3</code></td><td><code>prefix = 6</code></td><td><code>[1, 1, 2, 1]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>left</td><td>3</td><td><code>out[3] = 6</code>; <code>prefix = 6 × 4</code></td><td><code>prefix = 24</code></td><td><code>[1, 1, 2, 6]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>—</td><td>—</td><td><code>suffix = 1</code></td><td><code>suffix = 1</code></td><td><code>[1, 1, 2, 6]</code></td></tr>
+            <tr data-step="6"><td>6</td><td>right</td><td>3</td><td><code>out[3] = 6 × 1</code>; <code>suffix = 1 × 4</code></td><td><code>suffix = 4</code></td><td><code>[1, 1, 2, 6]</code></td></tr>
+            <tr data-step="7"><td>7</td><td>right</td><td>2</td><td><code>out[2] = 2 × 4</code>; <code>suffix = 4 × 3</code></td><td><code>suffix = 12</code></td><td><code>[1, 1, 8, 6]</code></td></tr>
+            <tr data-step="8"><td>8</td><td>right</td><td>1</td><td><code>out[1] = 1 × 12</code>; <code>suffix = 12 × 2</code></td><td><code>suffix = 24</code></td><td><code>[1, 12, 8, 6]</code></td></tr>
+            <tr data-step="9"><td>9</td><td>right</td><td>0</td><td><code>out[0] = 1 × 24</code>; <code>suffix = 24 × 1</code></td><td><code>suffix = 24</code></td><td><code>[24, 12, 8, 6]</code></td></tr>
+            <tr data-step="10"><td>10</td><td>—</td><td>—</td><td>Return <code>out</code></td><td>—</td><td><code>[24, 12, 8, 6]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>After the left pass, slot <code>i</code> holds the blue half of its answer. The right pass brings the green half: when it reaches <code>i</code>, <code>suffix</code> is exactly the product of the cells to the right of <code>i</code>.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Swapping lines 6 and 7 (extend first, then store). Then <code>out[i]</code> includes <code>nums[i]</code> and the "except self" part is gone: the left pass would produce <code>[1, 2, 6, 24]</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Why the output array is enough</h4>
+          <p>The left products are needed only once each, in the right pass, at the same index. So they can sit in <code>out</code> until then, and the suffix never needs more than one variable. Extra space: <code>O(1)</code> besides the output.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: the brute force it replaces</h2>
+      <p>The notebook's <code>product_except_self_brute</code>. For every index it starts a fresh product <code>p = 1</code> and multiplies in every other element. Correct, but it forgets everything between indices: the product of <code>3 × 4</code> is recomputed for <code>i = 0</code>, <code>i = 1</code> and again later. Each step below is one full pass of the inner loop.</p>
+      <div class="code-block stepped">
+        <code id="bf-code">
+<span class="code-line" data-line="1">def product_except_self_brute(nums: List[int]) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    n = len(nums)</span>
+<span class="code-line" data-line="3">    out = [1] * n</span>
+<span class="code-line" data-line="4">    for i in range(n):                     # compute the answer for each position i</span>
+<span class="code-line" data-line="5">        p = 1</span>
+<span class="code-line" data-line="6">        for j in range(n):                 # multiply together every OTHER element</span>
+<span class="code-line" data-line="7">            if j != i:                     # skip the element at i itself</span>
+<span class="code-line" data-line="8">                p *= nums[j]</span>
+<span class="code-line" data-line="9">        out[i] = p</span>
+<span class="code-line" data-line="10">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive brute-force trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bf-graph" viewBox="0 0 520 230" width="100%" role="img" aria-label="Brute force trace on nums 1, 2, 3, 4">
+              <defs>
+                <style>
+                  .bf-cell { fill: #c8d2e7; stroke: #ffffff; stroke-width: 3; transition: fill 0.2s ease; }
+                  .bf-cell.right { fill: #13a46b; }
+                  .bf-cell.current { fill: #ff9f1c; }
+                  .bf-out { fill: #ffffff; stroke: #c8d2e7; stroke-width: 3; transition: fill 0.2s ease, stroke 0.2s ease; }
+                  .bf-out.current { fill: #fff4df; stroke: #ff9f1c; }
+                  .bf-out.done { fill: #eaf0ff; stroke: #315efb; }
+                  .bf-val { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .bf-oval { font: 700 20px Inter, Arial, sans-serif; fill: #172033; }
+                  .bf-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .bf-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <text x="125" y="30" text-anchor="middle" class="bf-idx">j = 0</text>
+              <text x="220" y="30" text-anchor="middle" class="bf-idx">j = 1</text>
+              <text x="315" y="30" text-anchor="middle" class="bf-idx">j = 2</text>
+              <text x="410" y="30" text-anchor="middle" class="bf-idx">j = 3</text>
+              <text x="14" y="76" class="bf-title">nums</text>
+              <text x="14" y="176" class="bf-title">out</text>
+              <rect x="85" y="42" width="80" height="56" rx="12" class="bf-cell" data-cell="0" />
+              <rect x="180" y="42" width="80" height="56" rx="12" class="bf-cell" data-cell="1" />
+              <rect x="275" y="42" width="80" height="56" rx="12" class="bf-cell" data-cell="2" />
+              <rect x="370" y="42" width="80" height="56" rx="12" class="bf-cell" data-cell="3" />
+              <text x="125" y="78" text-anchor="middle" class="bf-val">1</text>
+              <text x="220" y="78" text-anchor="middle" class="bf-val">2</text>
+              <text x="315" y="78" text-anchor="middle" class="bf-val">3</text>
+              <text x="410" y="78" text-anchor="middle" class="bf-val">4</text>
+              <rect x="85" y="142" width="80" height="56" rx="12" class="bf-out" data-out="0" />
+              <rect x="180" y="142" width="80" height="56" rx="12" class="bf-out" data-out="1" />
+              <rect x="275" y="142" width="80" height="56" rx="12" class="bf-out" data-out="2" />
+              <rect x="370" y="142" width="80" height="56" rx="12" class="bf-out" data-out="3" />
+              <text x="125" y="178" text-anchor="middle" class="bf-oval" data-outval="0">1</text>
+              <text x="220" y="178" text-anchor="middle" class="bf-oval" data-outval="1">1</text>
+              <text x="315" y="178" text-anchor="middle" class="bf-oval" data-outval="2">1</text>
+              <text x="410" y="178" text-anchor="middle" class="bf-oval" data-outval="3">1</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> j == i, skipped</span>
+            <span><i class="dot dot-green"></i> multiplied into p</span>
+            <span><i class="dot dot-blue"></i> out slot already final</span>
+            <span><i class="dot dot-gray"></i> not involved</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bf-step-title">Initial state</h3>
+          <p id="bf-step-text">Allocate the output.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bf-prev">Previous</button>
+            <button type="button" id="bf-play" class="primary">Resume</button>
+            <button type="button" id="bf-next">Next</button>
+            <button type="button" id="bf-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bf-step-counter">Step 0 / 5</span>
+            <div class="progress"><span id="bf-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i (skipped)</strong><div class="state-value" id="bf-i">—</div></div>
+            <div class="state-box"><strong>p after the inner loop</strong><div class="state-value" id="bf-p">—</div></div>
+            <div class="state-box"><strong>p *= ... calls so far</strong><div class="state-value" id="bf-mults">0</div></div>
+            <div class="state-box"><strong>out</strong><div class="state-value" id="bf-out">[1, 1, 1, 1]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bf-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bf-trace-table">
+          <thead>
+            <tr><th>Step</th><th>i</th><th>Inner loop</th><th>p</th><th><code>p *=</code> calls so far</th><th>out after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td><code>out = [1] * 4</code></td><td>—</td><td>0</td><td><code>[1, 1, 1, 1]</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>skip 1; multiply 2, 3, 4</td><td><code>24</code></td><td>3</td><td><code>[24, 1, 1, 1]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>multiply 1; skip 2; multiply 3, 4</td><td><code>12</code></td><td>6</td><td><code>[24, 12, 1, 1]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>multiply 1, 2; skip 3; multiply 4</td><td><code>8</code></td><td>9</td><td><code>[24, 12, 8, 1]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>multiply 1, 2, 3; skip 4</td><td><code>6</code></td><td>12</td><td><code>[24, 12, 8, 6]</code></td></tr>
+            <tr data-step="5"><td>5</td><td>—</td><td>Return <code>out</code></td><td>—</td><td>12</td><td><code>[24, 12, 8, 6]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Brute force multiplies <code>n - 1</code> numbers for each of <code>n</code> slots: <code>n(n - 1)</code> multiplications. Method 1 does three per index: <code>3n</code>. At <code>n = 4</code> both happen to be 12; at <code>n = 8000</code> it is about 64 million against 24 thousand.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Reaching for the "total divided by <code>nums[i]</code>" shortcut instead. The problem forbids division, and with a zero in the array it divides by zero unless you count zeros first (the notebook's division approach does exactly that).</p>
+        </div>
+        <div class="card">
+          <h4>What the measurement shows</h4>
+          <p>In the notebook's benchmark, doubling <code>n</code> multiplied the brute force time by about 4x (quadratic) and Method 1's by about 2x (linear).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Two elements</button>
+        <button type="button" data-example-tab="1">One zero</button>
+        <button type="button" data-example-tab="2">Two zeros</button>
+        <button type="button" data-example-tab="3">Negatives</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: the smallest allowed input</h3>
+          <p><code>nums = [2, 3]</code></p>
+          <div class="result-badge">Answer = [3, 2]</div>
+          <p class="footer-note">The left pass gives <code>[1, 2]</code>; the right pass multiplies in suffixes <code>3</code> and <code>1</code>. The empty products at both ends are why <code>prefix</code> and <code>suffix</code> start at 1.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: exactly one zero</h3>
+          <p><code>nums = [-1, 1, 0, -3, 3]</code></p>
+          <div class="result-badge">Answer = [0, 0, 9, 0, 0]</div>
+          <p class="footer-note">After the left pass <code>out = [1, -1, -1, 0, 0]</code>. Every product that contains the 0 is 0; only the zero's own slot gets <code>(-1 × 1) × (-3 × 3) = 9</code>. No special case in the code.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: two or more zeros</h3>
+          <p><code>nums = [0, 4, 0]</code></p>
+          <div class="result-badge">Answer = [0, 0, 0]</div>
+          <p class="footer-note">Every slot's "everything else" contains at least one zero. The division approach needs a <code>zeros &gt; 1</code> branch for this; the two passes handle it unchanged.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: negative numbers</h3>
+          <p><code>nums = [-2, -3, 4]</code></p>
+          <div class="result-badge">Answer = [-12, -8, 6]</div>
+          <p class="footer-note">Signs just multiply through. Nothing in the algorithm compares values, so negatives need no care.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Brute force (Method 2)</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>Correct, but recomputes overlapping products; measured about 4x per doubling.</td></tr>
+            <tr><td>Total ÷ <code>nums[i]</code></td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>Forbidden by the problem; needs a zero count (one zero / two or more zeros).</td></tr>
+            <tr><td>Separate <code>L</code> and <code>R</code> arrays (variant)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Easiest to explain; two extra arrays.</td></tr>
+            <tr><td>Two-pass prefix × suffix (Method 1)</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td><code>L</code> lives in <code>out</code>, <code>R</code> in one variable; measured about 2x per doubling.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">Extra space never counts the output array. Brute force, division and Method 1 and their measurements come from this folder's notebook; the <code>L</code>/<code>R</code> variant is the same idea before the space optimisation.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Brute force first: for each <code>i</code>, multiply the others. <code>O(n²)</code>. Where is the repeated work?</p></div>
+            <div class="timeline-step"><p>Division would fix it, but it is not allowed and fails on zeros.</p></div>
+            <div class="timeline-step"><p>Split "all except <code>i</code>" into left of <code>i</code> and right of <code>i</code>. Each side is a running product.</p></div>
+            <div class="timeline-step"><p>Store the left products in <code>out</code>, then sweep back with a single <code>suffix</code>.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"The answer at <code>i</code> is the product of everything to its left times everything to its right, so I don't need division."</li>
+            <li>"A left-to-right pass writes the left products into the output; I store before I multiply so <code>nums[i]</code> is excluded."</li>
+            <li>"A right-to-left pass multiplies in a running suffix product."</li>
+            <li>"Two passes: <code>O(n)</code> time, <code>O(1)</code> extra space besides the output, and zeros need no special case."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Two-pass prefix × suffix</h3>
+          <ul class="mistake-list">
+            <li>Extending before storing (<code>prefix *= nums[i]</code> first), so each answer includes <code>nums[i]</code>.</li>
+            <li>Starting <code>prefix</code> or <code>suffix</code> at 0 instead of 1: every product becomes 0.</li>
+            <li>Writing <code>out[i] = suffix</code> in the second pass instead of <code>out[i] *= suffix</code>, which throws away the left products.</li>
+            <li>Off by one in the reverse range: it is <code>range(n - 1, -1, -1)</code>, which ends at index 0.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Brute force and division</h3>
+          <ul class="mistake-list">
+            <li>Forgetting <code>if j != i</code>, so every product includes the element itself.</li>
+            <li>Not resetting <code>p = 1</code> for each <code>i</code>.</li>
+            <li>Using division without counting zeros: one zero means only its slot is nonzero, two or more mean all zeros.</li>
+            <li>Using <code>/</code> instead of <code>//</code> in Python and returning floats.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>This pattern has one NeetCode 150 problem, so questions 2 to 4 are follow-up variants of it. Try each in your head first, then open the hint, then the answer.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Product of Array Except Self: <code>nums = [-1, 1, 0, -3, 3]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> which slots have the zero somewhere in "everything else"?</p>
+          <p style="margin-top:10px;">Answer: <code>[0, 0, 9, 0, 0]</code>. Only index 2 (the zero itself) avoids it: <code>(-1 × 1) × (-3 × 3) = 9</code>. This is one of the notebook's test cases; step through the passes on <a href="product_of_array_except_self.html">the Product of Array Except Self page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 (variant: handling zeros) — what do the two passes return for <code>[0, 4, 0]</code>, and what extra code would division need?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> after the left pass, <code>out = [1, 0, 0]</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>[0, 0, 0]</code>, with no extra code. Division would need to count zeros and return all zeros when there are two or more, as the notebook's division approach does. Compare with <a href="product_of_array_except_self.html">the problem page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (variant: the O(n)-space version) — for <code>[1, 2, 3, 4]</code>, write out <code>L</code> and <code>R</code>, then explain how Method 1 removes both arrays.</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> <code>L[i]</code> is the product before <code>i</code>, <code>R[i]</code> the product after <code>i</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>L = [1, 1, 2, 6]</code>, <code>R = [24, 12, 4, 1]</code>, answer <code>[24, 12, 8, 6]</code>. Method 1 writes <code>L</code> into <code>out</code> and computes each <code>R[i]</code> on the fly as <code>suffix</code>, used once and then extended. See the left-pass and right-pass tables on <a href="product_of_array_except_self.html">the problem page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 (variant: prefix sums for range queries) — <code>nums = [-2, 0, 3, -5, 2, -1]</code>, answer <code>sum(nums[2..5])</code> in <code>O(1)</code> after one pass.</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> build <code>P</code> with <code>P[0] = 0</code> and <code>P[k + 1] = P[k] + nums[k]</code>; then <code>sum(nums[l..r]) = P[r + 1] - P[l]</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>P = [0, -2, -2, 1, -4, -2, -3]</code>, so the sum is <code>P[6] - P[2] = -3 - (-2) = -1</code> (check: <code>3 - 5 + 2 - 1 = -1</code>). Same running aggregate as the left pass of <a href="product_of_array_except_self.html">Product of Array Except Self</a>, with <code>+</code> and 0 instead of <code>×</code> and 1. This is LeetCode 303, Range Sum Query - Immutable.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Everything except <code>i</code> = everything before <code>i</code> combined with everything after <code>i</code>.</strong>
+          Build the left side in one forward pass (store, then extend), bring in the right side in one backward pass, and every answer costs one multiplication. No division, no zero cases, <code>O(n)</code> time and <code>O(1)</code> extra space.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Prefix Suffix pattern notes</a>. Code and trace values are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of product_except_self_optimal on [1, 2, 3, 4].
+      const psSteps = [
+        { step: 0, title: 'Initial state', text: 'Allocate out = [1, 1, 1, 1] and start the left product at 1 (the empty product).', pass: '—', i: '—', prefix: '1', suffix: '—', out: [1, 1, 1, 1], left: [], right: [], current: null, done: [], detail: 'Nothing is processed yet.', lines: [2, 3, 4] },
+        { step: 1, title: 'Step 1: left pass, i = 0', text: 'Store out[0] = prefix = 1, then extend prefix by nums[0] = 1.', pass: 'left', i: '0, nums[0] = 1', prefix: '1', suffix: '—', out: [1, 1, 1, 1], left: [], right: [], current: 0, done: [], detail: 'Nothing lies left of index 0, so its left product is the empty product 1.', lines: [5, 6, 7] },
+        { step: 2, title: 'Step 2: left pass, i = 1', text: 'Store out[1] = prefix = 1, then prefix = 1 × 2 = 2.', pass: 'left', i: '1, nums[1] = 2', prefix: '2', suffix: '—', out: [1, 1, 1, 1], left: [0], right: [], current: 1, done: [], detail: 'out[1] = 1 is the product of the blue cell [1].', lines: [5, 6, 7] },
+        { step: 3, title: 'Step 3: left pass, i = 2', text: 'Store out[2] = prefix = 2, then prefix = 2 × 3 = 6.', pass: 'left', i: '2, nums[2] = 3', prefix: '6', suffix: '—', out: [1, 1, 2, 1], left: [0, 1], right: [], current: 2, done: [], detail: 'out[2] = 2 = 1 × 2. The 3 at index 2 is not in it, because we stored before extending.', lines: [5, 6, 7] },
+        { step: 4, title: 'Step 4: left pass, i = 3', text: 'Store out[3] = prefix = 6, then prefix = 6 × 4 = 24.', pass: 'left', i: '3, nums[3] = 4', prefix: '24', suffix: '—', out: [1, 1, 2, 6], left: [0, 1, 2], right: [], current: 3, done: [], detail: 'The left pass is over: out = [1, 1, 2, 6] is the L array. The final prefix (24) is never used.', lines: [5, 6, 7] },
+        { step: 5, title: 'Step 5: start the right pass', text: 'Set suffix = 1: nothing lies right of the last index.', pass: '—', i: '—', prefix: '24', suffix: '1', out: [1, 1, 2, 6], left: [], right: [], current: null, done: [], detail: 'From here on, suffix plays the role of R[i].', lines: [8] },
+        { step: 6, title: 'Step 6: right pass, i = 3', text: 'out[3] = 6 × suffix 1 = 6, then suffix = 1 × 4 = 4.', pass: 'right', i: '3, nums[3] = 4', prefix: '24', suffix: '4', out: [1, 1, 2, 6], left: [0, 1, 2], right: [], current: 3, done: [3], detail: 'out[3] is final: (1 × 2 × 3) × (empty product) = 6.', lines: [9, 10, 11] },
+        { step: 7, title: 'Step 7: right pass, i = 2', text: 'out[2] = 2 × suffix 4 = 8, then suffix = 4 × 3 = 12.', pass: 'right', i: '2, nums[2] = 3', prefix: '24', suffix: '12', out: [1, 1, 8, 6], left: [0, 1], right: [3], current: 2, done: [2, 3], detail: 'Blue (1 × 2) times green (4): out[2] = 8.', lines: [9, 10, 11] },
+        { step: 8, title: 'Step 8: right pass, i = 1', text: 'out[1] = 1 × suffix 12 = 12, then suffix = 12 × 2 = 24.', pass: 'right', i: '1, nums[1] = 2', prefix: '24', suffix: '24', out: [1, 12, 8, 6], left: [0], right: [2, 3], current: 1, done: [1, 2, 3], detail: 'Blue (1) times green (3 × 4): out[1] = 12.', lines: [9, 10, 11] },
+        { step: 9, title: 'Step 9: right pass, i = 0', text: 'out[0] = 1 × suffix 24 = 24, then suffix = 24 × 1 = 24.', pass: 'right', i: '0, nums[0] = 1', prefix: '24', suffix: '24', out: [24, 12, 8, 6], left: [], right: [1, 2, 3], current: 0, done: [0, 1, 2, 3], detail: 'Empty left product (1) times green (2 × 3 × 4): out[0] = 24.', lines: [9, 10, 11] },
+        { step: 10, title: 'Step 10: return', text: 'Both passes are done. Return out.', pass: '—', i: '—', prefix: '24', suffix: '24', out: [24, 12, 8, 6], left: [], right: [], current: null, done: [0, 1, 2, 3], detail: 'Final answer: [24, 12, 8, 6].', lines: [12] }
+      ];
+
+      // Ground truth: instrumented run of product_except_self_brute on [1, 2, 3, 4], one step per value of i.
+      const bfSteps = [
+        { step: 0, title: 'Initial state', text: 'Allocate out = [1, 1, 1, 1].', i: '—', p: '—', mults: '0', out: [1, 1, 1, 1], right: [], current: null, done: [], outCur: null, detail: 'Nothing computed yet.', lines: [2, 3] },
+        { step: 1, title: 'Step 1: i = 0', text: 'p = 1, then multiply every j except 0: p = 2 × 3 × 4 = 24.', i: '0', p: '24', mults: '3', out: [24, 1, 1, 1], right: [1, 2, 3], current: 0, done: [], outCur: 0, detail: 'Three multiplications for one slot.', lines: [4, 5, 6, 7, 8, 9] },
+        { step: 2, title: 'Step 2: i = 1', text: 'Start over at p = 1: p = 1 × 3 × 4 = 12.', i: '1', p: '12', mults: '6', out: [24, 12, 1, 1], right: [0, 2, 3], current: 1, done: [0], outCur: 1, detail: '3 × 4 is computed again, though step 1 already did it.', lines: [4, 5, 6, 7, 8, 9] },
+        { step: 3, title: 'Step 3: i = 2', text: 'p = 1 × 2 × 4 = 8.', i: '2', p: '8', mults: '9', out: [24, 12, 8, 1], right: [0, 1, 3], current: 2, done: [0, 1], outCur: 2, detail: 'Each slot rescans the whole array.', lines: [4, 5, 6, 7, 8, 9] },
+        { step: 4, title: 'Step 4: i = 3', text: 'p = 1 × 2 × 3 = 6.', i: '3', p: '6', mults: '12', out: [24, 12, 8, 6], right: [0, 1, 2], current: 3, done: [0, 1, 2], outCur: 3, detail: 'n(n - 1) = 12 multiplications in total.', lines: [4, 5, 6, 7, 8, 9] },
+        { step: 5, title: 'Step 5: return', text: 'Return out.', i: '—', p: '—', mults: '12', out: [24, 12, 8, 6], right: [], current: null, done: [0, 1, 2, 3], outCur: null, detail: 'Final answer: [24, 12, 8, 6], the same as Method 1.', lines: [10] }
+      ];
+
+      const fmt = (arr) => `[${arr.join(', ')}]`;
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function paintArrays(svgId, step, outCur) {
+        document.querySelectorAll(`#${svgId} [data-cell]`).forEach((cell) => {
+          const id = Number(cell.dataset.cell);
+          cell.classList.remove('left', 'right', 'current');
+          if ((step.left || []).includes(id)) cell.classList.add('left');
+          if (step.right.includes(id)) cell.classList.add('right');
+          if (step.current === id) cell.classList.add('current');
+        });
+        document.querySelectorAll(`#${svgId} [data-out]`).forEach((cell) => {
+          const id = Number(cell.dataset.out);
+          cell.classList.toggle('done', step.done.includes(id) && outCur !== id);
+          cell.classList.toggle('current', outCur === id);
+        });
+        document.querySelectorAll(`#${svgId} [data-outval]`).forEach((t) => {
+          t.textContent = step.out[Number(t.dataset.outval)];
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+          stop();
+          if (index > 0) index -= 1;
+          update();
+        });
+
+        nextBtn.addEventListener('click', () => {
+          stop();
+          if (index < steps.length - 1) index += 1;
+          update();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          stop();
+          index = 0;
+          update();
+        });
+
+        playBtn.addEventListener('click', () => {
+          if (timer) {
+            stop();
+            return;
+          }
+          if (index >= steps.length - 1) {
+            index = 0;
+            update();
+          }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) {
+              stop();
+              return;
+            }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      function renderPS(step, index, max) {
+        document.getElementById('ps-step-title').textContent = step.title;
+        document.getElementById('ps-step-text').textContent = step.text;
+        document.getElementById('ps-pass').textContent = step.pass;
+        document.getElementById('ps-i').textContent = step.i;
+        document.getElementById('ps-prefix').textContent = step.prefix;
+        document.getElementById('ps-suffix').textContent = step.suffix;
+        document.getElementById('ps-out').textContent = fmt(step.out);
+        document.getElementById('ps-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('ps-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('ps-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('ps-trace-table', step.step);
+        setCodeHighlight('ps-code', step.lines);
+        paintArrays('ps-graph', step, step.current);
+      }
+
+      function renderBF(step, index, max) {
+        document.getElementById('bf-step-title').textContent = step.title;
+        document.getElementById('bf-step-text').textContent = step.text;
+        document.getElementById('bf-i').textContent = step.i;
+        document.getElementById('bf-p').textContent = step.p;
+        document.getElementById('bf-mults').textContent = step.mults;
+        document.getElementById('bf-out').textContent = fmt(step.out);
+        document.getElementById('bf-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bf-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bf-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bf-trace-table', step.step);
+        setCodeHighlight('bf-code', step.lines);
+        paintArrays('bf-graph', step, step.outCur);
+      }
+
+      setupTrace({ steps: psSteps, prefix: 'ps', render: renderPS });
+      setupTrace({ steps: bfSteps, prefix: 'bf', render: renderBF });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

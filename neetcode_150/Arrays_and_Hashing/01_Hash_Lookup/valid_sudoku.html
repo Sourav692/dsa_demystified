@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valid Sudoku — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec; --edge:#8a94a6;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f; --edge:#7d889c;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px;display:flex;justify-content:center}
+  .board{display:inline-grid;gap:3px;padding:4px}
+  .gcell{width:42px;height:42px;border:2px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .board.small .gcell{width:32px;height:32px;font-size:15px;border-radius:6px}
+  .gcell.empty{color:var(--muted);font-weight:400}
+  .gcell.bxr{margin-right:7px} .gcell.bxb{margin-bottom:7px}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .gcell.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .gcell.dim{opacity:.35}
+  .mem{margin-top:12px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .sets{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+  .setcol{border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+  .setcol h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .setrow{display:flex;align-items:center;gap:6px;font-size:13px;margin:3px 0;flex-wrap:wrap}
+  .setrow .k{color:var(--muted);min-width:56px}
+  .setrow.on{outline:2px solid var(--hi-bd);border-radius:6px;padding:1px 4px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:7px;padding:1px 8px;font-size:13px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .chip.hit{background:var(--bad);border-color:var(--bad-bd)}
+  .empty-note{color:var(--muted);font-size:12px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_hash_lookup_lesson.html">← Hash Lookup lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Arrays and Hashing · Hash Lookup</span></div>
+<h1>36 · Valid Sudoku</h1>
+<p class="lead">Is any digit repeated inside a row, a column, or a 3×3 box?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You get a half-filled Sudoku. You do not solve it. You only check the digits already written: inside every row, every column and every 3×3 box, no digit may appear twice. Empty cells (<code>.</code>) are ignored.</p>
+<div class="idea">Example: LeetCode's second board puts an <b>8</b> in the top-left corner. Column 0 already has an 8 (row 3), and the top-left box already has an 8 (row 2, column 2). So the answer is <b>false</b>.</div>
+<div class="idea">Watch out: "valid" is not "solvable". A board can pass every check and still have no solution.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>the unit being checked</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>no repeat</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>repeated digit</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Every row, column and box is a "unit". A board is valid when no unit holds the same digit twice.</p>
+</div>
+
+<div class="card"><h2>A small board to step through</h2>
+<p>A full 9×9 trace would be 30 steps long. The notebook's code works for any <code>n×n</code> board with <code>n = b²</code>, so both solutions below are traced on this 4×4 board with 2×2 boxes (it is the notebook's <code>MINI_4x4</code> test). Rules are the same: digits 1–4, no repeats per row, column or box.</p>
+<div class="idea">The catch: the <b>3</b> at row 2, column 2 and the <b>3</b> at row 3, column 3 share no row and no column. Only their <b>box</b> (bottom-right) sees the repeat. Answer: <b>false</b>.</div>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: every digit rescans its row, column and box</h2>
+<div class="idea">For each filled cell, walk its whole row, its whole column and its whole box, looking for the same digit somewhere else. No memory needed, but the same pairs get compared again and again.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current cell</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>peer being compared</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>already passed</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>twin found</span></div>
+<div class="viz" id="br-viz"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each filled cell rescans about <code>3n</code> peers, so an <code>n×n</code> board costs <code>O(n³)</code>. On the real 9×9 board that is a fixed amount (at most 81 × 27 checks), <code>O(1)</code>. No extra memory: <code>O(1)</code>.</p>
+<div class="trace-title">Step-by-step trace — the 4×4 board, row by row</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Cell (r, c)</th><th>Digit</th><th>Peers compared</th><th>Filled peers seen</th><th>Decision</th></tr>
+  <tr><td>1</td><td>(0, 0)</td><td>1</td><td>9</td><td>4 (row), 2 (col), 3 (box)</td><td class="rule">No other 1 &rarr; next cell</td></tr>
+  <tr><td>2</td><td>(0, 3)</td><td>4</td><td>9</td><td>1 (row), 3 (col), 2 (box)</td><td class="rule">No other 4 &rarr; next cell</td></tr>
+  <tr><td>3</td><td>(1, 1)</td><td>3</td><td>9</td><td>2 (row), 4 (col), 1 (box)</td><td class="rule">No other 3 &rarr; next cell</td></tr>
+  <tr><td>4</td><td>(1, 2)</td><td>2</td><td>9</td><td>3 (row), 3 (col), 4 (box)</td><td class="rule">No other 2 &rarr; next cell</td></tr>
+  <tr><td>5</td><td>(2, 1)</td><td>4</td><td>9</td><td>3 (col), 3 (row), 2 (box)</td><td class="rule">No other 4 &rarr; next cell</td></tr>
+  <tr class="final"><td>6</td><td>(2, 2)</td><td>3</td><td>9</td><td>4 (row), 2 (col), 3 at (3, 3) (box)</td><td>Twin 3 in the same box &rarr; return False</td></tr>
+</table>
+</div>
+<p class="speed">The brute force looks <i>forward</i> too, so it spots the repeat from the first 3 at <code>(2, 2)</code>, before reaching <code>(3, 3)</code>.</p>
+</div>
+
+<div class="card"><h2>Solution 2 — The smart way: one pass, three memories</h2>
+<div class="idea">Keep a set of digits for every row, every column and every box. Visit each filled cell once. First ask its three sets "have you seen this digit?" Any yes means a repeat. If all say no, write the digit into all three sets and move on. The box of cell <code>(r, c)</code> is <code>(r // b, c // b)</code>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current cell</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>recorded in its 3 sets</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>already in a set</span></div>
+<div class="viz" id="hs-viz"></div>
+<div class="sets">
+  <div class="setcol"><h4>rows[r]</h4><div id="hs-rows"></div></div>
+  <div class="setcol"><h4>cols[c]</h4><div id="hs-cols"></div></div>
+  <div class="setcol"><h4>boxes[(r // 2, c // 2)]</h4><div id="hs-boxes"></div></div>
+</div>
+<div class="caption" id="hs-cap"></div>
+<div class="controls" data-player="hs"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="hs-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each cell costs three instant lookups and three inserts, so an <code>n×n</code> board is <code>O(n²)</code> time and <code>O(n²)</code> memory; on the 9×9 board both are <code>O(1)</code>. In the notebook's benchmark, growing the board 16× in cells made this ≈14–18× slower and the brute force ≈48–57× slower.</p>
+<div class="trace-title">Step-by-step trace — the 4×4 board, row by row (b = 2)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Cell (r, c)</th><th>Digit</th><th>Box</th><th>rows[r] before</th><th>cols[c] before</th><th>boxes[box] before</th><th>Decision</th></tr>
+  <tr><td>1</td><td>(0, 0)</td><td>1</td><td>(0, 0)</td><td>{}</td><td>{}</td><td>{}</td><td class="rule">Not seen &rarr; add 1 to all three</td></tr>
+  <tr><td>2</td><td>(0, 3)</td><td>4</td><td>(0, 1)</td><td>{1}</td><td>{}</td><td>{}</td><td class="rule">Not seen &rarr; add 4</td></tr>
+  <tr><td>3</td><td>(1, 1)</td><td>3</td><td>(0, 0)</td><td>{}</td><td>{}</td><td>{1}</td><td class="rule">Not seen &rarr; add 3</td></tr>
+  <tr><td>4</td><td>(1, 2)</td><td>2</td><td>(0, 1)</td><td>{3}</td><td>{}</td><td>{4}</td><td class="rule">Not seen &rarr; add 2</td></tr>
+  <tr><td>5</td><td>(2, 1)</td><td>4</td><td>(1, 0)</td><td>{}</td><td>{3}</td><td>{}</td><td class="rule">Not seen &rarr; add 4</td></tr>
+  <tr><td>6</td><td>(2, 2)</td><td>3</td><td>(1, 1)</td><td>{4}</td><td>{2}</td><td>{}</td><td class="rule">Not seen &rarr; add 3</td></tr>
+  <tr><td>7</td><td>(3, 0)</td><td>2</td><td>(1, 0)</td><td>{}</td><td>{1}</td><td>{4}</td><td class="rule">Not seen &rarr; add 2</td></tr>
+  <tr class="final"><td>8</td><td>(3, 3)</td><td>3</td><td>(1, 1)</td><td>{2}</td><td>{4}</td><td>{3}</td><td>3 already in its box set &rarr; return False</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"no repeats within each row / column / group"</b> or <b>"each value at most once per unit"</b>? Give every unit its own set, compute which units a cell belongs to, and check all of them before recording.
+<p><a href="01_hash_lookup_lesson.html">→ Hash Lookup: the pattern lesson and its other problems</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+/* Board drawing. marks: {"r,c": "hi"|"good"|"bad"|"seen"|"dim"}. b = box width (thick gap after every b-th row/column). */
+function drawBoard(id, rows, b, marks, small){
+  var n=rows.length, s='<div class="board'+(small?' small':'')+'" style="grid-template-columns:repeat('+n+',auto)">';
+  for(var r=0;r<n;r++) for(var c=0;c<n;c++){
+    var v=rows[r][c], cls='gcell';
+    if(v==='.') cls+=' empty';
+    if((c+1)%b===0 && c<n-1) cls+=' bxr';
+    if((r+1)%b===0 && r<n-1) cls+=' bxb';
+    var m=marks[r+','+c]; if(m) cls+=' '+m;
+    s+='<div class="'+cls+'">'+(v==='.'?'·':v)+'</div>';
+  }
+  document.getElementById(id).innerHTML=s+'</div>';
+}
+function M(groups){ var m={}; for(var k in groups){ groups[k].forEach(function(rc){ m[rc[0]+','+rc[1]]=k; }); } return m; }
+function range(a,b){ var o=[]; for(var i=a;i<b;i++) o.push(i); return o; }
+
+/* Problem demo: LeetCode example 2 (9x9). */
+var EX2=["83..7....","6..195...",".98....6.","8...6...3","4..8.3..1","7...2...6",".6....28.","...419..5","....8..79"];
+var ROW0=range(0,9).map(function(c){return [0,c];});
+var COL0=range(0,9).map(function(r){return [r,0];});
+var BOX0=[]; range(0,3).forEach(function(r){ range(0,3).forEach(function(c){ BOX0.push([r,c]); }); });
+makePlayer('pd',[
+  {cap:'LeetCode example 2. Three kinds of unit: 9 rows, 9 columns, 9 boxes. Only filled cells matter.', m:{}},
+  {cap:'Row 0 holds <b>8, 3, 7</b>: all different. No problem here.', m:M({hi:ROW0})},
+  {cap:'Column 0 holds 8, 6, <b>8</b>, 4, 7: the digit <b>8</b> appears twice (rows 0 and 3). Already invalid.', m:(function(){var m=M({hi:COL0}); m['0,0']='bad'; m['3,0']='bad'; return m;})()},
+  {cap:'The top-left box holds 8, 3, 6, 9, <b>8</b>: a second repeat, at (0, 0) and (2, 2). Answer: <b>false</b>.', m:(function(){var m=M({hi:BOX0}); m['0,0']='bad'; m['2,2']='bad'; return m;})()}
+],function(f){ drawBoard('pd-viz',EX2,3,f.m,true); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* The 4x4 board traced below (notebook's MINI_4x4). */
+var MINI=["1..4",".32.",".43.","2..3"];
+function peers(r,c){ var p=[]; for(var k=0;k<4;k++){ if(k!==c) p.push([r,k]); if(k!==r) p.push([k,c]); }
+  var br=Math.floor(r/2)*2, bc=Math.floor(c/2)*2; for(var rr=br;rr<br+2;rr++) for(var cc=bc;cc<bc+2;cc++) if(rr!==r||cc!==c) p.push([rr,cc]); return p; }
+
+/* Brute force: one frame per filled cell (values traced from is_valid_sudoku_brute in the notebook). */
+var BR=[[0,0,'1'],[0,3,'4'],[1,1,'3'],[1,2,'2'],[2,1,'4'],[2,2,'3']];
+var brFrames=[{cap:'Visit the filled cells row by row. Each one compares itself with its 9 peers (3 in its row, 3 in its column, 3 in its box).', m:{}}];
+BR.forEach(function(t,k){
+  var m={}; BR.slice(0,k).forEach(function(d){ m[d[0]+','+d[1]]='good'; });
+  peers(t[0],t[1]).forEach(function(p){ m[p[0]+','+p[1]]='seen'; });
+  m[t[0]+','+t[1]]='hi';
+  var cap;
+  if(k<BR.length-1){ cap='Cell ('+t[0]+', '+t[1]+') holds <b>'+t[2]+'</b>. Scan its 9 peers (purple): no other '+t[2]+'. Move on.'; }
+  else { m['3,3']='bad'; m['2,2']='bad'; cap='Cell (2, 2) holds <b>3</b>. Its row and column have no 3, but its box does: (3, 3) is also <b>3</b>. Return <b>False</b>.'; }
+  brFrames.push({cap:cap,m:m});
+});
+makePlayer('br',brFrames,function(f){ drawBoard('br-viz',MINI,2,f.m,false); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Hash sets: one frame per filled cell (values traced from is_valid_sudoku_sets in the notebook). */
+var HS=[[0,0,'1'],[0,3,'4'],[1,1,'3'],[1,2,'2'],[2,1,'4'],[2,2,'3'],[3,0,'2'],[3,3,'3']];
+function setsAfter(k){ var R={},C={},B={};
+  HS.slice(0,k).forEach(function(t){ var bx='('+Math.floor(t[0]/2)+', '+Math.floor(t[1]/2)+')';
+    (R[t[0]]=R[t[0]]||[]).push(t[2]); (C[t[1]]=C[t[1]]||[]).push(t[2]); (B[bx]=B[bx]||[]).push(t[2]); });
+  return {R:R,C:C,B:B}; }
+function drawSets(id, map, keys, activeKey, v, hit){
+  var h='';
+  keys.forEach(function(key){
+    var vals=(map[key]||[]).slice().sort(), on=(String(key)===String(activeKey));
+    h+='<div class="setrow'+(on?' on':'')+'"><span class="k">'+key+'</span>';
+    if(!vals.length) h+='<span class="empty-note">{ }</span>';
+    vals.forEach(function(x){ var cls=(on && x===v)?(hit?'hit':'look'):''; h+='<span class="chip '+cls+'">'+x+'</span>'; });
+    h+='</div>';
+  });
+  document.getElementById(id).innerHTML=h;
+}
+var hsFrames=[{cap:'All 12 sets start empty: 4 rows, 4 columns, 4 boxes. Scan the cells row by row.', k:0, cur:null}];
+HS.forEach(function(t,k){
+  var last=(k===HS.length-1), bx='('+Math.floor(t[0]/2)+', '+Math.floor(t[1]/2)+')';
+  var cap = last
+    ? 'Cell (3, 3) holds <b>3</b>, box '+bx+'. rows[3] = {2} and cols[3] = {4} say no, but boxes'+bx+' = {3} says <b>yes</b>. Return <b>False</b>.'
+    : 'Cell ('+t[0]+', '+t[1]+') holds <b>'+t[2]+'</b>, box '+bx+'. None of its three sets has '+t[2]+' &rarr; add it to all three.';
+  hsFrames.push({cap:cap, k:last?k:k+1, cur:t, bx:bx, hit:last});
+});
+makePlayer('hs',hsFrames,function(f){
+  var m={}; HS.slice(0,f.k).forEach(function(t){ m[t[0]+','+t[1]]='good'; });
+  if(f.cur){ m[f.cur[0]+','+f.cur[1]]=f.hit?'bad':'hi'; if(f.hit) m['2,2']='bad'; }
+  drawBoard('hs-viz',MINI,2,m,false);
+  var S=setsAfter(f.k), v=f.cur?f.cur[2]:null;
+  drawSets('hs-rows',S.R,[0,1,2,3],f.cur?f.cur[0]:null,v,f.hit);
+  drawSets('hs-cols',S.C,[0,1,2,3],f.cur?f.cur[1]:null,v,f.hit);
+  drawSets('hs-boxes',S.B,['(0, 0)','(0, 1)','(1, 0)','(1, 1)'],f.cur?f.bx:null,v,f.hit);
+  document.getElementById('hs-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>N-Queens — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .board{display:inline-grid;gap:4px;padding:6px 0}
+  .bwrap{display:flex;justify-content:center;overflow-x:auto}
+  .gcell{position:relative}
+  .gcell.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .gcell.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .gcell.att{background:var(--accent-soft)}
+  .gcell .sm{font-size:12px;color:var(--muted);font-weight:600}
+  .gcell.cur{outline:3px solid var(--hi-bd);outline-offset:1px}
+  .bhead{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;width:46px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="04_partition_and_placement_lesson.html">← Partition and Placement lesson</a><span class="tag"><span class="dot" style="background:#ef4444"></span> Hard · Backtracking · Partition and Placement</span></div>
+<h1>51 · N-Queens</h1>
+<p class="lead">Put n queens on an n &times; n chessboard so that no two can attack each other. List every way.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">A chess queen attacks along her row, her column, and both diagonals, as far as the board goes. Place <code>n</code> queens so that none of them is attacked. Return every such board, drawn as strings with <code>Q</code> for a queen and <code>.</code> for an empty square.</p>
+<div class="idea">Example: <code>n = 4</code> has exactly two answers: <code>[".Q..","...Q","Q...","..Q."]</code> and <code>["..Q.","Q...","...Q",".Q.."]</code>.</div>
+<div class="idea">Two shortcuts: every row holds exactly one queen (two in a row would attack), and every square on one diagonal shares a number: <code>r − c</code> for a <code>\</code> diagonal, <code>r + c</code> for a <code>/</code> diagonal.</div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>queen</span><span><span class="sw" style="background:var(--accent-soft);border-color:var(--border)"></span>attacked square</span><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>highlighted diagonal</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Row and column numbers start at 0, top-left.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: try every column order, then check diagonals</h2>
+<div class="idea">One queen per row and one per column means a board is just an ordering of the columns: <code>perm[r]</code> is the column of row <code>r</code>'s queen. Try all <code>n!</code> orderings. Keep one if all <code>r − c</code> values differ and all <code>r + c</code> values differ (no shared diagonal).</div>
+<div class="viz" id="br-viz"></div>
+<div class="mem"><h4>r − c per row &nbsp;·&nbsp; r + c per row</h4><div class="chips" id="br-ids"></div></div>
+<div class="mem"><h4>valid boards so far</h4><div class="chips" id="br-out"></div></div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>queen</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>queens sharing a diagonal</span></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> all <code>n!</code> boards are built in full, even when the first two queens already clash — <code>O(n · n!)</code> time, <code>O(n)</code> extra memory. The notebook measures it growing roughly <code>n</code>&times; per extra row (5.7&times; at n = 6 up to 8.7&times; at n = 9).</p>
+<div class="trace-title">Step-by-step trace — n = 4, all 24 permutations</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>#</th><th>perm</th><th>r − c</th><th>r + c</th><th>verdict</th><th>boards so far</th></tr>
+  <tr><td>1</td><td><code>[0, 1, 2, 3]</code></td><td><code>[0, 0, 0, 0]</code></td><td><code>[0, 2, 4, 6]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>2</td><td><code>[0, 1, 3, 2]</code></td><td><code>[0, 0, -1, 1]</code></td><td><code>[0, 2, 5, 5]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>3</td><td><code>[0, 2, 1, 3]</code></td><td><code>[0, -1, 1, 0]</code></td><td><code>[0, 3, 3, 6]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>4</td><td><code>[0, 2, 3, 1]</code></td><td><code>[0, -1, -1, 2]</code></td><td><code>[0, 3, 5, 4]</code></td><td>r-c = -1 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>5</td><td><code>[0, 3, 1, 2]</code></td><td><code>[0, -2, 1, 1]</code></td><td><code>[0, 4, 3, 5]</code></td><td>r-c = 1 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>6</td><td><code>[0, 3, 2, 1]</code></td><td><code>[0, -2, 0, 2]</code></td><td><code>[0, 4, 4, 4]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>7</td><td><code>[1, 0, 2, 3]</code></td><td><code>[-1, 1, 0, 0]</code></td><td><code>[1, 1, 4, 6]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>8</td><td><code>[1, 0, 3, 2]</code></td><td><code>[-1, 1, -1, 1]</code></td><td><code>[1, 1, 5, 5]</code></td><td>r-c = -1 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>9</td><td><code>[1, 2, 0, 3]</code></td><td><code>[-1, -1, 2, 0]</code></td><td><code>[1, 3, 2, 6]</code></td><td>r-c = -1 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>10</td><td><code>[1, 2, 3, 0]</code></td><td><code>[-1, -1, -1, 3]</code></td><td><code>[1, 3, 5, 3]</code></td><td>r-c = -1 appears twice (shared \ diagonal) &rarr; reject</td><td>0</td></tr>
+  <tr><td>11</td><td><code>[1, 3, 0, 2]</code></td><td><code>[-1, -2, 2, 1]</code></td><td><code>[1, 4, 2, 5]</code></td><td>valid &rarr; keep</td><td>1</td></tr>
+  <tr><td>12</td><td><code>[1, 3, 2, 0]</code></td><td><code>[-1, -2, 0, 3]</code></td><td><code>[1, 4, 4, 3]</code></td><td>r+c = 4 appears twice (shared / diagonal) &rarr; reject</td><td>1</td></tr>
+  <tr><td>13</td><td><code>[2, 0, 1, 3]</code></td><td><code>[-2, 1, 1, 0]</code></td><td><code>[2, 1, 3, 6]</code></td><td>r-c = 1 appears twice (shared \ diagonal) &rarr; reject</td><td>1</td></tr>
+  <tr><td>14</td><td><code>[2, 0, 3, 1]</code></td><td><code>[-2, 1, -1, 2]</code></td><td><code>[2, 1, 5, 4]</code></td><td>valid &rarr; keep</td><td>2</td></tr>
+  <tr><td>15</td><td><code>[2, 1, 0, 3]</code></td><td><code>[-2, 0, 2, 0]</code></td><td><code>[2, 2, 2, 6]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>16</td><td><code>[2, 1, 3, 0]</code></td><td><code>[-2, 0, -1, 3]</code></td><td><code>[2, 2, 5, 3]</code></td><td>r+c = 2 appears twice (shared / diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>17</td><td><code>[2, 3, 0, 1]</code></td><td><code>[-2, -2, 2, 2]</code></td><td><code>[2, 4, 2, 4]</code></td><td>r-c = -2 appears twice (shared \ diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>18</td><td><code>[2, 3, 1, 0]</code></td><td><code>[-2, -2, 1, 3]</code></td><td><code>[2, 4, 3, 3]</code></td><td>r-c = -2 appears twice (shared \ diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>19</td><td><code>[3, 0, 1, 2]</code></td><td><code>[-3, 1, 1, 1]</code></td><td><code>[3, 1, 3, 5]</code></td><td>r-c = 1 appears twice (shared \ diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>20</td><td><code>[3, 0, 2, 1]</code></td><td><code>[-3, 1, 0, 2]</code></td><td><code>[3, 1, 4, 4]</code></td><td>r+c = 4 appears twice (shared / diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>21</td><td><code>[3, 1, 0, 2]</code></td><td><code>[-3, 0, 2, 1]</code></td><td><code>[3, 2, 2, 5]</code></td><td>r+c = 2 appears twice (shared / diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>22</td><td><code>[3, 1, 2, 0]</code></td><td><code>[-3, 0, 0, 3]</code></td><td><code>[3, 2, 4, 3]</code></td><td>r-c = 0 appears twice (shared \ diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>23</td><td><code>[3, 2, 0, 1]</code></td><td><code>[-3, -1, 2, 2]</code></td><td><code>[3, 3, 2, 4]</code></td><td>r-c = 2 appears twice (shared \ diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr><td>24</td><td><code>[3, 2, 1, 0]</code></td><td><code>[-3, -1, 1, 3]</code></td><td><code>[3, 3, 3, 3]</code></td><td>r+c = 3 appears twice (shared / diagonal) &rarr; reject</td><td>2</td></tr>
+  <tr class="final"><td>done</td><td>—</td><td>—</td><td>—</td><td>all 24 checked &rarr; return 2 boards</td><td>2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Backtracking: place row by row, scan the queens above</h2>
+<div class="idea">Fill row 0, then row 1, and so on. Before putting a queen on <code>(r, c)</code>, look at every queen already placed: same column, or same diagonal (<code>|row gap| == |column gap|</code>), means unsafe. A safe square gets a queen and we move to the next row. A row with no safe square is a dead end: take back the last queen and try its next column.</div>
+<div class="viz" id="sc-viz"></div>
+<div class="mem"><h4>queens (column of each placed row)</h4><div class="chips" id="sc-q"></div></div>
+<div class="mem"><h4>boards found</h4><div class="chips" id="sc-out"></div></div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>queen</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>tried, unsafe</span><span><span class="sw" style="background:var(--card);border-color:var(--hi-bd)"></span>square just placed / removed</span></div>
+<div class="caption" id="sc-cap"></div>
+<div class="controls" data-player="sc"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="sc-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> attacked squares are skipped before recursing, so far fewer than <code>n!</code> boards are explored; each check still scans up to <code>n</code> queens — <code>O(n · n!)</code> as an upper bound, <code>O(n)</code> memory. Measured: about 4–5&times; per extra row.</p>
+<div class="trace-title">Step-by-step trace — n = 4 (unsafe squares tried in a row are listed with the next placement or removal)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>action</th><th>queens after</th><th>boards</th></tr>
+  <tr><td>0</td><td>start at row 0</td><td><code>[]</code></td><td>0</td></tr>
+  <tr><td>1</td><td>place (0,0)</td><td><code>[0]</code></td><td>0</td></tr>
+  <tr><td>2</td><td>unsafe (1,0), (1,1); place (1,2)</td><td><code>[0, 2]</code></td><td>0</td></tr>
+  <tr><td>3</td><td>unsafe (2,0), (2,1), (2,2), (2,3); remove (1,2)</td><td><code>[0]</code></td><td>0</td></tr>
+  <tr><td>4</td><td>place (1,3)</td><td><code>[0, 3]</code></td><td>0</td></tr>
+  <tr><td>5</td><td>unsafe (2,0); place (2,1)</td><td><code>[0, 3, 1]</code></td><td>0</td></tr>
+  <tr><td>6</td><td>unsafe (3,0), (3,1), (3,2), (3,3); remove (2,1)</td><td><code>[0, 3]</code></td><td>0</td></tr>
+  <tr><td>7</td><td>unsafe (2,2), (2,3); remove (1,3)</td><td><code>[0]</code></td><td>0</td></tr>
+  <tr><td>8</td><td>remove (0,0)</td><td><code>[]</code></td><td>0</td></tr>
+  <tr><td>9</td><td>place (0,1)</td><td><code>[1]</code></td><td>0</td></tr>
+  <tr><td>10</td><td>unsafe (1,0), (1,1), (1,2); place (1,3)</td><td><code>[1, 3]</code></td><td>0</td></tr>
+  <tr><td>11</td><td>place (2,0)</td><td><code>[1, 3, 0]</code></td><td>0</td></tr>
+  <tr><td>12</td><td>unsafe (3,0), (3,1); place (3,2)</td><td><code>[1, 3, 0, 2]</code></td><td>0</td></tr>
+  <tr><td>13</td><td>all rows filled &rarr; record board</td><td><code>[1, 3, 0, 2]</code></td><td>1</td></tr>
+  <tr><td>14</td><td>remove (3,2)</td><td><code>[1, 3, 0]</code></td><td>1</td></tr>
+  <tr><td>15</td><td>unsafe (3,3); remove (2,0)</td><td><code>[1, 3]</code></td><td>1</td></tr>
+  <tr><td>16</td><td>unsafe (2,1), (2,2), (2,3); remove (1,3)</td><td><code>[1]</code></td><td>1</td></tr>
+  <tr><td>17</td><td>remove (0,1)</td><td><code>[]</code></td><td>1</td></tr>
+  <tr><td>18</td><td>place (0,2)</td><td><code>[2]</code></td><td>1</td></tr>
+  <tr><td>19</td><td>place (1,0)</td><td><code>[2, 0]</code></td><td>1</td></tr>
+  <tr><td>20</td><td>unsafe (2,0), (2,1), (2,2); place (2,3)</td><td><code>[2, 0, 3]</code></td><td>1</td></tr>
+  <tr><td>21</td><td>unsafe (3,0); place (3,1)</td><td><code>[2, 0, 3, 1]</code></td><td>1</td></tr>
+  <tr><td>22</td><td>all rows filled &rarr; record board</td><td><code>[2, 0, 3, 1]</code></td><td>2</td></tr>
+  <tr><td>23</td><td>remove (3,1)</td><td><code>[2, 0, 3]</code></td><td>2</td></tr>
+  <tr><td>24</td><td>unsafe (3,2), (3,3); remove (2,3)</td><td><code>[2, 0]</code></td><td>2</td></tr>
+  <tr><td>25</td><td>remove (1,0)</td><td><code>[2]</code></td><td>2</td></tr>
+  <tr><td>26</td><td>unsafe (1,1), (1,2), (1,3); remove (0,2)</td><td><code>[]</code></td><td>2</td></tr>
+  <tr><td>27</td><td>place (0,3)</td><td><code>[3]</code></td><td>2</td></tr>
+  <tr><td>28</td><td>place (1,0)</td><td><code>[3, 0]</code></td><td>2</td></tr>
+  <tr><td>29</td><td>unsafe (2,0), (2,1); place (2,2)</td><td><code>[3, 0, 2]</code></td><td>2</td></tr>
+  <tr><td>30</td><td>unsafe (3,0), (3,1), (3,2), (3,3); remove (2,2)</td><td><code>[3, 0]</code></td><td>2</td></tr>
+  <tr><td>31</td><td>unsafe (2,3); remove (1,0)</td><td><code>[3]</code></td><td>2</td></tr>
+  <tr><td>32</td><td>place (1,1)</td><td><code>[3, 1]</code></td><td>2</td></tr>
+  <tr><td>33</td><td>unsafe (2,0), (2,1), (2,2), (2,3); remove (1,1)</td><td><code>[3]</code></td><td>2</td></tr>
+  <tr><td>34</td><td>unsafe (1,2), (1,3); remove (0,3)</td><td><code>[]</code></td><td>2</td></tr>
+  <tr class="final"><td>35</td><td>row 0 exhausted &rarr; return</td><td><code>[]</code></td><td>2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: backtracking with three sets</h2>
+<div class="idea">Same search, faster check. Keep three sets: used columns <code>cols</code>, used <code>\</code> diagonals <code>diag</code> (by <code>r − c</code>), used <code>/</code> diagonals <code>anti</code> (by <code>r + c</code>). "Is <code>(r, c)</code> safe?" is three instant lookups. Placing a queen adds three numbers; removing it takes the same three out.</div>
+<div class="viz" id="st-viz"></div>
+<div class="mem"><h4>cols &nbsp;·&nbsp; diag (r − c) &nbsp;·&nbsp; anti (r + c)</h4><div class="chips" id="st-sets"></div></div>
+<div class="mem"><h4>boards found</h4><div class="chips" id="st-out"></div></div>
+<div class="legend"><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>queen</span><span><span class="sw" style="background:var(--accent-soft);border-color:var(--border)"></span>attacked (in a set)</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>tried, blocked</span><span><span class="sw" style="background:var(--card);border-color:var(--hi-bd)"></span>square just placed / removed</span></div>
+<div class="caption" id="st-cap"></div>
+<div class="controls" data-player="st"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="st-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> the same pruned search, with <code>O(1)</code> checks — <code>O(n!)</code> upper bound, <code>O(n²)</code> memory for the working board. In the notebook it is the fastest of the three (about 5 ms at n = 9 against 130 ms for the brute force).</p>
+<div class="trace-title">Step-by-step trace — n = 4</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>action</th><th>queens after</th><th>cols</th><th>diag (r−c)</th><th>anti (r+c)</th><th>boards</th></tr>
+  <tr><td>0</td><td>start at row 0</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>0</td></tr>
+  <tr><td>1</td><td>place (0,0)</td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td>0</td></tr>
+  <tr><td>2</td><td>unsafe (1,0), (1,1); place (1,2)</td><td><code>[0, 2]</code></td><td><code>[0, 2]</code></td><td><code>[-1, 0]</code></td><td><code>[0, 3]</code></td><td>0</td></tr>
+  <tr><td>3</td><td>unsafe (2,0), (2,1), (2,2), (2,3); remove (1,2)</td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td>0</td></tr>
+  <tr><td>4</td><td>place (1,3)</td><td><code>[0, 3]</code></td><td><code>[0, 3]</code></td><td><code>[-2, 0]</code></td><td><code>[0, 4]</code></td><td>0</td></tr>
+  <tr><td>5</td><td>unsafe (2,0); place (2,1)</td><td><code>[0, 3, 1]</code></td><td><code>[0, 1, 3]</code></td><td><code>[-2, 0, 1]</code></td><td><code>[0, 3, 4]</code></td><td>0</td></tr>
+  <tr><td>6</td><td>unsafe (3,0), (3,1), (3,2), (3,3); remove (2,1)</td><td><code>[0, 3]</code></td><td><code>[0, 3]</code></td><td><code>[-2, 0]</code></td><td><code>[0, 4]</code></td><td>0</td></tr>
+  <tr><td>7</td><td>unsafe (2,2), (2,3); remove (1,3)</td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td><code>[0]</code></td><td>0</td></tr>
+  <tr><td>8</td><td>remove (0,0)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>0</td></tr>
+  <tr><td>9</td><td>place (0,1)</td><td><code>[1]</code></td><td><code>[1]</code></td><td><code>[-1]</code></td><td><code>[1]</code></td><td>0</td></tr>
+  <tr><td>10</td><td>unsafe (1,0), (1,1), (1,2); place (1,3)</td><td><code>[1, 3]</code></td><td><code>[1, 3]</code></td><td><code>[-2, -1]</code></td><td><code>[1, 4]</code></td><td>0</td></tr>
+  <tr><td>11</td><td>place (2,0)</td><td><code>[1, 3, 0]</code></td><td><code>[0, 1, 3]</code></td><td><code>[-2, -1, 2]</code></td><td><code>[1, 2, 4]</code></td><td>0</td></tr>
+  <tr><td>12</td><td>unsafe (3,0), (3,1); place (3,2)</td><td><code>[1, 3, 0, 2]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>0</td></tr>
+  <tr><td>13</td><td>all rows filled &rarr; record board</td><td><code>[1, 3, 0, 2]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>1</td></tr>
+  <tr><td>14</td><td>remove (3,2)</td><td><code>[1, 3, 0]</code></td><td><code>[0, 1, 3]</code></td><td><code>[-2, -1, 2]</code></td><td><code>[1, 2, 4]</code></td><td>1</td></tr>
+  <tr><td>15</td><td>unsafe (3,3); remove (2,0)</td><td><code>[1, 3]</code></td><td><code>[1, 3]</code></td><td><code>[-2, -1]</code></td><td><code>[1, 4]</code></td><td>1</td></tr>
+  <tr><td>16</td><td>unsafe (2,1), (2,2), (2,3); remove (1,3)</td><td><code>[1]</code></td><td><code>[1]</code></td><td><code>[-1]</code></td><td><code>[1]</code></td><td>1</td></tr>
+  <tr><td>17</td><td>remove (0,1)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>1</td></tr>
+  <tr><td>18</td><td>place (0,2)</td><td><code>[2]</code></td><td><code>[2]</code></td><td><code>[-2]</code></td><td><code>[2]</code></td><td>1</td></tr>
+  <tr><td>19</td><td>place (1,0)</td><td><code>[2, 0]</code></td><td><code>[0, 2]</code></td><td><code>[-2, 1]</code></td><td><code>[1, 2]</code></td><td>1</td></tr>
+  <tr><td>20</td><td>unsafe (2,0), (2,1), (2,2); place (2,3)</td><td><code>[2, 0, 3]</code></td><td><code>[0, 2, 3]</code></td><td><code>[-2, -1, 1]</code></td><td><code>[1, 2, 5]</code></td><td>1</td></tr>
+  <tr><td>21</td><td>unsafe (3,0); place (3,1)</td><td><code>[2, 0, 3, 1]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>1</td></tr>
+  <tr><td>22</td><td>all rows filled &rarr; record board</td><td><code>[2, 0, 3, 1]</code></td><td><code>[0, 1, 2, 3]</code></td><td><code>[-2, -1, 1, 2]</code></td><td><code>[1, 2, 4, 5]</code></td><td>2</td></tr>
+  <tr><td>23</td><td>remove (3,1)</td><td><code>[2, 0, 3]</code></td><td><code>[0, 2, 3]</code></td><td><code>[-2, -1, 1]</code></td><td><code>[1, 2, 5]</code></td><td>2</td></tr>
+  <tr><td>24</td><td>unsafe (3,2), (3,3); remove (2,3)</td><td><code>[2, 0]</code></td><td><code>[0, 2]</code></td><td><code>[-2, 1]</code></td><td><code>[1, 2]</code></td><td>2</td></tr>
+  <tr><td>25</td><td>remove (1,0)</td><td><code>[2]</code></td><td><code>[2]</code></td><td><code>[-2]</code></td><td><code>[2]</code></td><td>2</td></tr>
+  <tr><td>26</td><td>unsafe (1,1), (1,2), (1,3); remove (0,2)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>2</td></tr>
+  <tr><td>27</td><td>place (0,3)</td><td><code>[3]</code></td><td><code>[3]</code></td><td><code>[-3]</code></td><td><code>[3]</code></td><td>2</td></tr>
+  <tr><td>28</td><td>place (1,0)</td><td><code>[3, 0]</code></td><td><code>[0, 3]</code></td><td><code>[-3, 1]</code></td><td><code>[1, 3]</code></td><td>2</td></tr>
+  <tr><td>29</td><td>unsafe (2,0), (2,1); place (2,2)</td><td><code>[3, 0, 2]</code></td><td><code>[0, 2, 3]</code></td><td><code>[-3, 0, 1]</code></td><td><code>[1, 3, 4]</code></td><td>2</td></tr>
+  <tr><td>30</td><td>unsafe (3,0), (3,1), (3,2), (3,3); remove (2,2)</td><td><code>[3, 0]</code></td><td><code>[0, 3]</code></td><td><code>[-3, 1]</code></td><td><code>[1, 3]</code></td><td>2</td></tr>
+  <tr><td>31</td><td>unsafe (2,3); remove (1,0)</td><td><code>[3]</code></td><td><code>[3]</code></td><td><code>[-3]</code></td><td><code>[3]</code></td><td>2</td></tr>
+  <tr><td>32</td><td>place (1,1)</td><td><code>[3, 1]</code></td><td><code>[1, 3]</code></td><td><code>[-3, 0]</code></td><td><code>[2, 3]</code></td><td>2</td></tr>
+  <tr><td>33</td><td>unsafe (2,0), (2,1), (2,2), (2,3); remove (1,1)</td><td><code>[3]</code></td><td><code>[3]</code></td><td><code>[-3]</code></td><td><code>[3]</code></td><td>2</td></tr>
+  <tr><td>34</td><td>unsafe (1,2), (1,3); remove (0,3)</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>2</td></tr>
+  <tr class="final"><td>35</td><td>row 0 exhausted &rarr; return</td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td><code>[]</code></td><td>2</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"place items on a board / in slots so that no two conflict, return every arrangement"</b>? Fill one slot at a time, keep a set for each kind of conflict, and check before you place.
+<p><a href="04_partition_and_placement_lesson.html">→ Partition and Placement: the pattern lesson and Palindrome Partitioning, the other problem that uses it</a></p></div>
+</div>
+<script>
+"use strict";
+var N=4;
+var BR=[{"title": "Initial state", "cap": "4! = 24 permutations. perm[r] = column of row r's queen, so rows and columns never clash; only diagonals need checking.", "perm": null, "d": [], "a": [], "ok": null, "count": 0}, {"title": "perm 1 / 24", "cap": "perm = [0, 1, 2, 3]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [0, 1, 2, 3], "d": [0, 0, 0, 0], "a": [0, 2, 4, 6], "ok": false, "count": 0}, {"title": "perm 2 / 24", "cap": "perm = [0, 1, 3, 2]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [0, 1, 3, 2], "d": [0, 0, -1, 1], "a": [0, 2, 5, 5], "ok": false, "count": 0}, {"title": "perm 3 / 24", "cap": "perm = [0, 2, 1, 3]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [0, 2, 1, 3], "d": [0, -1, 1, 0], "a": [0, 3, 3, 6], "ok": false, "count": 0}, {"title": "perm 4 / 24", "cap": "perm = [0, 2, 3, 1]: r-c = -1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [0, 2, 3, 1], "d": [0, -1, -1, 2], "a": [0, 3, 5, 4], "ok": false, "count": 0}, {"title": "perm 5 / 24", "cap": "perm = [0, 3, 1, 2]: r-c = 1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [0, 3, 1, 2], "d": [0, -2, 1, 1], "a": [0, 4, 3, 5], "ok": false, "count": 0}, {"title": "perm 6 / 24", "cap": "perm = [0, 3, 2, 1]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [0, 3, 2, 1], "d": [0, -2, 0, 2], "a": [0, 4, 4, 4], "ok": false, "count": 0}, {"title": "perm 7 / 24", "cap": "perm = [1, 0, 2, 3]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [1, 0, 2, 3], "d": [-1, 1, 0, 0], "a": [1, 1, 4, 6], "ok": false, "count": 0}, {"title": "perm 8 / 24", "cap": "perm = [1, 0, 3, 2]: r-c = -1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [1, 0, 3, 2], "d": [-1, 1, -1, 1], "a": [1, 1, 5, 5], "ok": false, "count": 0}, {"title": "perm 9 / 24", "cap": "perm = [1, 2, 0, 3]: r-c = -1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [1, 2, 0, 3], "d": [-1, -1, 2, 0], "a": [1, 3, 2, 6], "ok": false, "count": 0}, {"title": "perm 10 / 24", "cap": "perm = [1, 2, 3, 0]: r-c = -1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [1, 2, 3, 0], "d": [-1, -1, -1, 3], "a": [1, 3, 5, 3], "ok": false, "count": 0}, {"title": "perm 11 / 24", "cap": "perm = [1, 3, 0, 2]: all r-c distinct and all r+c distinct &rarr; <b>valid board<\/b>.", "perm": [1, 3, 0, 2], "d": [-1, -2, 2, 1], "a": [1, 4, 2, 5], "ok": true, "count": 1}, {"title": "perm 12 / 24", "cap": "perm = [1, 3, 2, 0]: r+c = 4 appears twice (shared / diagonal) &rarr; reject.", "perm": [1, 3, 2, 0], "d": [-1, -2, 0, 3], "a": [1, 4, 4, 3], "ok": false, "count": 1}, {"title": "perm 13 / 24", "cap": "perm = [2, 0, 1, 3]: r-c = 1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [2, 0, 1, 3], "d": [-2, 1, 1, 0], "a": [2, 1, 3, 6], "ok": false, "count": 1}, {"title": "perm 14 / 24", "cap": "perm = [2, 0, 3, 1]: all r-c distinct and all r+c distinct &rarr; <b>valid board<\/b>.", "perm": [2, 0, 3, 1], "d": [-2, 1, -1, 2], "a": [2, 1, 5, 4], "ok": true, "count": 2}, {"title": "perm 15 / 24", "cap": "perm = [2, 1, 0, 3]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [2, 1, 0, 3], "d": [-2, 0, 2, 0], "a": [2, 2, 2, 6], "ok": false, "count": 2}, {"title": "perm 16 / 24", "cap": "perm = [2, 1, 3, 0]: r+c = 2 appears twice (shared / diagonal) &rarr; reject.", "perm": [2, 1, 3, 0], "d": [-2, 0, -1, 3], "a": [2, 2, 5, 3], "ok": false, "count": 2}, {"title": "perm 17 / 24", "cap": "perm = [2, 3, 0, 1]: r-c = -2 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [2, 3, 0, 1], "d": [-2, -2, 2, 2], "a": [2, 4, 2, 4], "ok": false, "count": 2}, {"title": "perm 18 / 24", "cap": "perm = [2, 3, 1, 0]: r-c = -2 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [2, 3, 1, 0], "d": [-2, -2, 1, 3], "a": [2, 4, 3, 3], "ok": false, "count": 2}, {"title": "perm 19 / 24", "cap": "perm = [3, 0, 1, 2]: r-c = 1 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [3, 0, 1, 2], "d": [-3, 1, 1, 1], "a": [3, 1, 3, 5], "ok": false, "count": 2}, {"title": "perm 20 / 24", "cap": "perm = [3, 0, 2, 1]: r+c = 4 appears twice (shared / diagonal) &rarr; reject.", "perm": [3, 0, 2, 1], "d": [-3, 1, 0, 2], "a": [3, 1, 4, 4], "ok": false, "count": 2}, {"title": "perm 21 / 24", "cap": "perm = [3, 1, 0, 2]: r+c = 2 appears twice (shared / diagonal) &rarr; reject.", "perm": [3, 1, 0, 2], "d": [-3, 0, 2, 1], "a": [3, 2, 2, 5], "ok": false, "count": 2}, {"title": "perm 22 / 24", "cap": "perm = [3, 1, 2, 0]: r-c = 0 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [3, 1, 2, 0], "d": [-3, 0, 0, 3], "a": [3, 2, 4, 3], "ok": false, "count": 2}, {"title": "perm 23 / 24", "cap": "perm = [3, 2, 0, 1]: r-c = 2 appears twice (shared \\ diagonal) &rarr; reject.", "perm": [3, 2, 0, 1], "d": [-3, -1, 2, 2], "a": [3, 3, 2, 4], "ok": false, "count": 2}, {"title": "perm 24 / 24", "cap": "perm = [3, 2, 1, 0]: r+c = 3 appears twice (shared / diagonal) &rarr; reject.", "perm": [3, 2, 1, 0], "d": [-3, -1, 1, 3], "a": [3, 3, 3, 3], "ok": false, "count": 2}];
+var SC=[{"title": "Initial state", "cap": "Row 0 needs a queen. <code>queens = []<\/code>.", "cur": null, "blocked": [], "queens": [], "count": 0, "act": "init"}, {"title": "Row 0: place at column 0", "cap": "(0,0): scanned 0 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 1.", "cur": [0, 0], "blocked": [], "queens": [0], "count": 0, "act": "place"}, {"title": "Row 1: place at column 2", "cap": "(1,0) hits the column of (0,0); (1,1) hits the diagonal of (0,0). (1,2): scanned 1 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 2.", "cur": [1, 2], "blocked": [[1, 0, "column of (0,0)"], [1, 1, "diagonal of (0,0)"]], "queens": [0, 2], "count": 0, "act": "place"}, {"title": "Row 2 blocked: pop (1,2)", "cap": "(2,0) hits the column of (0,0); (2,1) hits the diagonal of (1,2); (2,2) hits the diagonal of (0,0); (2,3) hits the diagonal of (1,2). Row 2 has no safe column left: dead end. <b>Pop<\/b> the queen at (1,2).", "cur": [1, 2], "blocked": [[2, 0, "column of (0,0)"], [2, 1, "diagonal of (1,2)"], [2, 2, "diagonal of (0,0)"], [2, 3, "diagonal of (1,2)"]], "queens": [0], "count": 0, "act": "remove"}, {"title": "Row 1: place at column 3", "cap": "(1,3): scanned 1 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 2.", "cur": [1, 3], "blocked": [], "queens": [0, 3], "count": 0, "act": "place"}, {"title": "Row 2: place at column 1", "cap": "(2,0) hits the column of (0,0). (2,1): scanned 2 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 3.", "cur": [2, 1], "blocked": [[2, 0, "column of (0,0)"]], "queens": [0, 3, 1], "count": 0, "act": "place"}, {"title": "Row 3 blocked: pop (2,1)", "cap": "(3,0) hits the column of (0,0); (3,1) hits the diagonal of (1,3); (3,2) hits the diagonal of (2,1); (3,3) hits the diagonal of (0,0). Row 3 has no safe column left: dead end. <b>Pop<\/b> the queen at (2,1).", "cur": [2, 1], "blocked": [[3, 0, "column of (0,0)"], [3, 1, "diagonal of (1,3)"], [3, 2, "diagonal of (2,1)"], [3, 3, "diagonal of (0,0)"]], "queens": [0, 3], "count": 0, "act": "remove"}, {"title": "Row 2 blocked: pop (1,3)", "cap": "(2,2) hits the diagonal of (0,0); (2,3) hits the column of (1,3). Row 2 has no safe column left: dead end. <b>Pop<\/b> the queen at (1,3).", "cur": [1, 3], "blocked": [[2, 2, "diagonal of (0,0)"], [2, 3, "column of (1,3)"]], "queens": [0], "count": 0, "act": "remove"}, {"title": "Pop (0,0)", "cap": "Back from row 1: <b>pop<\/b> the queen at (0,0), try the next column.", "cur": [0, 0], "blocked": [], "queens": [], "count": 0, "act": "remove"}, {"title": "Row 0: place at column 1", "cap": "(0,1): scanned 0 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 1.", "cur": [0, 1], "blocked": [], "queens": [1], "count": 0, "act": "place"}, {"title": "Row 1: place at column 3", "cap": "(1,0) hits the diagonal of (0,1); (1,1) hits the column of (0,1); (1,2) hits the diagonal of (0,1). (1,3): scanned 1 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 2.", "cur": [1, 3], "blocked": [[1, 0, "diagonal of (0,1)"], [1, 1, "column of (0,1)"], [1, 2, "diagonal of (0,1)"]], "queens": [1, 3], "count": 0, "act": "place"}, {"title": "Row 2: place at column 0", "cap": "(2,0): scanned 2 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 3.", "cur": [2, 0], "blocked": [], "queens": [1, 3, 0], "count": 0, "act": "place"}, {"title": "Row 3: place at column 2", "cap": "(3,0) hits the column of (2,0); (3,1) hits the column of (0,1). (3,2): scanned 3 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 4.", "cur": [3, 2], "blocked": [[3, 0, "column of (2,0)"], [3, 1, "column of (0,1)"]], "queens": [1, 3, 0, 2], "count": 0, "act": "place"}, {"title": "Solution 1 found", "cap": "All 4 rows filled &rarr; <b>record<\/b> board #1 (columns [1, 3, 0, 2]).", "cur": null, "blocked": [], "queens": [1, 3, 0, 2], "count": 1, "act": "found"}, {"title": "Pop (3,2)", "cap": "Back from row 4: <b>pop<\/b> the queen at (3,2), try the next column.", "cur": [3, 2], "blocked": [], "queens": [1, 3, 0], "count": 1, "act": "remove"}, {"title": "Row 3 blocked: pop (2,0)", "cap": "(3,3) hits the column of (1,3). Row 3 has no safe column left: dead end. <b>Pop<\/b> the queen at (2,0).", "cur": [2, 0], "blocked": [[3, 3, "column of (1,3)"]], "queens": [1, 3], "count": 1, "act": "remove"}, {"title": "Row 2 blocked: pop (1,3)", "cap": "(2,1) hits the column of (0,1); (2,2) hits the diagonal of (1,3); (2,3) hits the diagonal of (0,1). Row 2 has no safe column left: dead end. <b>Pop<\/b> the queen at (1,3).", "cur": [1, 3], "blocked": [[2, 1, "column of (0,1)"], [2, 2, "diagonal of (1,3)"], [2, 3, "diagonal of (0,1)"]], "queens": [1], "count": 1, "act": "remove"}, {"title": "Pop (0,1)", "cap": "Back from row 1: <b>pop<\/b> the queen at (0,1), try the next column.", "cur": [0, 1], "blocked": [], "queens": [], "count": 1, "act": "remove"}, {"title": "Row 0: place at column 2", "cap": "(0,2): scanned 0 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 1.", "cur": [0, 2], "blocked": [], "queens": [2], "count": 1, "act": "place"}, {"title": "Row 1: place at column 0", "cap": "(1,0): scanned 1 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 2.", "cur": [1, 0], "blocked": [], "queens": [2, 0], "count": 1, "act": "place"}, {"title": "Row 2: place at column 3", "cap": "(2,0) hits the diagonal of (0,2); (2,1) hits the diagonal of (1,0); (2,2) hits the column of (0,2). (2,3): scanned 2 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 3.", "cur": [2, 3], "blocked": [[2, 0, "diagonal of (0,2)"], [2, 1, "diagonal of (1,0)"], [2, 2, "column of (0,2)"]], "queens": [2, 0, 3], "count": 1, "act": "place"}, {"title": "Row 3: place at column 1", "cap": "(3,0) hits the column of (1,0). (3,1): scanned 3 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 4.", "cur": [3, 1], "blocked": [[3, 0, "column of (1,0)"]], "queens": [2, 0, 3, 1], "count": 1, "act": "place"}, {"title": "Solution 2 found", "cap": "All 4 rows filled &rarr; <b>record<\/b> board #2 (columns [2, 0, 3, 1]).", "cur": null, "blocked": [], "queens": [2, 0, 3, 1], "count": 2, "act": "found"}, {"title": "Pop (3,1)", "cap": "Back from row 4: <b>pop<\/b> the queen at (3,1), try the next column.", "cur": [3, 1], "blocked": [], "queens": [2, 0, 3], "count": 2, "act": "remove"}, {"title": "Row 3 blocked: pop (2,3)", "cap": "(3,2) hits the column of (0,2); (3,3) hits the column of (2,3). Row 3 has no safe column left: dead end. <b>Pop<\/b> the queen at (2,3).", "cur": [2, 3], "blocked": [[3, 2, "column of (0,2)"], [3, 3, "column of (2,3)"]], "queens": [2, 0], "count": 2, "act": "remove"}, {"title": "Pop (1,0)", "cap": "Back from row 2: <b>pop<\/b> the queen at (1,0), try the next column.", "cur": [1, 0], "blocked": [], "queens": [2], "count": 2, "act": "remove"}, {"title": "Row 1 blocked: pop (0,2)", "cap": "(1,1) hits the diagonal of (0,2); (1,2) hits the column of (0,2); (1,3) hits the diagonal of (0,2). Row 1 has no safe column left: dead end. <b>Pop<\/b> the queen at (0,2).", "cur": [0, 2], "blocked": [[1, 1, "diagonal of (0,2)"], [1, 2, "column of (0,2)"], [1, 3, "diagonal of (0,2)"]], "queens": [], "count": 2, "act": "remove"}, {"title": "Row 0: place at column 3", "cap": "(0,3): scanned 0 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 1.", "cur": [0, 3], "blocked": [], "queens": [3], "count": 2, "act": "place"}, {"title": "Row 1: place at column 0", "cap": "(1,0): scanned 1 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 2.", "cur": [1, 0], "blocked": [], "queens": [3, 0], "count": 2, "act": "place"}, {"title": "Row 2: place at column 2", "cap": "(2,0) hits the column of (1,0); (2,1) hits the diagonal of (0,3). (2,2): scanned 2 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 3.", "cur": [2, 2], "blocked": [[2, 0, "column of (1,0)"], [2, 1, "diagonal of (0,3)"]], "queens": [3, 0, 2], "count": 2, "act": "place"}, {"title": "Row 3 blocked: pop (2,2)", "cap": "(3,0) hits the diagonal of (0,3); (3,1) hits the diagonal of (2,2); (3,2) hits the diagonal of (1,0); (3,3) hits the column of (0,3). Row 3 has no safe column left: dead end. <b>Pop<\/b> the queen at (2,2).", "cur": [2, 2], "blocked": [[3, 0, "diagonal of (0,3)"], [3, 1, "diagonal of (2,2)"], [3, 2, "diagonal of (1,0)"], [3, 3, "column of (0,3)"]], "queens": [3, 0], "count": 2, "act": "remove"}, {"title": "Row 2 blocked: pop (1,0)", "cap": "(2,3) hits the column of (0,3). Row 2 has no safe column left: dead end. <b>Pop<\/b> the queen at (1,0).", "cur": [1, 0], "blocked": [[2, 3, "column of (0,3)"]], "queens": [3], "count": 2, "act": "remove"}, {"title": "Row 1: place at column 1", "cap": "(1,1): scanned 1 queen(s) above, no clash &rarr; <b>place<\/b>, recurse to row 2.", "cur": [1, 1], "blocked": [], "queens": [3, 1], "count": 2, "act": "place"}, {"title": "Row 2 blocked: pop (1,1)", "cap": "(2,0) hits the diagonal of (1,1); (2,1) hits the diagonal of (0,3); (2,2) hits the diagonal of (1,1); (2,3) hits the column of (0,3). Row 2 has no safe column left: dead end. <b>Pop<\/b> the queen at (1,1).", "cur": [1, 1], "blocked": [[2, 0, "diagonal of (1,1)"], [2, 1, "diagonal of (0,3)"], [2, 2, "diagonal of (1,1)"], [2, 3, "column of (0,3)"]], "queens": [3], "count": 2, "act": "remove"}, {"title": "Row 1 blocked: pop (0,3)", "cap": "(1,2) hits the diagonal of (0,3); (1,3) hits the column of (0,3). Row 1 has no safe column left: dead end. <b>Pop<\/b> the queen at (0,3).", "cur": [0, 3], "blocked": [[1, 2, "diagonal of (0,3)"], [1, 3, "column of (0,3)"]], "queens": [], "count": 2, "act": "remove"}, {"title": "Return", "cap": "Every column of row 0 tried. Return the <b>2 boards<\/b>.", "cur": null, "blocked": [], "queens": [], "count": 2, "act": "done"}];
+var ST=[{"title": "Initial state", "cap": "Call <code>backtrack(0)<\/code>: row 0 needs a queen. All sets empty.", "cur": null, "blocked": [], "lines": [2, 3, 14], "act": "init", "queens": [], "cols": [], "diag": [], "anti": [], "count": 0, "found": []}, {"title": "Row 0: place at column 0", "cap": "(0,0) is safe &rarr; <b>place<\/b> a queen, add c=0, r-c=0, r+c=0, recurse to row 1.", "cur": [0, 0], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [0], "cols": [0], "diag": [0], "anti": [0], "count": 0, "found": []}, {"title": "Row 1: place at column 2", "cap": "(1,0) blocked by column; (1,1) blocked by \\ diagonal (r-c). (1,2) is safe &rarr; <b>place<\/b> a queen, add c=2, r-c=-1, r+c=3, recurse to row 2.", "cur": [1, 2], "blocked": [[1, 0, "col"], [1, 1, "diag"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [0, 2], "cols": [0, 2], "diag": [-1, 0], "anti": [0, 3], "count": 0, "found": []}, {"title": "Row 2 blocked: remove (1,2)", "cap": "(2,0) blocked by column; (2,1) blocked by / diagonal (r+c); (2,2) blocked by column; (2,3) blocked by \\ diagonal (r-c). Row 2 has no safe column left: dead end. Back in row 1: <b>remove<\/b> the queen at (1,2) from the board and all three sets.", "cur": [1, 2], "blocked": [[2, 0, "col"], [2, 1, "anti"], [2, 2, "col"], [2, 3, "diag"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [0], "cols": [0], "diag": [0], "anti": [0], "count": 0, "found": []}, {"title": "Row 1: place at column 3", "cap": "(1,3) is safe &rarr; <b>place<\/b> a queen, add c=3, r-c=-2, r+c=4, recurse to row 2.", "cur": [1, 3], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [0, 3], "cols": [0, 3], "diag": [-2, 0], "anti": [0, 4], "count": 0, "found": []}, {"title": "Row 2: place at column 1", "cap": "(2,0) blocked by column. (2,1) is safe &rarr; <b>place<\/b> a queen, add c=1, r-c=1, r+c=3, recurse to row 3.", "cur": [2, 1], "blocked": [[2, 0, "col"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [0, 3, 1], "cols": [0, 1, 3], "diag": [-2, 0, 1], "anti": [0, 3, 4], "count": 0, "found": []}, {"title": "Row 3 blocked: remove (2,1)", "cap": "(3,0) blocked by column; (3,1) blocked by column; (3,2) blocked by \\ diagonal (r-c); (3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: <b>remove<\/b> the queen at (2,1) from the board and all three sets.", "cur": [2, 1], "blocked": [[3, 0, "col"], [3, 1, "col"], [3, 2, "diag"], [3, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [0, 3], "cols": [0, 3], "diag": [-2, 0], "anti": [0, 4], "count": 0, "found": []}, {"title": "Row 2 blocked: remove (1,3)", "cap": "(2,2) blocked by \\ diagonal (r-c); (2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: <b>remove<\/b> the queen at (1,3) from the board and all three sets.", "cur": [1, 3], "blocked": [[2, 2, "diag"], [2, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [0], "cols": [0], "diag": [0], "anti": [0], "count": 0, "found": []}, {"title": "Remove (0,0)", "cap": "Back from row 1: <b>remove<\/b> the queen at (0,0) and try the next column of row 0.", "cur": [0, 0], "blocked": [], "lines": [13], "act": "remove", "queens": [], "cols": [], "diag": [], "anti": [], "count": 0, "found": []}, {"title": "Row 0: place at column 1", "cap": "(0,1) is safe &rarr; <b>place<\/b> a queen, add c=1, r-c=-1, r+c=1, recurse to row 1.", "cur": [0, 1], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [1], "cols": [1], "diag": [-1], "anti": [1], "count": 0, "found": []}, {"title": "Row 1: place at column 3", "cap": "(1,0) blocked by / diagonal (r+c); (1,1) blocked by column; (1,2) blocked by \\ diagonal (r-c). (1,3) is safe &rarr; <b>place<\/b> a queen, add c=3, r-c=-2, r+c=4, recurse to row 2.", "cur": [1, 3], "blocked": [[1, 0, "anti"], [1, 1, "col"], [1, 2, "diag"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [1, 3], "cols": [1, 3], "diag": [-2, -1], "anti": [1, 4], "count": 0, "found": []}, {"title": "Row 2: place at column 0", "cap": "(2,0) is safe &rarr; <b>place<\/b> a queen, add c=0, r-c=2, r+c=2, recurse to row 3.", "cur": [2, 0], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [1, 3, 0], "cols": [0, 1, 3], "diag": [-2, -1, 2], "anti": [1, 2, 4], "count": 0, "found": []}, {"title": "Row 3: place at column 2", "cap": "(3,0) blocked by column; (3,1) blocked by column. (3,2) is safe &rarr; <b>place<\/b> a queen, add c=2, r-c=1, r+c=5, recurse to row 4.", "cur": [3, 2], "blocked": [[3, 0, "col"], [3, 1, "col"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [1, 3, 0, 2], "cols": [0, 1, 2, 3], "diag": [-2, -1, 1, 2], "anti": [1, 2, 4, 5], "count": 0, "found": []}, {"title": "Solution 1 found", "cap": "r = 4: every row has a queen &rarr; <b>record<\/b> board #1 (columns [1, 3, 0, 2]).", "cur": null, "blocked": [], "lines": [5, 6, 7], "act": "found", "queens": [1, 3, 0, 2], "cols": [0, 1, 2, 3], "diag": [-2, -1, 1, 2], "anti": [1, 2, 4, 5], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Remove (3,2)", "cap": "Back from row 4: <b>remove<\/b> the queen at (3,2) and try the next column of row 3.", "cur": [3, 2], "blocked": [], "lines": [13], "act": "remove", "queens": [1, 3, 0], "cols": [0, 1, 3], "diag": [-2, -1, 2], "anti": [1, 2, 4], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Row 3 blocked: remove (2,0)", "cap": "(3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: <b>remove<\/b> the queen at (2,0) from the board and all three sets.", "cur": [2, 0], "blocked": [[3, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [1, 3], "cols": [1, 3], "diag": [-2, -1], "anti": [1, 4], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Row 2 blocked: remove (1,3)", "cap": "(2,1) blocked by column; (2,2) blocked by / diagonal (r+c); (2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: <b>remove<\/b> the queen at (1,3) from the board and all three sets.", "cur": [1, 3], "blocked": [[2, 1, "col"], [2, 2, "anti"], [2, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [1], "cols": [1], "diag": [-1], "anti": [1], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Remove (0,1)", "cap": "Back from row 1: <b>remove<\/b> the queen at (0,1) and try the next column of row 0.", "cur": [0, 1], "blocked": [], "lines": [13], "act": "remove", "queens": [], "cols": [], "diag": [], "anti": [], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Row 0: place at column 2", "cap": "(0,2) is safe &rarr; <b>place<\/b> a queen, add c=2, r-c=-2, r+c=2, recurse to row 1.", "cur": [0, 2], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [2], "cols": [2], "diag": [-2], "anti": [2], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Row 1: place at column 0", "cap": "(1,0) is safe &rarr; <b>place<\/b> a queen, add c=0, r-c=1, r+c=1, recurse to row 2.", "cur": [1, 0], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [2, 0], "cols": [0, 2], "diag": [-2, 1], "anti": [1, 2], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Row 2: place at column 3", "cap": "(2,0) blocked by column; (2,1) blocked by \\ diagonal (r-c); (2,2) blocked by column. (2,3) is safe &rarr; <b>place<\/b> a queen, add c=3, r-c=-1, r+c=5, recurse to row 3.", "cur": [2, 3], "blocked": [[2, 0, "col"], [2, 1, "diag"], [2, 2, "col"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [2, 0, 3], "cols": [0, 2, 3], "diag": [-2, -1, 1], "anti": [1, 2, 5], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Row 3: place at column 1", "cap": "(3,0) blocked by column. (3,1) is safe &rarr; <b>place<\/b> a queen, add c=1, r-c=2, r+c=4, recurse to row 4.", "cur": [3, 1], "blocked": [[3, 0, "col"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [2, 0, 3, 1], "cols": [0, 1, 2, 3], "diag": [-2, -1, 1, 2], "anti": [1, 2, 4, 5], "count": 1, "found": [[1, 3, 0, 2]]}, {"title": "Solution 2 found", "cap": "r = 4: every row has a queen &rarr; <b>record<\/b> board #2 (columns [2, 0, 3, 1]).", "cur": null, "blocked": [], "lines": [5, 6, 7], "act": "found", "queens": [2, 0, 3, 1], "cols": [0, 1, 2, 3], "diag": [-2, -1, 1, 2], "anti": [1, 2, 4, 5], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Remove (3,1)", "cap": "Back from row 4: <b>remove<\/b> the queen at (3,1) and try the next column of row 3.", "cur": [3, 1], "blocked": [], "lines": [13], "act": "remove", "queens": [2, 0, 3], "cols": [0, 2, 3], "diag": [-2, -1, 1], "anti": [1, 2, 5], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 3 blocked: remove (2,3)", "cap": "(3,2) blocked by column; (3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: <b>remove<\/b> the queen at (2,3) from the board and all three sets.", "cur": [2, 3], "blocked": [[3, 2, "col"], [3, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [2, 0], "cols": [0, 2], "diag": [-2, 1], "anti": [1, 2], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Remove (1,0)", "cap": "Back from row 2: <b>remove<\/b> the queen at (1,0) and try the next column of row 1.", "cur": [1, 0], "blocked": [], "lines": [13], "act": "remove", "queens": [2], "cols": [2], "diag": [-2], "anti": [2], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 1 blocked: remove (0,2)", "cap": "(1,1) blocked by / diagonal (r+c); (1,2) blocked by column; (1,3) blocked by \\ diagonal (r-c). Row 1 has no safe column left: dead end. Back in row 0: <b>remove<\/b> the queen at (0,2) from the board and all three sets.", "cur": [0, 2], "blocked": [[1, 1, "anti"], [1, 2, "col"], [1, 3, "diag"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [], "cols": [], "diag": [], "anti": [], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 0: place at column 3", "cap": "(0,3) is safe &rarr; <b>place<\/b> a queen, add c=3, r-c=-3, r+c=3, recurse to row 1.", "cur": [0, 3], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [3], "cols": [3], "diag": [-3], "anti": [3], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 1: place at column 0", "cap": "(1,0) is safe &rarr; <b>place<\/b> a queen, add c=0, r-c=1, r+c=1, recurse to row 2.", "cur": [1, 0], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [3, 0], "cols": [0, 3], "diag": [-3, 1], "anti": [1, 3], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 2: place at column 2", "cap": "(2,0) blocked by column; (2,1) blocked by \\ diagonal (r-c). (2,2) is safe &rarr; <b>place<\/b> a queen, add c=2, r-c=0, r+c=4, recurse to row 3.", "cur": [2, 2], "blocked": [[2, 0, "col"], [2, 1, "diag"]], "lines": [8, 9, 10, 11, 12], "act": "place", "queens": [3, 0, 2], "cols": [0, 2, 3], "diag": [-3, 0, 1], "anti": [1, 3, 4], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 3 blocked: remove (2,2)", "cap": "(3,0) blocked by column; (3,1) blocked by / diagonal (r+c); (3,2) blocked by column; (3,3) blocked by column. Row 3 has no safe column left: dead end. Back in row 2: <b>remove<\/b> the queen at (2,2) from the board and all three sets.", "cur": [2, 2], "blocked": [[3, 0, "col"], [3, 1, "anti"], [3, 2, "col"], [3, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [3, 0], "cols": [0, 3], "diag": [-3, 1], "anti": [1, 3], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 2 blocked: remove (1,0)", "cap": "(2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: <b>remove<\/b> the queen at (1,0) from the board and all three sets.", "cur": [1, 0], "blocked": [[2, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [3], "cols": [3], "diag": [-3], "anti": [3], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 1: place at column 1", "cap": "(1,1) is safe &rarr; <b>place<\/b> a queen, add c=1, r-c=0, r+c=2, recurse to row 2.", "cur": [1, 1], "blocked": [], "lines": [8, 9, 11, 12], "act": "place", "queens": [3, 1], "cols": [1, 3], "diag": [-3, 0], "anti": [2, 3], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 2 blocked: remove (1,1)", "cap": "(2,0) blocked by / diagonal (r+c); (2,1) blocked by column; (2,2) blocked by \\ diagonal (r-c); (2,3) blocked by column. Row 2 has no safe column left: dead end. Back in row 1: <b>remove<\/b> the queen at (1,1) from the board and all three sets.", "cur": [1, 1], "blocked": [[2, 0, "anti"], [2, 1, "col"], [2, 2, "diag"], [2, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [3], "cols": [3], "diag": [-3], "anti": [3], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Row 1 blocked: remove (0,3)", "cap": "(1,2) blocked by / diagonal (r+c); (1,3) blocked by column. Row 1 has no safe column left: dead end. Back in row 0: <b>remove<\/b> the queen at (0,3) from the board and all three sets.", "cur": [0, 3], "blocked": [[1, 2, "anti"], [1, 3, "col"]], "lines": [8, 9, 10, 13], "act": "remove", "queens": [], "cols": [], "diag": [], "anti": [], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}, {"title": "Return", "cap": "Every column of row 0 has been tried. Return the <b>2 boards<\/b>.", "cur": null, "blocked": [], "lines": [15], "act": "done", "queens": [], "cols": [], "diag": [], "anti": [], "count": 2, "found": [[1, 3, 0, 2], [2, 0, 3, 1]]}];
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function boardStr(cols){ return '['+cols.map(function(c){ var s=''; for(var j=0;j<N;j++) s+=(j===c?'Q':'.'); return '"'+s+'"'; }).join(',')+']'; }
+function boards(list){ return list.map(function(b){ return {text:boardStr(b),cls:'look'}; }); }
+
+/* Board drawing. o.queens[r] = column (rows without a queen are absent), o.bad = [[r,c],...] red squares,
+   o.cur = [r,c] outlined square, o.att = shade squares attacked by the queens, o.label = function(r,c) -> small text. */
+function drawBoard(id, o){
+  var q=o.queens||[], h='<div class="bwrap"><div class="board" style="grid-template-columns:28px repeat('+N+',46px)"><div></div>';
+  for(var c=0;c<N;c++) h+='<div class="bhead">c='+c+'</div>';
+  for(var r=0;r<N;r++){
+    h+='<div class="bhead" style="width:28px">r='+r+'</div>';
+    for(var c=0;c<N;c++){
+      var cls='', txt='';
+      var isQ=q[r]===c;
+      if(o.att && !isQ){ for(var pr=0;pr<q.length;pr++){ var pc=q[pr]; if(pc===undefined) continue;
+        if(pc===c||pr-pc===r-c||pr+pc===r+c){ cls='att'; break; } } }
+      if(o.hl && o.hl(r,c)) cls='hi';
+      if(isQ){ cls=(o.badQ&&o.badQ.indexOf(r)>=0)?'bad':'good'; txt='Q'; }
+      (o.bad||[]).forEach(function(b){ if(b[0]===r&&b[1]===c){ cls='bad'; txt='<span class="sm">x</span>'; } });
+      if(!txt && o.label) txt='<span class="sm">'+o.label(r,c)+'</span>';
+      if(o.cur && o.cur[0]===r && o.cur[1]===c) cls+=' cur';
+      h+='<div class="gcell '+cls+'">'+txt+'</div>';
+    }
+  }
+  document.getElementById(id).innerHTML=h+'</div></div>';
+}
+
+/* Problem demo: attacks and diagonal ids. The two answers are the ones Solution 3 finds. */
+var SOL=ST[ST.length-1].found;
+makePlayer('pd',[
+  {cap:'An empty 4 &times; 4 board. We need 4 queens, so every row must hold exactly one.', o:{}},
+  {cap:'A queen on (1, 1) attacks every shaded square: her row, her column, and both diagonals.', o:{queens:[undefined,1],att:true}},
+  {cap:'Each square shows <code>r − c</code>. The <code>\\</code> diagonal through (1, 1) is every square with <code>r − c = 0</code>.', o:{queens:[undefined,1],label:function(r,c){return r-c;},hl:function(r,c){return r-c===0&&!(r===1&&c===1);}}},
+  {cap:'Each square shows <code>r + c</code>. The <code>/</code> diagonal through (1, 1) is every square with <code>r + c = 2</code>.', o:{queens:[undefined,1],label:function(r,c){return r+c;},hl:function(r,c){return r+c===2&&!(r===1&&c===1);}}},
+  {cap:'Answer 1: columns '+JSON.stringify(SOL[0])+' &rarr; '+boardStr(SOL[0])+'. No queen attacks another.', o:{queens:SOL[0],att:true}},
+  {cap:'Answer 2: columns '+JSON.stringify(SOL[1])+' &rarr; '+boardStr(SOL[1])+'. That is all of them for n = 4.', o:{queens:SOL[1],att:true}}
+],function(f){ drawBoard('pd-viz',f.o); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Solution 1: one frame per permutation (solve_n_queens_brute). */
+function clashRows(f){
+  var rows=[];
+  for(var i=0;i<N;i++) for(var j=i+1;j<N;j++) if(f.d[i]===f.d[j]||f.a[i]===f.a[j]) rows.push(i,j);
+  return rows;
+}
+makePlayer('br',BR,function(f){
+  drawBoard('br-viz',{queens:f.perm||[],badQ:f.perm?clashRows(f):[]});
+  chips('br-ids', f.perm?[{text:'r − c: '+JSON.stringify(f.d)},{text:'r + c: '+JSON.stringify(f.a)}]:[]);
+  var lst=[]; for(var k=1;k<BR.length;k++){ if(BR[k].ok) lst.push(BR[k].perm); if(BR[k]===f) break; }
+  chips('br-out',f.perm?boards(lst):[]);
+  document.getElementById('br-cap').innerHTML='<b>'+f.title+'.</b> '+f.cap;
+});
+
+/* Solution 2: backtracking with a scan (solve_n_queens_scan). */
+makePlayer('sc',SC,function(f){
+  drawBoard('sc-viz',{queens:f.queens,bad:f.blocked,cur:f.cur});
+  chips('sc-q',f.queens.map(function(c,r){return {text:'row '+r+' &rarr; col '+c};}));
+  var lst=[]; for(var k=0;k<SC.length;k++){ if(SC[k].act==='found') lst.push(SC[k].queens); if(SC[k]===f) break; }
+  chips('sc-out',boards(lst));
+  document.getElementById('sc-cap').innerHTML='<b>'+f.title+'.</b> '+f.cap;
+});
+
+/* Solution 3: backtracking with three sets (solve_n_queens_sets). */
+makePlayer('st',ST,function(f){
+  drawBoard('st-viz',{queens:f.queens,bad:f.blocked,cur:f.cur,att:true});
+  chips('st-sets',[{text:'cols '+JSON.stringify(f.cols)},{text:'diag '+JSON.stringify(f.diag)},{text:'anti '+JSON.stringify(f.anti)}]);
+  chips('st-out',boards(f.found));
+  document.getElementById('st-cap').innerHTML='<b>'+f.title+'.</b> '+f.cap;
+});
+</script>
+</body></html>

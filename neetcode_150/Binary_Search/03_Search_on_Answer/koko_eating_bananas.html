@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koko Eating Bananas — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:10px 0 2px;text-align:center}
+  .row{display:flex;gap:6px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:18px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:40px;height:40px;border-radius:9px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;transition:.15s}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.dim{opacity:.3}
+  .bars{display:flex;gap:14px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:10px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:46px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:13px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .hrs{font-size:13px;font-weight:700;min-height:20px;color:var(--fg)}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="03_search_on_answer_lesson.html">← Search on Answer lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Binary Search · Search on Answer</span></div>
+<h1>875 · Koko Eating Bananas</h1>
+<p class="lead">How slowly can Koko eat and still finish before the guards come back?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Koko has a few piles of bananas and <code>h</code> hours. She picks one speed <code>k</code> (bananas per hour). Each hour she eats up to <code>k</code> bananas from <b>one</b> pile; if the pile runs out early, she rests for the rest of that hour. Find the <b>slowest</b> speed that still finishes every pile in time.</p>
+<div class="idea">Example: <code>piles = [3, 6, 7, 11]</code>, <code>h = 8</code> &rarr; <b>4</b>. At speed 4 the piles take 1 + 2 + 2 + 3 = 8 hours. At speed 3 they take 10 hours: too slow.</div>
+<div class="idea">Hours for one pile = bananas &divide; speed, <b>rounded up</b> (a half-eaten hour still costs the whole hour). In code: <code>(p + k - 1) // k</code>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>being eaten / being checked</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>fits in h hours</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>too slow</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Each bar is a pile (its height = bananas). The number under it is how many hours it takes at the current speed.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: try speed 1, 2, 3, … until one fits</h2>
+<div class="idea">Start at the slowest speed and go up one at a time. For each speed, add up the hours every pile needs. The first speed whose total is at most <code>h</code> is the answer, because every slower speed already failed.</div>
+<div class="viz" id="br-viz"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one full pass over the piles for every speed up to the biggest pile — <code>O(n·M)</code> time (<code>M</code> = biggest pile, up to 10<sup>9</sup>), <code>O(1)</code> extra memory. Measured about 4x slower per doubling when piles and speeds grow together.</p>
+<div class="trace-title">Step-by-step trace — piles = [3, 6, 7, 11], h = 8</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Try</th><th>Speed k</th><th>Hours per pile</th><th>Total hours</th><th>Total &le; 8?</th><th>Decision</th></tr>
+  <tr><td>1</td><td>1</td><td>3, 6, 7, 11</td><td>27</td><td>no</td><td class="rule">Too slow &rarr; try 2</td></tr>
+  <tr><td>2</td><td>2</td><td>2, 3, 4, 6</td><td>15</td><td>no</td><td class="rule">Too slow &rarr; try 3</td></tr>
+  <tr><td>3</td><td>3</td><td>1, 2, 3, 4</td><td>10</td><td>no</td><td class="rule">Too slow &rarr; try 4</td></tr>
+  <tr class="final"><td>4</td><td>4</td><td>1, 2, 2, 3</td><td>8</td><td>yes</td><td>First speed that fits &rarr; return 4</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — The smart way: binary search the speed</h2>
+<div class="idea">Speeds line up as <b>too slow, too slow, …, fits, fits, fits</b>: once a speed works, every faster one works too. So guess the middle speed. If it fits, the answer is that speed or slower: keep the left half <i>including</i> it (<code>hi = mid</code>). If it is too slow, the answer is faster: <code>lo = mid + 1</code>. Each check throws away half the speeds.</div>
+<div class="viz" id="bs-viz"></div>
+<div class="caption" id="bs-cap"></div>
+<div class="controls" data-player="bs"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="bs-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> about log<sub>2</sub>(biggest pile) checks (around 30 for 10<sup>9</sup>), each one pass over the piles — <code>O(n log M)</code> time, <code>O(1)</code> extra memory. Measured about 2x per doubling, against 4x for the brute force.</p>
+<div class="trace-title">Step-by-step trace — piles = [3, 6, 7, 11], h = 8</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>lo</th><th>hi</th><th>mid</th><th>Hours per pile at mid</th><th>Total</th><th>Fits (&le; 8)?</th><th>Decision</th></tr>
+  <tr><td>1</td><td>1</td><td>11</td><td>6</td><td>1, 1, 2, 2</td><td>6</td><td>yes</td><td class="rule">6 works &rarr; hi = 6</td></tr>
+  <tr><td>2</td><td>1</td><td>6</td><td>3</td><td>1, 2, 3, 4</td><td>10</td><td>no</td><td class="rule">3 too slow &rarr; lo = 4</td></tr>
+  <tr><td>3</td><td>4</td><td>6</td><td>5</td><td>1, 2, 2, 3</td><td>8</td><td>yes</td><td class="rule">5 works &rarr; hi = 5</td></tr>
+  <tr><td>4</td><td>4</td><td>5</td><td>4</td><td>1, 2, 2, 3</td><td>8</td><td>yes</td><td class="rule">4 works &rarr; hi = 4</td></tr>
+  <tr class="final"><td>5</td><td>4</td><td>4</td><td>—</td><td>—</td><td>—</td><td>—</td><td>lo == hi &rarr; return 4</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"the minimum speed / capacity / days such that you finish within a limit"</b>, a huge range of possible answers (up to 10<sup>9</sup>), and a quick way to check one guess? Binary search the answer itself, using the check to pick a half.
+<p><a href="03_search_on_answer_lesson.html">→ Search on Answer: the pattern lesson and its follow-up variants</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+
+var PILES=[3,6,7,11], H=8, MAXP=11;
+function hoursOf(p,k){ return Math.floor((p+k-1)/k); }           // same as (p + k - 1) // k
+function hoursList(k){ return PILES.map(function(p){ return hoursOf(p,k); }); }
+function sum(a){ return a.reduce(function(s,x){ return s+x; },0); }
+
+/* Piles as bars; hrs = hours under each bar (null = not computed yet); hiIdx = pile being eaten. */
+function pilesHTML(hrs, hiIdx, cls){
+  var s='<div class="bars">';
+  PILES.forEach(function(p,j){
+    var c=(j===hiIdx)?'hi':(hrs&&hrs[j]!=null?cls||'':'');
+    s+='<div class="barcell"><div class="bar '+c+'" style="height:'+(p*11+22)+'px">'+p+'</div>'+
+       '<div class="hrs">'+(hrs&&hrs[j]!=null?hrs[j]+'h':'')+'</div></div>';
+  });
+  return s+'</div>';
+}
+/* Speeds 1..MAXP as boxes; marks[k] = class; ptrs[k] = label above the box. */
+function speedsHTML(marks, ptrs){
+  var s='<div class="rowlabel">candidate speeds k (bananas per hour)</div><div class="row">';
+  for(var k=1;k<=MAXP;k++){
+    s+='<div class="cell"><div class="ptr">'+((ptrs&&ptrs[k])||'')+'</div><div class="box '+((marks&&marks[k])||'')+'">'+k+'</div></div>';
+  }
+  return s+'</div>';
+}
+function badges(list){
+  return '<div class="badges">'+list.map(function(b){ return '<span class="badge '+(b[1]||'')+'">'+b[0]+'</span>'; }).join('')+'</div>';
+}
+
+/* Problem demo: eat the piles at speed 4, then show that speed 3 is too slow. */
+var pd=[{cap:'Four piles, <b>8 hours</b>. Try speed <b>4</b> bananas per hour.', hrs:[null,null,null,null], hi:-1, b:[['speed 4'],['hours used: 0']]}];
+(function(){
+  var hrs=[null,null,null,null], used=0;
+  PILES.forEach(function(p,j){
+    hrs=hrs.slice(); hrs[j]=hoursOf(p,4); used+=hrs[j];
+    pd.push({cap:'Pile of <b>'+p+'</b> at 4 per hour takes <b>'+hrs[j]+'</b> hour'+(hrs[j]>1?'s':'')+(p%4?' (the last hour is only partly used, but still counts)':'')+'.', hrs:hrs, hi:j, b:[['speed 4'],['hours used: '+used]]});
+  });
+  pd.push({cap:'Total <b>8</b> hours &le; 8: speed 4 <b>fits</b>.', hrs:hrs, hi:-1, cls:'good', b:[['speed 4'],['hours used: 8','good']]});
+  var h3=hoursList(3);
+  pd.push({cap:'Speed <b>3</b> needs '+h3.join(' + ')+' = <b>'+sum(h3)+'</b> hours &gt; 8: too slow. So the slowest speed that fits is <b>4</b>.', hrs:h3, hi:-1, cls:'', b:[['speed 3'],['hours used: '+sum(h3),'bad']]});
+})();
+makePlayer('pd',pd,function(f){
+  document.getElementById('pd-viz').innerHTML=pilesHTML(f.hrs,f.hi,f.cls)+badges(f.b);
+  document.getElementById('pd-cap').innerHTML=f.cap;
+});
+
+/* Brute force: one frame per speed tried, computed by the same loop as min_eating_speed_brute. */
+var br=[{cap:'Try speeds from the slowest, <b>k = 1</b>, upward.', k:0, hrs:null, marks:{}}];
+(function(){
+  var marks={};
+  for(var k=1;k<=MAXP;k++){
+    var hl=hoursList(k), t=sum(hl), ok=t<=H;
+    marks=Object.assign({},marks); marks[k]=ok?'good':'bad';
+    br.push({cap:'Speed <b>'+k+'</b>: '+hl.join(' + ')+' = <b>'+t+'</b> hours. '+(ok?'&le; 8, it fits. It is the first that fits, so return <b>'+k+'</b>.':'&gt; 8, too slow. Try '+(k+1)+'.'), k:k, hrs:hl, marks:marks, total:t, ok:ok});
+    if(ok) break;
+  }
+})();
+makePlayer('br',br,function(f){
+  var ptrs={}; if(f.k) ptrs[f.k]='k';
+  document.getElementById('br-viz').innerHTML=speedsHTML(f.marks,ptrs)+pilesHTML(f.hrs,-1,f.k?(f.ok?'good':''):'')+
+    (f.k?badges([['speed '+f.k],['total '+f.total+'h',f.ok?'good':'bad']]):'');
+  document.getElementById('br-cap').innerHTML=f.cap;
+});
+
+/* Binary search: frames computed by the same loop as min_eating_speed_binary. */
+var bs=[];
+(function(){
+  var lo=1, hi=MAXP;
+  function dimOut(lo,hi){ var m={}; for(var k=1;k<=MAXP;k++) if(k<lo||k>hi) m[k]='dim'; return m; }
+  bs.push({cap:'The answer is somewhere in speeds <b>1 … 11</b> (11 = biggest pile always fits). lo = 1, hi = 11.', lo:lo, hi:hi, mid:null, marks:dimOut(lo,hi)});
+  while(lo<hi){
+    var mid=Math.floor((lo+hi)/2), hl=hoursList(mid), t=sum(hl), ok=t<=H, cap;
+    var marks=dimOut(lo,hi); marks[mid]=ok?'good':'bad';
+    if(ok){ cap='mid = '+mid+': '+hl.join(' + ')+' = <b>'+t+'</b> h &le; 8, fits. The answer is '+mid+' or slower &rarr; <b>hi = '+mid+'</b>.'; }
+    else  { cap='mid = '+mid+': '+hl.join(' + ')+' = <b>'+t+'</b> h &gt; 8, too slow, and so is every slower speed &rarr; <b>lo = '+(mid+1)+'</b>.'; }
+    bs.push({cap:cap, lo:lo, hi:hi, mid:mid, hrs:hl, total:t, ok:ok, marks:marks});
+    if(ok) hi=mid; else lo=mid+1;
+  }
+  var m=dimOut(lo,hi); m[lo]='good';
+  bs.push({cap:'lo == hi == <b>'+lo+'</b>: one speed left. It is the slowest speed that fits. Answer <b>'+lo+'</b>.', lo:lo, hi:hi, mid:null, marks:m});
+})();
+makePlayer('bs',bs,function(f){
+  var ptrs={};
+  function add(k,l){ ptrs[k]=ptrs[k]?ptrs[k]+'/'+l:l; }
+  add(f.lo,'lo'); add(f.hi,'hi'); if(f.mid!=null) add(f.mid,'mid');
+  document.getElementById('bs-viz').innerHTML=speedsHTML(f.marks,ptrs)+
+    (f.mid!=null?pilesHTML(f.hrs,-1,f.ok?'good':'')+badges([['checking speed '+f.mid],['total '+f.total+'h',f.ok?'good':'bad']]):badges([['lo = '+f.lo],['hi = '+f.hi]]));
+  document.getElementById('bs-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

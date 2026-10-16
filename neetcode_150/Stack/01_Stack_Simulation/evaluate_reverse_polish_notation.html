@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluate Reverse Polish Notation — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .edge{stroke:var(--border);stroke-width:2}
+  .tnode circle{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tnode text{fill:var(--fg);font-size:13px;font-weight:700}
+  .tnode.hi circle{fill:var(--hi);stroke:var(--hi-bd)}
+  .tnode.good circle{fill:var(--good);stroke:var(--good-bd)}
+  .tnode.bad circle{fill:var(--bad);stroke:var(--bad-bd)}
+  .tnode.seen circle{fill:var(--seen);stroke:var(--seen-bd)}
+  .tnode.dim{opacity:.28}
+  .twins{display:flex;gap:26px;flex-wrap:wrap}
+  .grid2{display:inline-grid;gap:6px;padding:6px 0}
+  .gcell{width:46px;height:46px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:var(--card);transition:.15s}
+  .gcell.hi{background:var(--hi);border-color:var(--hi-bd)} .gcell.good{background:var(--good);border-color:var(--good-bd)}
+  .gcell.dim{opacity:.3}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .box.op{border-style:dashed}
+  .box.gone{opacity:.18}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_stack_simulation_lesson.html">← Stack Simulation lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Stack · Stack Simulation</span></div>
+<h1>150 · Evaluate Reverse Polish Notation</h1>
+<p class="lead">Work out a sum written with the operator <i>after</i> its two numbers.</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Normally we write <code>2 + 1</code>. Reverse Polish Notation writes <code>2 1 +</code>: the two numbers first, then what to do with them. You get the pieces (tokens) as a list of strings. Return the final number.</p>
+<div class="idea">Example: <code>["4", "13", "5", "/", "+"]</code> means <code>4 + (13 / 5)</code> &rarr; <b>6</b>.</div>
+<div class="idea">Watch out: division drops the fraction <b>toward zero</b>. <code>13 / 5</code> is 2.6 &rarr; <b>2</b>, and <code>7 / -2</code> is -3.5 &rarr; <b>-3</b>. Python's <code>//</code> would give -4, so the notebook uses <code>int(a / b)</code>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>waiting to be used</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>result</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>operator being applied</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Each operator uses the two numbers just before it that have not been used yet.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: collapse the first operator, start over</h2>
+<div class="idea">Scan from the left until you hit the first operator. No operator came before it, so the two tokens right before it are plain numbers. Replace those three tokens with their result, then scan again from the start. Stop when one token is left.</div>
+<div class="viz" id="br-viz"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every round rescans from the left and rebuilds the list, and there is one round per operator — <code>O(n²)</code> time. <code>O(n)</code> memory for the working copy.</p>
+<div class="trace-title">Step-by-step trace — tokens = ["4", "13", "5", "/", "+"]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Round</th><th>Tokens before</th><th>First operator (index)</th><th>Tokens scanned</th><th>Collapse</th><th>Tokens after</th></tr>
+  <tr><td>1</td><td>[4, 13, 5, /, +]</td><td>/ (3)</td><td>4</td><td class="rule">13 / 5 = 2.6 &rarr; 2</td><td>[4, 2, +]</td></tr>
+  <tr class="final"><td>2</td><td>[4, 2, +]</td><td>+ (2)</td><td>3</td><td>4 + 2 = 6</td><td>[6] &rarr; one token left, return 6</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — The smart way: a stack of numbers that are waiting</h2>
+<div class="idea">Read left to right. A number waits: put it on top of a pile (a stack). An operator takes the top two numbers off the pile: the first one off is the <b>right</b> number, the second is the <b>left</b> one. It puts the result back, because a later operator may need it. At the end, one number is left: the answer.</div>
+<div class="viz" id="st-viz"></div>
+<div class="mem"><h4>stack (top is on the right)</h4><div class="chips" id="st-stack"></div></div>
+<div class="caption" id="st-cap"></div>
+<div class="controls" data-player="st"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="st-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> one pass, each token costs one push or two pops and a push — <code>O(n)</code> time, <code>O(n)</code> memory for the stack.</p>
+<div class="trace-title">Step-by-step trace — tokens = ["4", "13", "5", "/", "+"]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>i</th><th>Token</th><th>Action</th><th>Stack after</th></tr>
+  <tr><td>1</td><td>0</td><td>4</td><td class="rule">Number &rarr; push</td><td>[4]</td></tr>
+  <tr><td>2</td><td>1</td><td>13</td><td class="rule">Number &rarr; push</td><td>[4, 13]</td></tr>
+  <tr><td>3</td><td>2</td><td>5</td><td class="rule">Number &rarr; push</td><td>[4, 13, 5]</td></tr>
+  <tr><td>4</td><td>3</td><td>/</td><td class="rule">Pop b = 5, pop a = 13, push int(13 / 5) = 2</td><td>[4, 2]</td></tr>
+  <tr class="final"><td>5</td><td>4</td><td>+</td><td>Pop b = 2, pop a = 4, push 4 + 2 = 6; end &rarr; return 6</td><td>[6]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"postfix / Reverse Polish"</b>, <b>"evaluate an expression"</b>, or "each step uses the most recent values"? Push values while they wait, and let each operator pop what it needs and push its result back.
+<p><a href="01_stack_simulation_lesson.html">→ Stack Simulation: the pattern lesson and its other problems</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+var OPS={'+':1,'-':1,'*':1,'/':1};
+/* A row of token boxes. marks: {index: class}; ptr: {index: label}. */
+function drawTokens(id, toks, marks, ptr){
+  marks=marks||{}; ptr=ptr||{};
+  var h='<div class="row">';
+  for(var k=0;k<toks.length;k++){
+    var cls=(marks[k]||'')+(OPS[toks[k]]?' op':'');
+    h+='<div class="cell"><div class="ptr">'+(ptr[k]||'')+'</div><div class="box '+cls+'">'+toks[k]+'</div><div class="idxlabel">'+k+'</div></div>';
+  }
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+function stackChips(id, items, lastCls){
+  if(!items.length){ document.getElementById(id).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(k===items.length-1&&lastCls?lastCls:'')+'">'+items[k]+'</span>';
+  document.getElementById(id).innerHTML=h;
+}
+var T=['4','13','5','/','+'];
+
+/* Problem demo: what each operator applies to. */
+makePlayer('pd',[
+  {m:{}, p:{}, cap:'Five tokens: three numbers, then two operators.'},
+  {m:{0:'seen',1:'seen',2:'seen'}, p:{}, cap:'The numbers <b>4</b>, <b>13</b>, <b>5</b> wait for an operator.'},
+  {m:{0:'seen',1:'hi',2:'hi',3:'bad'}, p:{3:'13 / 5'}, cap:'<b>/</b> uses the two numbers just before it: 13 / 5 = 2.6 &rarr; <b>2</b> (drop the fraction toward zero).'},
+  {m:{0:'hi',1:'gone',2:'gone',3:'good',4:'bad'}, p:{3:'= 2',4:'4 + 2'}, cap:'<b>+</b> uses the two unused values before it: 4 and that 2. 4 + 2 = <b>6</b>.'},
+  {m:{0:'gone',1:'gone',2:'gone',3:'gone',4:'good'}, p:{4:'= 6'}, cap:'Everything is used up. Answer: <b>6</b>, the same as 4 + (13 / 5).'}
+],function(f){ drawTokens('pd-viz',T,f.m,f.p); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Solution 1: eval_rpn_brute, one frame per scan / collapse (values from the notebook code). */
+makePlayer('br',[
+  {t:T, m:{}, p:{}, cap:'Start: scan from the left for the first operator.'},
+  {t:T, m:{0:'seen',1:'hi',2:'hi',3:'bad'}, p:{3:'first op'}, cap:'Round 1: scanned 4 tokens to reach <b>/</b> at index 3. Its operands are 13 and 5: int(13 / 5) = <b>2</b>.'},
+  {t:['4','2','+'], m:{1:'good'}, p:{}, cap:'Replace 13, 5, / with "2". The list shrinks to [4, 2, +] and the scan starts over from the left.'},
+  {t:['4','2','+'], m:{0:'hi',1:'hi',2:'bad'}, p:{2:'first op'}, cap:'Round 2: scanned 3 tokens to reach <b>+</b> at index 2. 4 + 2 = <b>6</b>.'},
+  {t:['6'], m:{0:'good'}, p:{}, cap:'One token left: return <b>6</b>. On long inputs, the repeated scans from the left are what makes this slow.'}
+],function(f){ drawTokens('br-viz',f.t,f.m,f.p); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Solution 2: eval_rpn_stack, one frame per token (values from the notebook code). */
+makePlayer('st',[
+  {i:-1, s:[], cap:'Empty stack. Read the tokens left to right.'},
+  {i:0, s:[4], last:'look', cap:'"4" is a number &rarr; push 4.'},
+  {i:1, s:[4,13], last:'look', cap:'"13" is a number &rarr; push 13.'},
+  {i:2, s:[4,13,5], last:'look', cap:'"5" is a number &rarr; push 5.'},
+  {i:3, s:[4,2], last:'look', cap:'"/" &rarr; pop b = 5 (right), pop a = 13 (left), push int(13 / 5) = <b>2</b>.'},
+  {i:4, s:[6], last:'look', cap:'"+" &rarr; pop b = 2, pop a = 4, push 4 + 2 = <b>6</b>. Tokens done: return <b>6</b>.'}
+],function(f){
+  var m={}, p={};
+  for(var k=0;k<f.i;k++) m[k]='gone';
+  if(f.i>=0){ m[f.i]=OPS[T[f.i]]?'bad':'hi'; p[f.i]='i = '+f.i; }
+  drawTokens('st-viz',T,m,p); stackChips('st-stack',f.s,f.last); document.getElementById('st-cap').innerHTML=f.cap;
+});
+</script>
+</body></html>

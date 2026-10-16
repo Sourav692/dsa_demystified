@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subsets — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  
+    .tree-svg .ln rect { fill: #c8d2e7; stroke: #c8d2e7; stroke-width: 2; transition: fill 0.2s ease; }
+    .tree-svg .ln text { font: 700 12px Inter, Arial, sans-serif; fill: #172033; }
+    .tree-svg .ln.done rect { fill: #315efb; stroke: #315efb; }
+    .tree-svg .ln.frontier rect { fill: #13a46b; stroke: #13a46b; }
+    .tree-svg .ln.current rect { fill: #ff9f1c; stroke: #ff9f1c; }
+    .tree-svg .ln.done text, .tree-svg .ln.frontier text, .tree-svg .ln.current text { fill: #ffffff; }
+    .tree-svg .ln.rec rect { stroke: #172033; stroke-width: 3; }
+    .tree-svg .te { stroke: #cad3e6; stroke-width: 3; stroke-linecap: round; }
+    .tree-svg .te.ex { stroke-dasharray: 6 5; }
+    .tree-svg .tl { font: 600 11px Inter, Arial, sans-serif; fill: #5d677d; }
+    .tree-svg .faded { opacity: 0.3; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Backtracking · Pattern 01 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Subsets</h1>
+          <p>
+            Generate every subset by making one yes/no decision per element. Include it, explore, take it back out; then exclude it and explore again. The recursion tree has exactly one leaf per subset. With repeated values, sort first and skip equal values at the same decision point so no subset is built twice.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: include / exclude, then un-choose</span>
+            <span class="chip">Method 1: Subsets</span>
+            <span class="chip">Method 2: Subsets II, run skip</span>
+            <span class="chip">Method 3: start-index sibling skip</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="subsets.html">Subsets</a> · <a href="subsets_ii.html">Subsets II</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Subsets, <code>nums = [1, 2, 3]</code>. Left edge = include, dashed right edge = exclude.</p>
+          <div class="diagram">
+<svg viewBox="0 0 522 248" width="100%" role="img" aria-label="Include/exclude decision tree for [1, 2, 3] with 8 leaves" class="tree-svg">
+<line class="te" x1="261.0" y1="42.0" x2="133.0" y2="80.0"/>
+<line class="te" x1="133.0" y1="104.0" x2="69.0" y2="142.0"/>
+<line class="te" x1="69.0" y1="166.0" x2="37.0" y2="204.0"/>
+<line class="te ex" x1="69.0" y1="166.0" x2="101.0" y2="204.0"/>
+<line class="te ex" x1="133.0" y1="104.0" x2="197.0" y2="142.0"/>
+<line class="te" x1="197.0" y1="166.0" x2="165.0" y2="204.0"/>
+<line class="te ex" x1="197.0" y1="166.0" x2="229.0" y2="204.0"/>
+<line class="te ex" x1="261.0" y1="42.0" x2="389.0" y2="80.0"/>
+<line class="te" x1="389.0" y1="104.0" x2="325.0" y2="142.0"/>
+<line class="te" x1="325.0" y1="166.0" x2="293.0" y2="204.0"/>
+<line class="te ex" x1="325.0" y1="166.0" x2="357.0" y2="204.0"/>
+<line class="te ex" x1="389.0" y1="104.0" x2="453.0" y2="142.0"/>
+<line class="te" x1="453.0" y1="166.0" x2="421.0" y2="204.0"/>
+<line class="te ex" x1="453.0" y1="166.0" x2="485.0" y2="204.0"/>
+<g class="ln frontier"><rect x="233.0" y="18.0" width="56" height="24" rx="8"/><text x="261.0" y="34.0" text-anchor="middle">[]</text></g>
+<g class="ln frontier"><rect x="105.0" y="80.0" width="56" height="24" rx="8"/><text x="133.0" y="96.0" text-anchor="middle">[1]</text></g>
+<g class="ln frontier"><rect x="41.0" y="142.0" width="56" height="24" rx="8"/><text x="69.0" y="158.0" text-anchor="middle">[1, 2]</text></g>
+<g class="ln done rec"><rect x="9.0" y="204.0" width="56" height="24" rx="8"/><text x="37.0" y="220.0" text-anchor="middle">[1, 2, 3]</text></g>
+<g class="ln done rec"><rect x="73.0" y="204.0" width="56" height="24" rx="8"/><text x="101.0" y="220.0" text-anchor="middle">[1, 2]</text></g>
+<g class="ln frontier"><rect x="169.0" y="142.0" width="56" height="24" rx="8"/><text x="197.0" y="158.0" text-anchor="middle">[1]</text></g>
+<g class="ln done rec"><rect x="137.0" y="204.0" width="56" height="24" rx="8"/><text x="165.0" y="220.0" text-anchor="middle">[1, 3]</text></g>
+<g class="ln done rec"><rect x="201.0" y="204.0" width="56" height="24" rx="8"/><text x="229.0" y="220.0" text-anchor="middle">[1]</text></g>
+<g class="ln frontier"><rect x="361.0" y="80.0" width="56" height="24" rx="8"/><text x="389.0" y="96.0" text-anchor="middle">[]</text></g>
+<g class="ln frontier"><rect x="297.0" y="142.0" width="56" height="24" rx="8"/><text x="325.0" y="158.0" text-anchor="middle">[2]</text></g>
+<g class="ln done rec"><rect x="265.0" y="204.0" width="56" height="24" rx="8"/><text x="293.0" y="220.0" text-anchor="middle">[2, 3]</text></g>
+<g class="ln done rec"><rect x="329.0" y="204.0" width="56" height="24" rx="8"/><text x="357.0" y="220.0" text-anchor="middle">[2]</text></g>
+<g class="ln frontier"><rect x="425.0" y="142.0" width="56" height="24" rx="8"/><text x="453.0" y="158.0" text-anchor="middle">[]</text></g>
+<g class="ln done rec"><rect x="393.0" y="204.0" width="56" height="24" rx="8"/><text x="421.0" y="220.0" text-anchor="middle">[3]</text></g>
+<g class="ln done rec"><rect x="457.0" y="204.0" width="56" height="24" rx="8"/><text x="485.0" y="220.0" text-anchor="middle">[]</text></g>
+</svg>
+          </div>
+          <div class="result-badge">Answer = 8 subsets: [[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3], []]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Try every on/off combination</h3>
+          <p>Feature flags to test together, items to pack, people to put on a team: when each thing is either in or out, the candidates are exactly the subsets.</p>
+        </div>
+        <div class="card">
+          <h3>The backtracking template in its smallest form</h3>
+          <p>Choose, explore, un-choose. Subsets has no target, no pruning and no ordering, so the bare mechanics are all you see.</p>
+        </div>
+        <div class="card">
+          <h3>One template, a whole family</h3>
+          <p>Combinations (subsets of size <code>k</code>), Combination Sum and Combination Sum II change only the base case or add one skip line.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the output has <code>2ⁿ</code> lists, so every correct solution is <code>O(n·2ⁿ)</code>. The interview is not about beating that; it is about writing the recursion cleanly, recording copies, and not producing duplicates.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the Subsets pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>A recursive function <code>backtrack(i)</code> decides element <code>i</code>. It keeps one shared list, <code>path</code>, holding the elements chosen so far. It tries the branch <em>with</em> <code>nums[i]</code> (append, recurse, pop) and the branch <em>without</em> it (recurse). When <code>i</code> reaches <code>n</code>, every element is decided and <code>path</code> is one finished subset.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"All subsets", "power set", "every combination of any size", "each element is either picked or not". With "may contain duplicates" plus "must not contain duplicate subsets", add sort + skip.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> <code>n</code> yes/no decisions give <code>2ⁿ</code> leaves. If your recursion records anything at a node that is not a complete decision, or records <code>path</code> instead of <code>path[:]</code>, the count or the contents will be wrong.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot "every selection"</h3>
+          <p>The answer lists all subsets, so the work must enumerate them: backtracking.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>One decision per index</h3>
+          <p><code>backtrack(i)</code> decides <code>nums[i]</code>: include it or exclude it.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Choose, explore, un-choose</h3>
+          <p><code>path.append</code>, recurse, <code>path.pop()</code>, then recurse again for the exclude branch.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Record a copy; handle repeats</h3>
+          <p>At <code>i == n</code> append <code>path[:]</code>. If values repeat, sort and let the exclude branch skip the whole run.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a decision tree</h2>
+      <p>The input is a flat list. The algorithm never builds a tree object: the tree is the shape of the recursive calls. Each level of calls decides one index, and each call has two children, one for "include" and one for "exclude".</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>nums = [1, 2, 3]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Calls per level</h3>
+          <div class="code-block"><code>backtrack(0): 1 call   decides 1
+backtrack(1): 2 calls  decides 2
+backtrack(2): 4 calls  decides 3
+backtrack(3): 8 leaves = 8 subsets</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Index 0: decide <code>1</code></h4>
+          <p>Two branches: paths starting <code>[1]</code> and paths starting <code>[]</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Index 1: decide <code>2</code></h4>
+          <p>Each branch splits again: <code>[1, 2]</code>, <code>[1]</code>, <code>[2]</code>, <code>[]</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Index 2: decide <code>3</code></h4>
+          <p>Eight paths, one for every in/out pattern of three elements.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Index 3: leaves</h4>
+          <p>Nothing left to decide: each leaf records <code>path[:]</code>. That is the whole answer.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> there is only <em>one</em> <code>path</code> list. Every branch appends to it and pops from it. That is why the pop must mirror the append exactly, and why a leaf must store a copy: by the end, <code>path</code> is empty again.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: include / exclude (Subsets)</h2>
+      <p>The template itself, line for line from the notebook's <code>subsets_include_exclude</code>, traced on <code>nums = [1, 2, 3]</code>. Watch <code>path</code> grow on include, shrink on pop, and <code>out</code> grow only at the leaves.</p>
+      <div class="code-block stepped">
+        <code id="ie-code">
+<span class="code-line" data-line="1">def subsets_include_exclude(nums: List[int]) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    out, path = [], []</span>
+<span class="code-line" data-line="3"></span>
+<span class="code-line" data-line="4">    def backtrack(i: int) -&gt; None:</span>
+<span class="code-line" data-line="5">        if i == len(nums):                     # base case: every element decided</span>
+<span class="code-line" data-line="6">            out.append(path[:])                # record a COPY; `path` keeps changing</span>
+<span class="code-line" data-line="7">            return</span>
+<span class="code-line" data-line="8">        path.append(nums[i])                   # INCLUDE nums[i]</span>
+<span class="code-line" data-line="9">        backtrack(i + 1)</span>
+<span class="code-line" data-line="10">        path.pop()                             # UN-CHOOSE: undo before the other branch</span>
+<span class="code-line" data-line="11"></span>
+<span class="code-line" data-line="12">        backtrack(i + 1)                       # EXCLUDE nums[i]</span>
+<span class="code-line" data-line="13"></span>
+<span class="code-line" data-line="14">    backtrack(0)</span>
+<span class="code-line" data-line="15">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive include / exclude trace</div>
+          <div class="diagram" style="margin-top:12px;" id="ie-graph"></div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call</span>
+            <span><i class="dot dot-green"></i> on the call stack</span>
+            <span><i class="dot dot-blue"></i> finished</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dark outline = recorded in out · dashed = exclude / skip edge</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 id="ie-step-title">Initial state</h3>
+          <p id="ie-step-text">Start at index 0 with an empty path. Nothing is recorded until every element is decided.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ie-prev">Previous</button>
+            <button type="button" id="ie-play" class="primary">Resume</button>
+            <button type="button" id="ie-next">Next</button>
+            <button type="button" id="ie-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ie-step-counter">Step 0 / 22</span>
+            <div class="progress"><span id="ie-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i (index being decided)</strong><div class="state-value" id="ie-pos">—</div></div>
+            <div class="state-box"><strong>Calls on the stack</strong><div class="state-value" id="ie-depth">—</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="ie-path">[]</div></div>
+            <div class="state-box"><strong>out size</strong><div class="state-value" id="ie-count">0</div></div>
+            <div class="state-box" style="grid-column:1 / -1;"><strong>out</strong><div class="state-value" id="ie-out">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ie-detail"><strong>Action:</strong> Call backtrack(0)</p>
+          </div>
+        </div>
+      </div>
+<div class="table-wrap" style="margin-top:18px;">
+<table class="trace-table" id="ie-trace-table">
+<thead><tr><th>Step</th><th>i (index being decided)</th><th>Action</th><th>path after</th><th>out size</th></tr></thead>
+<tbody>
+<tr data-step="0"><td>0</td><td>0</td><td>Call backtrack(0)</td><td><code>[]</code></td><td>0</td></tr>
+<tr data-step="1"><td>1</td><td>0</td><td>INCLUDE nums[0] = 1</td><td><code>[1]</code></td><td>0</td></tr>
+<tr data-step="2"><td>2</td><td>1</td><td>INCLUDE nums[1] = 2</td><td><code>[1, 2]</code></td><td>0</td></tr>
+<tr data-step="3"><td>3</td><td>2</td><td>INCLUDE nums[2] = 3</td><td><code>[1, 2, 3]</code></td><td>0</td></tr>
+<tr data-step="4"><td>4</td><td>3</td><td>i == 3: record [1, 2, 3]</td><td><code>[1, 2, 3]</code></td><td>1</td></tr>
+<tr data-step="5"><td>5</td><td>2 &rarr; j = 3</td><td>pop 3; EXCLUDE nums[2] = 3</td><td><code>[1, 2]</code></td><td>1</td></tr>
+<tr data-step="6"><td>6</td><td>3</td><td>i == 3: record [1, 2]</td><td><code>[1, 2]</code></td><td>2</td></tr>
+<tr data-step="7"><td>7</td><td>1 &rarr; j = 2</td><td>pop 2; EXCLUDE nums[1] = 2</td><td><code>[1]</code></td><td>2</td></tr>
+<tr data-step="8"><td>8</td><td>2</td><td>INCLUDE nums[2] = 3</td><td><code>[1, 3]</code></td><td>2</td></tr>
+<tr data-step="9"><td>9</td><td>3</td><td>i == 3: record [1, 3]</td><td><code>[1, 3]</code></td><td>3</td></tr>
+<tr data-step="10"><td>10</td><td>2 &rarr; j = 3</td><td>pop 3; EXCLUDE nums[2] = 3</td><td><code>[1]</code></td><td>3</td></tr>
+<tr data-step="11"><td>11</td><td>3</td><td>i == 3: record [1]</td><td><code>[1]</code></td><td>4</td></tr>
+<tr data-step="12"><td>12</td><td>0 &rarr; j = 1</td><td>pop 1; EXCLUDE nums[0] = 1</td><td><code>[]</code></td><td>4</td></tr>
+<tr data-step="13"><td>13</td><td>1</td><td>INCLUDE nums[1] = 2</td><td><code>[2]</code></td><td>4</td></tr>
+<tr data-step="14"><td>14</td><td>2</td><td>INCLUDE nums[2] = 3</td><td><code>[2, 3]</code></td><td>4</td></tr>
+<tr data-step="15"><td>15</td><td>3</td><td>i == 3: record [2, 3]</td><td><code>[2, 3]</code></td><td>5</td></tr>
+<tr data-step="16"><td>16</td><td>2 &rarr; j = 3</td><td>pop 3; EXCLUDE nums[2] = 3</td><td><code>[2]</code></td><td>5</td></tr>
+<tr data-step="17"><td>17</td><td>3</td><td>i == 3: record [2]</td><td><code>[2]</code></td><td>6</td></tr>
+<tr data-step="18"><td>18</td><td>1 &rarr; j = 2</td><td>pop 2; EXCLUDE nums[1] = 2</td><td><code>[]</code></td><td>6</td></tr>
+<tr data-step="19"><td>19</td><td>2</td><td>INCLUDE nums[2] = 3</td><td><code>[3]</code></td><td>6</td></tr>
+<tr data-step="20"><td>20</td><td>3</td><td>i == 3: record [3]</td><td><code>[3]</code></td><td>7</td></tr>
+<tr data-step="21"><td>21</td><td>2 &rarr; j = 3</td><td>pop 3; EXCLUDE nums[2] = 3</td><td><code>[]</code></td><td>7</td></tr>
+<tr data-step="22"><td>22</td><td>3</td><td>i == 3: record []</td><td><code>[]</code></td><td>8</td></tr>
+</tbody>
+</table>
+</div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Each element is a light switch. The recursion flips switch <code>i</code> on, explores every setting of the later switches, flips it off, and explores them again. Eight leaves, eight switch settings.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Forgetting <code>path.pop()</code>. At step 5 the exclude branch for 3 would start with <code>[1, 2, 3]</code> still in <code>path</code>, so "excluded" subsets would contain 3.</p>
+        </div>
+        <div class="card">
+          <h4>Why one shared list</h4>
+          <p>Appending and popping at the end of a Python list is O(1). Copying only at the <code>2ⁿ</code> leaves keeps the total at <code>O(n·2ⁿ)</code>, the size of the output.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: skip the whole run on exclude (Subsets II)</h2>
+      <p>Now <code>nums = [1, 2, 2]</code>. Plain Method 1 would build <code>[1, 2]</code> and <code>[2]</code> twice, once per copy of 2. Sort first so the copies are adjacent. Include is unchanged. Exclude moves <code>j</code> past every copy of <code>nums[i]</code>: declining one 2 means declining all remaining 2s. Code from the notebook's <code>subsets_with_dup_include_exclude</code>.</p>
+      <div class="code-block stepped">
+        <code id="ie2-code">
+<span class="code-line" data-line="1">def subsets_with_dup_include_exclude(nums: List[int]) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    nums = sorted(nums)                         # duplicates become one adjacent run</span>
+<span class="code-line" data-line="3">    n = len(nums)</span>
+<span class="code-line" data-line="4">    out, path = [], []</span>
+<span class="code-line" data-line="5"></span>
+<span class="code-line" data-line="6">    def backtrack(i: int) -&gt; None:</span>
+<span class="code-line" data-line="7">        if i == n:</span>
+<span class="code-line" data-line="8">            out.append(path[:])                 # every value decided: record a copy</span>
+<span class="code-line" data-line="9">            return</span>
+<span class="code-line" data-line="10">        path.append(nums[i])                    # INCLUDE nums[i] (the next copy may follow)</span>
+<span class="code-line" data-line="11">        backtrack(i + 1)</span>
+<span class="code-line" data-line="12">        path.pop()                              # UN-CHOOSE</span>
+<span class="code-line" data-line="13"></span>
+<span class="code-line" data-line="14">        j = i + 1</span>
+<span class="code-line" data-line="15">        while j &lt; n and nums[j] == nums[i]:     # EXCLUDE nums[i] -- and every remaining</span>
+<span class="code-line" data-line="16">            j += 1                              # copy of it, in one jump</span>
+<span class="code-line" data-line="17">        backtrack(j)</span>
+<span class="code-line" data-line="18"></span>
+<span class="code-line" data-line="19">    backtrack(0)</span>
+<span class="code-line" data-line="20">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive run-skip trace</div>
+          <div class="diagram" style="margin-top:12px;" id="ie2-graph"></div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call</span>
+            <span><i class="dot dot-green"></i> on the call stack</span>
+            <span><i class="dot dot-blue"></i> finished</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dark outline = recorded in out · dashed = exclude / skip edge</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 id="ie2-step-title">Initial state</h3>
+          <p id="ie2-step-text">Start at index 0 with an empty path. Nothing is recorded until every element is decided.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ie2-prev">Previous</button>
+            <button type="button" id="ie2-play" class="primary">Resume</button>
+            <button type="button" id="ie2-next">Next</button>
+            <button type="button" id="ie2-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ie2-step-counter">Step 0 / 16</span>
+            <div class="progress"><span id="ie2-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i (index being decided)</strong><div class="state-value" id="ie2-pos">—</div></div>
+            <div class="state-box"><strong>Calls on the stack</strong><div class="state-value" id="ie2-depth">—</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="ie2-path">[]</div></div>
+            <div class="state-box"><strong>out size</strong><div class="state-value" id="ie2-count">0</div></div>
+            <div class="state-box" style="grid-column:1 / -1;"><strong>out</strong><div class="state-value" id="ie2-out">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ie2-detail"><strong>Action:</strong> Call backtrack(0)</p>
+          </div>
+        </div>
+      </div>
+<div class="table-wrap" style="margin-top:18px;">
+<table class="trace-table" id="ie2-trace-table">
+<thead><tr><th>Step</th><th>i (index being decided)</th><th>Action</th><th>path after</th><th>out size</th></tr></thead>
+<tbody>
+<tr data-step="0"><td>0</td><td>0</td><td>Call backtrack(0)</td><td><code>[]</code></td><td>0</td></tr>
+<tr data-step="1"><td>1</td><td>0</td><td>INCLUDE nums[0] = 1</td><td><code>[1]</code></td><td>0</td></tr>
+<tr data-step="2"><td>2</td><td>1</td><td>INCLUDE nums[1] = 2</td><td><code>[1, 2]</code></td><td>0</td></tr>
+<tr data-step="3"><td>3</td><td>2</td><td>INCLUDE nums[2] = 2</td><td><code>[1, 2, 2]</code></td><td>0</td></tr>
+<tr data-step="4"><td>4</td><td>3</td><td>i == 3: record [1, 2, 2]</td><td><code>[1, 2, 2]</code></td><td>1</td></tr>
+<tr data-step="5"><td>5</td><td>2 &rarr; j = 3</td><td>pop 2; EXCLUDE nums[2] = 2</td><td><code>[1, 2]</code></td><td>1</td></tr>
+<tr data-step="6"><td>6</td><td>3</td><td>i == 3: record [1, 2]</td><td><code>[1, 2]</code></td><td>2</td></tr>
+<tr data-step="7"><td>7</td><td>1 &rarr; j = 3</td><td>pop 2; EXCLUDE every 2: j jumps 1&rarr;3</td><td><code>[1]</code></td><td>2</td></tr>
+<tr data-step="8"><td>8</td><td>3</td><td>i == 3: record [1]</td><td><code>[1]</code></td><td>3</td></tr>
+<tr data-step="9"><td>9</td><td>0 &rarr; j = 1</td><td>pop 1; EXCLUDE nums[0] = 1</td><td><code>[]</code></td><td>3</td></tr>
+<tr data-step="10"><td>10</td><td>1</td><td>INCLUDE nums[1] = 2</td><td><code>[2]</code></td><td>3</td></tr>
+<tr data-step="11"><td>11</td><td>2</td><td>INCLUDE nums[2] = 2</td><td><code>[2, 2]</code></td><td>3</td></tr>
+<tr data-step="12"><td>12</td><td>3</td><td>i == 3: record [2, 2]</td><td><code>[2, 2]</code></td><td>4</td></tr>
+<tr data-step="13"><td>13</td><td>2 &rarr; j = 3</td><td>pop 2; EXCLUDE nums[2] = 2</td><td><code>[2]</code></td><td>4</td></tr>
+<tr data-step="14"><td>14</td><td>3</td><td>i == 3: record [2]</td><td><code>[2]</code></td><td>5</td></tr>
+<tr data-step="15"><td>15</td><td>1 &rarr; j = 3</td><td>pop 2; EXCLUDE every 2: j jumps 1&rarr;3</td><td><code>[]</code></td><td>5</td></tr>
+<tr data-step="16"><td>16</td><td>3</td><td>i == 3: record []</td><td><code>[]</code></td><td>6</td></tr>
+</tbody>
+</table>
+</div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>For a value with <code>c</code> copies, the real choice is how many to take: <code>c, c − 1, …, 0</code>. Include steps through the copies one by one; the jump ends the run. Steps 7 and 15 show the jump <code>1 → 3</code>.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Skipping the run on the <em>include</em> branch instead. Then a value can only be taken once and <code>[2, 2]</code> and <code>[1, 2, 2]</code> disappear.</p>
+        </div>
+        <div class="card">
+          <h4>Why sorting matters</h4>
+          <p>The skip compares neighbours. Unsorted <code>[2, 1, 2]</code> has its 2s apart, so the while loop would never see the second copy.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 3: start-index loop with a sibling skip (Subsets II, alternate shape)</h2>
+      <p>The other common shape. <code>backtrack(start)</code> records <code>path</code> on entry (every node is a subset), then loops over the next element to add. The duplicate rule lives in the loop: <code>if i &gt; start and nums[i] == nums[i - 1]: continue</code>. Within one loop, a value may start a branch only once. Code from the notebook's <code>subsets_with_dup_start_index</code>, same input.</p>
+      <div class="code-block stepped">
+        <code id="si2-code">
+<span class="code-line" data-line="1">def subsets_with_dup_start_index(nums: List[int]) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    nums = sorted(nums)                         # duplicates become adjacent</span>
+<span class="code-line" data-line="3">    out, path = [], []</span>
+<span class="code-line" data-line="4"></span>
+<span class="code-line" data-line="5">    def backtrack(start: int) -&gt; None:</span>
+<span class="code-line" data-line="6">        out.append(path[:])                     # every node is a distinct subset</span>
+<span class="code-line" data-line="7">        for i in range(start, len(nums)):</span>
+<span class="code-line" data-line="8">            if i &gt; start and nums[i] == nums[i - 1]:</span>
+<span class="code-line" data-line="9">                continue                        # SKIP: the sibling before us built this branch</span>
+<span class="code-line" data-line="10">            path.append(nums[i])                # CHOOSE</span>
+<span class="code-line" data-line="11">            backtrack(i + 1)                    # EXPLORE</span>
+<span class="code-line" data-line="12">            path.pop()                          # UN-CHOOSE</span>
+<span class="code-line" data-line="13"></span>
+<span class="code-line" data-line="14">    backtrack(0)</span>
+<span class="code-line" data-line="15">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive start-index trace</div>
+          <div class="diagram" style="margin-top:12px;" id="si2-graph"></div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current call</span>
+            <span><i class="dot dot-green"></i> on the call stack</span>
+            <span><i class="dot dot-blue"></i> finished</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dark outline = recorded in out · dashed = exclude / skip edge</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 id="si2-step-title">Initial state</h3>
+          <p id="si2-step-text">Enter backtrack(0) and record the empty path first: every node of this tree is a subset.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="si2-prev">Previous</button>
+            <button type="button" id="si2-play" class="primary">Resume</button>
+            <button type="button" id="si2-next">Next</button>
+            <button type="button" id="si2-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="si2-step-counter">Step 0 / 12</span>
+            <div class="progress"><span id="si2-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>start</strong><div class="state-value" id="si2-pos">—</div></div>
+            <div class="state-box"><strong>Calls on the stack</strong><div class="state-value" id="si2-depth">—</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="si2-path">[]</div></div>
+            <div class="state-box"><strong>out size</strong><div class="state-value" id="si2-count">0</div></div>
+            <div class="state-box" style="grid-column:1 / -1;"><strong>out</strong><div class="state-value" id="si2-out">[]</div></div>
+          </div>
+          <div class="explainer">
+            <p id="si2-detail"><strong>Action:</strong> backtrack(0): record []</p>
+          </div>
+        </div>
+      </div>
+<div class="table-wrap" style="margin-top:18px;">
+<table class="trace-table" id="si2-trace-table">
+<thead><tr><th>Step</th><th>start</th><th>Action</th><th>path after</th><th>out size</th></tr></thead>
+<tbody>
+<tr data-step="0"><td>0</td><td>0</td><td>backtrack(0): record []</td><td><code>[]</code></td><td>1</td></tr>
+<tr data-step="1"><td>1</td><td>1</td><td>CHOOSE nums[0] = 1; record [1]</td><td><code>[1]</code></td><td>2</td></tr>
+<tr data-step="2"><td>2</td><td>2</td><td>CHOOSE nums[1] = 2; record [1, 2]</td><td><code>[1, 2]</code></td><td>3</td></tr>
+<tr data-step="3"><td>3</td><td>3</td><td>CHOOSE nums[2] = 2; record [1, 2, 2]</td><td><code>[1, 2, 2]</code></td><td>4</td></tr>
+<tr data-step="4"><td>4</td><td>2</td><td>UN-CHOOSE: pop 2</td><td><code>[1, 2]</code></td><td>4</td></tr>
+<tr data-step="5"><td>5</td><td>1</td><td>UN-CHOOSE: pop 2</td><td><code>[1]</code></td><td>4</td></tr>
+<tr data-step="6"><td>6</td><td>1</td><td>i = 2: nums[2] == nums[1] &rarr; skip</td><td><code>[1]</code></td><td>4</td></tr>
+<tr data-step="7"><td>7</td><td>0</td><td>UN-CHOOSE: pop 1</td><td><code>[]</code></td><td>4</td></tr>
+<tr data-step="8"><td>8</td><td>2</td><td>CHOOSE nums[1] = 2; record [2]</td><td><code>[2]</code></td><td>5</td></tr>
+<tr data-step="9"><td>9</td><td>3</td><td>CHOOSE nums[2] = 2; record [2, 2]</td><td><code>[2, 2]</code></td><td>6</td></tr>
+<tr data-step="10"><td>10</td><td>2</td><td>UN-CHOOSE: pop 2</td><td><code>[2]</code></td><td>6</td></tr>
+<tr data-step="11"><td>11</td><td>0</td><td>UN-CHOOSE: pop 2</td><td><code>[]</code></td><td>6</td></tr>
+<tr data-step="12"><td>12</td><td>0</td><td>i = 2: nums[2] == nums[1] &rarr; skip</td><td><code>[]</code></td><td>6</td></tr>
+</tbody>
+</table>
+</div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The loop asks "which element comes next?". Two equal values at the same position would start identical subtrees, so only the first one may. Steps 6 and 12 are the skips.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Writing <code>i &gt; 0</code> instead of <code>i &gt; start</code>. At step 3, <code>i = 2</code> is the first pick of its loop (<code>start = 2</code>); <code>i &gt; 0</code> would wrongly skip it and lose <code>[1, 2, 2]</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Same answer, different order</h4>
+          <p>Both Subsets II methods produce the same 6 subsets: this one in the order <code>[], [1], [1, 2], [1, 2, 2], [2], [2, 2]</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Single element</button>
+        <button type="button" data-example-tab="1">All equal</button>
+        <button type="button" data-example-tab="2">Unsorted duplicates</button>
+        <button type="button" data-example-tab="3">No duplicates in Subsets II</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: one element</h3>
+          <p><code>nums = [0]</code></p>
+          <div class="result-badge">[[0], []]</div>
+          <p class="footer-note">One decision, two leaves. The empty subset is always part of the answer; with <code>nums = []</code> the answer is <code>[[]]</code>, not <code>[]</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: every value equal (Subsets II)</h3>
+          <p><code>nums = [3, 3, 3]</code></p>
+          <div class="result-badge">[[3, 3, 3], [3, 3], [3], []]</div>
+          <p class="footer-note">Only <code>n + 1</code> distinct subsets. The skip makes the backtracking do <code>O(n²)</code> work here, while a build-all-then-dedupe brute force still builds <code>2ⁿ</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: duplicates not adjacent</h3>
+          <p><code>nums = [2, 1, 2]</code></p>
+          <div class="result-badge">Same 6 subsets as [1, 2, 2]</div>
+          <p class="footer-note">Both Subsets II methods call <code>sorted(nums)</code> first. Without it the neighbour check misses the second 2.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: Subsets II on distinct values</h3>
+          <p><code>nums = [1, 2, 3]</code></p>
+          <div class="result-badge">All 8 subsets</div>
+          <p class="footer-note">No run is longer than one, so the skip never fires and the code behaves exactly like Method 1.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Subsets</td><td>Bitmask brute force</td><td><code>O(n·2ⁿ)</code></td><td><code>O(n)</code></td><td>Mask <code>0 .. 2ⁿ − 1</code>, bit <code>i</code> = take <code>nums[i]</code>.</td></tr>
+            <tr><td>Subsets</td><td>Include / exclude (Method 1)</td><td><code>O(n·2ⁿ)</code></td><td><code>O(n)</code></td><td>The template. Measured about 2x per extra element, like the others.</td></tr>
+            <tr><td>Subsets</td><td>Start-index loop</td><td><code>O(n·2ⁿ)</code></td><td><code>O(n)</code></td><td>One call per subset; records on entry.</td></tr>
+            <tr><td>Subsets II</td><td>Bitmask + set of tuples</td><td><code>Θ(n·2ⁿ)</code> always</td><td><code>O(n·D)</code></td><td>Still about 2x per element on <code>[0] * n</code>, where only <code>n + 1</code> subsets exist.</td></tr>
+            <tr><td>Subsets II</td><td>Include / exclude, run skip (Method 2)</td><td><code>O(n·D)</code></td><td><code>O(n)</code></td><td>About 1x per element on <code>[0] * n</code>.</td></tr>
+            <tr><td>Subsets II</td><td>Start-index, sibling skip (Method 3)</td><td><code>O(n·D)</code></td><td><code>O(n)</code></td><td>Same; the skip line reused by Combination Sum II.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = length of <code>nums</code>, <code>D</code> = number of distinct subsets (<code>2ⁿ</code> when all values differ). Space excludes the output. The per-element ratios come from the benchmarks in this folder's two notebooks (sizes grow by one element, not by doubling).</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Every element is either in a subset or not: <code>n</code> binary decisions, <code>2ⁿ</code> answers.</p></div>
+            <div class="timeline-step"><p>Recursion over the index makes one decision per level; two recursive calls per level cover both choices.</p></div>
+            <div class="timeline-step"><p>One shared <code>path</code>: append before the include call, pop after it, record a copy at <code>i == n</code>.</p></div>
+            <div class="timeline-step"><p>Duplicates? Sort, then make "exclude" skip every copy of the value (or skip equal siblings in a start-index loop).</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Each element is either in or out, so there are <code>2ⁿ</code> subsets and I'll backtrack over the index with an include and an exclude branch."</li>
+            <li>"I keep one path list, pop after the include branch, and append a copy at the leaves."</li>
+            <li>"It's <code>O(n·2ⁿ)</code> time, which matches the output size, and <code>O(n)</code> extra space for the recursion."</li>
+            <li>"With duplicates I sort, and the exclude branch jumps past the whole run of equal values, so each distinct subset is built exactly once."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Subsets</h3>
+          <ul class="mistake-list">
+            <li><code>out.append(path)</code> without a copy: every entry is the same list, empty at the end.</li>
+            <li>Missing <code>path.pop()</code> after the include call: the exclude branch still holds the element.</li>
+            <li>Recording at every call in the include/exclude form: internal nodes are not finished decisions, so subsets get recorded more than once.</li>
+            <li>In the start-index form, recursing with <code>start + 1</code> instead of <code>i + 1</code>: subsets like <code>[2, 1]</code> or repeats appear.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Subsets II</h3>
+          <ul class="mistake-list">
+            <li>Not sorting first: the neighbour checks only catch adjacent copies.</li>
+            <li><code>i &gt; 0</code> instead of <code>i &gt; start</code>: <code>[2, 2]</code> is never built.</li>
+            <li>Skipping the run on include instead of exclude: values can never repeat inside a subset.</li>
+            <li>Deduplicating with a set afterwards: correct, but it still pays for all <code>2ⁿ</code> subsets.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Questions 3 and 4 are follow-up variants of this pattern's two problems, not separate problems in the folder.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Subsets: how many lists for <code>nums = [5, -3]</code>, and in what order does include/exclude record them?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> include always runs before exclude, and records happen only at leaves.</p>
+          <p style="margin-top:10px;">Answer: <code>2² = 4</code>, recorded as <code>[5, -3]</code>, <code>[5]</code>, <code>[-3]</code>, <code>[]</code>. Step through the same mechanics on <a href="subsets.html">the Subsets page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Subsets II: how many distinct subsets does <code>nums = [4, 4, 4, 1, 4]</code> have?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> after sorting it is <code>[1, 4, 4, 4, 4]</code>. Count the choices per distinct value.</p>
+          <p style="margin-top:10px;">Answer: <code>(1 + 1) × (4 + 1) = 10</code>: take 1 or not, and take 0 to 4 fours. The notebook's test prints all 10. Compare all three approaches on <a href="subsets_ii.html">the Subsets II page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 (variant) — Combinations, LC 77: only subsets of exactly size <code>k</code>. What changes in Method 1?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> look at the base case, and at when a branch can never reach size <code>k</code>.</p>
+          <p style="margin-top:10px;">Answer: record when <code>len(path) == k</code> (then return), and stop when the index runs off the end. The include/exclude shape stays the same. Its sibling pattern: <a href="../02_Combinations/README.md">Combinations</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 (variant) — In Method 3 on <code>[2, 2]</code>, which calls run and why is <code>[2, 2]</code> still produced?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the skip needs <code>i &gt; start</code>. What is <code>start</code> when the second 2 is considered after picking the first one?</p>
+          <p style="margin-top:10px;">Answer: <code>backtrack(0)</code> records <code>[]</code>, picks <code>nums[0]</code>; <code>backtrack(1)</code> records <code>[2]</code> and picks <code>nums[1]</code> because <code>i = 1 = start</code>; <code>backtrack(2)</code> records <code>[2, 2]</code>. Back in <code>backtrack(0)</code>, <code>i = 1 &gt; 0</code> and equal to its sibling, so it is skipped. Result <code>[[], [2], [2, 2]]</code>. See Method 3 above or <a href="subsets_ii.html">the Subsets II page</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Include, recurse, pop; exclude, recurse; record a copy at the leaf.</strong>
+          That is the whole Subsets pattern, and its cost <code>O(n·2ⁿ)</code> is the size of the answer. For repeated values, sort and make each value's copy count a single decision: skip the whole run when excluding, or skip equal siblings in a start-index loop.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Subsets pattern notes</a>. Code and trace values are generated from instrumented runs of this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented runs of the notebook functions (same control flow, snapshots added).
+      const TREES = { ie: {"nodes": [{"id": 0, "parent": null, "depth": 0, "label": "[]", "edge": "", "dashed": false, "x": 3.5}, {"id": 1, "parent": 0, "depth": 1, "label": "[1]", "edge": "+1", "dashed": false, "x": 1.5}, {"id": 2, "parent": 1, "depth": 2, "label": "[1, 2]", "edge": "+2", "dashed": false, "x": 0.5}, {"id": 3, "parent": 2, "depth": 3, "label": "[1, 2, 3]", "edge": "+3", "dashed": false, "x": 0}, {"id": 4, "parent": 2, "depth": 3, "label": "[1, 2]", "edge": "skip 3", "dashed": true, "x": 1}, {"id": 5, "parent": 1, "depth": 2, "label": "[1]", "edge": "skip 2", "dashed": true, "x": 2.5}, {"id": 6, "parent": 5, "depth": 3, "label": "[1, 3]", "edge": "+3", "dashed": false, "x": 2}, {"id": 7, "parent": 5, "depth": 3, "label": "[1]", "edge": "skip 3", "dashed": true, "x": 3}, {"id": 8, "parent": 0, "depth": 1, "label": "[]", "edge": "skip 1", "dashed": true, "x": 5.5}, {"id": 9, "parent": 8, "depth": 2, "label": "[2]", "edge": "+2", "dashed": false, "x": 4.5}, {"id": 10, "parent": 9, "depth": 3, "label": "[2, 3]", "edge": "+3", "dashed": false, "x": 4}, {"id": 11, "parent": 9, "depth": 3, "label": "[2]", "edge": "skip 3", "dashed": true, "x": 5}, {"id": 12, "parent": 8, "depth": 2, "label": "[]", "edge": "skip 2", "dashed": true, "x": 6.5}, {"id": 13, "parent": 12, "depth": 3, "label": "[3]", "edge": "+3", "dashed": false, "x": 6}, {"id": 14, "parent": 12, "depth": 3, "label": "[]", "edge": "skip 3", "dashed": true, "x": 7}], "leaves": 8}, ie2: {"nodes": [{"id": 0, "parent": null, "depth": 0, "label": "[]", "edge": "", "dashed": false, "x": 2.75}, {"id": 1, "parent": 0, "depth": 1, "label": "[1]", "edge": "+1", "dashed": false, "x": 1.25}, {"id": 2, "parent": 1, "depth": 2, "label": "[1, 2]", "edge": "+2", "dashed": false, "x": 0.5}, {"id": 3, "parent": 2, "depth": 3, "label": "[1, 2, 2]", "edge": "+2", "dashed": false, "x": 0}, {"id": 4, "parent": 2, "depth": 3, "label": "[1, 2]", "edge": "skip 2", "dashed": true, "x": 1}, {"id": 5, "parent": 1, "depth": 2, "label": "[1]", "edge": "skip all 2s", "dashed": true, "x": 2}, {"id": 6, "parent": 0, "depth": 1, "label": "[]", "edge": "skip 1", "dashed": true, "x": 4.25}, {"id": 7, "parent": 6, "depth": 2, "label": "[2]", "edge": "+2", "dashed": false, "x": 3.5}, {"id": 8, "parent": 7, "depth": 3, "label": "[2, 2]", "edge": "+2", "dashed": false, "x": 3}, {"id": 9, "parent": 7, "depth": 3, "label": "[2]", "edge": "skip 2", "dashed": true, "x": 4}, {"id": 10, "parent": 6, "depth": 2, "label": "[]", "edge": "skip all 2s", "dashed": true, "x": 5}], "leaves": 6}, si2: {"nodes": [{"id": 0, "parent": null, "depth": 0, "label": "[]", "edge": "", "dashed": false, "x": 0.5}, {"id": 1, "parent": 0, "depth": 1, "label": "[1]", "edge": "+1", "dashed": false, "x": 0.0}, {"id": 2, "parent": 1, "depth": 2, "label": "[1, 2]", "edge": "+2", "dashed": false, "x": 0.0}, {"id": 3, "parent": 2, "depth": 3, "label": "[1, 2, 2]", "edge": "+2", "dashed": false, "x": 0}, {"id": 4, "parent": 0, "depth": 1, "label": "[2]", "edge": "+2", "dashed": false, "x": 1.0}, {"id": 5, "parent": 4, "depth": 2, "label": "[2, 2]", "edge": "+2", "dashed": false, "x": 1}], "leaves": 2} };
+      const STEPS = { ie: [{"step": 0, "title": "Initial state", "text": "Start at index 0 with an empty path. Nothing is recorded until every element is decided.", "pos": "0", "act": "Call backtrack(0)", "path": "[]", "out": "[]", "count": 0, "depth": 1, "cur": 0, "onpath": [0], "visited": [0], "rec": [], "lines": [2, 14]}, {"step": 1, "title": "Step 1: INCLUDE nums[0] = 1", "text": "Include nums[0] = 1: append it, path becomes [1], then recurse into backtrack(1).", "pos": "0", "act": "INCLUDE nums[0] = 1", "path": "[1]", "out": "[]", "count": 0, "depth": 2, "cur": 1, "onpath": [0, 1], "visited": [0, 1], "rec": [], "lines": [8, 9]}, {"step": 2, "title": "Step 2: INCLUDE nums[1] = 2", "text": "Include nums[1] = 2: append it, path becomes [1, 2], then recurse into backtrack(2).", "pos": "1", "act": "INCLUDE nums[1] = 2", "path": "[1, 2]", "out": "[]", "count": 0, "depth": 3, "cur": 2, "onpath": [0, 1, 2], "visited": [0, 1, 2], "rec": [], "lines": [8, 9]}, {"step": 3, "title": "Step 3: INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [1, 2, 3], then recurse into backtrack(3).", "pos": "2", "act": "INCLUDE nums[2] = 3", "path": "[1, 2, 3]", "out": "[]", "count": 0, "depth": 4, "cur": 3, "onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [], "lines": [8, 9]}, {"step": 4, "title": "Step 4: i == 3: record [1, 2, 3]", "text": "Every element is decided, so path [1, 2, 3] is a finished subset. Record a copy (subset #1).", "pos": "3", "act": "i == 3: record [1, 2, 3]", "path": "[1, 2, 3]", "out": "[[1, 2, 3]]", "count": 1, "depth": 4, "cur": 3, "onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [3], "lines": [5, 6, 7]}, {"step": 5, "title": "Step 5: pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to [1, 2]. Now the exclude branch: call backtrack(3) without 3.", "pos": "2 -> j = 3", "act": "pop 3; EXCLUDE nums[2] = 3", "path": "[1, 2]", "out": "[[1, 2, 3]]", "count": 1, "depth": 4, "cur": 4, "onpath": [0, 1, 2, 4], "visited": [0, 1, 2, 3, 4], "rec": [3], "lines": [10, 12]}, {"step": 6, "title": "Step 6: i == 3: record [1, 2]", "text": "Every element is decided, so path [1, 2] is a finished subset. Record a copy (subset #2).", "pos": "3", "act": "i == 3: record [1, 2]", "path": "[1, 2]", "out": "[[1, 2, 3], [1, 2]]", "count": 2, "depth": 4, "cur": 4, "onpath": [0, 1, 2, 4], "visited": [0, 1, 2, 3, 4], "rec": [3, 4], "lines": [5, 6, 7]}, {"step": 7, "title": "Step 7: pop 2; EXCLUDE nums[1] = 2", "text": "Un-choose: pop 2, path back to [1]. Now the exclude branch: call backtrack(2) without 2.", "pos": "1 -> j = 2", "act": "pop 2; EXCLUDE nums[1] = 2", "path": "[1]", "out": "[[1, 2, 3], [1, 2]]", "count": 2, "depth": 3, "cur": 5, "onpath": [0, 1, 5], "visited": [0, 1, 2, 3, 4, 5], "rec": [3, 4], "lines": [10, 12]}, {"step": 8, "title": "Step 8: INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [1, 3], then recurse into backtrack(3).", "pos": "2", "act": "INCLUDE nums[2] = 3", "path": "[1, 3]", "out": "[[1, 2, 3], [1, 2]]", "count": 2, "depth": 4, "cur": 6, "onpath": [0, 1, 5, 6], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [3, 4], "lines": [8, 9]}, {"step": 9, "title": "Step 9: i == 3: record [1, 3]", "text": "Every element is decided, so path [1, 3] is a finished subset. Record a copy (subset #3).", "pos": "3", "act": "i == 3: record [1, 3]", "path": "[1, 3]", "out": "[[1, 2, 3], [1, 2], [1, 3]]", "count": 3, "depth": 4, "cur": 6, "onpath": [0, 1, 5, 6], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [3, 4, 6], "lines": [5, 6, 7]}, {"step": 10, "title": "Step 10: pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to [1]. Now the exclude branch: call backtrack(3) without 3.", "pos": "2 -> j = 3", "act": "pop 3; EXCLUDE nums[2] = 3", "path": "[1]", "out": "[[1, 2, 3], [1, 2], [1, 3]]", "count": 3, "depth": 4, "cur": 7, "onpath": [0, 1, 5, 7], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [3, 4, 6], "lines": [10, 12]}, {"step": 11, "title": "Step 11: i == 3: record [1]", "text": "Every element is decided, so path [1] is a finished subset. Record a copy (subset #4).", "pos": "3", "act": "i == 3: record [1]", "path": "[1]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1]]", "count": 4, "depth": 4, "cur": 7, "onpath": [0, 1, 5, 7], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [3, 4, 6, 7], "lines": [5, 6, 7]}, {"step": 12, "title": "Step 12: pop 1; EXCLUDE nums[0] = 1", "text": "Un-choose: pop 1, path back to []. Now the exclude branch: call backtrack(1) without 1.", "pos": "0 -> j = 1", "act": "pop 1; EXCLUDE nums[0] = 1", "path": "[]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1]]", "count": 4, "depth": 2, "cur": 8, "onpath": [0, 8], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8], "rec": [3, 4, 6, 7], "lines": [10, 12]}, {"step": 13, "title": "Step 13: INCLUDE nums[1] = 2", "text": "Include nums[1] = 2: append it, path becomes [2], then recurse into backtrack(2).", "pos": "1", "act": "INCLUDE nums[1] = 2", "path": "[2]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1]]", "count": 4, "depth": 3, "cur": 9, "onpath": [0, 8, 9], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "rec": [3, 4, 6, 7], "lines": [8, 9]}, {"step": 14, "title": "Step 14: INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [2, 3], then recurse into backtrack(3).", "pos": "2", "act": "INCLUDE nums[2] = 3", "path": "[2, 3]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1]]", "count": 4, "depth": 4, "cur": 10, "onpath": [0, 8, 9, 10], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "rec": [3, 4, 6, 7], "lines": [8, 9]}, {"step": 15, "title": "Step 15: i == 3: record [2, 3]", "text": "Every element is decided, so path [2, 3] is a finished subset. Record a copy (subset #5).", "pos": "3", "act": "i == 3: record [2, 3]", "path": "[2, 3]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3]]", "count": 5, "depth": 4, "cur": 10, "onpath": [0, 8, 9, 10], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "rec": [3, 4, 6, 7, 10], "lines": [5, 6, 7]}, {"step": 16, "title": "Step 16: pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to [2]. Now the exclude branch: call backtrack(3) without 3.", "pos": "2 -> j = 3", "act": "pop 3; EXCLUDE nums[2] = 3", "path": "[2]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3]]", "count": 5, "depth": 4, "cur": 11, "onpath": [0, 8, 9, 11], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "rec": [3, 4, 6, 7, 10], "lines": [10, 12]}, {"step": 17, "title": "Step 17: i == 3: record [2]", "text": "Every element is decided, so path [2] is a finished subset. Record a copy (subset #6).", "pos": "3", "act": "i == 3: record [2]", "path": "[2]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2]]", "count": 6, "depth": 4, "cur": 11, "onpath": [0, 8, 9, 11], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "rec": [3, 4, 6, 7, 10, 11], "lines": [5, 6, 7]}, {"step": 18, "title": "Step 18: pop 2; EXCLUDE nums[1] = 2", "text": "Un-choose: pop 2, path back to []. Now the exclude branch: call backtrack(2) without 2.", "pos": "1 -> j = 2", "act": "pop 2; EXCLUDE nums[1] = 2", "path": "[]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2]]", "count": 6, "depth": 3, "cur": 12, "onpath": [0, 8, 12], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "rec": [3, 4, 6, 7, 10, 11], "lines": [10, 12]}, {"step": 19, "title": "Step 19: INCLUDE nums[2] = 3", "text": "Include nums[2] = 3: append it, path becomes [3], then recurse into backtrack(3).", "pos": "2", "act": "INCLUDE nums[2] = 3", "path": "[3]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2]]", "count": 6, "depth": 4, "cur": 13, "onpath": [0, 8, 12, 13], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "rec": [3, 4, 6, 7, 10, 11], "lines": [8, 9]}, {"step": 20, "title": "Step 20: i == 3: record [3]", "text": "Every element is decided, so path [3] is a finished subset. Record a copy (subset #7).", "pos": "3", "act": "i == 3: record [3]", "path": "[3]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3]]", "count": 7, "depth": 4, "cur": 13, "onpath": [0, 8, 12, 13], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "rec": [3, 4, 6, 7, 10, 11, 13], "lines": [5, 6, 7]}, {"step": 21, "title": "Step 21: pop 3; EXCLUDE nums[2] = 3", "text": "Un-choose: pop 3, path back to []. Now the exclude branch: call backtrack(3) without 3.", "pos": "2 -> j = 3", "act": "pop 3; EXCLUDE nums[2] = 3", "path": "[]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3]]", "count": 7, "depth": 4, "cur": 14, "onpath": [0, 8, 12, 14], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "rec": [3, 4, 6, 7, 10, 11, 13], "lines": [10, 12]}, {"step": 22, "title": "Step 22: i == 3: record []", "text": "Every element is decided, so path [] is a finished subset. Record a copy (subset #8). That was the last leaf: return 8 subsets.", "pos": "3", "act": "i == 3: record []", "path": "[]", "out": "[[1, 2, 3], [1, 2], [1, 3], [1], [2, 3], [2], [3], []]", "count": 8, "depth": 4, "cur": 14, "onpath": [0, 8, 12, 14], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "rec": [3, 4, 6, 7, 10, 11, 13, 14], "lines": [5, 6, 7, 15]}], ie2: [{"step": 0, "title": "Initial state", "text": "Start at index 0 with an empty path. Nothing is recorded until every element is decided.", "pos": "0", "act": "Call backtrack(0)", "path": "[]", "out": "[]", "count": 0, "depth": 1, "cur": 0, "onpath": [0], "visited": [0], "rec": [], "lines": [2, 3, 4, 19]}, {"step": 1, "title": "Step 1: INCLUDE nums[0] = 1", "text": "Include nums[0] = 1: append it, path becomes [1], then recurse into backtrack(1).", "pos": "0", "act": "INCLUDE nums[0] = 1", "path": "[1]", "out": "[]", "count": 0, "depth": 2, "cur": 1, "onpath": [0, 1], "visited": [0, 1], "rec": [], "lines": [10, 11]}, {"step": 2, "title": "Step 2: INCLUDE nums[1] = 2", "text": "Include nums[1] = 2: append it, path becomes [1, 2], then recurse into backtrack(2).", "pos": "1", "act": "INCLUDE nums[1] = 2", "path": "[1, 2]", "out": "[]", "count": 0, "depth": 3, "cur": 2, "onpath": [0, 1, 2], "visited": [0, 1, 2], "rec": [], "lines": [10, 11]}, {"step": 3, "title": "Step 3: INCLUDE nums[2] = 2", "text": "Include nums[2] = 2: append it, path becomes [1, 2, 2], then recurse into backtrack(3).", "pos": "2", "act": "INCLUDE nums[2] = 2", "path": "[1, 2, 2]", "out": "[]", "count": 0, "depth": 4, "cur": 3, "onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [], "lines": [10, 11]}, {"step": 4, "title": "Step 4: i == 3: record [1, 2, 2]", "text": "Every element is decided, so path [1, 2, 2] is a finished subset. Record a copy (subset #1).", "pos": "3", "act": "i == 3: record [1, 2, 2]", "path": "[1, 2, 2]", "out": "[[1, 2, 2]]", "count": 1, "depth": 4, "cur": 3, "onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [3], "lines": [7, 8, 9]}, {"step": 5, "title": "Step 5: pop 2; EXCLUDE nums[2] = 2", "text": "Un-choose: pop 2, path back to [1, 2]. Now the exclude branch: call backtrack(3) without 2.", "pos": "2 -> j = 3", "act": "pop 2; EXCLUDE nums[2] = 2", "path": "[1, 2]", "out": "[[1, 2, 2]]", "count": 1, "depth": 4, "cur": 4, "onpath": [0, 1, 2, 4], "visited": [0, 1, 2, 3, 4], "rec": [3], "lines": [12, 14, 15, 16, 17]}, {"step": 6, "title": "Step 6: i == 3: record [1, 2]", "text": "Every element is decided, so path [1, 2] is a finished subset. Record a copy (subset #2).", "pos": "3", "act": "i == 3: record [1, 2]", "path": "[1, 2]", "out": "[[1, 2, 2], [1, 2]]", "count": 2, "depth": 4, "cur": 4, "onpath": [0, 1, 2, 4], "visited": [0, 1, 2, 3, 4], "rec": [3, 4], "lines": [7, 8, 9]}, {"step": 7, "title": "Step 7: pop 2; EXCLUDE every 2: j jumps 1->3", "text": "Un-choose: pop 2, path back to [1]. Exclude nums[1] = 2 AND the 1 copy after it: j skips to 3, so call backtrack(3).", "pos": "1 -> j = 3", "act": "pop 2; EXCLUDE every 2: j jumps 1->3", "path": "[1]", "out": "[[1, 2, 2], [1, 2]]", "count": 2, "depth": 3, "cur": 5, "onpath": [0, 1, 5], "visited": [0, 1, 2, 3, 4, 5], "rec": [3, 4], "lines": [12, 14, 15, 16, 17]}, {"step": 8, "title": "Step 8: i == 3: record [1]", "text": "Every element is decided, so path [1] is a finished subset. Record a copy (subset #3).", "pos": "3", "act": "i == 3: record [1]", "path": "[1]", "out": "[[1, 2, 2], [1, 2], [1]]", "count": 3, "depth": 3, "cur": 5, "onpath": [0, 1, 5], "visited": [0, 1, 2, 3, 4, 5], "rec": [3, 4, 5], "lines": [7, 8, 9]}, {"step": 9, "title": "Step 9: pop 1; EXCLUDE nums[0] = 1", "text": "Un-choose: pop 1, path back to []. Now the exclude branch: call backtrack(1) without 1.", "pos": "0 -> j = 1", "act": "pop 1; EXCLUDE nums[0] = 1", "path": "[]", "out": "[[1, 2, 2], [1, 2], [1]]", "count": 3, "depth": 2, "cur": 6, "onpath": [0, 6], "visited": [0, 1, 2, 3, 4, 5, 6], "rec": [3, 4, 5], "lines": [12, 14, 15, 16, 17]}, {"step": 10, "title": "Step 10: INCLUDE nums[1] = 2", "text": "Include nums[1] = 2: append it, path becomes [2], then recurse into backtrack(2).", "pos": "1", "act": "INCLUDE nums[1] = 2", "path": "[2]", "out": "[[1, 2, 2], [1, 2], [1]]", "count": 3, "depth": 3, "cur": 7, "onpath": [0, 6, 7], "visited": [0, 1, 2, 3, 4, 5, 6, 7], "rec": [3, 4, 5], "lines": [10, 11]}, {"step": 11, "title": "Step 11: INCLUDE nums[2] = 2", "text": "Include nums[2] = 2: append it, path becomes [2, 2], then recurse into backtrack(3).", "pos": "2", "act": "INCLUDE nums[2] = 2", "path": "[2, 2]", "out": "[[1, 2, 2], [1, 2], [1]]", "count": 3, "depth": 4, "cur": 8, "onpath": [0, 6, 7, 8], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8], "rec": [3, 4, 5], "lines": [10, 11]}, {"step": 12, "title": "Step 12: i == 3: record [2, 2]", "text": "Every element is decided, so path [2, 2] is a finished subset. Record a copy (subset #4).", "pos": "3", "act": "i == 3: record [2, 2]", "path": "[2, 2]", "out": "[[1, 2, 2], [1, 2], [1], [2, 2]]", "count": 4, "depth": 4, "cur": 8, "onpath": [0, 6, 7, 8], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8], "rec": [3, 4, 5, 8], "lines": [7, 8, 9]}, {"step": 13, "title": "Step 13: pop 2; EXCLUDE nums[2] = 2", "text": "Un-choose: pop 2, path back to [2]. Now the exclude branch: call backtrack(3) without 2.", "pos": "2 -> j = 3", "act": "pop 2; EXCLUDE nums[2] = 2", "path": "[2]", "out": "[[1, 2, 2], [1, 2], [1], [2, 2]]", "count": 4, "depth": 4, "cur": 9, "onpath": [0, 6, 7, 9], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "rec": [3, 4, 5, 8], "lines": [12, 14, 15, 16, 17]}, {"step": 14, "title": "Step 14: i == 3: record [2]", "text": "Every element is decided, so path [2] is a finished subset. Record a copy (subset #5).", "pos": "3", "act": "i == 3: record [2]", "path": "[2]", "out": "[[1, 2, 2], [1, 2], [1], [2, 2], [2]]", "count": 5, "depth": 4, "cur": 9, "onpath": [0, 6, 7, 9], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "rec": [3, 4, 5, 8, 9], "lines": [7, 8, 9]}, {"step": 15, "title": "Step 15: pop 2; EXCLUDE every 2: j jumps 1->3", "text": "Un-choose: pop 2, path back to []. Exclude nums[1] = 2 AND the 1 copy after it: j skips to 3, so call backtrack(3).", "pos": "1 -> j = 3", "act": "pop 2; EXCLUDE every 2: j jumps 1->3", "path": "[]", "out": "[[1, 2, 2], [1, 2], [1], [2, 2], [2]]", "count": 5, "depth": 3, "cur": 10, "onpath": [0, 6, 10], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "rec": [3, 4, 5, 8, 9], "lines": [12, 14, 15, 16, 17]}, {"step": 16, "title": "Step 16: i == 3: record []", "text": "Every element is decided, so path [] is a finished subset. Record a copy (subset #6). That was the last leaf: return 6 subsets.", "pos": "3", "act": "i == 3: record []", "path": "[]", "out": "[[1, 2, 2], [1, 2], [1], [2, 2], [2], []]", "count": 6, "depth": 3, "cur": 10, "onpath": [0, 6, 10], "visited": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "rec": [3, 4, 5, 8, 9, 10], "lines": [7, 8, 9, 20]}], si2: [{"step": 0, "title": "Initial state", "text": "Enter backtrack(0) and record the empty path first: every node of this tree is a subset.", "pos": "0", "act": "backtrack(0): record []", "path": "[]", "out": "[[]]", "count": 1, "depth": 1, "cur": 0, "onpath": [0], "visited": [0], "rec": [0], "lines": [2, 3, 14, 6]}, {"step": 1, "title": "Step 1: CHOOSE nums[0] = 1; record [1]", "text": "Choose nums[0] = 1, enter backtrack(1) and record [1] on entry (subset #2).", "pos": "1", "act": "CHOOSE nums[0] = 1; record [1]", "path": "[1]", "out": "[[], [1]]", "count": 2, "depth": 2, "cur": 1, "onpath": [0, 1], "visited": [0, 1], "rec": [0, 1], "lines": [2, 3, 14, 6]}, {"step": 2, "title": "Step 2: CHOOSE nums[1] = 2; record [1, 2]", "text": "Choose nums[1] = 2, enter backtrack(2) and record [1, 2] on entry (subset #3).", "pos": "2", "act": "CHOOSE nums[1] = 2; record [1, 2]", "path": "[1, 2]", "out": "[[], [1], [1, 2]]", "count": 3, "depth": 3, "cur": 2, "onpath": [0, 1, 2], "visited": [0, 1, 2], "rec": [0, 1, 2], "lines": [2, 3, 14, 6]}, {"step": 3, "title": "Step 3: CHOOSE nums[2] = 2; record [1, 2, 2]", "text": "Choose nums[2] = 2, enter backtrack(3) and record [1, 2, 2] on entry (subset #4).", "pos": "3", "act": "CHOOSE nums[2] = 2; record [1, 2, 2]", "path": "[1, 2, 2]", "out": "[[], [1], [1, 2], [1, 2, 2]]", "count": 4, "depth": 4, "cur": 3, "onpath": [0, 1, 2, 3], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "lines": [2, 3, 14, 6]}, {"step": 4, "title": "Step 4: UN-CHOOSE: pop 2", "text": "Back in backtrack(2): pop 2, path is [1, 2] again; the loop moves on.", "pos": "2", "act": "UN-CHOOSE: pop 2", "path": "[1, 2]", "out": "[[], [1], [1, 2], [1, 2, 2]]", "count": 4, "depth": 3, "cur": 2, "onpath": [0, 1, 2], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "lines": [12]}, {"step": 5, "title": "Step 5: UN-CHOOSE: pop 2", "text": "Back in backtrack(1): pop 2, path is [1] again; the loop moves on.", "pos": "1", "act": "UN-CHOOSE: pop 2", "path": "[1]", "out": "[[], [1], [1, 2], [1, 2, 2]]", "count": 4, "depth": 2, "cur": 1, "onpath": [0, 1], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "lines": [12]}, {"step": 6, "title": "Step 6: i = 2: nums[2] == nums[1] -> skip", "text": "At this level i = 2 > start = 1 and nums[2] = 2 equals the sibling before it: that sibling already built every subset continuing with 2 here. Skip.", "pos": "1", "act": "i = 2: nums[2] == nums[1] -> skip", "path": "[1]", "out": "[[], [1], [1, 2], [1, 2, 2]]", "count": 4, "depth": 2, "cur": 1, "onpath": [0, 1], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "lines": [7, 8, 9]}, {"step": 7, "title": "Step 7: UN-CHOOSE: pop 1", "text": "Back in backtrack(0): pop 1, path is [] again; the loop moves on.", "pos": "0", "act": "UN-CHOOSE: pop 1", "path": "[]", "out": "[[], [1], [1, 2], [1, 2, 2]]", "count": 4, "depth": 1, "cur": 0, "onpath": [0], "visited": [0, 1, 2, 3], "rec": [0, 1, 2, 3], "lines": [12]}, {"step": 8, "title": "Step 8: CHOOSE nums[1] = 2; record [2]", "text": "Choose nums[1] = 2, enter backtrack(2) and record [2] on entry (subset #5).", "pos": "2", "act": "CHOOSE nums[1] = 2; record [2]", "path": "[2]", "out": "[[], [1], [1, 2], [1, 2, 2], [2]]", "count": 5, "depth": 2, "cur": 4, "onpath": [0, 4], "visited": [0, 1, 2, 3, 4], "rec": [0, 1, 2, 3, 4], "lines": [2, 3, 14, 6]}, {"step": 9, "title": "Step 9: CHOOSE nums[2] = 2; record [2, 2]", "text": "Choose nums[2] = 2, enter backtrack(3) and record [2, 2] on entry (subset #6).", "pos": "3", "act": "CHOOSE nums[2] = 2; record [2, 2]", "path": "[2, 2]", "out": "[[], [1], [1, 2], [1, 2, 2], [2], [2, 2]]", "count": 6, "depth": 3, "cur": 5, "onpath": [0, 4, 5], "visited": [0, 1, 2, 3, 4, 5], "rec": [0, 1, 2, 3, 4, 5], "lines": [2, 3, 14, 6]}, {"step": 10, "title": "Step 10: UN-CHOOSE: pop 2", "text": "Back in backtrack(2): pop 2, path is [2] again; the loop moves on.", "pos": "2", "act": "UN-CHOOSE: pop 2", "path": "[2]", "out": "[[], [1], [1, 2], [1, 2, 2], [2], [2, 2]]", "count": 6, "depth": 2, "cur": 4, "onpath": [0, 4], "visited": [0, 1, 2, 3, 4, 5], "rec": [0, 1, 2, 3, 4, 5], "lines": [12]}, {"step": 11, "title": "Step 11: UN-CHOOSE: pop 2", "text": "Back in backtrack(0): pop 2, path is [] again; the loop moves on.", "pos": "0", "act": "UN-CHOOSE: pop 2", "path": "[]", "out": "[[], [1], [1, 2], [1, 2, 2], [2], [2, 2]]", "count": 6, "depth": 1, "cur": 0, "onpath": [0], "visited": [0, 1, 2, 3, 4, 5], "rec": [0, 1, 2, 3, 4, 5], "lines": [12]}, {"step": 12, "title": "Step 12: i = 2: nums[2] == nums[1] -> skip", "text": "At this level i = 2 > start = 0 and nums[2] = 2 equals the sibling before it: that sibling already built every subset continuing with 2 here. Skip. The loop in backtrack(0) is done: return 6 subsets.", "pos": "0", "act": "i = 2: nums[2] == nums[1] -> skip", "path": "[]", "out": "[[], [1], [1, 2], [1, 2, 2], [2], [2, 2]]", "count": 6, "depth": 1, "cur": 0, "onpath": [0], "visited": [0, 1, 2, 3, 4, 5], "rec": [0, 1, 2, 3, 4, 5], "lines": [7, 8, 9, 15]}] };
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function drawTree(holderId, T, s) {
+        const GX = 76, GY = 64, NW = 64, NH = 26;
+        const maxd = Math.max(...T.nodes.map((n) => n.depth));
+        const W = T.leaves * GX + 10, H = (maxd + 1) * GY + 6;
+        const X = (n) => n.x * GX + GX / 2 + 5, Y = (n) => n.depth * GY + NH / 2 + 8;
+        let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W + 40}px" class="tree-svg" role="img" aria-label="recursion tree">`;
+        T.nodes.forEach((n) => {
+          if (n.parent === null) return;
+          const p = T.nodes[n.parent];
+          const fade = s.visited.includes(n.id) ? '' : ' faded';
+          const x1 = X(p), y1 = Y(p) + NH / 2, x2 = X(n), y2 = Y(n) - NH / 2;
+          svg += `<line class="te${n.dashed ? ' ex' : ''}${fade}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+          const left = x2 < x1, same = x2 === x1;
+          svg += `<text class="tl${fade}" x="${(x1 + x2) / 2 + (same ? 6 : left ? -5 : 5)}" y="${(y1 + y2) / 2 + 4}" text-anchor="${same || !left ? 'start' : 'end'}">${n.edge}</text>`;
+        });
+        T.nodes.forEach((n) => {
+          let c = '';
+          if (n.id === s.cur) c = 'current';
+          else if (s.onpath.includes(n.id)) c = 'frontier';
+          else if (s.visited.includes(n.id)) c = 'done';
+          if (s.rec.includes(n.id)) c += ' rec';
+          svg += `<g class="ln ${c}"><rect x="${X(n) - NW / 2}" y="${Y(n) - NH / 2}" width="${NW}" height="${NH}" rx="8"/><text x="${X(n)}" y="${Y(n) + 4}" text-anchor="middle">${n.label}</text></g>`;
+        });
+        document.getElementById(holderId).innerHTML = svg + '</svg>';
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1500);
+        });
+        update();
+      }
+
+      function makeRender(prefix) {
+        return (step, index, max) => {
+          document.getElementById(`${prefix}-step-title`).textContent = step.title;
+          document.getElementById(`${prefix}-step-text`).textContent = step.text;
+          document.getElementById(`${prefix}-pos`).textContent = step.pos;
+          document.getElementById(`${prefix}-depth`).textContent = String(step.depth);
+          document.getElementById(`${prefix}-path`).textContent = step.path;
+          document.getElementById(`${prefix}-count`).textContent = String(step.count);
+          document.getElementById(`${prefix}-out`).textContent = step.out;
+          document.getElementById(`${prefix}-detail`).textContent = 'Action: ' + step.act;
+          document.getElementById(`${prefix}-step-counter`).textContent = `Step ${step.step} / ${max}`;
+          document.getElementById(`${prefix}-progress`).style.width = `${(index / max) * 100}%`;
+          markActiveRow(`${prefix}-trace-table`, step.step);
+          setCodeHighlight(`${prefix}-code`, step.lines);
+          drawTree(`${prefix}-graph`, TREES[prefix], step);
+        };
+      }
+
+      ['ie', 'ie2', 'si2'].forEach((p) => setupTrace({ steps: STEPS[p], prefix: p, render: makeRender(p) }));
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opposite Ends — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Two Pointers · Pattern 01 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Opposite Ends</h1>
+          <p>
+            Put one pointer at each end of an array or string and walk them toward each other. Every step looks at the two ends together and moves exactly one pointer inward, chosen by a rule that proves the element you leave behind cannot be part of a better answer. The pointers meet after at most <code>n - 1</code> steps, so a problem that looks like "check every pair" (<code>O(n²)</code>) becomes one linear pass with <code>O(1)</code> extra memory.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: each step finishes one end</span>
+            <span class="chip">Method 1: Valid Palindrome</span>
+            <span class="chip">Method 2: Two Sum II (sorted)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="valid_palindrome.html">Valid Palindrome</a> · <a href="two_sum_ii.html">Two Sum II</a> · <a href="three_sum.html">3Sum</a> · <a href="container_with_most_water.html">Container With Most Water</a> · <a href="trapping_rain_water.html">Trapping Rain Water</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Valid Palindrome, <code>s = "Taco cat"</code>: ignoring case and anything that is not a letter or digit, does it read the same both ways?</p>
+          <div class="diagram">
+            <svg viewBox="0 0 526 170" width="100%" role="img" aria-label="The string Taco cat with mirror characters joined by arcs">
+              <defs>
+                <style>
+                  .h-box { fill: #315efb; }
+                  .h-skip { fill: #ffffff; stroke: #c8d2e7; stroke-width: 2; stroke-dasharray: 5 4; }
+                  .h-mid { fill: #13a46b; }
+                  .h-ch { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-ch-dark { font: 700 20px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-arc { fill: none; stroke: #315efb; stroke-width: 2.5; }
+                </style>
+              </defs>
+              <path d="M46 62 Q263 -40 480 62" class="h-arc" />
+              <path d="M108 62 Q263 -10 418 62" class="h-arc" />
+              <path d="M170 62 Q263 20 356 62" class="h-arc" />
+              <rect x="20" y="66" width="52" height="52" rx="10" class="h-box" />
+              <rect x="82" y="66" width="52" height="52" rx="10" class="h-box" />
+              <rect x="144" y="66" width="52" height="52" rx="10" class="h-box" />
+              <rect x="206" y="66" width="52" height="52" rx="10" class="h-mid" />
+              <rect x="268" y="66" width="52" height="52" rx="10" class="h-skip" />
+              <rect x="330" y="66" width="52" height="52" rx="10" class="h-box" />
+              <rect x="392" y="66" width="52" height="52" rx="10" class="h-box" />
+              <rect x="454" y="66" width="52" height="52" rx="10" class="h-box" />
+              <text x="46" y="99" text-anchor="middle" class="h-ch">T</text>
+              <text x="108" y="99" text-anchor="middle" class="h-ch">a</text>
+              <text x="170" y="99" text-anchor="middle" class="h-ch">c</text>
+              <text x="232" y="99" text-anchor="middle" class="h-ch">o</text>
+              <text x="294" y="99" text-anchor="middle" class="h-ch-dark">␣</text>
+              <text x="356" y="99" text-anchor="middle" class="h-ch">c</text>
+              <text x="418" y="99" text-anchor="middle" class="h-ch">a</text>
+              <text x="480" y="99" text-anchor="middle" class="h-ch">t</text>
+              <text x="46" y="140" text-anchor="middle" class="h-idx">0</text>
+              <text x="108" y="140" text-anchor="middle" class="h-idx">1</text>
+              <text x="170" y="140" text-anchor="middle" class="h-idx">2</text>
+              <text x="232" y="140" text-anchor="middle" class="h-idx">3</text>
+              <text x="294" y="140" text-anchor="middle" class="h-idx">4 (skipped)</text>
+              <text x="356" y="140" text-anchor="middle" class="h-idx">5</text>
+              <text x="418" y="140" text-anchor="middle" class="h-idx">6</text>
+              <text x="480" y="140" text-anchor="middle" class="h-idx">7</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = True (T/t, a/a, c/c match; the space is skipped)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Matching against a mirror</h3>
+          <p>Palindromes, reversing a string in place, checking that a sequence is symmetric: position <code>k</code> from the left is always compared with position <code>k</code> from the right.</p>
+        </div>
+        <div class="card">
+          <h3>Pairs in sorted data</h3>
+          <p>"Two prices that fit the budget", "two readings that add to a target", 3Sum and 4Sum: sorted order tells you which end is hopeless, with no extra memory.</p>
+        </div>
+        <div class="card">
+          <h3>Bounded by the weaker side</h3>
+          <p>Container With Most Water and Trapping Rain Water: the shorter wall sets the limit, so the shorter side is the one you can finish and move past.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the whole skill is one sentence you must be able to justify out loud: "this end can't be part of any better answer, so I drop it". If you can't say why, the pointer move is a guess.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the opposite-ends two-pointer pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Two integer indices, <code>lo</code> at the start and <code>hi</code> at the end. While <code>lo &lt; hi</code>, look at the two ends together, then move <strong>one</strong> of them inward (or both, when both ends are finished, as in a palindrome match). The range <code>[lo, hi]</code> shrinks every step; everything outside it is settled for good.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p><strong>Sorted</strong> input plus a <strong>pair</strong> ("two numbers that sum to target", "triplets that sum to zero"); <strong>palindrome</strong> or "reads the same backwards"; a pair of positions scored by the <strong>shorter side</strong> ("most water", "water trapped"); or an <code>O(1)</code> extra space rule on a problem whose easy fix is a hash map.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> picture all pairs <code>(lo, hi)</code> as a triangle. One comparison of the two ends rules out a whole row of that triangle (every pair that uses the dropped element), which is why <code>n - 1</code> steps are enough instead of <code>n(n-1)/2</code>.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot the shape</h3>
+          <p>Sorted input with a pair, a mirror comparison, or "limited by the shorter side". The brute force is "every pair".</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Start at the extremes</h3>
+          <p><code>lo, hi = 0, len(a) - 1</code>. The widest range, the smallest and largest values, the outermost characters.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Look at both ends</h3>
+          <p>Compare, sum, or score <code>a[lo]</code> with <code>a[hi]</code>. If that is the answer, return it.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Drop the finished end</h3>
+          <p>Prove which end cannot be in a better answer and move only that pointer. Loop while <code>lo &lt; hi</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a shrinking range [lo, hi]</h2>
+      <p>The algorithm never builds a new structure. Its whole state is two integers. The input is read through them: the characters or values between <code>lo</code> and <code>hi</code> are still open, everything outside is settled. Here is that view for the canonical string.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input string</h3>
+          <div class="code-block"><code>s = "Taco cat"      # len 8, indexes 0..7</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Ranges the loop visits</h3>
+          <div class="code-block"><code>[0, 7]  "Taco cat"  compare T / t
+[1, 6]  "aco ca"    compare a / a
+[2, 5]  "co c"      compare c / c
+[3, 4]  "o "        skip ' ', then j = 3
+[4, 2]  empty       lo &gt;= hi: stop</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Start with the full range</h4>
+          <p><code>i = 0</code>, <code>j = 7</code>. Nothing is settled yet.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Each match settles two characters</h4>
+          <p>When <code>s[i]</code> and <code>s[j]</code> agree (ignoring case), both are done, so both pointers step in: the range loses two characters.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Each skip settles one character</h4>
+          <p>A space or punctuation mark does not count, so that pointer moves past it on its own.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>The range empties</h4>
+          <p>When <code>i &gt;= j</code> every mirror pair has been checked. The middle character of an odd-length string has no partner and needs no check.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> for sorted pair problems the same picture holds with values instead of characters. In Two Sum II each step drops <em>one</em> value, because a sum that is too small only proves the <em>left</em> value is hopeless.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: mirror check from both ends (Valid Palindrome)</h2>
+      <p>The template as a mirror check, taken line for line from the notebook's <code>is_palindrome_twoptr</code>. Each outer pass skips non-alphanumerics on both sides, compares the two characters lowercased, and steps both pointers in on a match. One mismatch ends it.</p>
+      <div class="code-block stepped">
+        <code id="pc-code">
+<span class="code-line" data-line="1">def is_palindrome_twoptr(s: str) -&gt; bool:</span>
+<span class="code-line" data-line="2">    i, j = 0, len(s) - 1                   # one pointer at each end</span>
+<span class="code-line" data-line="3">    while i &lt; j:                           # walk them toward the middle</span>
+<span class="code-line" data-line="4">        while i &lt; j and not s[i].isalnum():</span>
+<span class="code-line" data-line="5">            i += 1                         # skip non-letters/digits on the left</span>
+<span class="code-line" data-line="6">        while i &lt; j and not s[j].isalnum():</span>
+<span class="code-line" data-line="7">            j -= 1                         # skip non-letters/digits on the right</span>
+<span class="code-line" data-line="8">        if s[i].lower() != s[j].lower():   # mirror characters must match (ignore case)</span>
+<span class="code-line" data-line="9">            return False                   # mismatch -&gt; not a palindrome</span>
+<span class="code-line" data-line="10">        i += 1; j -= 1                     # both matched -&gt; step inward</span>
+<span class="code-line" data-line="11">    return True                            # met in the middle with no mismatch</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive palindrome trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="pc-graph" viewBox="0 0 526 176" width="100%" role="img" aria-label="Two pointers i and j moving inward over the string Taco cat">
+              <defs>
+                <style>
+                  .pc-box { fill: #c8d2e7; stroke: #c8d2e7; stroke-width: 2; transition: fill 0.2s ease; }
+                  .pc-box.done { fill: #315efb; stroke: #315efb; }
+                  .pc-box.current { fill: #ff9f1c; stroke: #ff9f1c; }
+                  .pc-box.skipped { fill: #ffffff; stroke: #c8d2e7; stroke-dasharray: 5 4; }
+                  .pc-ch { font: 700 20px Inter, Arial, sans-serif; fill: #182132; pointer-events: none; }
+                  .pc-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .pc-ptr-i { font: 800 15px Inter, Arial, sans-serif; fill: #315efb; transition: x 0.2s ease; }
+                  .pc-ptr-j { font: 800 15px Inter, Arial, sans-serif; fill: #13a46b; transition: x 0.2s ease; }
+                </style>
+              </defs>
+              <rect x="20" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="0" />
+              <rect x="82" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="1" />
+              <rect x="144" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="2" />
+              <rect x="206" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="3" />
+              <rect x="268" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="4" />
+              <rect x="330" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="5" />
+              <rect x="392" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="6" />
+              <rect x="454" y="20" width="52" height="52" rx="10" class="pc-box" data-idx="7" />
+              <text x="46" y="53" text-anchor="middle" class="pc-ch">T</text>
+              <text x="108" y="53" text-anchor="middle" class="pc-ch">a</text>
+              <text x="170" y="53" text-anchor="middle" class="pc-ch">c</text>
+              <text x="232" y="53" text-anchor="middle" class="pc-ch">o</text>
+              <text x="294" y="53" text-anchor="middle" class="pc-ch">␣</text>
+              <text x="356" y="53" text-anchor="middle" class="pc-ch">c</text>
+              <text x="418" y="53" text-anchor="middle" class="pc-ch">a</text>
+              <text x="480" y="53" text-anchor="middle" class="pc-ch">t</text>
+              <text x="46" y="92" text-anchor="middle" class="pc-idx">0</text>
+              <text x="108" y="92" text-anchor="middle" class="pc-idx">1</text>
+              <text x="170" y="92" text-anchor="middle" class="pc-idx">2</text>
+              <text x="232" y="92" text-anchor="middle" class="pc-idx">3</text>
+              <text x="294" y="92" text-anchor="middle" class="pc-idx">4</text>
+              <text x="356" y="92" text-anchor="middle" class="pc-idx">5</text>
+              <text x="418" y="92" text-anchor="middle" class="pc-idx">6</text>
+              <text x="480" y="92" text-anchor="middle" class="pc-idx">7</text>
+              <text id="pc-i" x="46" y="124" text-anchor="middle" class="pc-ptr-i">▲ i</text>
+              <text id="pc-j" x="480" y="152" text-anchor="middle" class="pc-ptr-j">▲ j</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> being compared</span>
+            <span><i class="dot dot-blue"></i> matched (settled)</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span>dashed = skipped (not a letter or digit)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="pc-step-title">Initial state</h3>
+          <p id="pc-step-text">Pointers at both ends.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="pc-prev">Previous</button>
+            <button type="button" id="pc-play" class="primary">Resume</button>
+            <button type="button" id="pc-next">Next</button>
+            <button type="button" id="pc-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="pc-step-counter">Step 0 / 10</span>
+            <div class="progress"><span id="pc-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i</strong><div class="state-value" id="pc-iv">0</div></div>
+            <div class="state-box"><strong>j</strong><div class="state-value" id="pc-jv">7</div></div>
+            <div class="state-box"><strong>s[i] / s[j]</strong><div class="state-value" id="pc-chars">—</div></div>
+            <div class="state-box"><strong>Comparison</strong><div class="state-value" id="pc-cmp">—</div></div>
+            <div class="state-box"><strong>Open range</strong><div class="state-value" id="pc-range">[0, 7]</div></div>
+            <div class="state-box"><strong>Result</strong><div class="state-value" id="pc-res">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="pc-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="pc-trace-table">
+          <thead>
+            <tr><th>Step</th><th>i</th><th>j</th><th>Action</th><th>Outcome</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>7</td><td><code>i, j = 0, 7</code></td><td>Both ends set</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>7</td><td>Both alnum, compare <code>'T'</code> vs <code>'t'</code></td><td>Equal after <code>.lower()</code></td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>6</td><td>Step inward</td><td>0 and 7 settled</td></tr>
+            <tr data-step="3"><td>3</td><td>1</td><td>6</td><td>Compare <code>'a'</code> vs <code>'a'</code></td><td>Equal</td></tr>
+            <tr data-step="4"><td>4</td><td>2</td><td>5</td><td>Step inward</td><td>1 and 6 settled</td></tr>
+            <tr data-step="5"><td>5</td><td>2</td><td>5</td><td>Compare <code>'c'</code> vs <code>'c'</code></td><td>Equal</td></tr>
+            <tr data-step="6"><td>6</td><td>3</td><td>4</td><td>Step inward</td><td>2 and 5 settled</td></tr>
+            <tr data-step="7"><td>7</td><td>3</td><td>3</td><td><code>s[4] = ' '</code> is not alnum, <code>j -= 1</code></td><td>Index 4 skipped</td></tr>
+            <tr data-step="8"><td>8</td><td>3</td><td>3</td><td>Compare <code>s[3]</code> with itself: <code>'o'</code> vs <code>'o'</code></td><td>Equal</td></tr>
+            <tr data-step="9"><td>9</td><td>4</td><td>2</td><td>Step inward</td><td>Pointers crossed</td></tr>
+            <tr data-step="10"><td>10</td><td>4</td><td>2</td><td><code>while i &lt; j</code> fails, return</td><td><code>True</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Fold the string in half. Each outer pass lays one character from the left on top of its mirror from the right. Spaces and punctuation are invisible, so each pointer slides past them on its own.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Dropping <code>i &lt; j</code> from the skip loops. On a string of only punctuation, like <code>" "</code> or <code>",."</code>, the left pointer would run off the end.</p>
+        </div>
+        <div class="card">
+          <h4>Why two pointers instead of a copy</h4>
+          <p>The notebook's first approach builds a cleaned, lowercased copy and compares it with its reverse: also <code>O(n)</code> time, but <code>O(n)</code> extra memory. Two pointers read the original string in place: <code>O(1)</code> memory.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: let the sum pick the side (Two Sum II - Input Array Is Sorted)</h2>
+      <p>The template in its purest form, from the notebook's <code>two_sum_ii_two_pointers</code>, traced on <code>numbers = [1, 3, 4, 5, 7, 10, 11]</code>, <code>target = 9</code>. Now only <strong>one</strong> pointer moves per step, because a sum that is too small proves only that the <em>left</em> value is hopeless (even the largest partner left cannot lift it to 9), and a sum that is too big proves only that the <em>right</em> value is hopeless.</p>
+      <div class="code-block stepped">
+        <code id="ts-code">
+<span class="code-line" data-line="1">def two_sum_ii_two_pointers(numbers: List[int], target: int) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    lo, hi = 0, len(numbers) - 1               # one pointer at each end</span>
+<span class="code-line" data-line="3">    while lo &lt; hi:</span>
+<span class="code-line" data-line="4">        s = numbers[lo] + numbers[hi]</span>
+<span class="code-line" data-line="5">        if s == target:</span>
+<span class="code-line" data-line="6">            return [lo + 1, hi + 1]            # 1-indexed answer</span>
+<span class="code-line" data-line="7">        if s &lt; target:</span>
+<span class="code-line" data-line="8">            lo += 1                            # numbers[lo] is too small for every partner left: drop it</span>
+<span class="code-line" data-line="9">        else:</span>
+<span class="code-line" data-line="10">            hi -= 1                            # numbers[hi] is too big for every partner left: drop it</span>
+<span class="code-line" data-line="11">    return []</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive Two Sum II trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="ts-graph" viewBox="0 0 520 176" width="100%" role="img" aria-label="Two pointers lo and hi moving inward over a sorted array">
+              <defs>
+                <style>
+                  .ts-box { fill: #13a46b; stroke: #13a46b; stroke-width: 2; transition: fill 0.2s ease; }
+                  .ts-box.dropped { fill: #c8d2e7; stroke: #c8d2e7; }
+                  .ts-box.current { fill: #ff9f1c; stroke: #ff9f1c; }
+                  .ts-box.done { fill: #315efb; stroke: #315efb; }
+                  .ts-val { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; pointer-events: none; }
+                  .ts-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .ts-ptr-lo { font: 800 15px Inter, Arial, sans-serif; fill: #315efb; }
+                  .ts-ptr-hi { font: 800 15px Inter, Arial, sans-serif; fill: #13a46b; }
+                </style>
+              </defs>
+              <rect x="20" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="0" />
+              <rect x="90" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="1" />
+              <rect x="160" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="2" />
+              <rect x="230" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="3" />
+              <rect x="300" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="4" />
+              <rect x="370" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="5" />
+              <rect x="440" y="20" width="56" height="52" rx="10" class="ts-box" data-idx="6" />
+              <text x="48" y="53" text-anchor="middle" class="ts-val">1</text>
+              <text x="118" y="53" text-anchor="middle" class="ts-val">3</text>
+              <text x="188" y="53" text-anchor="middle" class="ts-val">4</text>
+              <text x="258" y="53" text-anchor="middle" class="ts-val">5</text>
+              <text x="328" y="53" text-anchor="middle" class="ts-val">7</text>
+              <text x="398" y="53" text-anchor="middle" class="ts-val">10</text>
+              <text x="468" y="53" text-anchor="middle" class="ts-val">11</text>
+              <text x="48" y="92" text-anchor="middle" class="ts-idx">idx 0</text>
+              <text x="118" y="92" text-anchor="middle" class="ts-idx">idx 1</text>
+              <text x="188" y="92" text-anchor="middle" class="ts-idx">idx 2</text>
+              <text x="258" y="92" text-anchor="middle" class="ts-idx">idx 3</text>
+              <text x="328" y="92" text-anchor="middle" class="ts-idx">idx 4</text>
+              <text x="398" y="92" text-anchor="middle" class="ts-idx">idx 5</text>
+              <text x="468" y="92" text-anchor="middle" class="ts-idx">idx 6</text>
+              <text id="ts-lo" x="48" y="124" text-anchor="middle" class="ts-ptr-lo">▲ lo</text>
+              <text id="ts-hi" x="468" y="152" text-anchor="middle" class="ts-ptr-hi">▲ hi</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> pair being summed</span>
+            <span><i class="dot dot-green"></i> still a candidate</span>
+            <span><i class="dot dot-gray"></i> dropped for good</span>
+            <span><i class="dot dot-blue"></i> answer pair</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="ts-step-title">Initial state</h3>
+          <p id="ts-step-text">Pointers at both ends.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ts-prev">Previous</button>
+            <button type="button" id="ts-play" class="primary">Resume</button>
+            <button type="button" id="ts-next">Next</button>
+            <button type="button" id="ts-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ts-step-counter">Step 0 / 6</span>
+            <div class="progress"><span id="ts-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>lo / hi</strong><div class="state-value" id="ts-lohi">0 / 6</div></div>
+            <div class="state-box"><strong>numbers[lo] + numbers[hi]</strong><div class="state-value" id="ts-sum">—</div></div>
+            <div class="state-box"><strong>s vs target 9</strong><div class="state-value" id="ts-cmp">—</div></div>
+            <div class="state-box"><strong>Dropped so far</strong><div class="state-value" id="ts-dropped">[]</div></div>
+            <div class="state-box"><strong>Return</strong><div class="state-value" id="ts-res">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ts-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="ts-trace-table">
+          <thead>
+            <tr><th>Step</th><th>lo</th><th>hi</th><th>numbers[lo] + numbers[hi]</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>6</td><td>—</td><td><code>lo, hi = 0, 6</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>6</td><td>1 + 11 = 12</td><td>Too big, <code>hi -= 1</code> (drop 11)</td></tr>
+            <tr data-step="2"><td>2</td><td>0</td><td>5</td><td>1 + 10 = 11</td><td>Too big, <code>hi -= 1</code> (drop 10)</td></tr>
+            <tr data-step="3"><td>3</td><td>0</td><td>4</td><td>1 + 7 = 8</td><td>Too small, <code>lo += 1</code> (drop 1)</td></tr>
+            <tr data-step="4"><td>4</td><td>1</td><td>4</td><td>3 + 7 = 10</td><td>Too big, <code>hi -= 1</code> (drop 7)</td></tr>
+            <tr data-step="5"><td>5</td><td>1</td><td>3</td><td>3 + 5 = 8</td><td>Too small, <code>lo += 1</code> (drop 3)</td></tr>
+            <tr data-step="6"><td>6</td><td>2</td><td>3</td><td>4 + 5 = 9</td><td>Found, return <code>[3, 4]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The sum is a dial. Moving <code>lo</code> right can only turn it up; moving <code>hi</code> left can only turn it down. Too low, turn it up; too high, turn it down. Sorted order is what makes the dial one-directional.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Returning <code>[lo, hi]</code>. This problem counts positions from 1, so the answer is <code>[lo + 1, hi + 1]</code> = <code>[3, 4]</code>, not <code>[2, 3]</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Why not a hash map</h4>
+          <p>The notebook's hash map approach is also <code>O(n)</code> time, but it stores up to <code>n</code> values, and the problem demands constant extra space. Two integers do the same job because the array is sorted.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Only punctuation</button>
+        <button type="button" data-example-tab="1">Digit vs letter</button>
+        <button type="button" data-example-tab="2">Mismatch after a skip</button>
+        <button type="button" data-example-tab="3">Two elements, negatives</button>
+        <button type="button" data-example-tab="4">Duplicates (3Sum)</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: nothing alphanumeric</h3>
+          <p><code>s = " "</code></p>
+          <div class="result-badge">Valid Palindrome = True</div>
+          <p class="footer-note"><code>i = j = 0</code>, so <code>while i &lt; j</code> never runs. An empty cleaned string counts as a palindrome. The <code>i &lt; j</code> guard inside the skip loops is what keeps longer all-punctuation strings in bounds.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: a digit and a letter</h3>
+          <p><code>s = "0P"</code></p>
+          <div class="result-badge">Valid Palindrome = False</div>
+          <p class="footer-note">Both characters are alphanumeric, so nothing is skipped. <code>'0' != 'p'</code> after lowercasing. Digits count as real characters, not as punctuation.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: the mismatch hides behind a space</h3>
+          <p><code>s = "race a car"</code></p>
+          <div class="result-badge">Valid Palindrome = False (stops at i = 3, j = 5: 'e' vs 'a')</div>
+          <p class="footer-note">r/r, a/a and c/c match; then <code>j</code> skips the space at index 6 and the pair <code>'e'</code> / <code>'a'</code> fails.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: the smallest possible input</h3>
+          <p><code>numbers = [-1, 0]</code>, <code>target = -1</code></p>
+          <div class="result-badge">Two Sum II = [1, 2]</div>
+          <p class="footer-note">The very first sum, <code>-1 + 0</code>, is the answer. Negative values change nothing: the array is still sorted, so the dial still turns one way.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="4">
+        <div class="card">
+          <h3>Case E: repeated values</h3>
+          <p><code>nums = [0, 0, 0, 0]</code> (3Sum)</p>
+          <div class="result-badge">3Sum = [[0, 0, 0]]</div>
+          <p class="footer-note">Without the neighbour skips (equal anchors, and equal <code>lo</code> / <code>hi</code> values after a hit) the same triplet would be reported more than once.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Valid Palindrome</td><td>Clean copy, compare with its reverse</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Correct, but copies the string.</td></tr>
+            <tr><td>Valid Palindrome</td><td>Two pointers (Method 1)</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>Skip and compare in place.</td></tr>
+            <tr><td>Two Sum II</td><td>Every pair</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>Ignores the sorted order.</td></tr>
+            <tr><td>Two Sum II</td><td>Hash map of seen values</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Breaks the constant-space rule.</td></tr>
+            <tr><td>Two Sum II</td><td>Two pointers (Method 2)</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>The template as is.</td></tr>
+            <tr><td>3Sum</td><td>Every triple / hash set per anchor</td><td><code>O(n³)</code> / <code>O(n²)</code></td><td>output / <code>O(n)</code></td><td>Cubic is too slow; the set is a detour.</td></tr>
+            <tr><td>3Sum</td><td>Sort + anchor + two pointers</td><td><code>O(n²)</code></td><td><code>O(1)</code> + output</td><td>Method 2 run once per anchor.</td></tr>
+            <tr><td>Container With Most Water</td><td>Every pair / two pointers</td><td><code>O(n²)</code> / <code>O(n)</code></td><td><code>O(1)</code></td><td>Always move the shorter wall.</td></tr>
+            <tr><td>Trapping Rain Water</td><td>Rescan per bar / prefix + suffix max</td><td><code>O(n²)</code> / <code>O(n)</code></td><td><code>O(1)</code> / <code>O(n)</code></td><td>Precomputing the maxima removes the rescans.</td></tr>
+            <tr><td>Trapping Rain Water</td><td>Two pointers + running maxes</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>Move the side with the smaller max.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">All complexities come from this folder's five notebooks, each confirmed with a doubling benchmark (about 2x per doubling for <code>O(n)</code>, 4x for <code>O(n²)</code>, 8x for <code>O(n³)</code>).</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The brute force checks every pair: <code>O(n²)</code>.</p></div>
+            <div class="timeline-step"><p>The input is sorted (or symmetric, or limited by the shorter side), so comparing the two extremes tells me something about one of them for <em>every</em> partner.</p></div>
+            <div class="timeline-step"><p>That end can never be part of a better answer, so I drop it and keep the other.</p></div>
+            <div class="timeline-step"><p>Each step drops at least one element, so at most <code>n - 1</code> steps: <code>O(n)</code> time, two indices of memory.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"The array is sorted and I need a pair, so I'll put one pointer at each end."</li>
+            <li>"If the sum is too small, the left value can't work with anything that's left, so I move it right; too big, I move the right one left."</li>
+            <li>"For a palindrome I compare mirror characters and skip anything that isn't a letter or digit."</li>
+            <li>"Each step discards an element for good: O(n) time, O(1) extra space, versus O(n²) for all pairs."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Valid Palindrome</h3>
+          <ul class="mistake-list">
+            <li>Forgetting <code>.lower()</code>, so <code>'T'</code> and <code>'t'</code> look different.</li>
+            <li>Skipping punctuation on only one side.</li>
+            <li>Leaving <code>i &lt; j</code> out of the skip loops, so the pointers run past each other or off the string.</li>
+            <li>Treating digits as punctuation: <code>"0P"</code> must be <code>False</code>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Two Sum II and the sorted-pair family</h3>
+          <ul class="mistake-list">
+            <li>Returning 0-based indices when the problem is 1-indexed.</li>
+            <li>Moving both pointers after a miss: only the side that was proven useless may move.</li>
+            <li>Looping with <code>lo &lt;= hi</code>, which pairs an element with itself.</li>
+            <li>In 3Sum, forgetting to skip equal neighbours, which repeats triplets.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Two Sum II: <code>numbers = [2, 7, 11, 15]</code>, <code>target = 9</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the first sum is <code>2 + 15</code>. Which pointer moves?</p>
+          <p style="margin-top:10px;">Answer: <code>17 &gt; 9</code>, so <code>hi</code> moves to 11 (<code>13 &gt; 9</code>), then to 7: <code>2 + 7 = 9</code>, return <code>[1, 2]</code>. Compare it with the brute force and hash map on <a href="two_sum_ii.html">the Two Sum II page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — 3Sum: <code>nums = [-1, 0, 1, 2, -1, -4]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> sort to <code>[-4, -1, -1, 0, 1, 2]</code>, then for each anchor run Method 2 on the rest with target <code>-anchor</code>. Skip the second <code>-1</code> anchor.</p>
+          <p style="margin-top:10px;">Answer: <code>[[-1, -1, 2], [-1, 0, 1]]</code>. Anchor <code>-4</code> finds nothing (the largest pair is <code>1 + 2 = 3 &lt; 4</code>); anchor <code>-1</code> finds both triplets. Step through it: <a href="three_sum.html">3Sum</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Container With Most Water: why move the shorter wall in <code>[1, 8, 6, 2, 5, 4, 8, 3, 7]</code>?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> area = shorter wall &times; width. What happens to the area if you keep the shorter wall and the width shrinks?</p>
+          <p style="margin-top:10px;">Answer: it can only shrink, so the shorter wall is finished and can be dropped. The first step drops height 1 (area 8); the second pair, heights 8 and 7, gives the answer <code>min(8, 7) &times; 7 = 49</code>. See <a href="container_with_most_water.html">Container With Most Water</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Trapping Rain Water: <code>height = [4, 2, 0, 3, 2, 5]</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> <code>left_max = 4 &lt; right_max = 5</code> from the start. Which side keeps moving, and what water line does every bar it reaches get?</p>
+          <p style="margin-top:10px;">Answer: <code>9</code>. The left pointer does all the work, and every inner bar fills to 4: <code>2 + 4 + 1 + 2 = 9</code>. The interactive page traces the longer LeetCode example, where both sides move: <a href="trapping_rain_water.html">Trapping Rain Water</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Start at both ends, look at the pair, drop the end that is finished.</strong>
+          Valid Palindrome drops both ends after a match; Two Sum II and 3Sum drop the side the sum proves hopeless; Container With Most Water and Trapping Rain Water drop the shorter or lower side. Same loop, one rule apart, and always <code>O(n)</code> steps with <code>O(1)</code> memory.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Opposite Ends pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of is_palindrome_twoptr on "Taco cat".
+      // done = settled (matched) indexes, skipped = indexes passed over as non-alnum, cur = indexes being compared.
+      const pcSteps = [
+        { step: 0, title: 'Initial state', text: 'i starts at 0, j at the last index, 7.', i: 0, j: 7, chars: '—', cmp: '—', range: '[0, 7]', res: '—', detail: 'Nothing compared yet.', done: [], skipped: [], cur: [], lines: [2] },
+        { step: 1, title: 'Step 1: compare the ends', text: 'Both s[0] and s[7] are letters, so no skipping. Compare them lowercased.', i: 0, j: 7, chars: "'T' / 't'", cmp: "'t' == 't'", range: '[0, 7]', res: '—', detail: 'Case is ignored by .lower(), so they match.', done: [], skipped: [], cur: [0, 7], lines: [3, 4, 6, 8] },
+        { step: 2, title: 'Step 2: step inward', text: 'Both ends matched, so both pointers move in.', i: 1, j: 6, chars: "'a' / 'a'", cmp: '—', range: '[1, 6]', res: '—', detail: 'Indexes 0 and 7 are settled for good.', done: [0, 7], skipped: [], cur: [], lines: [10] },
+        { step: 3, title: 'Step 3: compare a / a', text: 'Both are letters; compare.', i: 1, j: 6, chars: "'a' / 'a'", cmp: "'a' == 'a'", range: '[1, 6]', res: '—', detail: 'Match.', done: [0, 7], skipped: [], cur: [1, 6], lines: [3, 4, 6, 8] },
+        { step: 4, title: 'Step 4: step inward', text: 'Both pointers move in again.', i: 2, j: 5, chars: "'c' / 'c'", cmp: '—', range: '[2, 5]', res: '—', detail: 'Indexes 1 and 6 settled.', done: [0, 1, 6, 7], skipped: [], cur: [], lines: [10] },
+        { step: 5, title: 'Step 5: compare c / c', text: 'Both are letters; compare.', i: 2, j: 5, chars: "'c' / 'c'", cmp: "'c' == 'c'", range: '[2, 5]', res: '—', detail: 'Match.', done: [0, 1, 6, 7], skipped: [], cur: [2, 5], lines: [3, 4, 6, 8] },
+        { step: 6, title: 'Step 6: step inward', text: 'Both pointers move in; only indexes 3 and 4 are left open.', i: 3, j: 4, chars: "'o' / ' '", cmp: '—', range: '[3, 4]', res: '—', detail: 'Indexes 2 and 5 settled.', done: [0, 1, 2, 5, 6, 7], skipped: [], cur: [], lines: [10] },
+        { step: 7, title: 'Step 7: skip the space', text: "s[3] = 'o' is a letter, but s[4] = ' ' is not, so j steps left to 3.", i: 3, j: 3, chars: "'o' / 'o'", cmp: '—', range: '[3, 3]', res: '—', detail: 'The space is passed over on its own. Now i == j, so the skip loops stop.', done: [0, 1, 2, 5, 6, 7], skipped: [4], cur: [], lines: [3, 4, 6, 7] },
+        { step: 8, title: 'Step 8: compare the middle with itself', text: 'The skip loops stopped at i == j, and the comparison still runs once: s[3] against s[3].', i: 3, j: 3, chars: "'o' / 'o'", cmp: "'o' == 'o'", range: '[3, 3]', res: '—', detail: 'A character always equals itself, so this is harmless.', done: [0, 1, 2, 5, 6, 7], skipped: [4], cur: [3], lines: [8] },
+        { step: 9, title: 'Step 9: step inward', text: 'i becomes 4 and j becomes 2: the pointers have crossed.', i: 4, j: 2, chars: '—', cmp: '—', range: 'empty', res: '—', detail: 'Every mirror pair has been checked.', done: [0, 1, 2, 3, 5, 6, 7], skipped: [4], cur: [], lines: [10] },
+        { step: 10, title: 'Step 10: return True', text: 'while i < j fails (4 < 2 is false), so the loop ends with no mismatch.', i: 4, j: 2, chars: '—', cmp: '—', range: 'empty', res: 'True', detail: 'Final answer: True.', done: [0, 1, 2, 3, 5, 6, 7], skipped: [4], cur: [], lines: [3, 11] }
+      ];
+
+      // Ground truth: instrumented run of two_sum_ii_two_pointers on [1, 3, 4, 5, 7, 10, 11], target 9.
+      const tsVals = [1, 3, 4, 5, 7, 10, 11];
+      const tsSteps = [
+        { step: 0, title: 'Initial state', text: 'lo at index 0 (value 1), hi at index 6 (value 11).', lo: 0, hi: 6, sum: '—', cmp: '—', dropped: [], res: '—', detail: 'Every value is still a candidate.', cur: [], answer: [], lines: [2] },
+        { step: 1, title: 'Step 1: 1 + 11 = 12', text: '12 > 9: too big. Even the smallest value left (1) cannot make 11 work, so drop 11.', lo: 0, hi: 6, sum: '12', cmp: 'too big', dropped: [11], res: '—', detail: 'hi moves from 6 to 5.', cur: [0, 6], answer: [], lines: [3, 4, 5, 7, 9, 10] },
+        { step: 2, title: 'Step 2: 1 + 10 = 11', text: '11 > 9: too big again. Drop 10.', lo: 0, hi: 5, sum: '11', cmp: 'too big', dropped: [11, 10], res: '—', detail: 'hi moves from 5 to 4.', cur: [0, 5], answer: [], lines: [3, 4, 5, 7, 9, 10] },
+        { step: 3, title: 'Step 3: 1 + 7 = 8', text: '8 < 9: too small. Even the largest value left (7) cannot lift 1 to 9, so drop 1.', lo: 0, hi: 4, sum: '8', cmp: 'too small', dropped: [11, 10, 1], res: '—', detail: 'lo moves from 0 to 1.', cur: [0, 4], answer: [], lines: [3, 4, 5, 7, 8] },
+        { step: 4, title: 'Step 4: 3 + 7 = 10', text: '10 > 9: too big. Drop 7.', lo: 1, hi: 4, sum: '10', cmp: 'too big', dropped: [11, 10, 1, 7], res: '—', detail: 'hi moves from 4 to 3.', cur: [1, 4], answer: [], lines: [3, 4, 5, 7, 9, 10] },
+        { step: 5, title: 'Step 5: 3 + 5 = 8', text: '8 < 9: too small. Drop 3.', lo: 1, hi: 3, sum: '8', cmp: 'too small', dropped: [11, 10, 1, 7, 3], res: '—', detail: 'lo moves from 1 to 2.', cur: [1, 3], answer: [], lines: [3, 4, 5, 7, 8] },
+        { step: 6, title: 'Step 6: 4 + 5 = 9', text: 'Exactly the target. Return the 1-based positions [lo + 1, hi + 1].', lo: 2, hi: 3, sum: '9', cmp: 'equal', dropped: [11, 10, 1, 7, 3], res: '[3, 4]', detail: 'Six steps; the brute force needed twelve pair checks on the same input.', cur: [], answer: [2, 3], lines: [3, 4, 5, 6] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function renderPC(step, index, max) {
+        document.getElementById('pc-step-title').textContent = step.title;
+        document.getElementById('pc-step-text').textContent = step.text;
+        document.getElementById('pc-iv').textContent = step.i;
+        document.getElementById('pc-jv').textContent = step.j;
+        document.getElementById('pc-chars').textContent = step.chars;
+        document.getElementById('pc-cmp').textContent = step.cmp;
+        document.getElementById('pc-range').textContent = step.range;
+        document.getElementById('pc-res').textContent = step.res;
+        document.getElementById('pc-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('pc-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('pc-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('pc-trace-table', step.step);
+        setCodeHighlight('pc-code', step.lines);
+        document.querySelectorAll('#pc-graph [data-idx]').forEach((box) => {
+          const k = Number(box.dataset.idx);
+          box.classList.remove('done', 'current', 'skipped');
+          if (step.done.includes(k)) box.classList.add('done');
+          if (step.skipped.includes(k)) box.classList.add('skipped');
+          if (step.cur.includes(k)) box.classList.add('current');
+        });
+        document.getElementById('pc-i').setAttribute('x', 46 + 62 * step.i);
+        document.getElementById('pc-j').setAttribute('x', 46 + 62 * step.j);
+      }
+
+      function renderTS(step, index, max) {
+        document.getElementById('ts-step-title').textContent = step.title;
+        document.getElementById('ts-step-text').textContent = step.text;
+        document.getElementById('ts-lohi').textContent = `${step.lo} / ${step.hi}`;
+        document.getElementById('ts-sum').textContent = step.sum;
+        document.getElementById('ts-cmp').textContent = step.cmp;
+        document.getElementById('ts-dropped').textContent = `[${step.dropped.join(', ')}]`;
+        document.getElementById('ts-res').textContent = step.res;
+        document.getElementById('ts-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('ts-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('ts-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('ts-trace-table', step.step);
+        setCodeHighlight('ts-code', step.lines);
+        document.querySelectorAll('#ts-graph [data-idx]').forEach((box) => {
+          const k = Number(box.dataset.idx);
+          box.classList.remove('dropped', 'current', 'done');
+          if (step.dropped.includes(tsVals[k])) box.classList.add('dropped');
+          if (step.cur.includes(k)) box.classList.add('current');
+          if (step.answer.includes(k)) box.classList.add('done');
+        });
+        document.getElementById('ts-lo').setAttribute('x', 48 + 70 * step.lo);
+        document.getElementById('ts-hi').setAttribute('x', 48 + 70 * step.hi);
+      }
+
+      setupTrace({ steps: pcSteps, prefix: 'pc', render: renderPC });
+      setupTrace({ steps: tsSteps, prefix: 'ts', render: renderTS });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

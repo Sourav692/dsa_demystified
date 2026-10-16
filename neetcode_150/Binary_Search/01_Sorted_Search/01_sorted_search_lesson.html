@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorted Search — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Binary Search · Pattern 01 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Sorted Search</h1>
+          <p>
+            Find a value, or the boundary next to it, in data that is already sorted. Keep a range <code>[lo, hi]</code> that must contain the answer if there is one, compare the target with the middle element, and drop the half that cannot hold it. Every comparison halves the work, so a million items need about 20 looks.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: one comparison rules out half</span>
+            <span class="chip">Method 1: Binary Search (exact match)</span>
+            <span class="chip">Method 2: Time Based Key-Value Store (last fit)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="binary_search.html">Binary Search</a> · <a href="search_a_2d_matrix.html">Search a 2D Matrix</a> · <a href="time_based_key_value_store.html">Time Based Key-Value Store</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Binary Search, <code>nums = [-1, 0, 3, 5, 9, 12]</code>, <code>target = 9</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 190" width="100%" role="img" aria-label="Sorted array -1, 0, 3, 5, 9, 12; first look at index 2 discards indices 0 to 2, second look at index 4 finds 9">
+              <defs>
+                <style>
+                  .h-box { fill: #c8d2e7; }
+                  .h-out { fill: #e9edf5; }
+                  .h-mid { fill: #ff9f1c; }
+                  .h-hit { fill: #315efb; }
+                  .h-label { font: 700 17px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-white { font: 700 17px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-note { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="26" class="h-note">look 1: mid = 2, 3 &lt; 9, drop indices 0 to 2</text>
+              <rect x="20" y="36" width="68" height="44" rx="10" class="h-out" />
+              <rect x="102" y="36" width="68" height="44" rx="10" class="h-out" />
+              <rect x="184" y="36" width="68" height="44" rx="10" class="h-mid" />
+              <rect x="266" y="36" width="68" height="44" rx="10" class="h-box" />
+              <rect x="348" y="36" width="68" height="44" rx="10" class="h-box" />
+              <rect x="430" y="36" width="68" height="44" rx="10" class="h-box" />
+              <text x="54" y="64" text-anchor="middle" class="h-label">-1</text>
+              <text x="136" y="64" text-anchor="middle" class="h-label">0</text>
+              <text x="218" y="64" text-anchor="middle" class="h-white">3</text>
+              <text x="300" y="64" text-anchor="middle" class="h-label">5</text>
+              <text x="382" y="64" text-anchor="middle" class="h-label">9</text>
+              <text x="464" y="64" text-anchor="middle" class="h-label">12</text>
+              <text x="14" y="116" class="h-note">look 2: range [3, 5], mid = 4, found</text>
+              <rect x="266" y="126" width="68" height="44" rx="10" class="h-box" />
+              <rect x="348" y="126" width="68" height="44" rx="10" class="h-hit" />
+              <rect x="430" y="126" width="68" height="44" rx="10" class="h-box" />
+              <text x="300" y="154" text-anchor="middle" class="h-label">5</text>
+              <text x="382" y="154" text-anchor="middle" class="h-white">9</text>
+              <text x="464" y="154" text-anchor="middle" class="h-label">12</text>
+              <text x="300" y="186" text-anchor="middle" class="h-idx">3</text>
+              <text x="382" y="186" text-anchor="middle" class="h-idx">4</text>
+              <text x="464" y="186" text-anchor="middle" class="h-idx">5</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = 4 (two looks instead of five)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Lookups in sorted data</h3>
+          <p>Sorted IDs, sorted prices, a sorted log: binary search finds an entry in <code>O(log n)</code> without any extra index structure.</p>
+        </div>
+        <div class="card">
+          <h3>"As of" queries</h3>
+          <p>Config versions, stock prices, document history: "what was the value at time t?" is the last entry at or before t in a time-sorted list.</p>
+        </div>
+        <div class="card">
+          <h3>The base of every binary search</h3>
+          <p>Rotated arrays, search on the answer, and median of two arrays all reuse this loop. Get the range rules right here and they carry over.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> binary search is short but easy to get subtly wrong. Learn one loop shape with one invariant ("the answer, if any, is inside <code>[lo, hi]</code>") and use it everywhere, instead of tweaking <code>&lt;</code> versus <code>&lt;=</code> until the tests pass.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is sorted search?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Sorted search is binary search on data that is already in order. Compare the target with the middle element of the current range. Because everything left of it is smaller and everything right of it is larger, that one comparison proves which half cannot contain the answer. Drop that half, including the middle itself, and repeat until the answer is found or the range is empty.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>The input is <strong>sorted</strong> ("ascending order", "each row is sorted", "timestamps are strictly increasing"), the task is to <strong>find</strong> something, and the required speed is <code>O(log n)</code>. Boundary wording such as "largest timestamp <code>&lt;=</code> t" or "most recent at or before" is the same pattern in its boundary form.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> the data does not have to be one flat list. A grid read row by row, or one key's history in a hash map, is a sorted list in disguise. Find the reading order in which it is sorted, then binary search the positions.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Find the sorted order</h3>
+          <p>A list, a grid read row by row, or a per-key history. If nothing is sorted, this is not the pattern.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Set the range</h3>
+          <p><code>lo, hi = 0, len - 1</code>: both ends included. The answer, if any, is inside.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Compare the middle</h3>
+          <p><code>while lo &lt;= hi</code>: look at <code>mid</code>, then move <code>lo = mid + 1</code> or <code>hi = mid - 1</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Decide the exit</h3>
+          <p>Exact match: return at the hit, <code>-1</code> when empty. Boundary: record each fit, return the last one.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a search range</h2>
+      <p>Binary search never works on "the data" directly. It works on a range of <strong>positions</strong> <code>[lo, hi]</code> plus a way to read the value at any position in <code>O(1)</code>. Each problem in this pattern just has a different way to read position <code>i</code>.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input</h3>
+          <div class="code-block"><code>nums   = [-1, 0, 3, 5, 9, 12]
+matrix = [[1, 3, 5, 7],
+          [10, 11, 16, 20],
+          [23, 30, 34, 60]]
+store  = {"k": [(1,"a"), (4,"b"), (7,"c"),
+                (10,"d"), (13,"e"), (18,"f")]}</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Search range and "read position i"</h3>
+          <div class="code-block"><code>positions 0..5    read nums[i]
+positions 0..11   r, c = divmod(i, 4)
+                  read matrix[r][c]
+positions 0..5    read store["k"][i][0]
+                  (the time of entry i)</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Plain sorted list</h4>
+          <p>Position <code>i</code> is just <code>nums[i]</code>. Range <code>[0, len(nums) - 1]</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Grid whose rows chain</h4>
+          <p>Read row by row, the 12 cells are one sorted list. Position <code>i</code> lives at row <code>i // 4</code>, column <code>i % 4</code> (4 = number of columns). Range <code>[0, m·n - 1]</code>; the flat list is never built.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Per-key history</h4>
+          <p><code>set</code> appends <code>(time, value)</code> and times only increase, so each key's list is sorted by time for free. Position <code>i</code> is the time of entry <code>i</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the loop below is the same for all three. Only the line that reads the value at <code>mid</code> changes, plus, for the history, what happens when there is no exact match.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: classic lo / hi / mid (Binary Search)</h2>
+      <p>The template itself, line for line from the notebook's <code>search_binary</code>. The range starts as the whole array. Each pass computes <code>mid</code>, returns on a hit, and otherwise moves one end past <code>mid</code>. Traced on <code>nums = [-1, 0, 3, 5, 9, 12]</code>, <code>target = 9</code>.</p>
+      <div class="code-block stepped">
+        <code id="bs-code">
+<span class="code-line" data-line="1">def search_binary(nums: List[int], target: int) -&gt; int:</span>
+<span class="code-line" data-line="2">    lo, hi = 0, len(nums) - 1               # search space = the whole array, both ends inclusive</span>
+<span class="code-line" data-line="3">    while lo &lt;= hi:                         # space [lo, hi] still holds at least one element</span>
+<span class="code-line" data-line="4">        mid = lo + (hi - lo) // 2           # middle index (this form never overflows in fixed-width languages)</span>
+<span class="code-line" data-line="5">        if nums[mid] == target:</span>
+<span class="code-line" data-line="6">            return mid</span>
+<span class="code-line" data-line="7">        if nums[mid] &lt; target:</span>
+<span class="code-line" data-line="8">            lo = mid + 1                    # mid and everything left of it are too small</span>
+<span class="code-line" data-line="9">        else:</span>
+<span class="code-line" data-line="10">            hi = mid - 1                    # mid and everything right of it are too big</span>
+<span class="code-line" data-line="11">    return -1                               # space is empty: target is not in nums</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive binary search trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="bs-graph" viewBox="0 0 520 150" width="100%" role="img" aria-label="Binary search trace on -1, 0, 3, 5, 9, 12 for target 9">
+              <defs>
+                <style>
+                  .bs-cell rect { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .bs-cell text { font: 700 17px Inter, Arial, sans-serif; fill: #172033; }
+                  .bs-cell.frontier rect { fill: #13a46b; }
+                  .bs-cell.current rect { fill: #ff9f1c; }
+                  .bs-cell.done rect { fill: #315efb; }
+                  .bs-cell.frontier text, .bs-cell.current text, .bs-cell.done text { fill: #ffffff; }
+                  .bs-cell.out rect { fill: #eef1f7; }
+                  .bs-cell.out text { fill: #9aa4b5; }
+                  .bs-ptr { font: 800 13px Inter, Arial, sans-serif; fill: #315efb; }
+                  .bs-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <text x="54" y="34" text-anchor="middle" class="bs-ptr" data-ptr="0"></text>
+              <text x="136" y="34" text-anchor="middle" class="bs-ptr" data-ptr="1"></text>
+              <text x="218" y="34" text-anchor="middle" class="bs-ptr" data-ptr="2"></text>
+              <text x="300" y="34" text-anchor="middle" class="bs-ptr" data-ptr="3"></text>
+              <text x="382" y="34" text-anchor="middle" class="bs-ptr" data-ptr="4"></text>
+              <text x="464" y="34" text-anchor="middle" class="bs-ptr" data-ptr="5"></text>
+              <g class="bs-cell" data-node="0"><rect x="20" y="46" width="68" height="52" rx="10" /><text x="54" y="78" text-anchor="middle">-1</text></g>
+              <g class="bs-cell" data-node="1"><rect x="102" y="46" width="68" height="52" rx="10" /><text x="136" y="78" text-anchor="middle">0</text></g>
+              <g class="bs-cell" data-node="2"><rect x="184" y="46" width="68" height="52" rx="10" /><text x="218" y="78" text-anchor="middle">3</text></g>
+              <g class="bs-cell" data-node="3"><rect x="266" y="46" width="68" height="52" rx="10" /><text x="300" y="78" text-anchor="middle">5</text></g>
+              <g class="bs-cell" data-node="4"><rect x="348" y="46" width="68" height="52" rx="10" /><text x="382" y="78" text-anchor="middle">9</text></g>
+              <g class="bs-cell" data-node="5"><rect x="430" y="46" width="68" height="52" rx="10" /><text x="464" y="78" text-anchor="middle">12</text></g>
+              <text x="54" y="122" text-anchor="middle" class="bs-idx">0</text>
+              <text x="136" y="122" text-anchor="middle" class="bs-idx">1</text>
+              <text x="218" y="122" text-anchor="middle" class="bs-idx">2</text>
+              <text x="300" y="122" text-anchor="middle" class="bs-idx">3</text>
+              <text x="382" y="122" text-anchor="middle" class="bs-idx">4</text>
+              <text x="464" y="122" text-anchor="middle" class="bs-idx">5</text>
+              <text x="260" y="144" text-anchor="middle" class="bs-idx">index</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> mid, being compared</span>
+            <span><i class="dot dot-green"></i> still in range [lo, hi]</span>
+            <span><i class="dot dot-blue"></i> answer</span>
+            <span><i class="dot dot-gray"></i> ruled out (pale)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="bs-step-title">Initial state</h3>
+          <p id="bs-step-text">The whole array is the search range.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="bs-prev">Previous</button>
+            <button type="button" id="bs-play" class="primary">Resume</button>
+            <button type="button" id="bs-next">Next</button>
+            <button type="button" id="bs-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="bs-step-counter">Step 0 / 4</span>
+            <div class="progress"><span id="bs-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>lo</strong><div class="state-value" id="bs-lo">0</div></div>
+            <div class="state-box"><strong>hi</strong><div class="state-value" id="bs-hi">5</div></div>
+            <div class="state-box"><strong>mid</strong><div class="state-value" id="bs-mid">—</div></div>
+            <div class="state-box"><strong>nums[mid] vs target</strong><div class="state-value" id="bs-cmp">—</div></div>
+            <div class="state-box"><strong>Range size</strong><div class="state-value" id="bs-size">6</div></div>
+            <div class="state-box"><strong>Returned</strong><div class="state-value" id="bs-ret">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="bs-detail"><strong>What changed:</strong> nothing compared yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="bs-trace-table">
+          <thead>
+            <tr><th>Step</th><th>lo</th><th>hi</th><th>mid</th><th>nums[mid]</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>5</td><td>—</td><td>—</td><td>Range = whole array (6 elements)</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>5</td><td>2</td><td>3</td><td><code>0 &lt;= 5</code>, <code>mid = 0 + 5 // 2 = 2</code></td></tr>
+            <tr data-step="2"><td>2</td><td>3</td><td>5</td><td>2</td><td>3</td><td><code>3 &lt; 9</code> &rarr; <code>lo = mid + 1 = 3</code> (3 left)</td></tr>
+            <tr data-step="3"><td>3</td><td>3</td><td>5</td><td>4</td><td>9</td><td><code>3 &lt;= 5</code>, <code>mid = 3 + 2 // 2 = 4</code></td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>5</td><td>4</td><td>9</td><td><code>9 == 9</code> &rarr; return <code>4</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The range <code>[lo, hi]</code> is a promise: "if 9 is here at all, it is between these two." Step 2 keeps the promise because 3 &lt; 9 and the array is sorted, so indices 0 to 2 are all too small.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Writing <code>lo = mid</code> instead of <code>lo = mid + 1</code>. <code>mid</code> was already checked; keeping it means a two-element range can pick the same <code>mid</code> forever.</p>
+        </div>
+        <div class="card">
+          <h4>Why sorted order matters</h4>
+          <p>The comparison at <code>mid</code> says something about every element on one side only because the array is sorted. On unsorted data the dropped half could still hold the target.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: boundary form, last time &lt;= t (Time Based Key-Value Store)</h2>
+      <p>Here there is usually no exact hit to stop on: <code>get("k", 12)</code> wants the entry with the <strong>largest time that is still <code>&lt;= 12</code></strong>. Same loop, one change. When <code>values[mid]</code> fits, it might be the answer, so <strong>record it</strong> in <code>res</code> and keep looking to the right for a later fit. Code from the notebook's <code>TimeMap.get</code>, traced on the history <code>(1,"a") (4,"b") (7,"c") (10,"d") (13,"e") (18,"f")</code>.</p>
+      <div class="code-block stepped">
+        <code id="tm-code">
+<span class="code-line" data-line="1">def get(self, key: str, timestamp: int) -&gt; str:</span>
+<span class="code-line" data-line="2">    values = self.store.get(key, [])</span>
+<span class="code-line" data-line="3">    res = ""                                  # answer if no entry has time &lt;= timestamp</span>
+<span class="code-line" data-line="4">    lo, hi = 0, len(values) - 1</span>
+<span class="code-line" data-line="5">    while lo &lt;= hi:</span>
+<span class="code-line" data-line="6">        mid = (lo + hi) // 2</span>
+<span class="code-line" data-line="7">        if values[mid][0] &lt;= timestamp:</span>
+<span class="code-line" data-line="8">            res = values[mid][1]              # valid candidate; a later one may also fit...</span>
+<span class="code-line" data-line="9">            lo = mid + 1                      # ...so keep searching to the right</span>
+<span class="code-line" data-line="10">        else:</span>
+<span class="code-line" data-line="11">            hi = mid - 1                      # too late: the answer is to the left</span>
+<span class="code-line" data-line="12">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive last-fit trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="tm-graph" viewBox="0 0 520 150" width="100%" role="img" aria-label="Binary search for the last time at or before 12 in times 1, 4, 7, 10, 13, 18">
+              <defs>
+                <style>
+                  .tm-cell rect { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .tm-cell text { font: 700 16px Inter, Arial, sans-serif; fill: #172033; }
+                  .tm-cell .tm-val { font: 600 13px Inter, Arial, sans-serif; }
+                  .tm-cell.frontier rect { fill: #13a46b; }
+                  .tm-cell.current rect { fill: #ff9f1c; }
+                  .tm-cell.done rect { fill: #315efb; }
+                  .tm-cell.frontier text, .tm-cell.current text, .tm-cell.done text { fill: #ffffff; }
+                  .tm-cell.out rect { fill: #eef1f7; }
+                  .tm-cell.out text { fill: #9aa4b5; }
+                  .tm-ptr { font: 800 13px Inter, Arial, sans-serif; fill: #315efb; }
+                  .tm-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <text x="54" y="34" text-anchor="middle" class="tm-ptr" data-ptr="0"></text>
+              <text x="136" y="34" text-anchor="middle" class="tm-ptr" data-ptr="1"></text>
+              <text x="218" y="34" text-anchor="middle" class="tm-ptr" data-ptr="2"></text>
+              <text x="300" y="34" text-anchor="middle" class="tm-ptr" data-ptr="3"></text>
+              <text x="382" y="34" text-anchor="middle" class="tm-ptr" data-ptr="4"></text>
+              <text x="464" y="34" text-anchor="middle" class="tm-ptr" data-ptr="5"></text>
+              <g class="tm-cell" data-node="0"><rect x="20" y="46" width="68" height="56" rx="10" /><text x="54" y="70" text-anchor="middle">t=1</text><text x="54" y="92" text-anchor="middle" class="tm-val">"a"</text></g>
+              <g class="tm-cell" data-node="1"><rect x="102" y="46" width="68" height="56" rx="10" /><text x="136" y="70" text-anchor="middle">t=4</text><text x="136" y="92" text-anchor="middle" class="tm-val">"b"</text></g>
+              <g class="tm-cell" data-node="2"><rect x="184" y="46" width="68" height="56" rx="10" /><text x="218" y="70" text-anchor="middle">t=7</text><text x="218" y="92" text-anchor="middle" class="tm-val">"c"</text></g>
+              <g class="tm-cell" data-node="3"><rect x="266" y="46" width="68" height="56" rx="10" /><text x="300" y="70" text-anchor="middle">t=10</text><text x="300" y="92" text-anchor="middle" class="tm-val">"d"</text></g>
+              <g class="tm-cell" data-node="4"><rect x="348" y="46" width="68" height="56" rx="10" /><text x="382" y="70" text-anchor="middle">t=13</text><text x="382" y="92" text-anchor="middle" class="tm-val">"e"</text></g>
+              <g class="tm-cell" data-node="5"><rect x="430" y="46" width="68" height="56" rx="10" /><text x="464" y="70" text-anchor="middle">t=18</text><text x="464" y="92" text-anchor="middle" class="tm-val">"f"</text></g>
+              <text x="54" y="124" text-anchor="middle" class="tm-idx">0</text>
+              <text x="136" y="124" text-anchor="middle" class="tm-idx">1</text>
+              <text x="218" y="124" text-anchor="middle" class="tm-idx">2</text>
+              <text x="300" y="124" text-anchor="middle" class="tm-idx">3</text>
+              <text x="382" y="124" text-anchor="middle" class="tm-idx">4</text>
+              <text x="464" y="124" text-anchor="middle" class="tm-idx">5</text>
+              <text x="260" y="146" text-anchor="middle" class="tm-idx">history of "k" (index)</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> mid, being compared</span>
+            <span><i class="dot dot-green"></i> still in range [lo, hi]</span>
+            <span><i class="dot dot-blue"></i> recorded in res (best so far)</span>
+            <span><i class="dot dot-gray"></i> ruled out (pale)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="tm-step-title">Initial state</h3>
+          <p id="tm-step-text">Fetch the key's history and set up the range.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="tm-prev">Previous</button>
+            <button type="button" id="tm-play" class="primary">Resume</button>
+            <button type="button" id="tm-next">Next</button>
+            <button type="button" id="tm-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="tm-step-counter">Step 0 / 7</span>
+            <div class="progress"><span id="tm-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>lo</strong><div class="state-value" id="tm-lo">0</div></div>
+            <div class="state-box"><strong>hi</strong><div class="state-value" id="tm-hi">5</div></div>
+            <div class="state-box"><strong>mid</strong><div class="state-value" id="tm-mid">—</div></div>
+            <div class="state-box"><strong>values[mid]</strong><div class="state-value" id="tm-entry">—</div></div>
+            <div class="state-box"><strong>time &lt;= 12?</strong><div class="state-value" id="tm-fit">—</div></div>
+            <div class="state-box"><strong>res</strong><div class="state-value" id="tm-res">""</div></div>
+          </div>
+          <div class="explainer">
+            <p id="tm-detail"><strong>What changed:</strong> nothing compared yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="tm-trace-table">
+          <thead>
+            <tr><th>Step</th><th>lo</th><th>hi</th><th>mid</th><th>values[mid]</th><th>Action</th><th>res</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>5</td><td>—</td><td>—</td><td>History has 6 entries; <code>res = ""</code></td><td><code>""</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>5</td><td>2</td><td><code>(7, "c")</code></td><td><code>mid = (0 + 5) // 2 = 2</code></td><td><code>""</code></td></tr>
+            <tr data-step="2"><td>2</td><td>3</td><td>5</td><td>2</td><td><code>(7, "c")</code></td><td><code>7 &lt;= 12</code>: record, <code>lo = 3</code></td><td><code>"c"</code></td></tr>
+            <tr data-step="3"><td>3</td><td>3</td><td>5</td><td>4</td><td><code>(13, "e")</code></td><td><code>mid = (3 + 5) // 2 = 4</code></td><td><code>"c"</code></td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>3</td><td>4</td><td><code>(13, "e")</code></td><td><code>13 &gt; 12</code>: too late, <code>hi = 3</code></td><td><code>"c"</code></td></tr>
+            <tr data-step="5"><td>5</td><td>3</td><td>3</td><td>3</td><td><code>(10, "d")</code></td><td><code>mid = (3 + 3) // 2 = 3</code></td><td><code>"c"</code></td></tr>
+            <tr data-step="6"><td>6</td><td>4</td><td>3</td><td>3</td><td><code>(10, "d")</code></td><td><code>10 &lt;= 12</code>: record, <code>lo = 4</code></td><td><code>"d"</code></td></tr>
+            <tr data-step="7"><td>7</td><td>4</td><td>3</td><td>—</td><td>—</td><td><code>4 &lt;= 3</code> is false: return <code>res</code></td><td><code>"d"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Every recorded <code>res</code> is a correct-but-maybe-not-latest answer. Moving <code>lo</code> right only ever finds a later fit, so the final <code>res</code> is the latest one. At the end, <code>hi = 3</code> points at it and <code>lo = 4</code> is one past it.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Returning at step 2, the first time a fit is seen. <code>(7, "c")</code> fits, but <code>(10, "d")</code> is later and also fits. The boundary form must keep searching.</p>
+        </div>
+        <div class="card">
+          <h4>Why the hash map</h4>
+          <p>The dictionary sends <code>get("k", ...)</code> straight to k's own history in <code>O(1)</code>, so the binary search covers only that key's <code>n</code> entries: <code>O(log n)</code> per get.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Target missing</button>
+        <button type="button" data-example-tab="1">Single element</button>
+        <button type="button" data-example-tab="2">Outside the range</button>
+        <button type="button" data-example-tab="3">Time before every entry</button>
+        <button type="button" data-example-tab="4">One-row matrix</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: the target is not there</h3>
+          <p><code>nums = [-1, 0, 3, 5, 9, 12]</code>, <code>target = 2</code></p>
+          <div class="result-badge">Binary Search = -1</div>
+          <p class="footer-note">Ranges: <code>[0, 5]</code> mid 2 (3 &gt; 2, hi = 1), <code>[0, 1]</code> mid 0 (-1 &lt; 2, lo = 1), <code>[1, 1]</code> mid 1 (0 &lt; 2, lo = 2). Now <code>lo = 2 &gt; hi = 1</code>: the range is empty, return <code>-1</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: one element</h3>
+          <p><code>nums = [5]</code>, <code>target = 5</code> and <code>target = -5</code></p>
+          <div class="result-badge">0 and -1</div>
+          <p class="footer-note"><code>lo = hi = 0</code>. The <code>&lt;=</code> in <code>while lo &lt;= hi</code> is what lets this single element be checked at all; with <code>&lt;</code> the loop would never run.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: smaller or larger than everything</h3>
+          <p><code>nums = [1, 3, 5, 7, 9, 11, 13]</code>, <code>target = 0</code> and <code>target = 14</code></p>
+          <div class="result-badge">-1 and -1</div>
+          <p class="footer-note">One end keeps moving until it crosses the other: <code>hi</code> falls to <code>-1</code>, or <code>lo</code> rises to <code>7</code>. No index outside the array is ever read, because <code>mid</code> is only computed while <code>lo &lt;= hi</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: <code>get</code> earlier than every stored time, or an unknown key</h3>
+          <p>History <code>[(10,"v1"), (20,"v2"), (30,"v3")]</code>, <code>get("k", 9)</code>; and <code>get("c", 10)</code> for a key never set</p>
+          <div class="result-badge">"" and ""</div>
+          <p class="footer-note">No entry fits, so <code>res</code> keeps its starting value <code>""</code>. The unknown key gives an empty list (<code>self.store.get(key, [])</code>), so <code>hi = -1</code> and the loop never runs.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="4">
+        <div class="card">
+          <h3>Case E: a matrix with one row or one column</h3>
+          <p><code>matrix = [[1, 3]]</code> and <code>matrix = [[1], [3]]</code>, <code>target = 3</code></p>
+          <div class="result-badge">True and True</div>
+          <p class="footer-note">The flat search still works: with one column, <code>divmod(i, 1) = (i, 0)</code>, so position <code>i</code> is row <code>i</code>. The index map must divide by the number of <strong>columns</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Binary Search</td><td>Linear scan</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td>Ignores the order; measured about 2x per doubling.</td></tr>
+            <tr><td>Binary Search</td><td>Classic lo / hi / mid (Method 1)</td><td><code>O(log n)</code></td><td><code>O(1)</code></td><td>The template as is.</td></tr>
+            <tr><td>Search a 2D Matrix</td><td>Check every cell</td><td><code>O(m·n)</code></td><td><code>O(1)</code></td><td>Measured about 2x per doubling of the cell count.</td></tr>
+            <tr><td>Search a 2D Matrix</td><td>Staircase from the top-right</td><td><code>O(m + n)</code></td><td><code>O(1)</code></td><td>Drops a row or a column per step; about 1.5x per doubling on a square grid.</td></tr>
+            <tr><td>Search a 2D Matrix</td><td>Binary search on the flat index</td><td><code>O(log(m·n))</code></td><td><code>O(1)</code></td><td>The template plus <code>divmod(mid, n)</code>.</td></tr>
+            <tr><td>Time Based Key-Value Store</td><td>Scan the history on every get</td><td><code>O(n)</code> per get</td><td><code>O(1)</code></td><td>Measured about 2x per doubling of the history.</td></tr>
+            <tr><td>Time Based Key-Value Store</td><td>Binary search, last time &lt;= t (Method 2)</td><td><code>O(log n)</code> per get, <code>O(1)</code> per set</td><td><code>O(1)</code></td><td>The template in boundary form.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>n</code> = array length or entries under one key, <code>m · n</code> = rows times columns. Storage for Time Based Key-Value Store is <code>O(N)</code> for all <code>N</code> stored pairs in both methods. The complexities and measured ratios come from this folder's notebooks; every binary search measured about 1x per doubling.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The data is sorted (or sorted in some reading order) and I need to find something in it.</p></div>
+            <div class="timeline-step"><p>One comparison with the middle tells me which half cannot contain the answer, so I can drop half per step: <code>O(log n)</code>.</p></div>
+            <div class="timeline-step"><p>I keep an inclusive range <code>[lo, hi]</code> with the invariant "the answer, if any, is inside", and always move past <code>mid</code>.</p></div>
+            <div class="timeline-step"><p>Exact match: return at the hit. "Last one that fits": record each fit and keep searching right.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"The array is sorted, so I'll binary search: compare with the middle and discard the half that can't hold the target."</li>
+            <li>"My range is inclusive, <code>lo = 0</code>, <code>hi = n - 1</code>, loop while <code>lo &lt;= hi</code>, and I move to <code>mid + 1</code> or <code>mid - 1</code> so it always shrinks."</li>
+            <li>"For the matrix, the rows chain, so it's one sorted list of <code>m·n</code> items; I map index <code>i</code> to <code>divmod(i, n)</code>."</li>
+            <li>"For the time map, each key's list is sorted by time because timestamps increase, so <code>get</code> is a binary search for the last time <code>&lt;= t</code>: <code>O(log n)</code>."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Exact match (Binary Search, Search a 2D Matrix)</h3>
+          <ul class="mistake-list">
+            <li><code>while lo &lt; hi</code> with <code>hi = mid - 1</code>: the last remaining element is never checked (<code>[5]</code>, target 5 returns -1).</li>
+            <li><code>lo = mid</code> or <code>hi = mid</code> in the inclusive form: the range can stop shrinking and loop forever.</li>
+            <li><code>hi = len(nums)</code> together with <code>&lt;=</code>: reads one past the end.</li>
+            <li>Mapping the flat index with the number of rows, <code>divmod(mid, m)</code>, instead of columns.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Boundary form (Time Based Key-Value Store)</h3>
+          <ul class="mistake-list">
+            <li>Returning at the first entry with time <code>&lt;= t</code> instead of recording it and searching right.</li>
+            <li>Returning <code>values[lo]</code> after the loop: <code>lo</code> ends one past the answer.</li>
+            <li>Indexing <code>self.store[key]</code> on an unknown key with a <code>defaultdict</code>: it silently creates empty entries.</li>
+            <li>Sorting the history on every <code>set</code>: the times already arrive in order.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Search a 2D Matrix: <code>matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]]</code>, <code>target = 13</code></summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> search positions 0 to 11 and read position <code>i</code> as <code>matrix[i // 4][i % 4]</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>False</code>. mid 5 is (1, 1) = 11 &lt; 13, lo = 6; mid 8 is (2, 0) = 23 &gt; 13, hi = 7; mid 6 is (1, 2) = 16 &gt; 13, hi = 5; the range is empty. Step through all three approaches: <a href="search_a_2d_matrix.html">Search a 2D Matrix</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Time Based Key-Value Store: after <code>set("foo","bar",1)</code> and <code>set("foo","bar2",4)</code>, what do <code>get("foo",3)</code> and <code>get("foo",5)</code> return?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> for each query, find the last time in <code>[1, 4]</code> that is <code>&lt;=</code> the query time.</p>
+          <p style="margin-top:10px;">Answer: <code>"bar"</code> (last time &lt;= 3 is 1) and <code>"bar2"</code> (last time &lt;= 5 is 4). This is LeetCode's example, replayed call by call on <a href="time_based_key_value_store.html">the Time Based Key-Value Store page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Binary Search: how many comparisons does <code>search_binary</code> make for <code>target = 2</code> in <code>[-1, 0, 3, 5, 9, 12]</code>, and why does it stop?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> write down <code>lo</code> and <code>hi</code> after each comparison.</p>
+          <p style="margin-top:10px;">Answer: 3 comparisons (mid 2, then 0, then 1). After the third, <code>lo = 2 &gt; hi = 1</code>, so the range is empty and it returns <code>-1</code>. Watch it on <a href="binary_search.html">the Binary Search page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Follow-up variant of Binary Search (Search Insert Position): where would <code>target = 2</code> be inserted to keep <code>[-1, 0, 3, 5, 9, 12]</code> sorted?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> run the same loop as Practice 3 and look at <code>lo</code> when it ends.</p>
+          <p style="margin-top:10px;">Answer: index <code>2</code>. When the exact-match loop ends without a hit, <code>lo</code> is the first index whose value is larger than the target, so returning <code>lo</code> instead of <code>-1</code> solves this follow-up. Same trace as on <a href="binary_search.html">the Binary Search page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 5 — Follow-up variant of Search a 2D Matrix (Search a 2D Matrix II): rows and columns are sorted, but a row may start below the previous row's end. Does the flat search still work?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> is the row-by-row reading still one sorted list?</p>
+          <p style="margin-top:10px;">Answer: no. The flattened list is no longer sorted, so the flat binary search can drop the half that holds the target. The staircase walk from the top-right corner (<code>O(m + n)</code>) only needs sorted rows and columns, so it still works. It is Solution 2 on <a href="search_a_2d_matrix.html">the Search a 2D Matrix page</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Keep <code>[lo, hi]</code> around the answer, compare the middle, move past it.</strong>
+          Binary Search uses the loop as is. Search a 2D Matrix changes only how position <code>mid</code> is read (<code>divmod(mid, n)</code>). Time Based Key-Value Store changes only the exit: record every fit and keep going right, because the answer is a boundary, not an exact hit.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Sorted Search pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of search_binary([-1, 0, 3, 5, 9, 12], 9).
+      const bsSteps = [
+        { step: 0, title: 'Initial state', text: 'lo = 0 and hi = len(nums) - 1 = 5: the whole array is the search range.', lo: 0, hi: 5, mid: null, cmp: '—', ret: '—', detail: 'Six candidates. If 9 is in the array, it is somewhere in indices 0..5.', found: null, lines: [2] },
+        { step: 1, title: 'Step 1: first middle', text: 'lo <= hi (0 <= 5), so compute mid = 0 + (5 - 0) // 2 = 2.', lo: 0, hi: 5, mid: 2, cmp: 'nums[2] = 3 vs 9', ret: '—', detail: 'mid splits the six candidates into indices 0..1 and 3..5.', found: null, lines: [3, 4] },
+        { step: 2, title: 'Step 2: too small, move lo', text: '3 is not 9, and 3 < 9. Everything at or left of index 2 is too small, so lo = mid + 1 = 3.', lo: 3, hi: 5, mid: 2, cmp: '3 < 9', ret: '—', detail: 'Indices 0, 1 and 2 are ruled out in one comparison. Three candidates remain.', found: null, lines: [5, 7, 8] },
+        { step: 3, title: 'Step 3: second middle', text: 'lo <= hi (3 <= 5), so mid = 3 + (5 - 3) // 2 = 4.', lo: 3, hi: 5, mid: 4, cmp: 'nums[4] = 9 vs 9', ret: '—', detail: 'The range is now [3, 5]; its middle is index 4.', found: null, lines: [3, 4] },
+        { step: 4, title: 'Step 4: hit', text: 'nums[4] == 9, so return 4.', lo: 3, hi: 5, mid: 4, cmp: '9 == 9', ret: '4', detail: 'Found after 2 comparisons. A linear scan would have needed 5.', found: 4, lines: [5, 6] }
+      ];
+
+      // Ground truth: instrumented run of TimeMap.get("k", 12) on [(1,"a"), (4,"b"), (7,"c"), (10,"d"), (13,"e"), (18,"f")].
+      const ENTRIES = ['(1, "a")', '(4, "b")', '(7, "c")', '(10, "d")', '(13, "e")', '(18, "f")'];
+      const tmSteps = [
+        { step: 0, title: 'Initial state', text: 'values = the 6 entries of "k"; res = ""; lo = 0, hi = 5.', lo: 0, hi: 5, mid: null, fit: '—', res: '""', rec: null, detail: 'res = "" is the answer if no entry has time <= 12.', lines: [2, 3, 4] },
+        { step: 1, title: 'Step 1: first middle', text: 'lo <= hi (0 <= 5), so mid = (0 + 5) // 2 = 2: entry (7, "c").', lo: 0, hi: 5, mid: 2, fit: '—', res: '""', rec: null, detail: 'Compare the entry time 7 with 12.', lines: [5, 6] },
+        { step: 2, title: 'Step 2: fits, record and go right', text: '7 <= 12, so (7, "c") is a valid answer: res = "c". A later entry might also fit, so lo = mid + 1 = 3.', lo: 3, hi: 5, mid: 2, fit: 'yes (7 <= 12)', res: '"c"', rec: 2, detail: 'res is correct so far but maybe not the latest. Indices 0..2 are now ruled out.', lines: [7, 8, 9] },
+        { step: 3, title: 'Step 3: second middle', text: 'lo <= hi (3 <= 5), so mid = (3 + 5) // 2 = 4: entry (13, "e").', lo: 3, hi: 5, mid: 4, fit: '—', res: '"c"', rec: 2, detail: 'Compare the entry time 13 with 12.', lines: [5, 6] },
+        { step: 4, title: 'Step 4: too late, go left', text: '13 > 12, so this entry and everything after it is too late: hi = mid - 1 = 3.', lo: 3, hi: 3, mid: 4, fit: 'no (13 > 12)', res: '"c"', rec: 2, detail: 'res is unchanged. Only index 3 is left.', lines: [7, 10, 11] },
+        { step: 5, title: 'Step 5: third middle', text: 'lo <= hi (3 <= 3), so mid = (3 + 3) // 2 = 3: entry (10, "d").', lo: 3, hi: 3, mid: 3, fit: '—', res: '"c"', rec: 2, detail: 'Compare the entry time 10 with 12.', lines: [5, 6] },
+        { step: 6, title: 'Step 6: a later fit, record it', text: '10 <= 12, so res = "d" (later than "c"), and lo = mid + 1 = 4.', lo: 4, hi: 3, mid: 3, fit: 'yes (10 <= 12)', res: '"d"', rec: 3, detail: 'The candidate moved right from index 2 to index 3.', lines: [7, 8, 9] },
+        { step: 7, title: 'Step 7: range empty, return', text: 'lo <= hi is now false (4 <= 3), so the loop ends and res = "d" is returned.', lo: 4, hi: 3, mid: null, fit: '—', res: '"d"', rec: 3, detail: 'Final answer "d": the value at time 10, the last time at or before 12. Three comparisons instead of six.', lines: [5, 12] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      // Colour cells: answer/recorded = done, mid = current, inside [lo, hi] = frontier, else out (pale).
+      function colorCells(svgId, step, special) {
+        document.querySelectorAll(`#${svgId} [data-node]`).forEach((cell) => {
+          const k = Number(cell.dataset.node);
+          cell.classList.remove('done', 'frontier', 'current', 'out');
+          if (special === k) cell.classList.add('done');
+          else if (step.mid === k) cell.classList.add('current');
+          else if (k >= step.lo && k <= step.hi) cell.classList.add('frontier');
+          else cell.classList.add('out');
+        });
+        document.querySelectorAll(`#${svgId} [data-ptr]`).forEach((t) => {
+          const k = Number(t.dataset.ptr);
+          const labels = [];
+          if (step.lo === k) labels.push('lo');
+          if (step.mid === k) labels.push('mid');
+          if (step.hi === k) labels.push('hi');
+          t.textContent = labels.join(' ');
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function renderBS(step, index, max) {
+        document.getElementById('bs-step-title').textContent = step.title;
+        document.getElementById('bs-step-text').textContent = step.text;
+        document.getElementById('bs-lo').textContent = step.lo;
+        document.getElementById('bs-hi').textContent = step.hi;
+        document.getElementById('bs-mid').textContent = step.mid === null ? '—' : step.mid;
+        document.getElementById('bs-cmp').textContent = step.cmp;
+        document.getElementById('bs-size').textContent = Math.max(0, step.hi - step.lo + 1);
+        document.getElementById('bs-ret').textContent = step.ret;
+        document.getElementById('bs-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('bs-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('bs-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('bs-trace-table', step.step);
+        setCodeHighlight('bs-code', step.lines);
+        colorCells('bs-graph', step, step.found);
+      }
+
+      function renderTM(step, index, max) {
+        document.getElementById('tm-step-title').textContent = step.title;
+        document.getElementById('tm-step-text').textContent = step.text;
+        document.getElementById('tm-lo').textContent = step.lo;
+        document.getElementById('tm-hi').textContent = step.hi;
+        document.getElementById('tm-mid').textContent = step.mid === null ? '—' : step.mid;
+        document.getElementById('tm-entry').textContent = step.mid === null ? '—' : ENTRIES[step.mid];
+        document.getElementById('tm-fit').textContent = step.fit;
+        document.getElementById('tm-res').textContent = step.res;
+        document.getElementById('tm-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('tm-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('tm-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('tm-trace-table', step.step);
+        setCodeHighlight('tm-code', step.lines);
+        colorCells('tm-graph', step, step.rec);
+      }
+
+      setupTrace({ steps: bsSteps, prefix: 'bs', render: renderBS });
+      setupTrace({ steps: tmSteps, prefix: 'tm', render: renderTM });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

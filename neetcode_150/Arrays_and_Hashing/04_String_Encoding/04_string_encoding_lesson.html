@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>String Encoding — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Arrays and Hashing · Pattern 04 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>String Encoding</h1>
+          <p>
+            Pack a list of strings into one string and get the exact list back. The trick: write each string's length, a <code>#</code> marker, then the content. The decoder reads the number, then takes exactly that many characters without looking at them, so the strings may contain any character at all, including <code>#</code>.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: length prefix, then content</span>
+            <span class="chip">Method 1: Length-prefix encode / decode</span>
+            <span class="chip">Method 2: Delimiter only (and why it breaks)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="encode_and_decode_strings.html">Encode and Decode Strings</a> (LeetCode Premium, free on neetcode.io) · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Encode and Decode Strings, <code>strs = ["lint", "code", "a#b"]</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 150" width="100%" role="img" aria-label="The list lint, code, a#b framed as 4#lint 4#code 3#a#b">
+              <defs>
+                <style>
+                  .h-head { fill: #ff9f1c; }
+                  .h-body { fill: #13a46b; }
+                  .h-label { font: 700 16px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-title { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="10" y="24" class="h-title">encode(strs) = "4#lint4#code3#a#b"</text>
+              <rect x="10" y="40" width="54" height="44" rx="10" class="h-head" />
+              <rect x="68" y="40" width="104" height="44" rx="10" class="h-body" />
+              <rect x="180" y="40" width="54" height="44" rx="10" class="h-head" />
+              <rect x="238" y="40" width="104" height="44" rx="10" class="h-body" />
+              <rect x="350" y="40" width="54" height="44" rx="10" class="h-head" />
+              <rect x="408" y="40" width="100" height="44" rx="10" class="h-body" />
+              <text x="37" y="68" text-anchor="middle" class="h-label">4#</text>
+              <text x="120" y="68" text-anchor="middle" class="h-label">lint</text>
+              <text x="207" y="68" text-anchor="middle" class="h-label">4#</text>
+              <text x="290" y="68" text-anchor="middle" class="h-label">code</text>
+              <text x="377" y="68" text-anchor="middle" class="h-label">3#</text>
+              <text x="458" y="68" text-anchor="middle" class="h-label">a#b</text>
+              <text x="10" y="112" class="h-title">orange = header (length + marker), green = content</text>
+              <text x="10" y="134" class="h-title">the "#" inside "a#b" is content: decode never searches it</text>
+            </svg>
+          </div>
+          <div class="result-badge">decode(encode(strs)) = ["lint", "code", "a#b"]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Network protocols</h3>
+          <p>HTTP chunked transfer writes each chunk's size before the chunk. Redis sends a string as <code>$5\r\nhello\r\n</code>: length first, then the bytes. The receiver never guesses where a message ends.</p>
+        </div>
+        <div class="card">
+          <h3>File and wire formats</h3>
+          <p>Binary formats such as Protocol Buffers store variable-length fields as "length, then bytes", so a field may hold any byte value without escaping.</p>
+        </div>
+        <div class="card">
+          <h3>The interview point</h3>
+          <p>The question checks whether you notice that a separator is ambiguous when the data can contain it, and whether you can design a format that is not.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the whole problem is one design decision. Once you say "length first", the code is a dozen lines of slicing.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is length-prefix encoding?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Each string becomes a <strong>frame</strong>: its length written in digits, a <code>#</code> that marks where the digits stop, then the string itself. <code>"lint"</code> becomes <code>"4#lint"</code>. All frames are glued together. To decode, read the digits, then take exactly that many characters.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Encode a list of strings to a single string", "serialize / deserialize", "send over the network", and above all: <strong>the strings may contain any character</strong>, so no separator is safe. <code>decode</code> receives only the encoded string.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> the decoder only ever looks for <code>#</code> at the start of a frame, where digits are guaranteed. After reading the length it jumps over the content in one slice, so a <code>#</code> inside the content is never examined.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Try a separator</h3>
+          <p><code>"#".join</code> looks fine until a string contains <code>#</code>. Then <code>["a#b"]</code> and <code>["a", "b"]</code> encode the same.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Say the size first</h3>
+          <p>If the reader knows a string has 3 characters, it does not care what they are. Write <code>len(w)</code> before each string.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>End the number</h3>
+          <p>Lengths can have several digits and content can start with a digit, so put a <code>#</code> after the length to say "the number stops here".</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Decode frame by frame</h3>
+          <p>From index <code>i</code>: scan to <code>#</code>, parse the length, slice the content, set <code>i</code> to the next frame. Stop at the end.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the list becomes one framed string</h2>
+      <p>The input is a Python list of strings. <code>encode</code> turns each one into a frame and joins them; the result is a single string where frame boundaries are known only from the lengths. That string is all <code>decode</code> ever sees.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>strs = ["lint", "code", "a#b"]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Framed string (17 characters)</h3>
+          <div class="code-block"><code>"4#lint" + "4#code" + "3#a#b"
+= "4#lint4#code3#a#b"</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4><code>"lint"</code> has 4 characters</h4>
+          <p>Frame <code>"4#lint"</code> occupies indices 0 to 5. The header is indices 0 and 1.</p>
+        </div>
+        <div class="timeline-step">
+          <h4><code>"code"</code> has 4 characters</h4>
+          <p>Frame <code>"4#code"</code> occupies indices 6 to 11.</p>
+        </div>
+        <div class="timeline-step">
+          <h4><code>"a#b"</code> has 3 characters</h4>
+          <p>Frame <code>"3#a#b"</code> occupies indices 12 to 16. Its content contains a <code>#</code> at index 15.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Join once</h4>
+          <p><code>"".join(parts)</code> builds the 17-character result in one pass.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the string has four <code>#</code> characters (indices 1, 7, 13, 15) but only three are markers. Nothing in the string itself says which; only the lengths do. That is why decode must read frames in order from the start.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: length-prefix encode and decode</h2>
+      <p>The template itself, line for line from the notebook's <code>encode</code> and <code>decode</code>. Encode builds one frame per string. Decode keeps <code>i</code> at the start of a frame: <code>j</code> walks the digits to the <code>#</code>, the digits give <code>length</code>, and one slice takes the content.</p>
+      <div class="code-block stepped">
+        <code id="lp-code">
+<span class="code-line" data-line="1">def encode(strs: List[str]) -&gt; str:</span>
+<span class="code-line" data-line="2">    parts = []</span>
+<span class="code-line" data-line="3">    for w in strs:</span>
+<span class="code-line" data-line="4">        # Write "&lt;length&gt;#&lt;content&gt;" so the reader knows exactly how far to read.</span>
+<span class="code-line" data-line="5">        parts.append(str(len(w)) + "#" + w)</span>
+<span class="code-line" data-line="6">    return "".join(parts)                  # concatenate all the framed chunks</span>
+<span class="code-line" data-line="7"></span>
+<span class="code-line" data-line="8">def decode(s: str) -&gt; List[str]:</span>
+<span class="code-line" data-line="9">    res = []</span>
+<span class="code-line" data-line="10">    i = 0</span>
+<span class="code-line" data-line="11">    while i &lt; len(s):                      # keep reading chunks until the string ends</span>
+<span class="code-line" data-line="12">        j = i</span>
+<span class="code-line" data-line="13">        while s[j] != "#":                 # read digits up to the '#' marker</span>
+<span class="code-line" data-line="14">            j += 1</span>
+<span class="code-line" data-line="15">        length = int(s[i:j])               # those digits are the content length</span>
+<span class="code-line" data-line="16">        start = j + 1                      # content begins right after the '#'</span>
+<span class="code-line" data-line="17">        res.append(s[start:start + length])# take exactly `length` characters (any char is safe)</span>
+<span class="code-line" data-line="18">        i = start + length                 # jump to the start of the next chunk</span>
+<span class="code-line" data-line="19">    return res</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive length-prefix trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="lp-graph" viewBox="0 0 520 120" width="100%" role="img" aria-label="Characters of the encoded string 4#lint4#code3#a#b, colored by role"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> header being written / read</span>
+            <span><i class="dot dot-green"></i> content being written / taken</span>
+            <span><i class="dot dot-blue"></i> finished frame</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="lp-step-title">Initial state</h3>
+          <p id="lp-step-text">Start encode with an empty parts list.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="lp-prev">Previous</button>
+            <button type="button" id="lp-play" class="primary">Resume</button>
+            <button type="button" id="lp-next">Next</button>
+            <button type="button" id="lp-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="lp-step-counter">Step 0 / 12</span>
+            <div class="progress"><span id="lp-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Phase</strong><div class="state-value" id="lp-phase">encode</div></div>
+            <div class="state-box"><strong>Current frame</strong><div class="state-value" id="lp-frame">—</div></div>
+            <div class="state-box"><strong>i (frame start)</strong><div class="state-value" id="lp-i">—</div></div>
+            <div class="state-box"><strong>j (marker index)</strong><div class="state-value" id="lp-j">—</div></div>
+            <div class="state-box"><strong>length / start</strong><div class="state-value" id="lp-len">—</div></div>
+            <div class="state-box"><strong>parts / res</strong><div class="state-value" id="lp-res">parts = []</div></div>
+          </div>
+          <div class="explainer">
+            <p id="lp-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="lp-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Phase</th><th>Action</th><th>i</th><th>j</th><th>length / start</th><th>parts / res after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>encode</td><td><code>parts = []</code></td><td>—</td><td>—</td><td>—</td><td><code>parts = []</code></td></tr>
+            <tr data-step="1"><td>1</td><td>encode</td><td><code>w = "lint"</code>, append <code>"4#lint"</code></td><td>—</td><td>—</td><td>—</td><td><code>["4#lint"]</code></td></tr>
+            <tr data-step="2"><td>2</td><td>encode</td><td><code>w = "code"</code>, append <code>"4#code"</code></td><td>—</td><td>—</td><td>—</td><td><code>["4#lint", "4#code"]</code></td></tr>
+            <tr data-step="3"><td>3</td><td>encode</td><td><code>w = "a#b"</code>, append <code>"3#a#b"</code></td><td>—</td><td>—</td><td>—</td><td><code>["4#lint", "4#code", "3#a#b"]</code></td></tr>
+            <tr data-step="4"><td>4</td><td>encode</td><td>Join: <code>s = "4#lint4#code3#a#b"</code> (17 chars)</td><td>—</td><td>—</td><td>—</td><td>returned <code>s</code></td></tr>
+            <tr data-step="5"><td>5</td><td>decode</td><td><code>res = []</code>, <code>i = 0</code></td><td>0</td><td>—</td><td>—</td><td><code>res = []</code></td></tr>
+            <tr data-step="6"><td>6</td><td>decode</td><td>Scan from 0: <code>s[1] == "#"</code>, digits <code>"4"</code></td><td>0</td><td>1</td><td>4 / 2</td><td><code>[]</code></td></tr>
+            <tr data-step="7"><td>7</td><td>decode</td><td>Take <code>s[2:6] = "lint"</code>, jump</td><td>0 → 6</td><td>1</td><td>4 / 2</td><td><code>["lint"]</code></td></tr>
+            <tr data-step="8"><td>8</td><td>decode</td><td>Scan from 6: <code>s[7] == "#"</code>, digits <code>"4"</code></td><td>6</td><td>7</td><td>4 / 8</td><td><code>["lint"]</code></td></tr>
+            <tr data-step="9"><td>9</td><td>decode</td><td>Take <code>s[8:12] = "code"</code>, jump</td><td>6 → 12</td><td>7</td><td>4 / 8</td><td><code>["lint", "code"]</code></td></tr>
+            <tr data-step="10"><td>10</td><td>decode</td><td>Scan from 12: <code>s[13] == "#"</code>, digits <code>"3"</code></td><td>12</td><td>13</td><td>3 / 14</td><td><code>["lint", "code"]</code></td></tr>
+            <tr data-step="11"><td>11</td><td>decode</td><td>Take <code>s[14:17] = "a#b"</code> (the <code>#</code> at 15 is content), jump</td><td>12 → 17</td><td>13</td><td>3 / 14</td><td><code>["lint", "code", "a#b"]</code></td></tr>
+            <tr data-step="12"><td>12</td><td>decode</td><td><code>i = 17 = len(s)</code>: loop ends, return</td><td>17</td><td>—</td><td>—</td><td><code>["lint", "code", "a#b"]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A frame is a parcel with its weight written on the label. You read the label, lift exactly that much, and the next label is right behind it. You never open the parcel to look for the end.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Reading only one digit for the length. A 12-character string encodes as <code>"12#..."</code>; reading just <code>"1"</code> would take one character and lose the frame. The <code>while s[j] != "#"</code> loop reads every digit.</p>
+        </div>
+        <div class="card">
+          <h4>Why the marker is needed</h4>
+          <p>Without <code>#</code>, <code>"12abc"</code> could be length 1 with content <code>"2"</code>, or length 12. The marker says where the number stops, even when the content starts with a digit (the notebook tests <code>"3#weird"</code>, which encodes as <code>"7#3#weird"</code>).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: delimiter only (the brute idea it replaces)</h2>
+      <p>The first idea most people try, from the notebook's <code>encode_naive</code> / <code>decode_naive</code>: join with <code>#</code> and split on <code>#</code>. It costs the same <code>O(total length)</code>, but it gives the wrong answer as soon as a string contains <code>#</code>. Traced on the same input.</p>
+      <div class="code-block stepped">
+        <code id="nv-code">
+<span class="code-line" data-line="1">def encode_naive(strs: List[str]) -&gt; str:</span>
+<span class="code-line" data-line="2">    # Join with a '#'. UNSAFE: breaks if any string itself contains '#'.</span>
+<span class="code-line" data-line="3">    return "#".join(strs)</span>
+<span class="code-line" data-line="4"></span>
+<span class="code-line" data-line="5">def decode_naive(s: str) -&gt; List[str]:</span>
+<span class="code-line" data-line="6">    # Splitting on '#' can't tell a real '#' apart from a separator.</span>
+<span class="code-line" data-line="7">    return s.split("#") if s != "" else []</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive delimiter trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="nv-graph" viewBox="0 0 520 120" width="100%" role="img" aria-label="Characters of lint#code#a#b, split at every #"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> separator cut</span>
+            <span><i class="dot dot-green"></i> piece produced</span>
+            <span><i class="dot dot-blue"></i> earlier pieces</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+            <span><i class="dot" style="background:#d64545"></i> data <code>#</code> cut by mistake</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="nv-step-title">Initial state</h3>
+          <p id="nv-step-text">Encode joins the strings with "#".</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="nv-prev">Previous</button>
+            <button type="button" id="nv-play" class="primary">Resume</button>
+            <button type="button" id="nv-next">Next</button>
+            <button type="button" id="nv-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="nv-step-counter">Step 0 / 6</span>
+            <div class="progress"><span id="nv-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Phase</strong><div class="state-value" id="nv-phase">encode</div></div>
+            <div class="state-box"><strong>Encoded s</strong><div class="state-value" id="nv-s">—</div></div>
+            <div class="state-box"><strong>Cut at index</strong><div class="state-value" id="nv-cut">—</div></div>
+            <div class="state-box"><strong>Pieces so far</strong><div class="state-value" id="nv-pieces">[]</div></div>
+            <div class="state-box"><strong>Matches input?</strong><div class="state-value" id="nv-ok">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="nv-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="nv-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Phase</th><th>Action</th><th>Cut at</th><th>Pieces after</th><th>Note</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>encode</td><td><code>strs = ["lint", "code", "a#b"]</code></td><td>—</td><td><code>[]</code></td><td>Three strings in</td></tr>
+            <tr data-step="1"><td>1</td><td>encode</td><td><code>s = "lint#code#a#b"</code> (13 chars)</td><td>—</td><td><code>[]</code></td><td>Three <code>#</code>: two separators, one data</td></tr>
+            <tr data-step="2"><td>2</td><td>decode</td><td>Split at first <code>#</code></td><td>4</td><td><code>["lint"]</code></td><td>Correct</td></tr>
+            <tr data-step="3"><td>3</td><td>decode</td><td>Split at next <code>#</code></td><td>9</td><td><code>["lint", "code"]</code></td><td>Correct</td></tr>
+            <tr data-step="4"><td>4</td><td>decode</td><td>Split at next <code>#</code></td><td>11</td><td><code>["lint", "code", "a"]</code></td><td>Wrong: this <code>#</code> was data</td></tr>
+            <tr data-step="5"><td>5</td><td>decode</td><td>End of string, last piece</td><td>—</td><td><code>["lint", "code", "a", "b"]</code></td><td>Four pieces</td></tr>
+            <tr data-step="6"><td>6</td><td>result</td><td>Compare with the input</td><td>—</td><td><code>["lint", "code", "a", "b"]</code></td><td>Not equal: round trip broken</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A separator is information mixed into the data stream. If the data can contain the same symbol, the stream no longer says which is which.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Picking a "rare" separator such as a Unicode symbol or <code>"|#|"</code>. The constraint says any character may appear, so a rare separator only makes the bug rarer, not gone.</p>
+        </div>
+        <div class="card">
+          <h4>A second failure</h4>
+          <p><code>[]</code> and <code>[""]</code> both encode to <code>""</code>, so the naive decoder must guess. It returns <code>[]</code>, which is wrong for <code>[""]</code>. Length prefix gives <code>""</code> and <code>"0#"</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Empty list</button>
+        <button type="button" data-example-tab="1">Empty strings</button>
+        <button type="button" data-example-tab="2">Separator inside data</button>
+        <button type="button" data-example-tab="3">Two-digit length</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: no strings at all</h3>
+          <p><code>strs = []</code></p>
+          <div class="result-badge">encode = "" · decode("") = []</div>
+          <p class="footer-note"><code>while i &lt; len(s)</code> is false immediately, so decode returns an empty list. The notebook's correctness check includes this case.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: empty strings</h3>
+          <p><code>strs = ["", "", ""]</code> and <code>strs = [""]</code></p>
+          <div class="result-badge">"0#0#0#" → ["", "", ""] · "0#" → [""]</div>
+          <p class="footer-note">A length of 0 gives the slice <code>s[start:start]</code>, the empty string, and <code>i</code> moves just past the marker. Every empty string still leaves a visible <code>"0#"</code>, so <code>[""]</code> and <code>[]</code> stay different.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: the data contains the marker</h3>
+          <p><code>strs = ["a#b", "3#weird", "we#ird"]</code></p>
+          <div class="result-badge">"3#a#b7#3#weird6#we#ird" → ["a#b", "3#weird", "we#ird"]</div>
+          <p class="footer-note">This is the notebook's tricky test. <code>"3#weird"</code> even looks like a frame header inside the content, and it is still skipped, because decode jumps over content by its length.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: a length with two digits</h3>
+          <p><code>strs = ["abcdefghijkl"]</code> (12 characters)</p>
+          <div class="result-badge">"12#abcdefghijkl" → ["abcdefghijkl"]</div>
+          <p class="footer-note"><code>j</code> walks over both digits <code>1</code> and <code>2</code> before it reaches <code>#</code>, so <code>int(s[i:j])</code> is 12, not 1.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Time</th><th>Extra space</th><th>Correct for any characters?</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Delimiter only (Method 2, notebook Approach 1)</td><td><code>O(total)</code></td><td><code>O(total)</code></td><td>No</td><td>Fails when data contains the delimiter, and on <code>[""]</code>.</td></tr>
+            <tr><td>Length prefix + <code>#</code> (Method 1, notebook Approach 2)</td><td><code>O(total)</code></td><td><code>O(total)</code></td><td>Yes</td><td>The template. Both directions read each character once.</td></tr>
+            <tr><td>Escaping (variant, not in the notebook)</td><td><code>O(total)</code></td><td><code>O(total)</code></td><td>Yes</td><td>Works, but decode inspects every character for escapes.</td></tr>
+            <tr><td>Fixed-width length header (variant, not in the notebook)</td><td><code>O(total)</code></td><td><code>O(total)</code></td><td>Yes, up to the width's maximum length</td><td>No marker needed; 4 digits allow lengths up to 9999.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note"><code>total</code> = the sum of the string lengths plus the headers. The notebook's benchmark measures both of its approaches at about 2x per doubling of the number of strings, matching <code>O(total)</code>. The two variants were checked separately with round-trip asserts; they are described here, not benchmarked.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Strings may contain any character, and decode sees only the encoded string.</p></div>
+            <div class="timeline-step"><p>So any separator can also be data: <code>["a#b"]</code> and <code>["a", "b"]</code> collide.</p></div>
+            <div class="timeline-step"><p>Instead of marking where a string ends, say up front how long it is.</p></div>
+            <div class="timeline-step"><p>Lengths have variable digit counts, so end the number with <code>#</code>. Only the first <code>#</code> after a frame start is a marker.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"A delimiter alone is ambiguous because the data can contain it, so I'll prefix each string with its length."</li>
+            <li>"Each frame is length, <code>#</code>, content. The <code>#</code> ends the digits, so multi-digit lengths work."</li>
+            <li>"Decode reads digits up to <code>#</code>, slices exactly that many characters, and jumps to the next frame. A <code>#</code> in the content is never searched."</li>
+            <li>"Both directions touch each character once: O(total length) time and space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Length-prefix (Method 1)</h3>
+          <ul class="mistake-list">
+            <li>Reading a single digit for the length, which breaks on strings of 10 or more characters.</li>
+            <li>Starting the <code>#</code> search from index 0 or using <code>s.index("#")</code> on the whole string, which finds markers inside content.</li>
+            <li>Off by one after the marker: content starts at <code>j + 1</code>, and the next frame at <code>start + length</code>.</li>
+            <li>Building the result with <code>+=</code> in a loop instead of collecting parts and calling <code>"".join</code> once.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Delimiter only (Method 2)</h3>
+          <ul class="mistake-list">
+            <li>Assuming the delimiter never appears in the data, when the problem says any character can.</li>
+            <li>Choosing a longer or rarer delimiter and calling it fixed.</li>
+            <li>Missing that <code>[]</code> and <code>[""]</code> encode to the same empty string.</li>
+            <li>Escaping only <code>#</code> but not the escape character itself, so <code>"/"</code> followed by <code>#</code> becomes ambiguous.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>This pattern has one NeetCode problem, so Practice 2 to 4 are follow-up variants of Encode and Decode Strings, the kind an interviewer asks next. Commit to a guess before opening the answer.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Encode and Decode Strings: decode <code>"3#abc0#2#ab"</code> by hand</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> read digits to the <code>#</code>, take that many characters, repeat from where you stopped.</p>
+          <p style="margin-top:10px;">Answer: <code>["abc", "", "ab"]</code>. The middle frame <code>"0#"</code> is an empty string. Step through the decoder on the problem page: <a href="encode_and_decode_strings.html">Encode and Decode Strings</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Variant: find two different lists that the delimiter-only scheme encodes to the same string</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> put the delimiter inside one string, or use empty strings.</p>
+          <p style="margin-top:10px;">Answer: <code>["a#b"]</code> and <code>["a", "b"]</code> both give <code>"a#b"</code>; <code>[]</code> and <code>[""]</code> both give <code>""</code>. Once two inputs share an encoding, no decoder can be right for both. Length prefix gives <code>"3#a#b"</code> vs <code>"1#a1#b"</code>, and <code>""</code> vs <code>"0#"</code>. See the naive approach in the notebook: <a href="encode_and_decode_strings.ipynb">encode_and_decode_strings.ipynb</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Variant: make the delimiter scheme correct with escaping instead of lengths</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> pick an escape character, say <code>/</code>. Escape both <code>/</code> and <code>#</code> inside the data, then end every string with a plain <code>#</code>.</p>
+          <p style="margin-top:10px;">Answer: encode each string as <code>w.replace("/", "//").replace("#", "/#") + "#"</code>. Decode walks character by character: <code>/</code> means "the next character is literal data", a plain <code>#</code> ends the current string. <code>["lint", "code", "a#b"]</code> becomes <code>"lint#code#a/#b#"</code>. It is also <code>O(total)</code>, but decode must look at every character, while the length prefix slices content without reading it. Compare with the length-prefix decoder on <a href="encode_and_decode_strings.html">the problem page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Variant: drop the <code>#</code> by using a fixed-width length header</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> if every length is written with exactly 4 digits, how does the decoder know where the number stops?</p>
+          <p style="margin-top:10px;">Answer: write <code>f"{len(w):04d}" + w</code>, so <code>"lint"</code> becomes <code>"0004lint"</code>. Decode reads <code>int(s[i:i+4])</code>, takes that many characters, and sets <code>i += 4 + length</code>. No marker is needed because the header width is fixed. The cost is a cap: 4 digits allow lengths up to 9999, which covers LeetCode's limit of 200. Real binary protocols do the same with a fixed number of bytes. Back to the <a href="README.md">pattern notes</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Say the length first, then the content.</strong>
+          A separator can always be confused with data; a length cannot, because the decoder never reads the content to find its end. Frame each string as <code>len + "#" + content</code>, decode by reading digits to the <code>#</code> and slicing exactly that many characters, and the round trip is exact for any characters in <code>O(total length)</code>.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">String Encoding pattern notes</a>. Code and trace values are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of encode / decode on ["lint", "code", "a#b"].
+      // marks: [from, to, cls] inclusive index ranges; shown: how many characters exist so far.
+      const LP_S = '4#lint4#code3#a#b';
+      const lpSteps = [
+        { step: 0, title: 'Initial state', text: 'encode starts with an empty parts list.', phase: 'encode', frame: '—', i: '—', j: '—', len: '—', res: 'parts = []', detail: 'Nothing written yet.', shown: 0, marks: [], ptr: {}, lines: [1, 2] },
+        { step: 1, title: 'Step 1: frame "lint"', text: 'len("lint") = 4, so append "4" + "#" + "lint".', phase: 'encode', frame: '"4#lint"', i: '—', j: '—', len: '—', res: 'parts = ["4#lint"]', detail: 'Header "4#" (orange) then 4 content characters (green).', shown: 6, marks: [[0, 1, 'cur'], [2, 5, 'take']], ptr: {}, lines: [3, 4, 5] },
+        { step: 2, title: 'Step 2: frame "code"', text: 'len("code") = 4, so append "4#code".', phase: 'encode', frame: '"4#code"', i: '—', j: '—', len: '—', res: 'parts = ["4#lint", "4#code"]', detail: 'The first frame is finished (blue).', shown: 12, marks: [[0, 5, 'done'], [6, 7, 'cur'], [8, 11, 'take']], ptr: {}, lines: [3, 4, 5] },
+        { step: 3, title: 'Step 3: frame "a#b"', text: 'len("a#b") = 3, so append "3#a#b". The content holds a "#", and encode does not care.', phase: 'encode', frame: '"3#a#b"', i: '—', j: '—', len: '—', res: 'parts = ["4#lint", "4#code", "3#a#b"]', detail: 'Index 15 is a "#" that belongs to the data.', shown: 17, marks: [[0, 11, 'done'], [12, 13, 'cur'], [14, 16, 'take']], ptr: {}, lines: [3, 4, 5] },
+        { step: 4, title: 'Step 4: join', text: 'Join the parts once: s = "4#lint4#code3#a#b", 17 characters.', phase: 'encode → decode', frame: '—', i: '—', j: '—', len: '—', res: 's = "4#lint4#code3#a#b"', detail: 'This string is all that decode will receive.', shown: 17, marks: [], ptr: {}, lines: [6] },
+        { step: 5, title: 'Step 5: start decode', text: 'res = [], i = 0. i always points at the start of a frame.', phase: 'decode', frame: '—', i: '0', j: '—', len: '—', res: 'res = []', detail: '0 < 17, so the loop runs.', shown: 17, marks: [], ptr: { 0: 'i' }, lines: [8, 9, 10] },
+        { step: 6, title: 'Step 6: read the first header', text: 'j starts at 0 and moves until s[j] is "#": j = 1. int(s[0:1]) = 4, start = 2.', phase: 'decode', frame: 'header "4#"', i: '0', j: '1', len: 'length = 4, start = 2', res: 'res = []', detail: 'The digits end at the marker.', shown: 17, marks: [[0, 1, 'cur']], ptr: { 0: 'i', 1: 'j' }, lines: [11, 12, 13, 14, 15, 16] },
+        { step: 7, title: 'Step 7: take "lint"', text: 'res gets s[2:6] = "lint". Jump: i = 2 + 4 = 6.', phase: 'decode', frame: '"lint"', i: '0 → 6', j: '1', len: 'length = 4, start = 2', res: 'res = ["lint"]', detail: 'The slice takes 4 characters without inspecting them.', shown: 17, marks: [[0, 1, 'done'], [2, 5, 'take']], ptr: { 6: 'i' }, lines: [17, 18] },
+        { step: 8, title: 'Step 8: read the second header', text: 'From i = 6, j stops at 7. int(s[6:7]) = 4, start = 8.', phase: 'decode', frame: 'header "4#"', i: '6', j: '7', len: 'length = 4, start = 8', res: 'res = ["lint"]', detail: 'Same three lines, next frame.', shown: 17, marks: [[0, 5, 'done'], [6, 7, 'cur']], ptr: { 6: 'i', 7: 'j' }, lines: [11, 12, 13, 14, 15, 16] },
+        { step: 9, title: 'Step 9: take "code"', text: 'res gets s[8:12] = "code". Jump: i = 12.', phase: 'decode', frame: '"code"', i: '6 → 12', j: '7', len: 'length = 4, start = 8', res: 'res = ["lint", "code"]', detail: 'Two strings recovered.', shown: 17, marks: [[0, 7, 'done'], [8, 11, 'take']], ptr: { 12: 'i' }, lines: [17, 18] },
+        { step: 10, title: 'Step 10: read the third header', text: 'From i = 12, j stops at 13. int(s[12:13]) = 3, start = 14.', phase: 'decode', frame: 'header "3#"', i: '12', j: '13', len: 'length = 3, start = 14', res: 'res = ["lint", "code"]', detail: 'The scan stops at the first "#" after i, index 13. It never reaches index 15.', shown: 17, marks: [[0, 11, 'done'], [12, 13, 'cur']], ptr: { 12: 'i', 13: 'j' }, lines: [11, 12, 13, 14, 15, 16] },
+        { step: 11, title: 'Step 11: take "a#b"', text: 'res gets s[14:17] = "a#b". Jump: i = 17.', phase: 'decode', frame: '"a#b"', i: '12 → 17', j: '13', len: 'length = 3, start = 14', res: 'res = ["lint", "code", "a#b"]', detail: 'The "#" at index 15 is taken as plain data inside the slice.', shown: 17, marks: [[0, 13, 'done'], [14, 16, 'take']], ptr: {}, lines: [17, 18] },
+        { step: 12, title: 'Step 12: return', text: 'i = 17 = len(s), so the while loop ends and res is returned.', phase: 'decode', frame: '—', i: '17', j: '—', len: '—', res: 'res = ["lint", "code", "a#b"]', detail: 'Final answer: ["lint", "code", "a#b"], equal to the input.', shown: 17, marks: [[0, 16, 'done']], ptr: {}, lines: [11, 19] }
+      ];
+
+      // Ground truth: encode_naive / decode_naive on the same input. "#".join gives "lint#code#a#b".
+      const NV_S = 'lint#code#a#b';
+      const nvSteps = [
+        { step: 0, title: 'Initial state', text: 'Three strings go in: "lint", "code", "a#b".', phase: 'encode', s: '—', cut: '—', pieces: '[]', ok: '—', detail: 'Nothing joined yet.', shown: 0, marks: [], ptr: {}, lines: [1] },
+        { step: 1, title: 'Step 1: join with "#"', text: 's = "lint#code#a#b", 13 characters.', phase: 'encode', s: '"lint#code#a#b"', cut: '—', pieces: '[]', ok: '—', detail: 'Three "#" characters now: at 4 and 9 they separate, at 11 it is data. They look identical.', shown: 13, marks: [], ptr: {}, lines: [2, 3] },
+        { step: 2, title: 'Step 2: cut at index 4', text: 'split finds the first "#" and produces "lint".', phase: 'decode', s: '"lint#code#a#b"', cut: '4', pieces: '["lint"]', ok: '—', detail: 'This cut is a real separator.', shown: 13, marks: [[0, 3, 'take'], [4, 4, 'cur']], ptr: { 4: 'cut' }, lines: [5, 6, 7] },
+        { step: 3, title: 'Step 3: cut at index 9', text: 'Next "#" produces "code".', phase: 'decode', s: '"lint#code#a#b"', cut: '9', pieces: '["lint", "code"]', ok: '—', detail: 'Still correct.', shown: 13, marks: [[0, 4, 'done'], [5, 8, 'take'], [9, 9, 'cur']], ptr: { 9: 'cut' }, lines: [5, 6, 7] },
+        { step: 4, title: 'Step 4: cut at index 11', text: 'Next "#" produces "a". But this "#" was part of "a#b".', phase: 'decode', s: '"lint#code#a#b"', cut: '11 (data!)', pieces: '["lint", "code", "a"]', ok: '—', detail: 'split cannot tell data from separator.', shown: 13, marks: [[0, 9, 'done'], [10, 10, 'take'], [11, 11, 'bad']], ptr: { 11: 'cut' }, lines: [5, 6, 7] },
+        { step: 5, title: 'Step 5: last piece', text: 'The rest of the string, "b", becomes a fourth piece.', phase: 'decode', s: '"lint#code#a#b"', cut: '—', pieces: '["lint", "code", "a", "b"]', ok: '—', detail: 'Four pieces from three strings.', shown: 13, marks: [[0, 10, 'done'], [11, 11, 'bad'], [12, 12, 'take']], ptr: {}, lines: [7] },
+        { step: 6, title: 'Step 6: compare', text: '["lint", "code", "a", "b"] is not ["lint", "code", "a#b"].', phase: 'result', s: '"lint#code#a#b"', cut: '—', pieces: '["lint", "code", "a", "b"]', ok: 'No: round trip broken', detail: 'Final answer is wrong. This is why the pattern writes lengths instead.', shown: 13, marks: [[0, 10, 'done'], [11, 11, 'bad'], [12, 12, 'done']], ptr: {}, lines: [3, 7] }
+      ];
+
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const FILL = { cur: '#ff9f1c', take: '#13a46b', done: '#315efb', bad: '#d64545' };
+
+      function svgEl(tag, attrs, text) {
+        const el = document.createElementNS(SVG_NS, tag);
+        Object.keys(attrs).forEach((k) => el.setAttribute(k, attrs[k]));
+        if (text !== undefined) el.textContent = text;
+        return el;
+      }
+
+      // Draws the characters of `str` as boxes. Boxes at index >= shown are dashed placeholders.
+      function drawChars(svgId, str, step) {
+        const svg = document.getElementById(svgId);
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        const cell = Math.min(30, Math.floor(500 / str.length));
+        const x0 = Math.floor((520 - cell * str.length) / 2);
+        const cls = {};
+        step.marks.forEach(([a, b, c]) => { for (let k = a; k <= b; k += 1) cls[k] = c; });
+        for (let k = 0; k < str.length; k += 1) {
+          const x = x0 + k * cell;
+          const visible = k < step.shown;
+          const fill = visible ? (FILL[cls[k]] || '#c8d2e7') : 'none';
+          svg.appendChild(svgEl('rect', { x: x + 1, y: 36, width: cell - 2, height: 38, rx: 7, fill, stroke: visible ? 'none' : '#c8d2e7', 'stroke-dasharray': '4 3' }));
+          if (visible) {
+            svg.appendChild(svgEl('text', { x: x + cell / 2, y: 61, 'text-anchor': 'middle', 'font-family': 'ui-monospace, Menlo, monospace', 'font-weight': '700', 'font-size': '16', fill: cls[k] ? '#ffffff' : '#172033' }, str[k]));
+          }
+          svg.appendChild(svgEl('text', { x: x + cell / 2, y: 92, 'text-anchor': 'middle', 'font-family': 'Inter, Arial, sans-serif', 'font-size': '11', fill: '#5d677d' }, String(k)));
+          if (step.ptr[k]) {
+            svg.appendChild(svgEl('text', { x: x + cell / 2, y: 24, 'text-anchor': 'middle', 'font-family': 'Inter, Arial, sans-serif', 'font-weight': '700', 'font-size': '13', fill: '#172033' }, step.ptr[k] + ' ↓'));
+          }
+        }
+      }
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) { clearInterval(timer); timer = null; }
+          playBtn.textContent = 'Resume';
+        }
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1700);
+        });
+        update();
+      }
+
+      function setText(id, value) { document.getElementById(id).textContent = value; }
+
+      function renderLP(step, index, max) {
+        setText('lp-step-title', step.title);
+        setText('lp-step-text', step.text);
+        setText('lp-phase', step.phase);
+        setText('lp-frame', step.frame);
+        setText('lp-i', step.i);
+        setText('lp-j', step.j);
+        setText('lp-len', step.len);
+        setText('lp-res', step.res);
+        document.getElementById('lp-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        setText('lp-step-counter', `Step ${step.step} / ${max}`);
+        document.getElementById('lp-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('lp-trace-table', step.step);
+        setCodeHighlight('lp-code', step.lines);
+        drawChars('lp-graph', LP_S, step);
+      }
+
+      function renderNV(step, index, max) {
+        setText('nv-step-title', step.title);
+        setText('nv-step-text', step.text);
+        setText('nv-phase', step.phase);
+        setText('nv-s', step.s);
+        setText('nv-cut', step.cut);
+        setText('nv-pieces', step.pieces);
+        setText('nv-ok', step.ok);
+        document.getElementById('nv-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        setText('nv-step-counter', `Step ${step.step} / ${max}`);
+        document.getElementById('nv-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('nv-trace-table', step.step);
+        setCodeHighlight('nv-code', step.lines);
+        drawChars('nv-graph', NV_S, step);
+      }
+
+      setupTrace({ steps: lpSteps, prefix: 'lp', render: renderLP });
+      setupTrace({ steps: nvSteps, prefix: 'nv', render: renderNV });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

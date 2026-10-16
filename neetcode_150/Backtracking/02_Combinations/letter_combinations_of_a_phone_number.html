@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Letter Combinations of a Phone Number — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .chip.cur{background:var(--hi);border-color:var(--hi-bd)}
+  .chips.mono .chip,.chip{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tedge{stroke:var(--border);stroke-width:2}
+  .tedge.live{stroke:var(--accent);stroke-width:3}
+  .elab{fill:var(--muted);font-size:11px;font-weight:600}
+  .tn rect{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tn text{fill:var(--fg);font-size:13px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tn.seen rect{fill:var(--seen);stroke:var(--seen-bd)}
+  .tn.good rect{fill:var(--good);stroke:var(--good-bd)}
+  .tn.bad rect{fill:var(--bad);stroke:var(--bad-bd)}
+  .tn.dead{opacity:.5}
+  .tn.cur rect{fill:var(--hi);stroke:var(--hi-bd);stroke-width:3}
+  .tn.good.cur rect{fill:var(--good);stroke:var(--hi-bd);stroke-width:3}
+  .tn.bad.cur rect{fill:var(--bad);stroke:var(--hi-bd);stroke-width:3}
+  .tn.dead.cur{opacity:1}
+  .box{width:46px;height:46px;font-size:17px}
+  @media (max-width:520px){ .counter{margin-left:0;width:100%} }
+
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_combinations_lesson.html">&larr; Combinations lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Backtracking · Combinations</span></div>
+<h1>17 · Letter Combinations of a Phone Number</h1>
+<p class="lead">Every word a digit string can spell on a phone keypad.</p>
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">On an old phone keypad each digit key also has letters (2 = abc, 3 = def, ..., 7 = pqrs, 9 = wxyz). Given some digits, list every word you could type by choosing one letter per key, in order.</p>
+<div class="idea">Example: <code>"23"</code> &rarr; <code>["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]</code>. Empty input &rarr; <code>[]</code>.</div>
+<div class="badges" id="pd-b"></div>
+<div class="mem"><h4>words</h4><div class="chips" id="pd-m0"></div></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">Both solutions are traced on <code>"23"</code>. They do the same amount of work: the output itself has up to <code>4^n</code> words.</p>
+</div>
+<div class="card"><h2>Solution 1 — Grow every prefix, one digit at a time</h2>
+<div class="idea">Start with one empty prefix. For each digit, make a new list: every prefix you have, extended by every letter of that digit. After the last digit the list is the answer. This builds the tree level by level.</div>
+<div class="badges" id="it-b"></div>
+<div class="mem"><h4>combos (previous round)</h4><div class="chips" id="it-m0"></div></div>
+<div class="mem"><h4>new list being built</h4><div class="chips" id="it-m1"></div></div>
+<div class="caption" id="it-cap"></div>
+<div class="controls" data-player="it"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="it-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>O(n &middot; 4^n)</code> time; it keeps a whole level of prefixes while building the next one, <code>O(n &middot; 4^(n-1))</code> extra memory. (In Python the list comprehension is quick: the notebook's benchmark shows it a few times faster than Solution 2, with the same growth.)</p>
+<div class="trace-title">Step-by-step trace — digits = "23"</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Digit</th><th>Prefix</th><th>+ letter</th><th>New string</th><th>New list size</th><th>Decision</th></tr>
+  <tr><td>1</td><td>2</td><td>""</td><td>a</td><td>"a"</td><td>1</td><td class="rule">extend</td></tr>
+  <tr><td>2</td><td>2</td><td>""</td><td>b</td><td>"b"</td><td>2</td><td class="rule">extend</td></tr>
+  <tr><td>3</td><td>2</td><td>""</td><td>c</td><td>"c"</td><td>3</td><td class="rule">round 1 done &rarr; combos = new list</td></tr>
+  <tr><td>4</td><td>3</td><td>"a"</td><td>d</td><td>"ad"</td><td>1</td><td class="rule">extend</td></tr>
+  <tr><td>5</td><td>3</td><td>"a"</td><td>e</td><td>"ae"</td><td>2</td><td class="rule">extend</td></tr>
+  <tr><td>6</td><td>3</td><td>"a"</td><td>f</td><td>"af"</td><td>3</td><td class="rule">extend</td></tr>
+  <tr><td>7</td><td>3</td><td>"b"</td><td>d</td><td>"bd"</td><td>4</td><td class="rule">extend</td></tr>
+  <tr><td>8</td><td>3</td><td>"b"</td><td>e</td><td>"be"</td><td>5</td><td class="rule">extend</td></tr>
+  <tr><td>9</td><td>3</td><td>"b"</td><td>f</td><td>"bf"</td><td>6</td><td class="rule">extend</td></tr>
+  <tr><td>10</td><td>3</td><td>"c"</td><td>d</td><td>"cd"</td><td>7</td><td class="rule">extend</td></tr>
+  <tr><td>11</td><td>3</td><td>"c"</td><td>e</td><td>"ce"</td><td>8</td><td class="rule">extend</td></tr>
+  <tr class="final"><td>12</td><td>3</td><td>"c"</td><td>f</td><td>"cf"</td><td>9</td><td>last digit done &rarr; answer: 9 strings</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>Solution 2 — The pattern template: backtracking, one digit per level</h2>
+<div class="idea">Walk the same tree depth-first. Level <code>i</code> chooses a letter for <code>digits[i]</code>: append it, recurse to level <code>i + 1</code>, pop it. When the path has one letter per digit, save it. The level number plays the role of the start index, so nothing can repeat.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>visited call</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned (none here)</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.5"></span>dead end / skipped</span></div>
+<div class="viz" id="bt-viz"></div>
+<div class="badges" id="bt-b"></div>
+<div class="mem"><h4>words found</h4><div class="chips" id="bt-m0"></div></div>
+<div class="caption" id="bt-cap"></div>
+<div class="controls" data-player="bt"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="bt-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>O(n &middot; 4^n)</code> time, like Solution 1; only <code>O(n)</code> working memory (the path and the recursion).</p>
+<div class="trace-title">Step-by-step trace — digits = "23" (one row per call)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>i</th><th>path</th><th>Decision</th><th>Words found</th></tr>
+  <tr><td>1</td><td>0</td><td>""</td><td>loop over abc</td><td class="rule">0</td></tr>
+  <tr><td>2</td><td>1</td><td>"a"</td><td>loop over def</td><td class="rule">0</td></tr>
+  <tr><td>3</td><td>2</td><td>"ad"</td><td>full length &rarr; save "ad"</td><td class="rule">1</td></tr>
+  <tr><td>4</td><td>2</td><td>"ae"</td><td>full length &rarr; save "ae"</td><td class="rule">2</td></tr>
+  <tr><td>5</td><td>2</td><td>"af"</td><td>full length &rarr; save "af"</td><td class="rule">3</td></tr>
+  <tr><td>6</td><td>1</td><td>"b"</td><td>loop over def</td><td class="rule">3</td></tr>
+  <tr><td>7</td><td>2</td><td>"bd"</td><td>full length &rarr; save "bd"</td><td class="rule">4</td></tr>
+  <tr><td>8</td><td>2</td><td>"be"</td><td>full length &rarr; save "be"</td><td class="rule">5</td></tr>
+  <tr><td>9</td><td>2</td><td>"bf"</td><td>full length &rarr; save "bf"</td><td class="rule">6</td></tr>
+  <tr><td>10</td><td>1</td><td>"c"</td><td>loop over def</td><td class="rule">6</td></tr>
+  <tr><td>11</td><td>2</td><td>"cd"</td><td>full length &rarr; save "cd"</td><td class="rule">7</td></tr>
+  <tr><td>12</td><td>2</td><td>"ce"</td><td>full length &rarr; save "ce"</td><td class="rule">8</td></tr>
+  <tr class="final"><td>13</td><td>2</td><td>"cf"</td><td>full length &rarr; save "cf"; all loops done &rarr; 9 strings</td><td>9</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>When you'd use this</h2>
+See <b>"all possible strings"</b> with <b>one choice per position from a fixed menu</b>? It is the combinations template where level <code>i</code> loops over the options of position <code>i</code>.
+<p><a href="02_combinations_lesson.html">&rarr; Combinations: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1100);
+  });
+  draw();
+}
+function chips(targetId, items){
+  var el=document.getElementById(targetId); if(!el) return;
+  if(!items.length){ el.innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  el.innerHTML=h;
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function boxes(targetId, nums, marks, ptrs){
+  var el=document.getElementById(targetId); if(!el) return;
+  var h='<div class="row">';
+  for(var k=0;k<nums.length;k++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[k]||'')+'</div><div class="box '+(marks[k]||'')+'">'+nums[k]+'</div><div class="idxlabel">'+k+'</div></div>';
+  }
+  el.innerHTML=h+'</div>';
+}
+/* Recursion tree: T.nodes[i] = {p: parent, label, edge, x (leaf slot), y (depth), w (box width)}.
+   f.n = nodes created so far, f.m = css class per node, f.live = ids on the current root-to-node path. */
+function drawTree(id, T, f){
+  var GY=60, H=T.rows*GY, W=T.cols*T.slot+8, live={};
+  (f.live||[]).forEach(function(k){ live[k]=1; });
+  function X(i){ return 4+(T.nodes[i].x+0.5)*T.slot; } function Y(i){ return 18+T.nodes[i].y*GY; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="recursion tree">';
+  for(var i=1;i<f.n;i++){
+    var p=T.nodes[i].p, on=(live[i]&&live[p]);
+    s+='<line class="tedge'+(on?' live':'')+'" x1="'+X(p)+'" y1="'+(Y(p)+13)+'" x2="'+X(i)+'" y2="'+(Y(i)-13)+'"/>';
+    if(T.nodes[i].edge){
+      var mx=X(p)+(X(i)-X(p))*0.62, my=Y(p)+(Y(i)-Y(p))*0.62+4, dx=X(i)<X(p)?-4:(X(i)>X(p)?4:6);
+      s+='<text class="elab" x="'+(mx+dx)+'" y="'+my+'" text-anchor="'+(X(i)<X(p)?'end':'start')+'">'+T.nodes[i].edge+'</text>';
+    }
+  }
+  for(var i=0;i<f.n;i++){
+    var nd=T.nodes[i];
+    s+='<g class="tn '+(f.m[i]||'')+'"><rect x="'+(X(i)-nd.w/2)+'" y="'+(Y(i)-13)+'" width="'+nd.w+'" height="26" rx="8"/><text x="'+X(i)+'" y="'+(Y(i)+5)+'" text-anchor="middle">'+nd.label+'</text></g>';
+  }
+  var host=document.getElementById(id); host.innerHTML=s+'</svg></div>';
+  var cur=-1; for(var k in f.m){ if((' '+f.m[k]+' ').indexOf(' cur ')>=0) cur=+k; }
+  if(cur>=0 && host.scrollWidth>host.clientWidth) host.scrollLeft=Math.max(0,X(cur)-host.clientWidth/2);
+}
+
+var BT_T={"nodes": [{"p": null, "label": "start", "edge": "", "x": 4.0, "y": 0, "w": 54}, {"p": 0, "label": "a", "edge": "", "x": 1.0, "y": 1, "w": 30}, {"p": 1, "label": "ad", "edge": "", "x": 0, "y": 2, "w": 30}, {"p": 1, "label": "ae", "edge": "", "x": 1, "y": 2, "w": 30}, {"p": 1, "label": "af", "edge": "", "x": 2, "y": 2, "w": 30}, {"p": 0, "label": "b", "edge": "", "x": 4.0, "y": 1, "w": 30}, {"p": 5, "label": "bd", "edge": "", "x": 3, "y": 2, "w": 30}, {"p": 5, "label": "be", "edge": "", "x": 4, "y": 2, "w": 30}, {"p": 5, "label": "bf", "edge": "", "x": 5, "y": 2, "w": 30}, {"p": 0, "label": "c", "edge": "", "x": 7.0, "y": 1, "w": 30}, {"p": 9, "label": "cd", "edge": "", "x": 6, "y": 2, "w": 30}, {"p": 9, "label": "ce", "edge": "", "x": 7, "y": 2, "w": 30}, {"p": 9, "label": "cf", "edge": "", "x": 8, "y": 2, "w": 30}], "slot": 66, "cols": 9, "rows": 3};
+makePlayer('pd', [{"cap": "Digits \"23\". Key 2 has a, b, c. Key 3 has d, e, f.", "b": [{"label": "2", "val": "abc"}, {"label": "3", "val": "def"}], "mem": [[]]}, {"cap": "Pick one letter for the first digit, then one for the second: a then d gives \"ad\".", "b": [{"label": "2", "val": "<u>a</u>bc"}, {"label": "3", "val": "<u>d</u>ef"}], "mem": [[{"text": "ad", "cls": "look"}]]}, {"cap": "Every pair counts: 3 choices &times; 3 choices = <b>9</b> strings.", "b": [{"label": "count", "val": "3 &times; 3 = 9", "cls": "good"}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}, {"text": "bf", "cls": "look"}, {"text": "cd", "cls": "look"}, {"text": "ce", "cls": "look"}, {"text": "cf", "cls": "look"}]]}], function(f){
+  badges('pd-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('pd-m'+k, items); });
+  document.getElementById('pd-cap').innerHTML=f.cap;
+});
+makePlayer('it', [{"cap": "Step 1. Start with one empty prefix: combos = [\"\"].", "b": [{"label": "digit", "val": "&ndash;"}, {"label": "combos", "val": 1}], "mem": [[{"text": "\"\""}], []]}, {"cap": "Step 2. Digit 2 (abc): prefix \"\" + \"a\" &rarr; <b>\"a\"</b>.", "b": [{"label": "digit", "val": "2"}, {"label": "prefix", "val": "\"\""}, {"label": "letter", "val": "a"}], "mem": [[{"text": "\"\"", "cls": "look"}], [{"text": "\"a\"", "cls": "look"}]]}, {"cap": "Step 3. Digit 2 (abc): prefix \"\" + \"b\" &rarr; <b>\"b\"</b>.", "b": [{"label": "digit", "val": "2"}, {"label": "prefix", "val": "\"\""}, {"label": "letter", "val": "b"}], "mem": [[{"text": "\"\"", "cls": "look"}], [{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": "look"}]]}, {"cap": "Step 4. Digit 2 (abc): prefix \"\" + \"c\" &rarr; <b>\"c\"</b>. The round is finished: the new list replaces combos.", "b": [{"label": "digit", "val": "2"}, {"label": "prefix", "val": "\"\""}, {"label": "letter", "val": "c"}], "mem": [[{"text": "\"\"", "cls": "look"}], [{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": "look"}]]}, {"cap": "Step 5. Digit 3 (def): prefix \"a\" + \"d\" &rarr; <b>\"ad\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"a\""}, {"label": "letter", "val": "d"}], "mem": [[{"text": "\"a\"", "cls": "look"}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": ""}], [{"text": "\"ad\"", "cls": "look"}]]}, {"cap": "Step 6. Digit 3 (def): prefix \"a\" + \"e\" &rarr; <b>\"ae\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"a\""}, {"label": "letter", "val": "e"}], "mem": [[{"text": "\"a\"", "cls": "look"}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": ""}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": "look"}]]}, {"cap": "Step 7. Digit 3 (def): prefix \"a\" + \"f\" &rarr; <b>\"af\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"a\""}, {"label": "letter", "val": "f"}], "mem": [[{"text": "\"a\"", "cls": "look"}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": ""}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": "look"}]]}, {"cap": "Step 8. Digit 3 (def): prefix \"b\" + \"d\" &rarr; <b>\"bd\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"b\""}, {"label": "letter", "val": "d"}], "mem": [[{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": "look"}, {"text": "\"c\"", "cls": ""}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": ""}, {"text": "\"bd\"", "cls": "look"}]]}, {"cap": "Step 9. Digit 3 (def): prefix \"b\" + \"e\" &rarr; <b>\"be\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"b\""}, {"label": "letter", "val": "e"}], "mem": [[{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": "look"}, {"text": "\"c\"", "cls": ""}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": ""}, {"text": "\"bd\"", "cls": ""}, {"text": "\"be\"", "cls": "look"}]]}, {"cap": "Step 10. Digit 3 (def): prefix \"b\" + \"f\" &rarr; <b>\"bf\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"b\""}, {"label": "letter", "val": "f"}], "mem": [[{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": "look"}, {"text": "\"c\"", "cls": ""}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": ""}, {"text": "\"bd\"", "cls": ""}, {"text": "\"be\"", "cls": ""}, {"text": "\"bf\"", "cls": "look"}]]}, {"cap": "Step 11. Digit 3 (def): prefix \"c\" + \"d\" &rarr; <b>\"cd\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"c\""}, {"label": "letter", "val": "d"}], "mem": [[{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": "look"}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": ""}, {"text": "\"bd\"", "cls": ""}, {"text": "\"be\"", "cls": ""}, {"text": "\"bf\"", "cls": ""}, {"text": "\"cd\"", "cls": "look"}]]}, {"cap": "Step 12. Digit 3 (def): prefix \"c\" + \"e\" &rarr; <b>\"ce\"</b>.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"c\""}, {"label": "letter", "val": "e"}], "mem": [[{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": "look"}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": ""}, {"text": "\"bd\"", "cls": ""}, {"text": "\"be\"", "cls": ""}, {"text": "\"bf\"", "cls": ""}, {"text": "\"cd\"", "cls": ""}, {"text": "\"ce\"", "cls": "look"}]]}, {"cap": "Step 13. Digit 3 (def): prefix \"c\" + \"f\" &rarr; <b>\"cf\"</b>. The round is finished: the new list replaces combos.", "b": [{"label": "digit", "val": "3"}, {"label": "prefix", "val": "\"c\""}, {"label": "letter", "val": "f"}], "mem": [[{"text": "\"a\"", "cls": ""}, {"text": "\"b\"", "cls": ""}, {"text": "\"c\"", "cls": "look"}], [{"text": "\"ad\"", "cls": ""}, {"text": "\"ae\"", "cls": ""}, {"text": "\"af\"", "cls": ""}, {"text": "\"bd\"", "cls": ""}, {"text": "\"be\"", "cls": ""}, {"text": "\"bf\"", "cls": ""}, {"text": "\"cd\"", "cls": ""}, {"text": "\"ce\"", "cls": ""}, {"text": "\"cf\"", "cls": "look"}]]}], function(f){
+  badges('it-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('it-m'+k, items); });
+  document.getElementById('it-cap').innerHTML=f.cap;
+});
+makePlayer('bt', [{"cap": "Step 1. backtrack(i=0), path \"\": digit 2 offers a, b, c. Try each letter in turn.", "n": 1, "m": {"0": "seen cur"}, "live": [0], "b": [{"label": "i", "val": 0}, {"label": "digit", "val": "2"}, {"label": "path", "val": "\"\""}], "mem": [[]]}, {"cap": "Step 2. backtrack(i=1), path \"a\": digit 3 offers d, e, f. Try each letter in turn.", "n": 2, "m": {"0": "seen", "1": "seen cur"}, "live": [0, 1], "b": [{"label": "i", "val": 1}, {"label": "digit", "val": "3"}, {"label": "path", "val": "\"a\""}], "mem": [[]]}, {"cap": "Step 3. i = 2 = len(digits): one letter per digit. Save <b>\"ad\"</b>, return, pop the last letter.", "n": 3, "m": {"0": "seen", "1": "seen", "2": "good cur"}, "live": [0, 1, 2], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"ad\""}], "mem": [[{"text": "ad", "cls": "look"}]]}, {"cap": "Step 4. i = 2 = len(digits): one letter per digit. Save <b>\"ae\"</b>, return, pop the last letter.", "n": 4, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good cur"}, "live": [0, 1, 3], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"ae\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}]]}, {"cap": "Step 5. i = 2 = len(digits): one letter per digit. Save <b>\"af\"</b>, return, pop the last letter.", "n": 5, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good cur"}, "live": [0, 1, 4], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"af\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}]]}, {"cap": "Step 6. backtrack(i=1), path \"b\": digit 3 offers d, e, f. Try each letter in turn.", "n": 6, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen cur"}, "live": [0, 5], "b": [{"label": "i", "val": 1}, {"label": "digit", "val": "3"}, {"label": "path", "val": "\"b\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}]]}, {"cap": "Step 7. i = 2 = len(digits): one letter per digit. Save <b>\"bd\"</b>, return, pop the last letter.", "n": 7, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good cur"}, "live": [0, 5, 6], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"bd\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}]]}, {"cap": "Step 8. i = 2 = len(digits): one letter per digit. Save <b>\"be\"</b>, return, pop the last letter.", "n": 8, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good", "7": "good cur"}, "live": [0, 5, 7], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"be\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}]]}, {"cap": "Step 9. i = 2 = len(digits): one letter per digit. Save <b>\"bf\"</b>, return, pop the last letter.", "n": 9, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good", "7": "good", "8": "good cur"}, "live": [0, 5, 8], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"bf\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}, {"text": "bf", "cls": "look"}]]}, {"cap": "Step 10. backtrack(i=1), path \"c\": digit 3 offers d, e, f. Try each letter in turn.", "n": 10, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good", "7": "good", "8": "good", "9": "seen cur"}, "live": [0, 9], "b": [{"label": "i", "val": 1}, {"label": "digit", "val": "3"}, {"label": "path", "val": "\"c\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}, {"text": "bf", "cls": "look"}]]}, {"cap": "Step 11. i = 2 = len(digits): one letter per digit. Save <b>\"cd\"</b>, return, pop the last letter.", "n": 11, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good", "7": "good", "8": "good", "9": "seen", "10": "good cur"}, "live": [0, 9, 10], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"cd\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}, {"text": "bf", "cls": "look"}, {"text": "cd", "cls": "look"}]]}, {"cap": "Step 12. i = 2 = len(digits): one letter per digit. Save <b>\"ce\"</b>, return, pop the last letter.", "n": 12, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good", "7": "good", "8": "good", "9": "seen", "10": "good", "11": "good cur"}, "live": [0, 9, 11], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"ce\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}, {"text": "bf", "cls": "look"}, {"text": "cd", "cls": "look"}, {"text": "ce", "cls": "look"}]]}, {"cap": "Step 13. i = 2 = len(digits): one letter per digit. Save <b>\"cf\"</b>, return, pop the last letter.", "n": 13, "m": {"0": "seen", "1": "seen", "2": "good", "3": "good", "4": "good", "5": "seen", "6": "good", "7": "good", "8": "good", "9": "seen", "10": "good", "11": "good", "12": "good cur"}, "live": [0, 9, 12], "b": [{"label": "i", "val": 2}, {"label": "digit", "val": "&ndash;"}, {"label": "path", "val": "\"cf\""}], "mem": [[{"text": "ad", "cls": "look"}, {"text": "ae", "cls": "look"}, {"text": "af", "cls": "look"}, {"text": "bd", "cls": "look"}, {"text": "be", "cls": "look"}, {"text": "bf", "cls": "look"}, {"text": "cd", "cls": "look"}, {"text": "ce", "cls": "look"}, {"text": "cf", "cls": "look"}]]}], function(f){
+  drawTree('bt-viz', BT_T, f);
+  badges('bt-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('bt-m'+k, items); });
+  document.getElementById('bt-cap').innerHTML=f.cap;
+});
+
+</script>
+</body></html>

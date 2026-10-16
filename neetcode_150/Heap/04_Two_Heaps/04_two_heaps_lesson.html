@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Two Heaps — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Heap · Pattern 04 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Two Heaps</h1>
+          <p>
+            Keep a growing set of numbers split at its middle. A max-heap holds the smaller half and shows its largest value; a min-heap holds the larger half and shows its smallest. The two tops sit on either side of the middle, so the median is always one or two reads away, and each new number costs only a few heap operations.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: max-heap <code>low</code> | min-heap <code>high</code></span>
+            <span class="chip">Method 1: two heaps, O(log n) add, O(1) median</span>
+            <span class="chip">Method 2: one sorted list, O(n) add</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="find_median_from_data_stream.html">Find Median from Data Stream</a> · <a href="README.md">pattern notes (README)</a> · look-alikes: <a href="../01_Top_K/README.md">Top K</a>, <a href="../../Binary_Search/04_Partition_Search/README.md">Partition Search</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Find Median from Data Stream: add <code>5, 15, 1, 3, 8</code> one at a time and ask for the median after each add.</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 200" width="100%" role="img" aria-label="After the stream 5, 15, 1, 3, 8: low heap holds 1, 3, 5 with top 5; high heap holds 8, 15 with top 8; median is 5">
+              <defs>
+                <style>
+                  .h-low { fill: #315efb; }
+                  .h-high { fill: #13a46b; }
+                  .h-med { stroke: #ff9f1c; stroke-width: 5; }
+                  .h-label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-sub { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .h-bar { stroke: #182132; stroke-width: 4; stroke-linecap: round; }
+                </style>
+              </defs>
+              <text x="140" y="40" text-anchor="middle" class="h-title">low (max-heap)</text>
+              <text x="380" y="40" text-anchor="middle" class="h-title">high (min-heap)</text>
+              <rect x="66" y="70" width="52" height="48" rx="10" class="h-low" />
+              <rect x="128" y="70" width="52" height="48" rx="10" class="h-low" />
+              <rect x="190" y="70" width="52" height="48" rx="10" class="h-low h-med" />
+              <text x="92" y="100" text-anchor="middle" class="h-label">1</text>
+              <text x="154" y="100" text-anchor="middle" class="h-label">3</text>
+              <text x="216" y="100" text-anchor="middle" class="h-label">5</text>
+              <line x1="260" y1="58" x2="260" y2="130" class="h-bar" />
+              <rect x="278" y="70" width="52" height="48" rx="10" class="h-high" />
+              <rect x="340" y="70" width="52" height="48" rx="10" class="h-high" />
+              <text x="304" y="100" text-anchor="middle" class="h-label">8</text>
+              <text x="366" y="100" text-anchor="middle" class="h-label">15</text>
+              <text x="216" y="146" text-anchor="middle" class="h-sub">top</text>
+              <text x="304" y="146" text-anchor="middle" class="h-sub">top</text>
+              <text x="260" y="184" text-anchor="middle" class="h-title">5 values, odd: median = low's top = 5</text>
+            </svg>
+          </div>
+          <div class="result-badge">Medians after each add: 5.0, 10.0, 5.0, 4.0, 5.0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Live median latency</h3>
+          <p>A service records response times as requests finish. A dashboard shows the median after every request without re-sorting the history each time.</p>
+        </div>
+        <div class="card">
+          <h3>Smoothing a noisy signal</h3>
+          <p>A median over the last <code>k</code> sensor readings ignores single spikes. That is Sliding Window Median: the same two halves, plus removing the reading that leaves the window.</p>
+        </div>
+        <div class="card">
+          <h3>Two pools that trade items</h3>
+          <p>Some greedy problems keep "not yet usable" items in one heap and "usable" items in another, moving items across as a threshold changes (IPO is the NeetCode-adjacent example).</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the whole pattern is three heap moves per insert. What makes it hard in interviews is not the code but keeping two invariants straight: every value in <code>low</code> is at most every value in <code>high</code>, and <code>low</code> has the same size as <code>high</code> or one more.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the two heaps pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Store the numbers in two heaps that meet at the middle. <code>low</code> is a <strong>max-heap</strong> of the smaller half, so its top is the largest small value. <code>high</code> is a <strong>min-heap</strong> of the larger half, so its top is the smallest large value. A heap gives its top in <code>O(1)</code> and takes a push or pop in <code>O(log n)</code>, so keeping the split costs <code>O(log n)</code> per insert.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>A <strong>median</strong> or <strong>middle value</strong> asked for repeatedly while numbers keep arriving: "data stream", "running median", "after each insertion". More broadly: a boundary between a lower and an upper group that moves as items come in.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> you never need the whole stream sorted, only the two values touching the middle. Two heaps keep exactly those two values on top. Python's <code>heapq</code> is a min-heap only, so <code>low</code> stores <code>-x</code> and you read its top as <code>-low[0]</code>.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Name the halves</h3>
+          <p><code>low</code> = max-heap (stored negated), <code>high</code> = min-heap. Decide that <code>low</code> may hold the one extra value.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Route through low</h3>
+          <p>Push the new number into <code>low</code>, then move <code>low</code>'s top into <code>high</code>. Now nothing in <code>low</code> is bigger than anything in <code>high</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Fix the sizes</h3>
+          <p>If <code>len(high) &gt; len(low)</code>, move <code>high</code>'s top back. Sizes are now equal or <code>low</code> has one more.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Read the tops</h3>
+          <p>Odd count: <code>-low[0]</code>. Even count: <code>(-low[0] + high[0]) / 2</code>. No loop, no sort.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the stream becomes two heaps</h2>
+      <p>The input is a sequence of <code>addNum</code> calls. Each call changes the two heaps by at most three moves; nothing else is stored. Below, each heap is drawn in sorted order so the split is easy to see; Python actually stores them as heap-ordered lists (shown in the trace's state boxes).</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input stream</h3>
+          <div class="code-block"><code>addNum(5); addNum(15); addNum(1)
+addNum(3); addNum(8)
+findMedian() after every add</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Two heaps after the last add</h3>
+          <div class="code-block"><code>low  = [-5, -1, -3]   # values 1, 3, 5   top 5
+high = [8, 15]        # values 8, 15     top 8
+sizes 3 / 2 -&gt; odd -&gt; median = 5.0</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>add 5: <code>[5] | []</code>, median 5.0</h4>
+          <p>5 enters <code>low</code>, crosses to <code>high</code>, and comes back because <code>high</code> got bigger. The first number always ends in <code>low</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>add 15: <code>[5] | [15]</code>, median 10.0</h4>
+          <p>15 enters <code>low</code>, is its largest, crosses to <code>high</code>. Sizes 1 / 1, no rebalance. Even count: <code>(5 + 15) / 2</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>add 1: <code>[1, 5] | [15]</code>, median 5.0</h4>
+          <p>1 enters <code>low</code>, but <code>low</code>'s largest is 5, so 5 crosses. <code>high</code> now has 2 values, so 5 comes straight back.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>add 3: <code>[1, 3] | [5, 15]</code>, median 4.0</h4>
+          <p>3 enters <code>low</code>; 5 crosses to <code>high</code>. Sizes 2 / 2: the old median 5 is now <code>high</code>'s top.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>add 8: <code>[1, 3, 5] | [8, 15]</code>, median 5.0</h4>
+          <p>8 enters <code>low</code>, crosses to <code>high</code>, and <code>high</code>'s smallest (5) comes back to <code>low</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> routing every number through <code>low</code> first means you never write a comparison yourself. The heap decides which value is largest, and that value is the one that crosses. A number can land on the right side even if it was "added to low".</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: two heaps (Find Median from Data Stream)</h2>
+      <p>The template, line for line from the notebook's <code>MedianFinder</code>. Each <code>addNum</code> is three steps in the trace (push, cross, size check), and each <code>findMedian</code> is one more.</p>
+      <div class="code-block stepped">
+        <code id="th-code">
+<span class="code-line" data-line="1">import heapq</span>
+<span class="code-line" data-line="2"></span>
+<span class="code-line" data-line="3">class MedianFinder:</span>
+<span class="code-line" data-line="4">    """Keep the numbers split into a low half (max-heap) and a high half (min-heap)."""</span>
+<span class="code-line" data-line="5">    def __init__(self):</span>
+<span class="code-line" data-line="6">        self.low = []     # max-heap of the smaller half (Python heapq is min, so store negatives)</span>
+<span class="code-line" data-line="7">        self.high = []    # min-heap of the larger half</span>
+<span class="code-line" data-line="8">    def addNum(self, num: int) -&gt; None:</span>
+<span class="code-line" data-line="9">        heapq.heappush(self.low, -num)                        # tentatively add to the low half</span>
+<span class="code-line" data-line="10">        heapq.heappush(self.high, -heapq.heappop(self.low))   # move its largest into the high half</span>
+<span class="code-line" data-line="11">        if len(self.high) &gt; len(self.low):                    # keep the halves balanced in size</span>
+<span class="code-line" data-line="12">            heapq.heappush(self.low, -heapq.heappop(self.high))</span>
+<span class="code-line" data-line="13">    def findMedian(self) -&gt; float:</span>
+<span class="code-line" data-line="14">        if len(self.low) &gt; len(self.high):</span>
+<span class="code-line" data-line="15">            return float(-self.low[0])                        # odd count -&gt; top of the bigger half</span>
+<span class="code-line" data-line="16">        return (-self.low[0] + self.high[0]) / 2              # even count -&gt; average of both tops</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive two-heaps trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="th-graph" viewBox="0 0 520 200" width="100%" role="img" aria-label="Low heap on the left of a bar, high heap on the right, updated after each step of the stream 5, 15, 1, 3, 8">
+              <defs>
+                <style>
+                  .th-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .th-cell.low { fill: #315efb; }
+                  .th-cell.high { fill: #13a46b; }
+                  .th-cell.active { fill: #ff9f1c; }
+                  .th-cell.median { stroke: #182132; stroke-width: 4; }
+                  .th-text { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .th-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .th-sub { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .th-bar { stroke: #182132; stroke-width: 4; stroke-linecap: round; }
+                </style>
+              </defs>
+              <text x="130" y="36" text-anchor="middle" class="th-title">low (max-heap)</text>
+              <text x="390" y="36" text-anchor="middle" class="th-title">high (min-heap)</text>
+              <line x1="260" y1="56" x2="260" y2="132" class="th-bar" />
+              <g id="th-cells"></g>
+              <text id="th-caption" x="260" y="184" text-anchor="middle" class="th-title"></text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-blue"></i> low half</span>
+            <span><i class="dot dot-green"></i> high half</span>
+            <span><i class="dot dot-orange"></i> value just pushed or moved</span>
+            <span><i class="dot dot-gray"></i> dark outline = the median's value(s)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="th-step-title">Initial state</h3>
+          <p id="th-step-text">Two empty heaps.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="th-prev">Previous</button>
+            <button type="button" id="th-play" class="primary">Resume</button>
+            <button type="button" id="th-next">Next</button>
+            <button type="button" id="th-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="th-step-counter">Step 0 / 20</span>
+            <div class="progress"><span id="th-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Current call</strong><div class="state-value" id="th-op">—</div></div>
+            <div class="state-box"><strong>Moved this step</strong><div class="state-value" id="th-moved">—</div></div>
+            <div class="state-box"><strong>low as stored (negated)</strong><div class="state-value" id="th-lowraw">[]</div></div>
+            <div class="state-box"><strong>high as stored</strong><div class="state-value" id="th-highraw">[]</div></div>
+            <div class="state-box"><strong>Sizes low / high</strong><div class="state-value" id="th-sizes">0 / 0</div></div>
+            <div class="state-box"><strong>Median</strong><div class="state-value" id="th-med">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="th-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="th-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Action</th><th>low (max-heap)</th><th>high (min-heap)</th><th>low / high</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>Start</td><td>[]</td><td>[]</td><td>0 / 0</td><td>Both heaps empty</td></tr>
+            <tr data-step="1"><td>1</td><td>addNum(5): push 5 into low</td><td>[5]</td><td>[]</td><td>1 / 0</td><td>low top is now 5</td></tr>
+            <tr data-step="2"><td>2</td><td>move low's max 5 to high</td><td>[]</td><td>[5]</td><td>0 / 1</td><td>every low value &le; every high value</td></tr>
+            <tr data-step="3"><td>3</td><td>move high's min 5 back to low</td><td>[5]</td><td>[]</td><td>1 / 0</td><td>high had 1 &gt; 0 &rarr; rebalance</td></tr>
+            <tr data-step="4"><td>4</td><td>findMedian(): odd count</td><td>[5]</td><td>[]</td><td>1 / 0</td><td>median = low top = <b>5.0</b></td></tr>
+            <tr data-step="5"><td>5</td><td>addNum(15): push 15 into low</td><td>[5, 15]</td><td>[]</td><td>2 / 0</td><td>low top is now 15</td></tr>
+            <tr data-step="6"><td>6</td><td>move low's max 15 to high</td><td>[5]</td><td>[15]</td><td>1 / 1</td><td>every low value &le; every high value</td></tr>
+            <tr data-step="7"><td>7</td><td>len(high) &gt; len(low)?</td><td>[5]</td><td>[15]</td><td>1 / 1</td><td>1 &gt; 1 no &rarr; keep</td></tr>
+            <tr data-step="8"><td>8</td><td>findMedian(): even count</td><td>[5]</td><td>[15]</td><td>1 / 1</td><td>median = (5 + 15) / 2 = <b>10.0</b></td></tr>
+            <tr data-step="9"><td>9</td><td>addNum(1): push 1 into low</td><td>[1, 5]</td><td>[15]</td><td>2 / 1</td><td>low top is now 5</td></tr>
+            <tr data-step="10"><td>10</td><td>move low's max 5 to high</td><td>[1]</td><td>[5, 15]</td><td>1 / 2</td><td>every low value &le; every high value</td></tr>
+            <tr data-step="11"><td>11</td><td>move high's min 5 back to low</td><td>[1, 5]</td><td>[15]</td><td>2 / 1</td><td>high had 2 &gt; 1 &rarr; rebalance</td></tr>
+            <tr data-step="12"><td>12</td><td>findMedian(): odd count</td><td>[1, 5]</td><td>[15]</td><td>2 / 1</td><td>median = low top = <b>5.0</b></td></tr>
+            <tr data-step="13"><td>13</td><td>addNum(3): push 3 into low</td><td>[1, 3, 5]</td><td>[15]</td><td>3 / 1</td><td>low top is now 5</td></tr>
+            <tr data-step="14"><td>14</td><td>move low's max 5 to high</td><td>[1, 3]</td><td>[5, 15]</td><td>2 / 2</td><td>every low value &le; every high value</td></tr>
+            <tr data-step="15"><td>15</td><td>len(high) &gt; len(low)?</td><td>[1, 3]</td><td>[5, 15]</td><td>2 / 2</td><td>2 &gt; 2 no &rarr; keep</td></tr>
+            <tr data-step="16"><td>16</td><td>findMedian(): even count</td><td>[1, 3]</td><td>[5, 15]</td><td>2 / 2</td><td>median = (3 + 5) / 2 = <b>4.0</b></td></tr>
+            <tr data-step="17"><td>17</td><td>addNum(8): push 8 into low</td><td>[1, 3, 8]</td><td>[5, 15]</td><td>3 / 2</td><td>low top is now 8</td></tr>
+            <tr data-step="18"><td>18</td><td>move low's max 8 to high</td><td>[1, 3]</td><td>[5, 8, 15]</td><td>2 / 3</td><td>every low value &le; every high value</td></tr>
+            <tr data-step="19"><td>19</td><td>move high's min 5 back to low</td><td>[1, 3, 5]</td><td>[8, 15]</td><td>3 / 2</td><td>high had 3 &gt; 2 &rarr; rebalance</td></tr>
+            <tr data-step="20"><td>20</td><td>findMedian(): odd count</td><td>[1, 3, 5]</td><td>[8, 15]</td><td>3 / 2</td><td>median = low top = <b>5.0</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A bar splits the numbers in two. The left pile shows its biggest value at the bar, the right pile its smallest. Every insert goes in on the left and the left pile hands its biggest across the bar; if the right pile is then bigger, it hands its smallest back.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Forgetting the negation on one of the moves. <code>low</code> stores <code>-x</code>, so line 10's <code>-heapq.heappop(self.low)</code> turns it back into <code>x</code> before it enters <code>high</code>, and line 12 negates again on the way back. Miss one sign and the order invariant silently breaks.</p>
+        </div>
+        <div class="card">
+          <h4>Why heaps</h4>
+          <p>The median only ever needs the largest of the small half and the smallest of the large half. A heap gives exactly its top in <code>O(1)</code> and keeps it correct after a push or pop in <code>O(log n)</code>, without keeping the rest in order.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: one sorted list (the approach it replaces)</h2>
+      <p>The notebook's <code>MedianFinderInsort</code>: keep a single list sorted at all times with <code>bisect.insort</code>. The median becomes an index lookup, but each insert shifts every value to the right of its slot. Traced on the same stream.</p>
+      <div class="code-block stepped">
+        <code id="in-code">
+<span class="code-line" data-line="1">class MedianFinderInsort:</span>
+<span class="code-line" data-line="2">    """Better: the list is always sorted, so the median is an index lookup."""</span>
+<span class="code-line" data-line="3">    def __init__(self):</span>
+<span class="code-line" data-line="4">        self.nums = []</span>
+<span class="code-line" data-line="5">    def addNum(self, num: int) -&gt; None:</span>
+<span class="code-line" data-line="6">        bisect.insort(self.nums, num)               # O(log n) to find the slot, O(n) to shift the tail right</span>
+<span class="code-line" data-line="7">    def findMedian(self) -&gt; float:</span>
+<span class="code-line" data-line="8">        n = len(self.nums)</span>
+<span class="code-line" data-line="9">        mid = n // 2</span>
+<span class="code-line" data-line="10">        if n % 2:</span>
+<span class="code-line" data-line="11">            return float(self.nums[mid])            # O(1): direct index into the sorted list</span>
+<span class="code-line" data-line="12">        return (self.nums[mid - 1] + self.nums[mid]) / 2</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive sorted-list trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="in-graph" viewBox="0 0 520 200" width="100%" role="img" aria-label="A sorted list growing as 5, 15, 1, 3, 8 are inserted, with shifted values marked">
+              <defs>
+                <style>
+                  .in-cell { fill: #315efb; transition: fill 0.2s ease; }
+                  .in-cell.active { fill: #ff9f1c; }
+                  .in-cell.shifted { fill: #13a46b; }
+                  .in-cell.median { stroke: #182132; stroke-width: 4; }
+                  .in-text { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .in-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .in-idx { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <text x="260" y="36" text-anchor="middle" class="in-title">nums (always sorted)</text>
+              <g id="in-cells"></g>
+              <text id="in-caption" x="260" y="184" text-anchor="middle" class="in-title"></text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> value just inserted</span>
+            <span><i class="dot dot-green"></i> values shifted right by the insert</span>
+            <span><i class="dot dot-blue"></i> values left in place</span>
+            <span><i class="dot dot-gray"></i> dark outline = the median's value(s)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="in-step-title">Initial state</h3>
+          <p id="in-step-text">One empty list.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="in-prev">Previous</button>
+            <button type="button" id="in-play" class="primary">Resume</button>
+            <button type="button" id="in-next">Next</button>
+            <button type="button" id="in-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="in-step-counter">Step 0 / 10</span>
+            <div class="progress"><span id="in-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Current call</strong><div class="state-value" id="in-op">—</div></div>
+            <div class="state-box"><strong>nums</strong><div class="state-value" id="in-nums">[]</div></div>
+            <div class="state-box"><strong>Insert index</strong><div class="state-value" id="in-pos">—</div></div>
+            <div class="state-box"><strong>Values shifted</strong><div class="state-value" id="in-shift">—</div></div>
+            <div class="state-box"><strong>Middle index</strong><div class="state-value" id="in-mid">—</div></div>
+            <div class="state-box"><strong>Median</strong><div class="state-value" id="in-med">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="in-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="in-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Action</th><th>nums</th><th>Insert at</th><th>Shifted</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>Start</td><td>[]</td><td>&ndash;</td><td>&ndash;</td><td>empty list</td></tr>
+            <tr data-step="1"><td>1</td><td>addNum(5): insort</td><td>[5]</td><td>index 0</td><td>0</td><td>0 value(s) shift right</td></tr>
+            <tr data-step="2"><td>2</td><td>findMedian()</td><td>[5]</td><td>&ndash;</td><td>&ndash;</td><td>odd: nums[0] = <b>5.0</b></td></tr>
+            <tr data-step="3"><td>3</td><td>addNum(15): insort</td><td>[5, 15]</td><td>index 1</td><td>0</td><td>0 value(s) shift right</td></tr>
+            <tr data-step="4"><td>4</td><td>findMedian()</td><td>[5, 15]</td><td>&ndash;</td><td>&ndash;</td><td>even: (nums[0] + nums[1]) / 2 = <b>10.0</b></td></tr>
+            <tr data-step="5"><td>5</td><td>addNum(1): insort</td><td>[1, 5, 15]</td><td>index 0</td><td>2</td><td>2 value(s) shift right</td></tr>
+            <tr data-step="6"><td>6</td><td>findMedian()</td><td>[1, 5, 15]</td><td>&ndash;</td><td>&ndash;</td><td>odd: nums[1] = <b>5.0</b></td></tr>
+            <tr data-step="7"><td>7</td><td>addNum(3): insort</td><td>[1, 3, 5, 15]</td><td>index 1</td><td>2</td><td>2 value(s) shift right</td></tr>
+            <tr data-step="8"><td>8</td><td>findMedian()</td><td>[1, 3, 5, 15]</td><td>&ndash;</td><td>&ndash;</td><td>even: (nums[1] + nums[2]) / 2 = <b>4.0</b></td></tr>
+            <tr data-step="9"><td>9</td><td>addNum(8): insort</td><td>[1, 3, 5, 8, 15]</td><td>index 3</td><td>1</td><td>1 value(s) shift right</td></tr>
+            <tr data-step="10"><td>10</td><td>findMedian()</td><td>[1, 3, 5, 8, 15]</td><td>&ndash;</td><td>&ndash;</td><td>odd: nums[2] = <b>5.0</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A bookshelf kept in order. Finding where a new book goes is quick (look in the middle, then halve), but every book to its right has to slide over by one.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Calling it <code>O(log n)</code> per insert because <code>bisect</code> is binary search. The search is <code>O(log n)</code>; <code>list.insert</code> is <code>O(n)</code>. On a decreasing stream every value lands at index 0 and the whole list shifts.</p>
+        </div>
+        <div class="card">
+          <h4>Why it is not enough</h4>
+          <p>In the notebook's benchmark (decreasing stream, a median after every add) the sorted list's time grew roughly 3 to 4.5 times per doubling of <code>n</code>, while the two heaps grew about 2 times. The shift is a fast memory move, so it only dominates once <code>n</code> reaches the thousands.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">One number</button>
+        <button type="button" data-example-tab="1">LeetCode example</button>
+        <button type="button" data-example-tab="2">Negatives and duplicates</button>
+        <button type="button" data-example-tab="3">Decreasing stream</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: a single number</h3>
+          <p><code>addNum(42)</code>, then <code>findMedian()</code></p>
+          <div class="result-badge">Median = 42.0</div>
+          <p class="footer-note">42 goes into <code>low</code>, crosses to <code>high</code>, and comes back because <code>high</code> is bigger. Sizes 1 / 0, so the odd branch reads <code>-low[0]</code>. <code>high</code> is empty, which is why the odd case must never touch <code>high[0]</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: the LeetCode example</h3>
+          <p><code>addNum(1), addNum(2), findMedian(), addNum(3), findMedian()</code></p>
+          <div class="result-badge">Outputs: 1.5, then 2.0</div>
+          <p class="footer-note">After 1, 2 the heaps are <code>[1] | [2]</code>: even, <code>(1 + 2) / 2 = 1.5</code>. After 3 they are <code>[1, 2] | [3]</code>: odd, <code>low</code>'s top is 2. The notebook replays this exact operation list for all three approaches.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: negatives and duplicates</h3>
+          <p><code>addNum(-7)</code> three times, then <code>addNum(10)</code></p>
+          <div class="result-badge">Median = -7.0 after every add</div>
+          <p class="footer-note">Final heaps <code>[-7, -7] | [-7, 10]</code>. Equal values may sit on both sides of the bar; the invariant is <code>&le;</code>, not <code>&lt;</code>. <code>low</code> stores <code>7</code> for <code>-7</code>, so a wrong sign shows up immediately on this input.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: a decreasing stream</h3>
+          <p><code>5, 4, 3, 2, 1</code></p>
+          <div class="result-badge">Medians: 5.0, 4.5, 4.0, 3.5, 3.0</div>
+          <p class="footer-note">Final heaps <code>[1, 2, 3] | [4, 5]</code>. Each new value is the smallest so far. The heaps still do at most three <code>O(log n)</code> moves, while the sorted list inserts at index 0 every time, which is why the notebook's benchmark uses this shape.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>addNum</th><th>findMedian</th><th>Space</th><th>Measured per doubling</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Append, sort on every query (notebook Approach 1)</td><td><code>O(1)</code></td><td><code>O(n log n)</code>, <code>O(n)</code> when only new values are out of place</td><td><code>O(n)</code></td><td>about 4x</td></tr>
+            <tr><td>One sorted list, <code>bisect.insort</code> (Method 2)</td><td><code>O(n)</code></td><td><code>O(1)</code></td><td><code>O(n)</code></td><td>about 3x to 4.5x</td></tr>
+            <tr><td>Two heaps (Method 1)</td><td><code>O(log n)</code></td><td><code>O(1)</code></td><td><code>O(n)</code></td><td>about 2x</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">Measured in the notebook: <code>n</code> adds with a median after each, on a decreasing stream, <code>n</code> from 4,000 to 32,000. "About 4x" per doubling means <code>O(n²)</code> for the whole run; "about 2x" means <code>O(n log n)</code>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>Sorting on every query works but is at least <code>O(n)</code> per median. A sorted list makes the median <code>O(1)</code> but the insert <code>O(n)</code>.</p></div>
+            <div class="timeline-step"><p>Ask what the median actually reads: only the largest value of the lower half and the smallest of the upper half.</p></div>
+            <div class="timeline-step"><p>"Largest of a changing set" is a max-heap; "smallest of a changing set" is a min-heap. Keep one of each.</p></div>
+            <div class="timeline-step"><p>State the invariants (order across the bar, sizes equal or <code>low</code> one bigger), then write the three moves that restore them after each insert.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"I only need the two values next to the middle, not the whole order."</li>
+            <li>"Lower half in a max-heap, upper half in a min-heap; in Python the max-heap stores negatives."</li>
+            <li>"Every number goes into low, low's top moves to high, and if high is bigger I move its top back."</li>
+            <li>"That is O(log n) per add, O(1) per median, O(n) space."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Two heaps</h3>
+          <ul class="mistake-list">
+            <li>Dropping a minus sign on one of the moves between <code>low</code> (negated) and <code>high</code>.</li>
+            <li>Pushing straight into one heap without the cross step, so a large value can stay in <code>low</code>.</li>
+            <li>Letting <code>high</code> hold the extra value but reading <code>low</code>'s top for an odd count.</li>
+            <li>Averaging with <code>//</code>: <code>(3 + 4) // 2</code> is 3, not 3.5.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Sorted list and sort-on-query</h3>
+          <ul class="mistake-list">
+            <li>Calling <code>insort</code> <code>O(log n)</code>: the list shift is <code>O(n)</code>.</li>
+            <li>Using <code>sorted(nums)</code> in <code>findMedian</code> and then reading the middle of the unsorted <code>nums</code>.</li>
+            <li>Picking <code>nums[n // 2]</code> for an even count instead of averaging <code>nums[n // 2 - 1]</code> and <code>nums[n // 2]</code>.</li>
+            <li>Benchmarking on random input only: a decreasing stream is the worst case for the shift.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>This pattern has a single NeetCode problem, so questions 2 to 5 are <strong>follow-up variants</strong> of it, not separate NeetCode problems. Try each before opening it. The interactive page is <a href="find_median_from_data_stream.html">Find Median from Data Stream</a>.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Find Median from Data Stream: add <code>6, 10, 2, 6, 5</code>. What are the heaps and the median after each add?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> run the three moves by hand: into <code>low</code>, <code>low</code>'s top to <code>high</code>, move back if <code>high</code> is bigger.</p>
+          <p style="margin-top:10px;">Answer: medians <code>6.0, 8.0, 6.0, 6.0, 6.0</code>. Final heaps <code>[2, 5, 6] | [6, 10]</code>: the two 6s end up on both sides of the bar. Compare with the step-through on <a href="find_median_from_data_stream.html">the problem page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Variant (LeetCode follow-up): every number is in <code>0..100</code>. Can you beat <code>O(log n)</code> per add?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> there are only 101 possible values. What if you just counted them?</p>
+          <p style="margin-top:10px;">Answer: keep <code>count[0..100]</code>. <code>addNum</code> is <code>count[x] += 1</code>, <code>O(1)</code>. <code>findMedian</code> walks the counts until the running total passes the middle position(s): at most 101 buckets, so <code>O(1)</code> for a fixed range. (Not in the notebook; checked against <code>statistics.median</code> on random streams while writing this lesson.)</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Variant (LeetCode follow-up): 99% of the numbers are in <code>0..100</code>. What changes?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the median of such a stream almost always lies inside <code>0..100</code>.</p>
+          <p style="margin-top:10px;">Answer: keep the 101 buckets plus two counters (or small sorted lists) for values below 0 and above 100. Add the "below" count before walking the buckets. Only if the middle position falls outside the buckets do you need the outlier list itself.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Variant: Sliding Window Median (LC 480). <code>nums = [1, 3, -1, -3, 5, 3, 6, 7]</code>, <code>k = 3</code>. Why is the template not enough on its own?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> each window step adds one value and removes another. Which heap operation is missing?</p>
+          <p style="margin-top:10px;">Answer: <code>heapq</code> cannot remove an arbitrary value cheaply. Keep the same two halves, but delete lazily: record the leaving value in a "to delete" counter, adjust a size balance, and pop it only when it reaches a top. Expected output: <code>[1.0, -1.0, -1.0, 3.0, 5.0, 6.0]</code> (checked with <code>statistics.median</code> on each window).</p>
+        </details>
+        <details>
+          <summary>Practice 5 — Variant: IPO (LC 502). <code>k = 2, w = 0, profits = [1, 2, 3], capital = [0, 1, 1]</code>. How do two heaps show up?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> one group of projects you cannot afford yet, one group you can. Which project do you start next?</p>
+          <p style="margin-top:10px;">Answer: projects sorted (or in a min-heap) by capital; each round, move every affordable project into a max-heap by profit, then take its top. Here: start the profit-1 project (<code>w = 1</code>), then the profit-3 project (<code>w = 4</code>). Answer <code>4</code>. Same "two pools, move items across a boundary" shape, but the boundary is your capital, not a median.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Keep the middle on top of two heaps.</strong>
+          A max-heap for the low half and a min-heap for the high half. Every number goes into low, low's top crosses to high, and if high is bigger its top comes back. The sizes stay equal or low has one more, so the median is low's top or the average of both tops: <code>O(log n)</code> per add, <code>O(1)</code> per median.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Two Heaps pattern notes</a>. Code, trace values and timings are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const NS = 'http://www.w3.org/2000/svg';
+      const W = 52;
+      const GAP = 10;
+      const ROW_Y = 70;
+
+      // Ground truth: instrumented run of the notebook's MedianFinder on the stream 5, 15, 1, 3, 8.
+      const thSteps = [{"step": 0, "title": "Initial state", "text": "Two empty heaps. Stream to add: 5, 15, 1, 3, 8.", "detail": "low will hold the smaller half, high the larger half.", "lines": [5, 6, 7], "ph": "init", "x": null, "low": [], "high": [], "lowRaw": [], "highRaw": [], "moved": null, "med": null, "odd": null}, {"step": 1, "title": "Step 1: addNum(5), push into low", "text": "Push -5 onto low (stored negated). low's top is now 5.", "detail": "Every number enters low first, even 5.", "lines": [8, 9], "ph": "push", "x": 5, "low": [5], "high": [], "lowRaw": [-5], "highRaw": [], "moved": 5, "med": null, "odd": null}, {"step": 2, "title": "Step 2: move low's max to high", "text": "Pop low's top (5) and push it onto high.", "detail": "Now every value in low is <= every value in high: the order invariant.", "lines": [10], "ph": "move", "x": 5, "low": [], "high": [5], "lowRaw": [], "highRaw": [5], "moved": 5, "med": null, "odd": null}, {"step": 3, "title": "Step 3: rebalance", "text": "high had 1 values, low 0. Move high's min (5) back to low.", "detail": "Size invariant: low holds the same count as high, or one more.", "lines": [11, 12], "ph": "rebal", "x": 5, "low": [5], "high": [], "lowRaw": [-5], "highRaw": [], "moved": 5, "med": null, "odd": null}, {"step": 4, "title": "Step 4: findMedian() = 5.0", "text": "Odd count (1): low is bigger, its top 5 is the middle.", "detail": "Median = 5.0. Only the two tops were read.", "lines": [13, 14, 15], "ph": "med", "x": 5, "low": [5], "high": [], "lowRaw": [-5], "highRaw": [], "moved": null, "med": "5.0", "odd": true}, {"step": 5, "title": "Step 5: addNum(15), push into low", "text": "Push -15 onto low (stored negated). low's top is now 15.", "detail": "Every number enters low first, even 15 (it is bigger than everything in low).", "lines": [8, 9], "ph": "push", "x": 15, "low": [5, 15], "high": [], "lowRaw": [-15, -5], "highRaw": [], "moved": 15, "med": null, "odd": null}, {"step": 6, "title": "Step 6: move low's max to high", "text": "Pop low's top (15) and push it onto high.", "detail": "Now every value in low is <= every value in high: the order invariant.", "lines": [10], "ph": "move", "x": 15, "low": [5], "high": [15], "lowRaw": [-5], "highRaw": [15], "moved": 15, "med": null, "odd": null}, {"step": 7, "title": "Step 7: sizes already fine", "text": "len(high) = 1 is not > len(low) = 1. Nothing to move.", "detail": "Equal sizes: the count is even.", "lines": [11], "ph": "rebal", "x": 15, "low": [5], "high": [15], "lowRaw": [-5], "highRaw": [15], "moved": null, "med": null, "odd": null}, {"step": 8, "title": "Step 8: findMedian() = 10.0", "text": "Even count (2): average the tops (5 + 15) / 2.", "detail": "Median = 10.0. Only the two tops were read.", "lines": [13, 14, 16], "ph": "med", "x": 15, "low": [5], "high": [15], "lowRaw": [-5], "highRaw": [15], "moved": null, "med": "10.0", "odd": false}, {"step": 9, "title": "Step 9: addNum(1), push into low", "text": "Push -1 onto low (stored negated). low's top is now 5.", "detail": "Every number enters low first, even 1.", "lines": [8, 9], "ph": "push", "x": 1, "low": [1, 5], "high": [15], "lowRaw": [-5, -1], "highRaw": [15], "moved": 1, "med": null, "odd": null}, {"step": 10, "title": "Step 10: move low's max to high", "text": "Pop low's top (5) and push it onto high.", "detail": "Now every value in low is <= every value in high: the order invariant. Note: 5 moved, not the new 1.", "lines": [10], "ph": "move", "x": 1, "low": [1], "high": [5, 15], "lowRaw": [-1], "highRaw": [5, 15], "moved": 5, "med": null, "odd": null}, {"step": 11, "title": "Step 11: rebalance", "text": "high had 2 values, low 1. Move high's min (5) back to low.", "detail": "Size invariant: low holds the same count as high, or one more.", "lines": [11, 12], "ph": "rebal", "x": 1, "low": [1, 5], "high": [15], "lowRaw": [-5, -1], "highRaw": [15], "moved": 5, "med": null, "odd": null}, {"step": 12, "title": "Step 12: findMedian() = 5.0", "text": "Odd count (3): low is bigger, its top 5 is the middle.", "detail": "Median = 5.0. Only the two tops were read.", "lines": [13, 14, 15], "ph": "med", "x": 1, "low": [1, 5], "high": [15], "lowRaw": [-5, -1], "highRaw": [15], "moved": null, "med": "5.0", "odd": true}, {"step": 13, "title": "Step 13: addNum(3), push into low", "text": "Push -3 onto low (stored negated). low's top is now 5.", "detail": "Every number enters low first, even 3.", "lines": [8, 9], "ph": "push", "x": 3, "low": [1, 3, 5], "high": [15], "lowRaw": [-5, -1, -3], "highRaw": [15], "moved": 3, "med": null, "odd": null}, {"step": 14, "title": "Step 14: move low's max to high", "text": "Pop low's top (5) and push it onto high.", "detail": "Now every value in low is <= every value in high: the order invariant. Note: 5 moved, not the new 3.", "lines": [10], "ph": "move", "x": 3, "low": [1, 3], "high": [5, 15], "lowRaw": [-3, -1], "highRaw": [5, 15], "moved": 5, "med": null, "odd": null}, {"step": 15, "title": "Step 15: sizes already fine", "text": "len(high) = 2 is not > len(low) = 2. Nothing to move.", "detail": "Equal sizes: the count is even.", "lines": [11], "ph": "rebal", "x": 3, "low": [1, 3], "high": [5, 15], "lowRaw": [-3, -1], "highRaw": [5, 15], "moved": null, "med": null, "odd": null}, {"step": 16, "title": "Step 16: findMedian() = 4.0", "text": "Even count (4): average the tops (3 + 5) / 2.", "detail": "Median = 4.0. Only the two tops were read.", "lines": [13, 14, 16], "ph": "med", "x": 3, "low": [1, 3], "high": [5, 15], "lowRaw": [-3, -1], "highRaw": [5, 15], "moved": null, "med": "4.0", "odd": false}, {"step": 17, "title": "Step 17: addNum(8), push into low", "text": "Push -8 onto low (stored negated). low's top is now 8.", "detail": "Every number enters low first, even 8 (it is bigger than everything in low).", "lines": [8, 9], "ph": "push", "x": 8, "low": [1, 3, 8], "high": [5, 15], "lowRaw": [-8, -1, -3], "highRaw": [5, 15], "moved": 8, "med": null, "odd": null}, {"step": 18, "title": "Step 18: move low's max to high", "text": "Pop low's top (8) and push it onto high.", "detail": "Now every value in low is <= every value in high: the order invariant.", "lines": [10], "ph": "move", "x": 8, "low": [1, 3], "high": [5, 8, 15], "lowRaw": [-3, -1], "highRaw": [5, 15, 8], "moved": 8, "med": null, "odd": null}, {"step": 19, "title": "Step 19: rebalance", "text": "high had 3 values, low 2. Move high's min (5) back to low.", "detail": "Size invariant: low holds the same count as high, or one more.", "lines": [11, 12], "ph": "rebal", "x": 8, "low": [1, 3, 5], "high": [8, 15], "lowRaw": [-5, -1, -3], "highRaw": [8, 15], "moved": 5, "med": null, "odd": null}, {"step": 20, "title": "Step 20: findMedian() = 5.0", "text": "Odd count (5): low is bigger, its top 5 is the middle.", "detail": "Median = 5.0. Only the two tops were read.", "lines": [13, 14, 15], "ph": "med", "x": 8, "low": [1, 3, 5], "high": [8, 15], "lowRaw": [-5, -1, -3], "highRaw": [8, 15], "moved": null, "med": "5.0", "odd": true}];
+      // Ground truth: instrumented run of the notebook's MedianFinderInsort on the same stream.
+      const inSteps = [{"step": 0, "title": "Initial state", "text": "One empty list, kept sorted at all times.", "detail": "Same stream: 5, 15, 1, 3, 8.", "lines": [3, 4], "ph": "init", "x": null, "nums": [], "pos": null, "shift": null, "med": null, "mid": []}, {"step": 1, "title": "Step 1: addNum(5)", "text": "Binary search puts 5 at index 0; 0 value(s) to its right shift one slot.", "detail": "Finding the slot is O(log n); the shift is O(n).", "lines": [5, 6], "ph": "ins", "x": 5, "nums": [5], "pos": 0, "shift": 0, "med": null, "mid": []}, {"step": 2, "title": "Step 2: findMedian() = 5.0", "text": "n = 1, mid = 0: odd, return nums[0].", "detail": "A direct index into the sorted list: O(1).", "lines": [7, 8, 9, 10, 11], "ph": "med", "x": 5, "nums": [5], "pos": 0, "shift": 0, "med": "5.0", "mid": [0]}, {"step": 3, "title": "Step 3: addNum(15)", "text": "Binary search puts 15 at index 1; 0 value(s) to its right shift one slot.", "detail": "Finding the slot is O(log n); the shift is O(n).", "lines": [5, 6], "ph": "ins", "x": 15, "nums": [5, 15], "pos": 1, "shift": 0, "med": null, "mid": []}, {"step": 4, "title": "Step 4: findMedian() = 10.0", "text": "n = 2, mid = 1: even, average nums[0] and nums[1].", "detail": "A direct index into the sorted list: O(1).", "lines": [7, 8, 9, 10, 12], "ph": "med", "x": 15, "nums": [5, 15], "pos": 1, "shift": 0, "med": "10.0", "mid": [0, 1]}, {"step": 5, "title": "Step 5: addNum(1)", "text": "Binary search puts 1 at index 0; 2 value(s) to its right shift one slot.", "detail": "Finding the slot is O(log n); the shift is O(n).", "lines": [5, 6], "ph": "ins", "x": 1, "nums": [1, 5, 15], "pos": 0, "shift": 2, "med": null, "mid": []}, {"step": 6, "title": "Step 6: findMedian() = 5.0", "text": "n = 3, mid = 1: odd, return nums[1].", "detail": "A direct index into the sorted list: O(1).", "lines": [7, 8, 9, 10, 11], "ph": "med", "x": 1, "nums": [1, 5, 15], "pos": 0, "shift": 2, "med": "5.0", "mid": [1]}, {"step": 7, "title": "Step 7: addNum(3)", "text": "Binary search puts 3 at index 1; 2 value(s) to its right shift one slot.", "detail": "Finding the slot is O(log n); the shift is O(n).", "lines": [5, 6], "ph": "ins", "x": 3, "nums": [1, 3, 5, 15], "pos": 1, "shift": 2, "med": null, "mid": []}, {"step": 8, "title": "Step 8: findMedian() = 4.0", "text": "n = 4, mid = 2: even, average nums[1] and nums[2].", "detail": "A direct index into the sorted list: O(1).", "lines": [7, 8, 9, 10, 12], "ph": "med", "x": 3, "nums": [1, 3, 5, 15], "pos": 1, "shift": 2, "med": "4.0", "mid": [1, 2]}, {"step": 9, "title": "Step 9: addNum(8)", "text": "Binary search puts 8 at index 3; 1 value(s) to its right shift one slot.", "detail": "Finding the slot is O(log n); the shift is O(n).", "lines": [5, 6], "ph": "ins", "x": 8, "nums": [1, 3, 5, 8, 15], "pos": 3, "shift": 1, "med": null, "mid": []}, {"step": 10, "title": "Step 10: findMedian() = 5.0", "text": "n = 5, mid = 2: odd, return nums[2].", "detail": "A direct index into the sorted list: O(1).", "lines": [7, 8, 9, 10, 11], "ph": "med", "x": 8, "nums": [1, 3, 5, 8, 15], "pos": 3, "shift": 1, "med": "5.0", "mid": [2]}];
+
+      // Draw one box with its value; cls is the class list for the rect.
+      function box(g, x, value, rectClass, textClass, label) {
+        const rect = document.createElementNS(NS, 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', ROW_Y);
+        rect.setAttribute('width', W);
+        rect.setAttribute('height', 48);
+        rect.setAttribute('rx', 10);
+        rect.setAttribute('class', rectClass);
+        g.appendChild(rect);
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', x + W / 2);
+        t.setAttribute('y', ROW_Y + 31);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('class', textClass);
+        t.textContent = value;
+        g.appendChild(t);
+        if (label) {
+          const l = document.createElementNS(NS, 'text');
+          l.setAttribute('x', x + W / 2);
+          l.setAttribute('y', ROW_Y + 72);
+          l.setAttribute('text-anchor', 'middle');
+          l.setAttribute('class', label.cls);
+          l.textContent = label.text;
+          g.appendChild(l);
+        }
+      }
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function list(a) { return `[${a.join(', ')}]`; }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1600);
+        });
+        update();
+      }
+
+      function common(prefix, step, index, max) {
+        document.getElementById(`${prefix}-step-title`).textContent = step.title;
+        document.getElementById(`${prefix}-step-text`).textContent = step.text;
+        document.getElementById(`${prefix}-detail`).innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById(`${prefix}-step-counter`).textContent = `Step ${step.step} / ${max}`;
+        document.getElementById(`${prefix}-progress`).style.width = `${(index / max) * 100}%`;
+        markActiveRow(`${prefix}-trace-table`, step.step);
+        setCodeHighlight(`${prefix}-code`, step.lines);
+      }
+
+      function renderTH(step, index, max) {
+        common('th', step, index, max);
+        const op = step.ph === 'init' ? '—' : (step.ph === 'med' ? 'findMedian()' : `addNum(${step.x})`);
+        document.getElementById('th-op').textContent = op;
+        document.getElementById('th-moved').textContent = (step.ph === 'push' || step.ph === 'move' || step.ph === 'rebal') && step.moved !== null ? String(step.moved) : '—';
+        document.getElementById('th-lowraw').textContent = list(step.lowRaw);
+        document.getElementById('th-highraw').textContent = list(step.highRaw);
+        document.getElementById('th-sizes').textContent = `${step.low.length} / ${step.high.length}`;
+        document.getElementById('th-med').textContent = step.med === null ? '—' : step.med;
+
+        const g = document.getElementById('th-cells');
+        g.innerHTML = '';
+        let activeDone = false;
+        const isActive = (v, side) => {
+          if (activeDone || step.moved === null) return false;
+          const onLow = step.ph === 'push' || step.ph === 'rebal';
+          const onHigh = step.ph === 'move';
+          if ((side === 'low' && onLow && v === step.moved) || (side === 'high' && onHigh && v === step.moved)) {
+            activeDone = true;
+            return true;
+          }
+          return false;
+        };
+        // low: right-aligned against the bar at x = 260, top (largest) nearest the bar
+        step.low.forEach((v, k) => {
+          const x = 260 - 14 - (step.low.length - k) * (W + GAP) + GAP;
+          const top = k === step.low.length - 1;
+          let cls = 'th-cell low';
+          if (isActive(v, 'low')) cls = 'th-cell active';
+          if (step.ph === 'med' && top) cls += ' median';
+          box(g, x, v, cls, 'th-text', top ? { text: 'top', cls: 'th-sub' } : null);
+        });
+        // high: left-aligned from the bar, top (smallest) nearest the bar
+        step.high.forEach((v, k) => {
+          const x = 260 + 14 + k * (W + GAP);
+          const top = k === 0;
+          let cls = 'th-cell high';
+          if (isActive(v, 'high')) cls = 'th-cell active';
+          if (step.ph === 'med' && !step.odd && top) cls += ' median';
+          box(g, x, v, cls, 'th-text', top ? { text: 'top', cls: 'th-sub' } : null);
+        });
+        const cap = document.getElementById('th-caption');
+        cap.textContent = step.ph === 'med' ? `median = ${step.med}` : (step.ph === 'init' ? 'empty | empty' : `sizes ${step.low.length} / ${step.high.length}`);
+      }
+
+      function renderIN(step, index, max) {
+        common('in', step, index, max);
+        const op = step.ph === 'init' ? '—' : (step.ph === 'med' ? 'findMedian()' : `addNum(${step.x})`);
+        document.getElementById('in-op').textContent = op;
+        document.getElementById('in-nums').textContent = list(step.nums);
+        document.getElementById('in-pos').textContent = step.ph === 'ins' ? String(step.pos) : '—';
+        document.getElementById('in-shift').textContent = step.ph === 'ins' ? String(step.shift) : '—';
+        document.getElementById('in-mid').textContent = step.ph === 'med' ? step.mid.join(' and ') : '—';
+        document.getElementById('in-med').textContent = step.med === null ? '—' : step.med;
+
+        const g = document.getElementById('in-cells');
+        g.innerHTML = '';
+        const n = step.nums.length;
+        const x0 = 260 - (n * W + (n - 1) * GAP) / 2;
+        step.nums.forEach((v, k) => {
+          let cls = 'in-cell';
+          if (step.ph === 'ins' && k === step.pos) cls = 'in-cell active';
+          else if (step.ph === 'ins' && k > step.pos) cls = 'in-cell shifted';
+          if (step.ph === 'med' && step.mid.includes(k)) cls += ' median';
+          box(g, x0 + k * (W + GAP), v, cls, 'in-text', { text: `[${k}]`, cls: 'in-idx' });
+        });
+        document.getElementById('in-caption').textContent = step.ph === 'med' ? `median = ${step.med}` : (n ? `${n} value(s)` : 'empty list');
+      }
+
+      setupTrace({ steps: thSteps, prefix: 'th', render: renderTH });
+      setupTrace({ steps: inSteps, prefix: 'in', render: renderIN });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+
+  </script>
+</body>
+</html>

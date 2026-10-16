@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Permutation in String — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:8px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:20px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:44px;height:44px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .chip.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_fixed_window_lesson.html">← Fixed Window lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Sliding Window · Fixed Window</span></div>
+<h1>567 · Permutation in String</h1>
+<p class="lead">Is some scrambled copy of <code>s1</code> hiding, letters side by side, inside <code>s2</code>?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You have a short word <code>s1</code> and a long text <code>s2</code>. Look for a block of <code>s2</code>, letters next to each other, that uses exactly the letters of <code>s1</code>, each the same number of times, in any order.</p>
+<div class="idea">Think of Scrabble tiles: <code>s1</code> is your rack. You win if some stretch of <code>s2</code> could be spelled with exactly your tiles, no more and no fewer.</div>
+<div class="idea">Example: <code>s1 = "ab"</code>, <code>s2 = "eidbaooo"</code> &rarr; <b>True</b>, because the block <code>"ba"</code> uses one <b>a</b> and one <b>b</b>.</div>
+<div class="legend"><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>inside the window</span><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>letter entering</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>letter leaving</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>match found</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The answer must be exactly <code>len(s1) = 2</code> letters long, so only blocks of that one width are worth checking.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: sort every block</h2>
+<div class="idea">Sorting puts letters in order, so any rearrangement of <code>"ab"</code> sorts back to <code>"ab"</code>. Cut out every block of width 2, sort it, and compare with sorted <code>s1</code>.</div>
+<div class="viz" id="so-viz"></div>
+<div class="mem"><h4>block, sorted, vs sorted(s1) = "ab"</h4><div class="chips" id="so-mem"></div></div>
+<div class="caption" id="so-cap"></div>
+<div class="controls" data-player="so"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="so-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every block is copied and sorted from scratch — <code>O(n·k log k)</code> time for <code>n = len(s2)</code>, <code>k = len(s1)</code>; <code>O(k)</code> memory for one sorted copy.</p>
+<div class="trace-title">Step-by-step trace — s1 = "ab", s2 = "eidbaooo"</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Start l</th><th>Block s2[l:l+2]</th><th>Sorted</th><th>== "ab"?</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>"ei"</td><td>"ei"</td><td>no</td><td class="rule">Move to the next block</td></tr>
+  <tr><td>2</td><td>1</td><td>"id"</td><td>"di"</td><td>no</td><td class="rule">Move to the next block</td></tr>
+  <tr><td>3</td><td>2</td><td>"db"</td><td>"bd"</td><td>no</td><td class="rule">Move to the next block</td></tr>
+  <tr class="final"><td>4</td><td>3</td><td>"ba"</td><td>"ab"</td><td>yes</td><td>Match &rarr; return True</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Better: count the letters of every block</h2>
+<div class="idea">Order never mattered, only <b>how many of each letter</b>. So count <code>s1</code> once (<code>{a:1, b:1}</code>) and count each block. Same counts means same tiles. Still, each block is counted from zero, even though it shares a letter with the block before it.</div>
+<div class="viz" id="co-viz"></div>
+<div class="mem"><h4>need = Counter(s1)</h4><div class="chips" id="co-need"></div></div>
+<div class="mem"><h4>Counter(block)</h4><div class="chips" id="co-win"></div></div>
+<div class="caption" id="co-cap"></div>
+<div class="controls" data-player="co"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="co-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> no sort, but every block is still recounted — <code>O(n·k)</code> time; at most 26 letters per counter.</p>
+<div class="trace-title">Step-by-step trace — s1 = "ab", s2 = "eidbaooo"</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Start l</th><th>Block</th><th>Counter(block)</th><th>== {a:1, b:1}?</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>"ei"</td><td>{e:1, i:1}</td><td>no</td><td class="rule">Move to the next block</td></tr>
+  <tr><td>2</td><td>1</td><td>"id"</td><td>{i:1, d:1}</td><td>no</td><td class="rule">Move to the next block</td></tr>
+  <tr><td>3</td><td>2</td><td>"db"</td><td>{d:1, b:1}</td><td>no</td><td class="rule">Has b but no a</td></tr>
+  <tr class="final"><td>4</td><td>3</td><td>"ba"</td><td>{b:1, a:1}</td><td>yes</td><td>Match &rarr; return True</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: slide a fixed window and update the counts</h2>
+<div class="idea">Moving the block one step right changes only <b>two</b> letters: one enters on the right (<code>+1</code>), one leaves on the left (<code>-1</code>). Keep a running count of the window and update just those two. Once the window is full (2 letters), compare it with <code>s1</code>'s counts — 26 small numbers, a fixed cost.</div>
+<div class="viz" id="sw-viz"></div>
+<div class="mem"><h4>need (counts of s1)</h4><div class="chips" id="sw-need"></div></div>
+<div class="mem"><h4>window counts (non-zero letters)</h4><div class="chips" id="sw-win"></div></div>
+<div class="caption" id="sw-cap"></div>
+<div class="controls" data-player="sw"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="sw-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> two count updates and one 26-slot compare per letter of <code>s2</code> — <code>O(n)</code> time; two arrays of 26 numbers — <code>O(1)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — s1 = "ab", s2 = "eidbaooo" (k = 2)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>r</th><th>Enters s2[r]</th><th>Leaves s2[r-2]</th><th>Window counts</th><th>Full?</th><th>window == need?</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>e</td><td>—</td><td>{e:1}</td><td>no</td><td>—</td><td class="rule">Still filling the window</td></tr>
+  <tr><td>2</td><td>1</td><td>i</td><td>—</td><td>{e:1, i:1}</td><td>yes</td><td>no</td><td class="rule">First full window "ei"</td></tr>
+  <tr><td>3</td><td>2</td><td>d</td><td>e</td><td>{d:1, i:1}</td><td>yes</td><td>no</td><td class="rule">Window "id"</td></tr>
+  <tr><td>4</td><td>3</td><td>b</td><td>i</td><td>{b:1, d:1}</td><td>yes</td><td>no</td><td class="rule">Window "db": b matches, a missing</td></tr>
+  <tr class="final"><td>5</td><td>4</td><td>a</td><td>d</td><td>{a:1, b:1}</td><td>yes</td><td>yes</td><td>Window "ba" &rarr; return True</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"permutation"</b> or <b>"anagram"</b> of a word <b>inside</b> a longer string, or <b>"every substring of length k"</b>? The answer has one fixed width, so slide a window of that width and keep counts up to date: one letter in, one letter out.
+<p><a href="02_fixed_window_lesson.html">→ Fixed Window: the pattern lesson and the other problem that uses it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+var S2='eidbaooo'.split('');
+/* Draw s2 as boxes. lo..hi = window (inclusive); enter/leave = index of the letter entering / leaving; match = paint window green. */
+function drawRow(id, f){
+  var h='<div class="rowlabel">s2</div><div class="row">';
+  for(var j=0;j<S2.length;j++){
+    var cls='', p='';
+    if(f.lo!=null && j>=f.lo && j<=f.hi) cls=f.match?'good':'seen';
+    if(j===f.enter) cls=f.match?'good':'hi';
+    if(j===f.leave) cls='bad';
+    if(f.lo!=null && j===f.lo) p+='l';
+    if(f.lo!=null && j===f.hi) p+=(p?' ':'')+'r';
+    h+='<div class="cell"><div class="ptr">'+p+'</div><div class="box '+cls+'">'+S2[j]+'</div><div class="idxlabel">'+j+'</div></div>';
+  }
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+function counts(obj, cls){ var a=[]; for(var key in obj) a.push({text:key+': '+obj[key], cls:cls||''}); return a; }
+var NEED={a:1,b:1};
+
+/* Problem demo: every block of width 2 until the match. */
+makePlayer('pd',[
+  {cap:'We need a block of <b>2</b> letters using one <b>a</b> and one <b>b</b>.', f:{}},
+  {cap:'Block "ei": no a, no b.', f:{lo:0,hi:1}},
+  {cap:'Block "id": no a, no b.', f:{lo:1,hi:2}},
+  {cap:'Block "db": a b, but a d instead of an a.', f:{lo:2,hi:3}},
+  {cap:'Block "ba": one b and one a. It is a rearrangement of "ab" &rarr; <b>True</b>.', f:{lo:3,hi:4,match:true}}
+],function(fr){ drawRow('pd-viz',fr.f); document.getElementById('pd-cap').innerHTML=fr.cap; });
+
+/* Solution 1: values traced from check_inclusion_sort. */
+makePlayer('so',[
+  {cap:'Sort s1 once: sorted("ab") = "ab". Now try every block of width 2.', f:{}, m:[]},
+  {cap:'l = 0: block "ei" sorts to "ei" &ne; "ab".', f:{lo:0,hi:1}, m:[{text:'"ei" &rarr; "ei"',cls:'bad'}]},
+  {cap:'l = 1: block "id" sorts to "di" &ne; "ab".', f:{lo:1,hi:2}, m:[{text:'"id" &rarr; "di"',cls:'bad'}]},
+  {cap:'l = 2: block "db" sorts to "bd" &ne; "ab".', f:{lo:2,hi:3}, m:[{text:'"db" &rarr; "bd"',cls:'bad'}]},
+  {cap:'l = 3: block "ba" sorts to "ab" = "ab". Return <b>True</b>.', f:{lo:3,hi:4,match:true}, m:[{text:'"ba" &rarr; "ab"',cls:'look'}]}
+],function(fr){ drawRow('so-viz',fr.f); chips('so-mem',fr.m); document.getElementById('so-cap').innerHTML=fr.cap; });
+
+/* Solution 2: values traced from check_inclusion_count. */
+makePlayer('co',[
+  {cap:'Count s1 once: need = {a:1, b:1}.', f:{}, w:{}},
+  {cap:'l = 0: count "ei" from scratch &rarr; {e:1, i:1}. Not equal.', f:{lo:0,hi:1}, w:{e:1,i:1}},
+  {cap:'l = 1: count "id" from scratch &rarr; {i:1, d:1}. Not equal.', f:{lo:1,hi:2}, w:{i:1,d:1}},
+  {cap:'l = 2: count "db" from scratch &rarr; {d:1, b:1}. Not equal (no a).', f:{lo:2,hi:3}, w:{d:1,b:1}},
+  {cap:'l = 3: count "ba" &rarr; {b:1, a:1}. Equal to need: return <b>True</b>.', f:{lo:3,hi:4,match:true}, w:{b:1,a:1}, ok:true}
+],function(fr){ drawRow('co-viz',fr.f); chips('co-need',counts(NEED)); chips('co-win',counts(fr.w, fr.ok?'look':'')); document.getElementById('co-cap').innerHTML=fr.cap; });
+
+/* Solution 3: values traced from check_inclusion_window. */
+makePlayer('sw',[
+  {cap:'need = counts of "ab" = {a:1, b:1}. The window starts empty.', f:{}, w:{}},
+  {cap:'r = 0: <b>e</b> enters. Only 1 letter so far, the window is not full yet.', f:{lo:0,hi:0,enter:0}, w:{e:1}},
+  {cap:'r = 1: <b>i</b> enters. Full window "ei": {e:1, i:1} &ne; need.', f:{lo:0,hi:1,enter:1}, w:{e:1,i:1}},
+  {cap:'r = 2: <b>d</b> enters, <b>e</b> (index r-2 = 0) leaves. Window "id": {d:1, i:1} &ne; need.', f:{lo:1,hi:2,enter:2,leave:0}, w:{d:1,i:1}},
+  {cap:'r = 3: <b>b</b> enters, <b>i</b> leaves. Window "db": {b:1, d:1} &ne; need.', f:{lo:2,hi:3,enter:3,leave:1}, w:{b:1,d:1}},
+  {cap:'r = 4: <b>a</b> enters, <b>d</b> leaves. Window "ba": {a:1, b:1} = need. Return <b>True</b>.', f:{lo:3,hi:4,enter:4,leave:2,match:true}, w:{a:1,b:1}, ok:true}
+],function(fr){ drawRow('sw-viz',fr.f); chips('sw-need',counts(NEED)); chips('sw-win',counts(fr.w, fr.ok?'look':'')); document.getElementById('sw-cap').innerHTML=fr.cap; });
+</script>
+</body></html>

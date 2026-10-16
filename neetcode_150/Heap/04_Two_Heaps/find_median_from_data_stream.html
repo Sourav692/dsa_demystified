@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find Median from Data Stream — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --high:#cfe3ff; --high-bd:#3b82f6;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --high:#16345e; --high-bd:#5b9bff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:8px;min-width:min-content;justify-content:center;align-items:flex-end}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:46px;height:46px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.high{background:var(--high);border-color:var(--high-bd)}
+  .divider{width:4px;height:58px;border-radius:2px;background:var(--fg);opacity:.55;margin:0 4px;align-self:flex-end}
+  .empty{color:var(--muted);font-size:13px;font-style:italic;align-self:center;padding:12px 0}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .mem{margin-top:12px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.plain{background:var(--card);border-color:var(--border)}
+  .chip.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="04_two_heaps_lesson.html">← Two Heaps lesson</a><span class="tag"><span class="dot" style="background:#ef4444"></span> Hard · Heap · Two Heaps</span></div>
+<h1>295 · Find Median from Data Stream</h1>
+<p class="lead">Numbers arrive one at a time. After each one, what is the middle value?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Build a small object with two buttons: <code>addNum(x)</code> drops a number in, and <code>findMedian()</code> tells you the middle value of everything dropped in so far.</p>
+<div class="idea">The <b>median</b> is the middle value once the numbers are lined up in order. With an even count there are two middle values, so take their average. Think of a live dashboard showing the "typical" response time while new times keep arriving.</div>
+<div class="idea">Example stream <code>5, 15, 1, 3, 8</code> &rarr; medians after each number: <code>5.0, 10.0, 5.0, 4.0, 5.0</code>. This stream is used in every diagram below.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>just added / just moved</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>low half</span><span><span class="sw" style="background:var(--high);border-color:var(--high-bd)"></span>high half</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>the middle value(s) = median</span></div>
+<div class="rowlabel">the numbers so far, lined up in order</div>
+<div class="viz" id="pd-viz"></div>
+<div class="badges" id="pd-b"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The middle moves as numbers arrive: 5, then between 5 and 15, then back to 5.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: sort every time you are asked</h2>
+<div class="idea"><code>addNum</code> just tosses the number on the end of a list. <code>findMedian</code> sorts the whole list, then reads the middle. Simple, but every question pays for a sort.</div>
+<div class="rowlabel">the list (<code>nums</code>)</div>
+<div class="viz" id="br-viz"></div>
+<div class="badges" id="br-b"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>addNum</code> is <code>O(1)</code>, but each <code>findMedian</code> sorts: <code>O(n log n)</code> in general, <code>O(n)</code> here because only the new value is out of place. A median after every add costs <code>O(n²)</code> in total; the notebook measured about 4&times; time per doubling. <code>O(n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — stream = 5, 15, 1, 3, 8 (a median after each add)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Action</th><th>nums</th><th>Decision</th></tr>
+  <tr><td>0</td><td>Start</td><td>[]</td><td>empty list</td></tr>
+  <tr><td>1</td><td>addNum(5): append</td><td>[5]</td><td>already in order</td></tr>
+  <tr><td>2</td><td>findMedian()</td><td>[5]</td><td>sort, odd: nums[0] = <b>5.0</b></td></tr>
+  <tr><td>3</td><td>addNum(15): append</td><td>[5, 15]</td><td>already in order</td></tr>
+  <tr><td>4</td><td>findMedian()</td><td>[5, 15]</td><td>sort, even: (nums[0] + nums[1]) / 2 = <b>10.0</b></td></tr>
+  <tr><td>5</td><td>addNum(1): append</td><td>[5, 15, 1]</td><td>list is out of order now</td></tr>
+  <tr><td>6</td><td>findMedian()</td><td>[1, 5, 15]</td><td>sort, odd: nums[1] = <b>5.0</b></td></tr>
+  <tr><td>7</td><td>addNum(3): append</td><td>[1, 5, 15, 3]</td><td>list is out of order now</td></tr>
+  <tr><td>8</td><td>findMedian()</td><td>[1, 3, 5, 15]</td><td>sort, even: (nums[1] + nums[2]) / 2 = <b>4.0</b></td></tr>
+  <tr><td>9</td><td>addNum(8): append</td><td>[1, 3, 5, 15, 8]</td><td>list is out of order now</td></tr>
+  <tr class="final"><td>10</td><td>findMedian()</td><td>[1, 3, 5, 8, 15]</td><td>sort, odd: nums[2] = <b>5.0</b></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Better: keep one list always sorted</h2>
+<div class="idea">Never let the list get out of order. Binary search finds where the new number belongs (<code>bisect.insort</code>), it is slotted in there, and the median is just "look at the middle index". The cost moved: every value to the right of the slot has to shift one place.</div>
+<div class="rowlabel">the sorted list (<code>nums</code>)</div>
+<div class="viz" id="in-viz"></div>
+<div class="badges" id="in-b"></div>
+<div class="caption" id="in-cap"></div>
+<div class="controls" data-player="in"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="in-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> finding the slot is <code>O(log n)</code>, but the shift makes each <code>addNum</code> <code>O(n)</code>; <code>findMedian</code> is <code>O(1)</code>. On a decreasing stream (every number goes to the front) the notebook measured roughly 3 to 4.5&times; per doubling: <code>O(n²)</code> in total. <code>O(n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — stream = 5, 15, 1, 3, 8</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Action</th><th>nums (sorted)</th><th>Insert at</th><th>Shifted</th><th>Decision</th></tr>
+  <tr><td>0</td><td>Start</td><td>[]</td><td>&ndash;</td><td>&ndash;</td><td>empty list</td></tr>
+  <tr><td>1</td><td>addNum(5): insort</td><td>[5]</td><td>index 0</td><td>0</td><td>0 value(s) shift right</td></tr>
+  <tr><td>2</td><td>findMedian()</td><td>[5]</td><td>&ndash;</td><td>&ndash;</td><td>odd: nums[0] = <b>5.0</b></td></tr>
+  <tr><td>3</td><td>addNum(15): insort</td><td>[5, 15]</td><td>index 1</td><td>0</td><td>0 value(s) shift right</td></tr>
+  <tr><td>4</td><td>findMedian()</td><td>[5, 15]</td><td>&ndash;</td><td>&ndash;</td><td>even: (nums[0] + nums[1]) / 2 = <b>10.0</b></td></tr>
+  <tr><td>5</td><td>addNum(1): insort</td><td>[1, 5, 15]</td><td>index 0</td><td>2</td><td>2 value(s) shift right</td></tr>
+  <tr><td>6</td><td>findMedian()</td><td>[1, 5, 15]</td><td>&ndash;</td><td>&ndash;</td><td>odd: nums[1] = <b>5.0</b></td></tr>
+  <tr><td>7</td><td>addNum(3): insort</td><td>[1, 3, 5, 15]</td><td>index 1</td><td>2</td><td>2 value(s) shift right</td></tr>
+  <tr><td>8</td><td>findMedian()</td><td>[1, 3, 5, 15]</td><td>&ndash;</td><td>&ndash;</td><td>even: (nums[1] + nums[2]) / 2 = <b>4.0</b></td></tr>
+  <tr><td>9</td><td>addNum(8): insort</td><td>[1, 3, 5, 8, 15]</td><td>index 3</td><td>1</td><td>1 value(s) shift right</td></tr>
+  <tr class="final"><td>10</td><td>findMedian()</td><td>[1, 3, 5, 8, 15]</td><td>&ndash;</td><td>&ndash;</td><td>odd: nums[2] = <b>5.0</b></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: two heaps that meet in the middle</h2>
+<div class="idea">We never need the whole list in order, only the values <b>next to the middle</b>. So split the numbers into two piles. <b>low</b> holds the smaller half and always shows its <b>biggest</b> on top (a max-heap). <b>high</b> holds the bigger half and shows its <b>smallest</b> on top (a min-heap). A heap is a pile that hands you its top in one step and takes a new value in <code>O(log n)</code>.</div>
+<div class="idea">Every <code>addNum</code> does the same three moves: <b>1.</b> push the number into <code>low</code>; <b>2.</b> move <code>low</code>'s biggest into <code>high</code> (so nothing in low is bigger than anything in high); <b>3.</b> if <code>high</code> now has more values, move its smallest back. Then <code>low</code> has the same count as <code>high</code>, or one more, and the median is <code>low</code>'s top or the average of both tops.</div>
+<div class="rowlabel">low half (max-heap) &nbsp;|&nbsp; high half (min-heap), drawn in order so you can see the split</div>
+<div class="viz" id="th-viz"></div>
+<div class="mem"><h4>what Python actually stores (heapq lists; low keeps negatives because heapq is a min-heap)</h4><div class="chips" id="th-raw"></div></div>
+<div class="badges" id="th-b"></div>
+<div class="caption" id="th-cap"></div>
+<div class="controls" data-player="th"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="th-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> at most three heap pushes/pops per <code>addNum</code>: <code>O(log n)</code>; <code>findMedian</code> just reads the tops: <code>O(1)</code>. The notebook measured about 2&times; per doubling for <code>n</code> adds (<code>O(n log n)</code> in total). <code>O(n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — stream = 5, 15, 1, 3, 8 (heaps shown in sorted order)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Action</th><th>low (max-heap)</th><th>high (min-heap)</th><th>sizes low / high</th><th>Decision</th></tr>
+  <tr><td>0</td><td>Start</td><td>[]</td><td>[]</td><td>0 / 0</td><td>Both heaps empty</td></tr>
+  <tr><td>1</td><td>addNum(5): push 5 into low</td><td>[5]</td><td>[]</td><td>1 / 0</td><td>low top is now 5</td></tr>
+  <tr><td>2</td><td>move low's max 5 to high</td><td>[]</td><td>[5]</td><td>0 / 1</td><td>every low value &le; every high value</td></tr>
+  <tr><td>3</td><td>move high's min 5 back to low</td><td>[5]</td><td>[]</td><td>1 / 0</td><td>high had 1 &gt; 0 &rarr; rebalance</td></tr>
+  <tr><td>4</td><td>findMedian(): odd count</td><td>[5]</td><td>[]</td><td>1 / 0</td><td>median = low top = <b>5.0</b></td></tr>
+  <tr><td>5</td><td>addNum(15): push 15 into low</td><td>[5, 15]</td><td>[]</td><td>2 / 0</td><td>low top is now 15</td></tr>
+  <tr><td>6</td><td>move low's max 15 to high</td><td>[5]</td><td>[15]</td><td>1 / 1</td><td>every low value &le; every high value</td></tr>
+  <tr><td>7</td><td>len(high) &gt; len(low)?</td><td>[5]</td><td>[15]</td><td>1 / 1</td><td>1 &gt; 1 no &rarr; keep</td></tr>
+  <tr><td>8</td><td>findMedian(): even count</td><td>[5]</td><td>[15]</td><td>1 / 1</td><td>median = (5 + 15) / 2 = <b>10.0</b></td></tr>
+  <tr><td>9</td><td>addNum(1): push 1 into low</td><td>[1, 5]</td><td>[15]</td><td>2 / 1</td><td>low top is now 5</td></tr>
+  <tr><td>10</td><td>move low's max 5 to high</td><td>[1]</td><td>[5, 15]</td><td>1 / 2</td><td>every low value &le; every high value</td></tr>
+  <tr><td>11</td><td>move high's min 5 back to low</td><td>[1, 5]</td><td>[15]</td><td>2 / 1</td><td>high had 2 &gt; 1 &rarr; rebalance</td></tr>
+  <tr><td>12</td><td>findMedian(): odd count</td><td>[1, 5]</td><td>[15]</td><td>2 / 1</td><td>median = low top = <b>5.0</b></td></tr>
+  <tr><td>13</td><td>addNum(3): push 3 into low</td><td>[1, 3, 5]</td><td>[15]</td><td>3 / 1</td><td>low top is now 5</td></tr>
+  <tr><td>14</td><td>move low's max 5 to high</td><td>[1, 3]</td><td>[5, 15]</td><td>2 / 2</td><td>every low value &le; every high value</td></tr>
+  <tr><td>15</td><td>len(high) &gt; len(low)?</td><td>[1, 3]</td><td>[5, 15]</td><td>2 / 2</td><td>2 &gt; 2 no &rarr; keep</td></tr>
+  <tr><td>16</td><td>findMedian(): even count</td><td>[1, 3]</td><td>[5, 15]</td><td>2 / 2</td><td>median = (3 + 5) / 2 = <b>4.0</b></td></tr>
+  <tr><td>17</td><td>addNum(8): push 8 into low</td><td>[1, 3, 8]</td><td>[5, 15]</td><td>3 / 2</td><td>low top is now 8</td></tr>
+  <tr><td>18</td><td>move low's max 8 to high</td><td>[1, 3]</td><td>[5, 8, 15]</td><td>2 / 3</td><td>every low value &le; every high value</td></tr>
+  <tr><td>19</td><td>move high's min 5 back to low</td><td>[1, 3, 5]</td><td>[8, 15]</td><td>3 / 2</td><td>high had 3 &gt; 2 &rarr; rebalance</td></tr>
+  <tr class="final"><td>20</td><td>findMedian(): odd count</td><td>[1, 3, 5]</td><td>[8, 15]</td><td>3 / 2</td><td>median = low top = <b>5.0</b></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"median of a stream"</b>, <b>"running middle value"</b>, or anything that needs the boundary between a lower and an upper group while values keep arriving? Keep a max-heap for the low side and a min-heap for the high side, balanced in size.
+<p><a href="04_two_heaps_lesson.html">→ Two Heaps: the pattern lesson, with follow-up variants to practise</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1200);
+  });
+  draw();
+}
+function cellHtml(v, cls, ptr, idx){
+  return '<div class="cell"><div class="ptr">'+(ptr||'')+'</div><div class="box '+(cls||'')+'">'+v+'</div><div class="idxlabel">'+(idx==null?'':idx)+'</div></div>';
+}
+/* A sorted row of boxes. marks: index -> class, ptrs: index -> label. */
+function sortedRow(id, nums, marks, ptrs){
+  if(!nums.length){ document.getElementById(id).innerHTML='<div class="row"><span class="empty">(empty)</span></div>'; return; }
+  var h='<div class="row">';
+  for(var k=0;k<nums.length;k++) h+=cellHtml(nums[k], marks[k], ptrs[k], k);
+  document.getElementById(id).innerHTML=h+'</div>';
+}
+function badges(id, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(id).innerHTML=h;
+}
+function midMarks(f){ var m={}; (f.mid||[]).forEach(function(k){ m[k]='good'; }); return m; }
+
+/* Ground truth: instrumented runs of the notebook's three classes on the stream 5, 15, 1, 3, 8. */
+var SRT=[{"x": null, "ph": "init", "nums": [], "med": null}, {"x": 5, "ph": "app", "nums": [5], "med": null}, {"x": 5, "ph": "sort", "nums": [5], "med": "5.0", "mid": [0]}, {"x": 15, "ph": "app", "nums": [5, 15], "med": null}, {"x": 15, "ph": "sort", "nums": [5, 15], "med": "10.0", "mid": [0, 1]}, {"x": 1, "ph": "app", "nums": [5, 15, 1], "med": null}, {"x": 1, "ph": "sort", "nums": [1, 5, 15], "med": "5.0", "mid": [1]}, {"x": 3, "ph": "app", "nums": [1, 5, 15, 3], "med": null}, {"x": 3, "ph": "sort", "nums": [1, 3, 5, 15], "med": "4.0", "mid": [1, 2]}, {"x": 8, "ph": "app", "nums": [1, 3, 5, 15, 8], "med": null}, {"x": 8, "ph": "sort", "nums": [1, 3, 5, 8, 15], "med": "5.0", "mid": [2]}];
+var INS=[{"x": null, "ph": "init", "nums": [], "pos": null, "shift": null, "med": null}, {"x": 5, "ph": "ins", "nums": [5], "pos": 0, "shift": 0, "med": null}, {"x": 5, "ph": "med", "nums": [5], "pos": 0, "shift": 0, "med": "5.0", "mid": [0]}, {"x": 15, "ph": "ins", "nums": [5, 15], "pos": 1, "shift": 0, "med": null}, {"x": 15, "ph": "med", "nums": [5, 15], "pos": 1, "shift": 0, "med": "10.0", "mid": [0, 1]}, {"x": 1, "ph": "ins", "nums": [1, 5, 15], "pos": 0, "shift": 2, "med": null}, {"x": 1, "ph": "med", "nums": [1, 5, 15], "pos": 0, "shift": 2, "med": "5.0", "mid": [1]}, {"x": 3, "ph": "ins", "nums": [1, 3, 5, 15], "pos": 1, "shift": 2, "med": null}, {"x": 3, "ph": "med", "nums": [1, 3, 5, 15], "pos": 1, "shift": 2, "med": "4.0", "mid": [1, 2]}, {"x": 8, "ph": "ins", "nums": [1, 3, 5, 8, 15], "pos": 3, "shift": 1, "med": null}, {"x": 8, "ph": "med", "nums": [1, 3, 5, 8, 15], "pos": 3, "shift": 1, "med": "5.0", "mid": [2]}];
+var HEAPS=[{"x": null, "ph": "init", "low": [], "high": [], "lowRaw": [], "highRaw": [], "moved": null, "med": null}, {"x": 5, "ph": "push", "low": [5], "high": [], "lowRaw": [-5], "highRaw": [], "moved": 5, "med": null}, {"x": 5, "ph": "move", "low": [], "high": [5], "lowRaw": [], "highRaw": [5], "moved": 5, "med": null}, {"x": 5, "ph": "rebal", "low": [5], "high": [], "lowRaw": [-5], "highRaw": [], "moved": 5, "med": null}, {"x": 5, "ph": "med", "low": [5], "high": [], "lowRaw": [-5], "highRaw": [], "moved": null, "med": "5.0", "odd": true}, {"x": 15, "ph": "push", "low": [5, 15], "high": [], "lowRaw": [-15, -5], "highRaw": [], "moved": 15, "med": null}, {"x": 15, "ph": "move", "low": [5], "high": [15], "lowRaw": [-5], "highRaw": [15], "moved": 15, "med": null}, {"x": 15, "ph": "rebal", "low": [5], "high": [15], "lowRaw": [-5], "highRaw": [15], "moved": null, "med": null}, {"x": 15, "ph": "med", "low": [5], "high": [15], "lowRaw": [-5], "highRaw": [15], "moved": null, "med": "10.0", "odd": false}, {"x": 1, "ph": "push", "low": [1, 5], "high": [15], "lowRaw": [-5, -1], "highRaw": [15], "moved": 1, "med": null}, {"x": 1, "ph": "move", "low": [1], "high": [5, 15], "lowRaw": [-1], "highRaw": [5, 15], "moved": 5, "med": null}, {"x": 1, "ph": "rebal", "low": [1, 5], "high": [15], "lowRaw": [-5, -1], "highRaw": [15], "moved": 5, "med": null}, {"x": 1, "ph": "med", "low": [1, 5], "high": [15], "lowRaw": [-5, -1], "highRaw": [15], "moved": null, "med": "5.0", "odd": true}, {"x": 3, "ph": "push", "low": [1, 3, 5], "high": [15], "lowRaw": [-5, -1, -3], "highRaw": [15], "moved": 3, "med": null}, {"x": 3, "ph": "move", "low": [1, 3], "high": [5, 15], "lowRaw": [-3, -1], "highRaw": [5, 15], "moved": 5, "med": null}, {"x": 3, "ph": "rebal", "low": [1, 3], "high": [5, 15], "lowRaw": [-3, -1], "highRaw": [5, 15], "moved": null, "med": null}, {"x": 3, "ph": "med", "low": [1, 3], "high": [5, 15], "lowRaw": [-3, -1], "highRaw": [5, 15], "moved": null, "med": "4.0", "odd": false}, {"x": 8, "ph": "push", "low": [1, 3, 8], "high": [5, 15], "lowRaw": [-8, -1, -3], "highRaw": [5, 15], "moved": 8, "med": null}, {"x": 8, "ph": "move", "low": [1, 3], "high": [5, 8, 15], "lowRaw": [-3, -1], "highRaw": [5, 15, 8], "moved": 8, "med": null}, {"x": 8, "ph": "rebal", "low": [1, 3, 5], "high": [8, 15], "lowRaw": [-5, -1, -3], "highRaw": [8, 15], "moved": 5, "med": null}, {"x": 8, "ph": "med", "low": [1, 3, 5], "high": [8, 15], "lowRaw": [-5, -1, -3], "highRaw": [8, 15], "moved": null, "med": "5.0", "odd": true}];
+var RB=[[0, "Start", "[]", "empty list"], [1, "addNum(5): append", "[5]", "already in order"], [2, "findMedian()", "[5]", "sort, odd: nums[0] = <b>5.0</b>"], [3, "addNum(15): append", "[5, 15]", "already in order"], [4, "findMedian()", "[5, 15]", "sort, even: (nums[0] + nums[1]) / 2 = <b>10.0</b>"], [5, "addNum(1): append", "[5, 15, 1]", "list is out of order now"], [6, "findMedian()", "[1, 5, 15]", "sort, odd: nums[1] = <b>5.0</b>"], [7, "addNum(3): append", "[1, 5, 15, 3]", "list is out of order now"], [8, "findMedian()", "[1, 3, 5, 15]", "sort, even: (nums[1] + nums[2]) / 2 = <b>4.0</b>"], [9, "addNum(8): append", "[1, 3, 5, 15, 8]", "list is out of order now"], [10, "findMedian()", "[1, 3, 5, 8, 15]", "sort, odd: nums[2] = <b>5.0</b>"]], RI=[[0, "Start", "[]", "&ndash;", "&ndash;", "empty list"], [1, "addNum(5): insort", "[5]", "index 0", "0", "0 value(s) shift right"], [2, "findMedian()", "[5]", "&ndash;", "&ndash;", "odd: nums[0] = <b>5.0</b>"], [3, "addNum(15): insort", "[5, 15]", "index 1", "0", "0 value(s) shift right"], [4, "findMedian()", "[5, 15]", "&ndash;", "&ndash;", "even: (nums[0] + nums[1]) / 2 = <b>10.0</b>"], [5, "addNum(1): insort", "[1, 5, 15]", "index 0", "2", "2 value(s) shift right"], [6, "findMedian()", "[1, 5, 15]", "&ndash;", "&ndash;", "odd: nums[1] = <b>5.0</b>"], [7, "addNum(3): insort", "[1, 3, 5, 15]", "index 1", "2", "2 value(s) shift right"], [8, "findMedian()", "[1, 3, 5, 15]", "&ndash;", "&ndash;", "even: (nums[1] + nums[2]) / 2 = <b>4.0</b>"], [9, "addNum(8): insort", "[1, 3, 5, 8, 15]", "index 3", "1", "1 value(s) shift right"], [10, "findMedian()", "[1, 3, 5, 8, 15]", "&ndash;", "&ndash;", "odd: nums[2] = <b>5.0</b>"]], RH=[[0, "Start", "[]", "[]", "0 / 0", "Both heaps empty"], [1, "addNum(5): push 5 into low", "[5]", "[]", "1 / 0", "low top is now 5"], [2, "move low's max 5 to high", "[]", "[5]", "0 / 1", "every low value &le; every high value"], [3, "move high's min 5 back to low", "[5]", "[]", "1 / 0", "high had 1 &gt; 0 &rarr; rebalance"], [4, "findMedian(): odd count", "[5]", "[]", "1 / 0", "median = low top = <b>5.0</b>"], [5, "addNum(15): push 15 into low", "[5, 15]", "[]", "2 / 0", "low top is now 15"], [6, "move low's max 15 to high", "[5]", "[15]", "1 / 1", "every low value &le; every high value"], [7, "len(high) &gt; len(low)?", "[5]", "[15]", "1 / 1", "1 &gt; 1 no &rarr; keep"], [8, "findMedian(): even count", "[5]", "[15]", "1 / 1", "median = (5 + 15) / 2 = <b>10.0</b>"], [9, "addNum(1): push 1 into low", "[1, 5]", "[15]", "2 / 1", "low top is now 5"], [10, "move low's max 5 to high", "[1]", "[5, 15]", "1 / 2", "every low value &le; every high value"], [11, "move high's min 5 back to low", "[1, 5]", "[15]", "2 / 1", "high had 2 &gt; 1 &rarr; rebalance"], [12, "findMedian(): odd count", "[1, 5]", "[15]", "2 / 1", "median = low top = <b>5.0</b>"], [13, "addNum(3): push 3 into low", "[1, 3, 5]", "[15]", "3 / 1", "low top is now 5"], [14, "move low's max 5 to high", "[1, 3]", "[5, 15]", "2 / 2", "every low value &le; every high value"], [15, "len(high) &gt; len(low)?", "[1, 3]", "[5, 15]", "2 / 2", "2 &gt; 2 no &rarr; keep"], [16, "findMedian(): even count", "[1, 3]", "[5, 15]", "2 / 2", "median = (3 + 5) / 2 = <b>4.0</b>"], [17, "addNum(8): push 8 into low", "[1, 3, 8]", "[5, 15]", "3 / 2", "low top is now 8"], [18, "move low's max 8 to high", "[1, 3]", "[5, 8, 15]", "2 / 3", "every low value &le; every high value"], [19, "move high's min 5 back to low", "[1, 3, 5]", "[8, 15]", "3 / 2", "high had 3 &gt; 2 &rarr; rebalance"], [20, "findMedian(): odd count", "[1, 3, 5]", "[8, 15]", "3 / 2", "median = low top = <b>5.0</b>"]];
+function cap(row){ return '<b>'+row[1]+'</b> &mdash; '+row[row.length-1]+'.'; }
+
+/* Problem demo: the sorted view after each add (the "sort" frames of Solution 1). */
+var PD=[SRT[0]].concat(SRT.filter(function(f){ return f.ph==='sort'; }));
+makePlayer('pd', PD, function(f, i){
+  var marks=midMarks(f);
+  if(f.x!==null){ var p=f.nums.indexOf(f.x); if(!(p in marks)) marks[p]='hi'; }
+  sortedRow('pd-viz', f.nums, marks, {});
+  badges('pd-b',[{label:'count',val:f.nums.length},{label:'median',val:f.med==null?'–':f.med,cls:'good'}]);
+  document.getElementById('pd-cap').innerHTML = f.x===null ? 'Nothing has arrived yet.' :
+    'Number <b>'+f.x+'</b> arrives. In order: '+f.nums.join(', ')+'. '+(f.nums.length%2?'Odd count: one middle value.':'Even count: average the two middle values.')+' Median = <b>'+f.med+'</b>.';
+});
+
+makePlayer('br', SRT, function(f, i){
+  var marks = f.ph==='sort' ? midMarks(f) : {};
+  if(f.ph==='app') marks[f.nums.length-1]='hi';
+  sortedRow('br-viz', f.nums, marks, {});
+  badges('br-b',[{label:'median',val:f.med==null?'–':f.med,cls:'good'}]);
+  document.getElementById('br-cap').innerHTML=cap(RB[i]);
+});
+
+makePlayer('in', INS, function(f, i){
+  var marks = f.ph==='med' ? midMarks(f) : {}, ptrs={};
+  if(f.ph==='ins'){ marks[f.pos]='hi'; ptrs[f.pos]='new'; for(var k=f.pos+1;k<f.nums.length;k++) ptrs[k]='→ shifted'; }
+  sortedRow('in-viz', f.nums, marks, ptrs);
+  badges('in-b',[{label:'shifted this add',val:f.shift==null?'–':f.shift},{label:'median',val:f.med==null?'–':f.med,cls:'good'}]);
+  document.getElementById('in-cap').innerHTML=cap(RI[i]);
+});
+
+makePlayer('th', HEAPS, function(f, i){
+  var h='<div class="row">';
+  if(!f.low.length && !f.high.length) h+='<span class="empty">(both heaps empty)</span>';
+  var movedDone=false;
+  for(var k=0;k<f.low.length;k++){
+    var cls='seen', top=(k===f.low.length-1);
+    if(f.ph==='med' && top) cls='good';
+    if(f.moved!==null && f.low[k]===f.moved && !movedDone && (f.ph==='push'||f.ph==='rebal')){ cls='hi'; movedDone=true; }
+    h+=cellHtml(f.low[k], cls, top?'low top':'', null);
+  }
+  h+='<div class="divider" title="the split"></div>';
+  for(var k=0;k<f.high.length;k++){
+    var cls='high', top=(k===0);
+    if(f.ph==='med' && !f.odd && top) cls='good';
+    if(f.moved!==null && f.high[k]===f.moved && !movedDone && f.ph==='move'){ cls='hi'; movedDone=true; }
+    h+=cellHtml(f.high[k], cls, top?'high top':'', null);
+  }
+  document.getElementById('th-viz').innerHTML=h+'</div>';
+  document.getElementById('th-raw').innerHTML=
+    '<span class="chip">low = ['+f.lowRaw.join(', ')+']</span><span class="chip plain">high = ['+f.highRaw.join(', ')+']</span>';
+  badges('th-b',[{label:'sizes low / high',val:f.low.length+' / '+f.high.length},{label:'median',val:f.med==null?'–':f.med,cls:'good'}]);
+  document.getElementById('th-cap').innerHTML=cap(RH[i]);
+});
+</script>
+</body></html>

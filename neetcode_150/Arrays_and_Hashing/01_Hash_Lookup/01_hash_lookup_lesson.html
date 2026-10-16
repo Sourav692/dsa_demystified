@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hash Lookup — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Arrays and Hashing · Pattern 01 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Hash Lookup</h1>
+          <p>
+            Many brute forces are a nested loop whose inner loop only <em>searches</em> for a value. A hash set or hash map answers "is this value here?" in O(1) on average, so remember what you have seen, ask the memory instead of rescanning, and the nested loop becomes one pass.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: <code>if key in seen</code> before <code>seen.add(x)</code></span>
+            <span class="chip">Method 1: Contains Duplicate (set)</span>
+            <span class="chip">Method 2: Two Sum (dict, complement)</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problems in this pattern: <a href="contains_duplicate.html">Contains Duplicate</a> · <a href="two_sum.html">Two Sum</a> · <a href="valid_sudoku.html">Valid Sudoku</a> · <a href="longest_consecutive_sequence.html">Longest Consecutive Sequence</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Contains Duplicate, <code>nums = [1, 2, 3, 1]</code></p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 220" width="100%" role="img" aria-label="Array 1, 2, 3, 1; the last 1 is found in the set of values already seen">
+              <defs>
+                <style>
+                  .h-cell { fill: #315efb; }
+                  .h-hit { fill: #ff9f1c; }
+                  .h-slot { fill: #13a46b; }
+                  .h-empty { fill: #c8d2e7; }
+                  .h-label { font: 700 20px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-arrow { stroke: #172033; stroke-width: 3; stroke-dasharray: 6 5; fill: none; }
+                </style>
+              </defs>
+              <text x="14" y="30" class="h-title">nums</text>
+              <rect x="110" y="10" width="64" height="50" rx="10" class="h-cell" />
+              <rect x="190" y="10" width="64" height="50" rx="10" class="h-cell" />
+              <rect x="270" y="10" width="64" height="50" rx="10" class="h-cell" />
+              <rect x="350" y="10" width="64" height="50" rx="10" class="h-hit" />
+              <text x="142" y="42" text-anchor="middle" class="h-label">1</text>
+              <text x="222" y="42" text-anchor="middle" class="h-label">2</text>
+              <text x="302" y="42" text-anchor="middle" class="h-label">3</text>
+              <text x="382" y="42" text-anchor="middle" class="h-label">1</text>
+              <text x="14" y="160" class="h-title">seen</text>
+              <rect x="110" y="140" width="64" height="50" rx="10" class="h-slot" />
+              <rect x="190" y="140" width="64" height="50" rx="10" class="h-slot" />
+              <rect x="270" y="140" width="64" height="50" rx="10" class="h-slot" />
+              <rect x="350" y="140" width="64" height="50" rx="10" class="h-empty" />
+              <text x="142" y="172" text-anchor="middle" class="h-label">1</text>
+              <text x="222" y="172" text-anchor="middle" class="h-label">2</text>
+              <text x="302" y="172" text-anchor="middle" class="h-label">3</text>
+              <path d="M382 62 C 382 110, 142 100, 142 136" class="h-arrow" />
+              <text x="262" y="112" text-anchor="middle" class="h-title">1 in seen? yes</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = True (the second 1 is already in seen)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Deduplication everywhere</h3>
+          <p>"Have I processed this order id / URL / username before?" is the same question as Contains Duplicate, asked millions of times. A set answers each one without scanning history.</p>
+        </div>
+        <div class="card">
+          <h3>Matching pairs</h3>
+          <p>Reconciling payments against invoices, or finding two items that hit a budget, is Two Sum: for each item, look up the partner it needs.</p>
+        </div>
+        <div class="card">
+          <h3>Rules per group</h3>
+          <p>"No duplicate seat per row, no duplicate badge per team": give each group its own set, as Valid Sudoku does for rows, columns and boxes.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> this is the first optimisation to try in almost every array problem. Whenever the brute force has an inner loop that only looks for something, ask "could a set or dict find it in one step?"</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is hash lookup?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Walk the input once. For each item, compute the <strong>key</strong> whose presence answers the question (the item itself, its complement <code>target - x</code>, its neighbour <code>x - 1</code>), look the key up in a hash set or map, and only then record the current item. A hash lookup costs O(1) on average, so the whole walk is O(n).</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"Contains duplicate", "all unique?", "find two numbers that add up to", "no repeats in each row / column / box", "longest run of consecutive numbers in O(n)". Or: the brute force is a nested loop whose inner loop only searches for a value.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> ask "what single value, if I had already seen it, would give me the answer right now?" That value is your lookup key. Check for it first, then remember the current item.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Write the brute force</h3>
+          <p>Usually two nested loops. Notice that the inner loop only searches for one value.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Name the key</h3>
+          <p>What would the inner loop find? <code>x</code> itself, <code>target - x</code>, the digit in this row, <code>x - 1</code>.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Pick the memory</h3>
+          <p>A <code>set</code> if you only need "present or not"; a <code>dict</code> if the answer needs more (an index). One per group if there are groups.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Check, then record</h3>
+          <p>Look the key up first; if it is absent, add the current item. Reversing the order lets an item match itself.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a hash set</h2>
+      <p>The array stays where it is. Next to it we build a second structure, <code>seen</code>, one item at a time. A hash set is an internal table of slots. To store or find <code>x</code>, Python computes <code>hash(x)</code> and jumps to the slot that number points at. It never walks through the other slots, which is why <code>x in seen</code> does not slow down as the set grows.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input array</h3>
+          <div class="code-block"><code>nums = [1, 2, 3, 1]</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Hash set after three steps (simplified: 8 slots)</h3>
+          <div class="code-block"><code>slot:  0  1  2  3  4  5  6  7
+value: .  1  2  3  .  .  .  .
+(slot = hash(x) mod 8; hash(1) == 1 for small ints)</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Read <code>1</code></h4>
+          <p>Slot 1 is empty, so 1 is new. Store it in slot 1.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read <code>2</code>, then <code>3</code></h4>
+          <p>Slots 2 and 3 are empty. Store each one.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Read <code>1</code> again</h4>
+          <p>Jump to slot 1: it already holds 1. One check, no scan: duplicate found.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Same idea with a dict</h4>
+          <p>Two Sum stores <code>value → index</code>. The key is hashed exactly like a set element; the slot also keeps the index.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> the slot picture is simplified. Real tables grow as they fill and resolve collisions (two keys wanting one slot) by probing other slots, so a lookup is O(1) on <em>average</em>, not guaranteed. Compare a <code>list</code>: <code>x in nums</code> checks every element, O(n).</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: hash set membership (Contains Duplicate)</h2>
+      <p>The template in its purest form: the lookup key is the value itself. Code taken line for line from the notebook's <code>contains_duplicate_set</code>, traced on <code>nums = [1, 2, 3, 1]</code>.</p>
+      <div class="code-block stepped">
+        <code id="cd-code">
+<span class="code-line" data-line="1">def contains_duplicate_set(nums: List[int]) -&gt; bool:</span>
+<span class="code-line" data-line="2">    seen = set()                           # values we've already encountered</span>
+<span class="code-line" data-line="3">    for x in nums:</span>
+<span class="code-line" data-line="4">        if x in seen:                      # already met this value -&gt; duplicate</span>
+<span class="code-line" data-line="5">            return True</span>
+<span class="code-line" data-line="6">        seen.add(x)                        # otherwise remember it and continue</span>
+<span class="code-line" data-line="7">    return False</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive hash-set trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="cd-graph" viewBox="0 0 520 240" width="100%" role="img" aria-label="Contains Duplicate trace: array 1, 2, 3, 1 and an 8-slot hash set">
+              <defs>
+                <style>
+                  .cd-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .cd-cell.done { fill: #315efb; }
+                  .cd-cell.current { fill: #ff9f1c; }
+                  .cd-slot { fill: #eef2fa; stroke: #c8d2e7; stroke-width: 2; transition: fill 0.2s ease; }
+                  .cd-slot.filled { fill: #13a46b; stroke: #13a46b; }
+                  .cd-slot.probe { stroke: #ff9f1c; stroke-width: 5; }
+                  .cd-label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .cd-small { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .cd-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="44" class="cd-title">nums</text>
+              <rect x="110" y="18" width="64" height="48" rx="10" class="cd-cell" data-node="0" />
+              <rect x="190" y="18" width="64" height="48" rx="10" class="cd-cell" data-node="1" />
+              <rect x="270" y="18" width="64" height="48" rx="10" class="cd-cell" data-node="2" />
+              <rect x="350" y="18" width="64" height="48" rx="10" class="cd-cell" data-node="3" />
+              <text x="142" y="49" text-anchor="middle" class="cd-label">1</text>
+              <text x="222" y="49" text-anchor="middle" class="cd-label">2</text>
+              <text x="302" y="49" text-anchor="middle" class="cd-label">3</text>
+              <text x="382" y="49" text-anchor="middle" class="cd-label">1</text>
+              <text x="142" y="84" text-anchor="middle" class="cd-small">i = 0</text>
+              <text x="222" y="84" text-anchor="middle" class="cd-small">i = 1</text>
+              <text x="302" y="84" text-anchor="middle" class="cd-small">i = 2</text>
+              <text x="382" y="84" text-anchor="middle" class="cd-small">i = 3</text>
+              <text x="14" y="128" class="cd-title">seen (8 slots, slot = hash(x) mod 8)</text>
+              <rect x="14" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="0" />
+              <rect x="77" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="1" />
+              <rect x="140" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="2" />
+              <rect x="203" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="3" />
+              <rect x="266" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="4" />
+              <rect x="329" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="5" />
+              <rect x="392" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="6" />
+              <rect x="455" y="142" width="54" height="50" rx="9" class="cd-slot" data-slot="7" />
+              <text x="104" y="174" text-anchor="middle" class="cd-label" data-slot-text="1"></text>
+              <text x="167" y="174" text-anchor="middle" class="cd-label" data-slot-text="2"></text>
+              <text x="230" y="174" text-anchor="middle" class="cd-label" data-slot-text="3"></text>
+              <text x="41" y="212" text-anchor="middle" class="cd-small">0</text>
+              <text x="104" y="212" text-anchor="middle" class="cd-small">1</text>
+              <text x="167" y="212" text-anchor="middle" class="cd-small">2</text>
+              <text x="230" y="212" text-anchor="middle" class="cd-small">3</text>
+              <text x="293" y="212" text-anchor="middle" class="cd-small">4</text>
+              <text x="356" y="212" text-anchor="middle" class="cd-small">5</text>
+              <text x="419" y="212" text-anchor="middle" class="cd-small">6</text>
+              <text x="482" y="212" text-anchor="middle" class="cd-small">7</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current element / slot being probed</span>
+            <span><i class="dot dot-green"></i> stored in seen</span>
+            <span><i class="dot dot-blue"></i> already processed</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="cd-step-title">Initial state</h3>
+          <p id="cd-step-text">Create an empty set.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="cd-prev">Previous</button>
+            <button type="button" id="cd-play" class="primary">Resume</button>
+            <button type="button" id="cd-next">Next</button>
+            <button type="button" id="cd-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="cd-step-counter">Step 0 / 7</span>
+            <div class="progress"><span id="cd-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i</strong><div class="state-value" id="cd-i">—</div></div>
+            <div class="state-box"><strong>x</strong><div class="state-value" id="cd-x">—</div></div>
+            <div class="state-box"><strong>slot probed</strong><div class="state-value" id="cd-slot">—</div></div>
+            <div class="state-box"><strong>x in seen?</strong><div class="state-value" id="cd-in">—</div></div>
+            <div class="state-box"><strong>seen</strong><div class="state-value" id="cd-seen">{}</div></div>
+            <div class="state-box"><strong>returns</strong><div class="state-value" id="cd-ret">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="cd-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="cd-trace-table">
+          <thead>
+            <tr><th>Step</th><th>i</th><th>x</th><th>Action</th><th>x in seen?</th><th>seen after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td><code>seen = set()</code></td><td>—</td><td><code>{}</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>1</td><td>Probe slot 1: empty</td><td>no</td><td><code>{}</code></td></tr>
+            <tr data-step="2"><td>2</td><td>0</td><td>1</td><td><code>seen.add(1)</code></td><td>—</td><td><code>{1}</code></td></tr>
+            <tr data-step="3"><td>3</td><td>1</td><td>2</td><td>Probe slot 2: empty</td><td>no</td><td><code>{1}</code></td></tr>
+            <tr data-step="4"><td>4</td><td>1</td><td>2</td><td><code>seen.add(2)</code></td><td>—</td><td><code>{1, 2}</code></td></tr>
+            <tr data-step="5"><td>5</td><td>2</td><td>3</td><td>Probe slot 3: empty</td><td>no</td><td><code>{1, 2}</code></td></tr>
+            <tr data-step="6"><td>6</td><td>2</td><td>3</td><td><code>seen.add(3)</code></td><td>—</td><td><code>{1, 2, 3}</code></td></tr>
+            <tr data-step="7"><td>7</td><td>3</td><td>1</td><td>Probe slot 1: holds 1, return <code>True</code></td><td>yes</td><td><code>{1, 2, 3}</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>The set is a notebook of everything already passed. Each new element asks the notebook one question and gets an answer in one step, instead of re-reading the array behind it.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Using a list for <code>seen</code>. <code>x in some_list</code> walks the list, so the "one pass" is secretly O(n²), the same as the brute force.</p>
+        </div>
+        <div class="card">
+          <h4>Why a hash set</h4>
+          <p>The notebook measures it: on all-distinct input the pairwise brute force grew about 3 to 4x per doubling of <code>n</code>, the set version about 2x. You pay O(n) memory for that.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: look up the complement (Two Sum)</h2>
+      <p>Same loop, different key. The value that would finish a pair with <code>x</code> is <code>need = target - x</code>, so look that up. The answer needs indices, so the memory is a <code>dict</code> from value to index. Code from the notebook's <code>two_sum_optimal</code>, traced on <code>nums = [3, 2, 4]</code>, <code>target = 6</code>.</p>
+      <div class="code-block stepped">
+        <code id="ts-code">
+<span class="code-line" data-line="1">def two_sum_optimal(nums: List[int], target: int) -&gt; List[int]:</span>
+<span class="code-line" data-line="2">    seen = {}                              # value -&gt; index, for numbers we've already passed</span>
+<span class="code-line" data-line="3">    for i, x in enumerate(nums):</span>
+<span class="code-line" data-line="4">        need = target - x                  # the partner that would complete the pair</span>
+<span class="code-line" data-line="5">        if need in seen:                   # have we already passed that partner?</span>
+<span class="code-line" data-line="6">            return [seen[need], i]         # yes -&gt; we found the pair</span>
+<span class="code-line" data-line="7">        seen[x] = i                        # no -&gt; remember x so a future number can find it</span>
+<span class="code-line" data-line="8">    return []</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive complement-lookup trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="ts-graph" viewBox="0 0 520 240" width="100%" role="img" aria-label="Two Sum trace: array 3, 2, 4 with target 6 and an 8-slot hash map">
+              <defs>
+                <style>
+                  .ts-cell { fill: #c8d2e7; transition: fill 0.2s ease; }
+                  .ts-cell.done { fill: #315efb; }
+                  .ts-cell.current { fill: #ff9f1c; }
+                  .ts-cell.found { fill: #13a46b; }
+                  .ts-slot { fill: #eef2fa; stroke: #c8d2e7; stroke-width: 2; transition: fill 0.2s ease; }
+                  .ts-slot.filled { fill: #13a46b; stroke: #13a46b; }
+                  .ts-slot.probe { stroke: #ff9f1c; stroke-width: 5; }
+                  .ts-label { font: 700 18px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .ts-entry { font: 700 15px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .ts-small { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+                  .ts-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                </style>
+              </defs>
+              <text x="14" y="44" class="ts-title">nums</text>
+              <rect x="150" y="18" width="64" height="48" rx="10" class="ts-cell" data-node="0" />
+              <rect x="230" y="18" width="64" height="48" rx="10" class="ts-cell" data-node="1" />
+              <rect x="310" y="18" width="64" height="48" rx="10" class="ts-cell" data-node="2" />
+              <text x="182" y="49" text-anchor="middle" class="ts-label">3</text>
+              <text x="262" y="49" text-anchor="middle" class="ts-label">2</text>
+              <text x="342" y="49" text-anchor="middle" class="ts-label">4</text>
+              <text x="182" y="84" text-anchor="middle" class="ts-small">i = 0</text>
+              <text x="262" y="84" text-anchor="middle" class="ts-small">i = 1</text>
+              <text x="342" y="84" text-anchor="middle" class="ts-small">i = 2</text>
+              <text x="420" y="49" class="ts-title">target = 6</text>
+              <text x="14" y="128" class="ts-title">seen: value → index (8 slots, slot = hash(value) mod 8)</text>
+              <rect x="14" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="0" />
+              <rect x="77" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="1" />
+              <rect x="140" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="2" />
+              <rect x="203" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="3" />
+              <rect x="266" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="4" />
+              <rect x="329" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="5" />
+              <rect x="392" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="6" />
+              <rect x="455" y="142" width="54" height="50" rx="9" class="ts-slot" data-slot="7" />
+              <text x="167" y="173" text-anchor="middle" class="ts-entry" data-slot-text="2"></text>
+              <text x="230" y="173" text-anchor="middle" class="ts-entry" data-slot-text="3"></text>
+              <text x="41" y="212" text-anchor="middle" class="ts-small">0</text>
+              <text x="104" y="212" text-anchor="middle" class="ts-small">1</text>
+              <text x="167" y="212" text-anchor="middle" class="ts-small">2</text>
+              <text x="230" y="212" text-anchor="middle" class="ts-small">3</text>
+              <text x="293" y="212" text-anchor="middle" class="ts-small">4</text>
+              <text x="356" y="212" text-anchor="middle" class="ts-small">5</text>
+              <text x="419" y="212" text-anchor="middle" class="ts-small">6</text>
+              <text x="482" y="212" text-anchor="middle" class="ts-small">7</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current element / slot probed for <code>need</code></span>
+            <span><i class="dot dot-green"></i> stored in seen / partner found</span>
+            <span><i class="dot dot-blue"></i> already processed</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="ts-step-title">Initial state</h3>
+          <p id="ts-step-text">Create an empty dict.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ts-prev">Previous</button>
+            <button type="button" id="ts-play" class="primary">Resume</button>
+            <button type="button" id="ts-next">Next</button>
+            <button type="button" id="ts-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ts-step-counter">Step 0 / 5</span>
+            <div class="progress"><span id="ts-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>i</strong><div class="state-value" id="ts-i">—</div></div>
+            <div class="state-box"><strong>x</strong><div class="state-value" id="ts-x">—</div></div>
+            <div class="state-box"><strong>need = 6 - x</strong><div class="state-value" id="ts-need">—</div></div>
+            <div class="state-box"><strong>need in seen?</strong><div class="state-value" id="ts-in">—</div></div>
+            <div class="state-box"><strong>seen</strong><div class="state-value" id="ts-seen">{}</div></div>
+            <div class="state-box"><strong>returns</strong><div class="state-value" id="ts-ret">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ts-detail"><strong>What changed:</strong> nothing yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="ts-trace-table">
+          <thead>
+            <tr><th>Step</th><th>i</th><th>x</th><th>need</th><th>Action</th><th>seen after</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>—</td><td>—</td><td>—</td><td><code>seen = {}</code></td><td><code>{}</code></td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>3</td><td>3</td><td><code>3 in seen</code>? no (seen is empty)</td><td><code>{}</code></td></tr>
+            <tr data-step="2"><td>2</td><td>0</td><td>3</td><td>3</td><td><code>seen[3] = 0</code></td><td><code>{3: 0}</code></td></tr>
+            <tr data-step="3"><td>3</td><td>1</td><td>2</td><td>4</td><td><code>4 in seen</code>? no</td><td><code>{3: 0}</code></td></tr>
+            <tr data-step="4"><td>4</td><td>1</td><td>2</td><td>4</td><td><code>seen[2] = 1</code></td><td><code>{3: 0, 2: 1}</code></td></tr>
+            <tr data-step="5"><td>5</td><td>2</td><td>4</td><td>2</td><td><code>2 in seen</code>? yes, return <code>[seen[2], 2] = [1, 2]</code></td><td><code>{3: 0, 2: 1}</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Each number arrives asking "is my partner already here?" The pair is found when its <em>second</em> member arrives, because the first one was stored on the way past.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Storing <code>seen[x] = i</code> before the lookup. At step 1, <code>x = 3</code> and <code>need = 3</code>: if 3 were already stored, the code would return <code>[0, 0]</code>, using one element twice.</p>
+        </div>
+        <div class="card">
+          <h4>Why a dict, not a set</h4>
+          <p>The problem asks for indices. A set could say "the partner exists" but not where. The dict keeps the index next to the key at no extra lookup cost.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Pair of equal values</button>
+        <button type="button" data-example-tab="1">Single element</button>
+        <button type="button" data-example-tab="2">Box-only repeat</button>
+        <button type="button" data-example-tab="3">Duplicates in a run</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: Two Sum with equal values</h3>
+          <p><code>nums = [3, 3]</code>, <code>target = 6</code></p>
+          <div class="result-badge">Answer = [0, 1]</div>
+          <p class="footer-note">At <code>i = 0</code> the dict is empty, so 3 is stored. At <code>i = 1</code>, <code>need = 3</code> is found at index 0. Check-before-store is what makes this work without pairing an element with itself.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: Contains Duplicate with one element</h3>
+          <p><code>nums = [1]</code></p>
+          <div class="result-badge">Answer = False</div>
+          <p class="footer-note">One lookup in an empty set, one insert, the loop ends, <code>return False</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: Valid Sudoku, repeat that only a box sees</h3>
+          <p>A 2 at <code>(3, 3)</code> and another 2 at <code>(5, 5)</code>, rest of the board empty.</p>
+          <div class="result-badge">Answer = False</div>
+          <p class="footer-note">Different rows, different columns, but both in box <code>(1, 1)</code>. Checking only row and column sets misses it. Walk through the 4×4 version on <a href="valid_sudoku.html">the Valid Sudoku page</a>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: Longest Consecutive Sequence with repeats</h3>
+          <p><code>nums = [5, 5, 5]</code> and <code>nums = []</code></p>
+          <div class="result-badge">Answers = 1 and 0</div>
+          <p class="footer-note"><code>set(nums)</code> removes the repeats, so the run <code>[5]</code> is counted once. The empty list never enters the loop and returns the initial <code>best = 0</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Problem</th><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Contains Duplicate</td><td>Compare every pair</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>The inner loop only searches for <code>x</code>.</td></tr>
+            <tr><td>Contains Duplicate</td><td>Sort, compare neighbours</td><td><code>O(n log n)</code></td><td><code>O(n)</code> (<code>sorted</code>)</td><td>Equal values become adjacent.</td></tr>
+            <tr><td>Contains Duplicate</td><td>Hash set (Method 1)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Key = <code>x</code>.</td></tr>
+            <tr><td>Two Sum</td><td>Compare every pair</td><td><code>O(n²)</code></td><td><code>O(1)</code></td><td>Inner loop searches for <code>target - x</code>.</td></tr>
+            <tr><td>Two Sum</td><td>Sort + two pointers</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td><td>Must carry original indices through the sort.</td></tr>
+            <tr><td>Two Sum</td><td>Hash map (Method 2)</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Key = <code>target - x</code>, value = index.</td></tr>
+            <tr><td>Valid Sudoku (<code>n×n</code> board)</td><td>Rescan row, column, box per cell</td><td><code>O(n³)</code></td><td><code>O(1)</code></td><td><code>O(1)</code> on the fixed 9×9 board.</td></tr>
+            <tr><td>Valid Sudoku (<code>n×n</code> board)</td><td>Three families of sets</td><td><code>O(n²)</code></td><td><code>O(n²)</code></td><td>Key = digit, one set per row, column, box.</td></tr>
+            <tr><td>Longest Consecutive</td><td>Sort, scan runs</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td><td>Runs become adjacent after sorting.</td></tr>
+            <tr><td>Longest Consecutive</td><td>Set, grow from run starts</td><td><code>O(n)</code></td><td><code>O(n)</code></td><td>Probe <code>x - 1</code> and <code>x + length</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">All complexities come from the four notebooks in this folder; "O(1)" for a hash operation means average case.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>State the brute force: for each element, scan the others. O(n²).</p></div>
+            <div class="timeline-step"><p>Notice the inner scan only looks for one specific value: <code>x</code>, <code>target - x</code>, the same digit in this row.</p></div>
+            <div class="timeline-step"><p>A hash set finds a value in O(1) on average, so keep one of everything already passed.</p></div>
+            <div class="timeline-step"><p>Look up first, record second. Pick <code>dict</code> if the answer needs more than yes or no.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"The brute force compares every pair, O(n²). Its inner loop is just a search, so I'll replace it with a hash set lookup."</li>
+            <li>"For each element I ask the set for the value that would answer the question, and only then add the element, so it can't match itself."</li>
+            <li>"I need the index back, so I'll use a dict from value to index."</li>
+            <li>"One pass with O(1) average lookups: O(n) time, O(n) extra space. If memory were tight I'd sort instead, O(n log n)."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Membership (Contains Duplicate, Valid Sudoku)</h3>
+          <ul class="mistake-list">
+            <li>Using a <code>list</code> for <code>seen</code>: <code>in</code> becomes an O(n) scan.</li>
+            <li>Adding before checking, so every value finds itself.</li>
+            <li>Valid Sudoku: forgetting to skip <code>"."</code>, or skipping the box check.</li>
+            <li>Valid Sudoku: a box id like <code>r // 3 + c // 3</code> that maps two boxes to one key.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Lookup by key (Two Sum, Longest Consecutive)</h3>
+          <ul class="mistake-list">
+            <li>Two Sum: storing <code>x</code> before looking up <code>target - x</code>, which can return the same index twice.</li>
+            <li>Two Sum: sorting first and losing the original indices.</li>
+            <li>Longest Consecutive: counting a run from every element instead of only from starts (<code>x - 1</code> missing), which is O(n²) on one long run.</li>
+            <li>Longest Consecutive: looping over <code>nums</code> with its duplicates instead of over the set.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>Try each in your head first. Open the hint, then the answer, only after you commit to a guess. Each links to the problem's interactive page.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Two Sum: <code>nums = [2, 7, 11, 15]</code>, <code>target = 9</code>. At which index is the pair found, and what is in <code>seen</code> at that moment?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the pair is found when its second member arrives.</p>
+          <p style="margin-top:10px;">Answer: at <code>i = 1</code> (<code>x = 7</code>, <code>need = 2</code>), with <code>seen = {2: 0}</code>. Returns <code>[0, 1]</code>. Step through it: <a href="two_sum.html">Two Sum</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Valid Sudoku: which sets does cell <code>(4, 7)</code> check, and what is its box id?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> box id = <code>(r // 3, c // 3)</code>.</p>
+          <p style="margin-top:10px;">Answer: <code>rows[4]</code>, <code>cols[7]</code> and <code>boxes[(1, 2)]</code>, the middle-right box. The digit is added to all three only if none of them holds it. See both solutions traced: <a href="valid_sudoku.html">Valid Sudoku</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Longest Consecutive Sequence: in <code>[100, 4, 200, 1, 3, 2]</code>, which numbers start a run?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> <code>x</code> starts a run when <code>x - 1</code> is not in the set.</p>
+          <p style="margin-top:10px;">Answer: <code>100</code>, <code>200</code> and <code>1</code>. Only 1 grows far: 1, 2, 3, 4, so the answer is 4. 2, 3 and 4 never start a count, which keeps the total work O(n). Walkthrough: <a href="longest_consecutive_sequence.html">Longest Consecutive Sequence</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Contains Duplicate: why is <code>if x in seen</code> with <code>seen = []</code> (a list) still O(n²)?</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> how does a list find a value?</p>
+          <p style="margin-top:10px;">Answer: a list has no hash table; <code>in</code> compares against every stored element. With all-distinct input, the i-th check scans i elements, about n²/2 in total: the brute force in disguise. Compare the approaches on <a href="contains_duplicate.html">Contains Duplicate</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Name the key, check the memory, then record.</strong>
+          Contains Duplicate looks up <code>x</code>, Two Sum looks up <code>target - x</code>, Valid Sudoku looks up the digit in three sets at once, Longest Consecutive Sequence looks up <code>x - 1</code> and <code>x + length</code>. Same O(1) lookup each time, and the nested loop becomes a single pass.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Hash Lookup pattern notes</a>. Code and trace values are taken from this folder's notebooks.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of contains_duplicate_set on [1, 2, 3, 1].
+      const cdSteps = [
+        { step: 0, title: 'Initial state', text: 'Create an empty set. Nothing has been read yet.', i: '—', x: '—', slot: '—', inSeen: '—', seen: '{}', ret: '—', detail: 'seen is empty; all 8 slots are free.', done: [], current: null, filled: [], probe: null, lines: [2] },
+        { step: 1, title: 'Step 1: read 1', text: 'x = 1. Ask the set: is 1 in seen?', i: '0', x: '1', slot: '1', inSeen: 'no', seen: '{}', ret: '—', detail: 'hash(1) mod 8 = 1. Slot 1 is empty, so 1 is new. One probe, no scan.', done: [], current: 0, filled: [], probe: 1, lines: [3, 4] },
+        { step: 2, title: 'Step 2: remember 1', text: 'Not a duplicate, so add 1 to the set.', i: '0', x: '1', slot: '1', inSeen: 'no', seen: '{1}', ret: '—', detail: '1 now sits in slot 1.', done: [], current: 0, filled: [1], probe: null, lines: [6] },
+        { step: 3, title: 'Step 3: read 2', text: 'x = 2. Is 2 in seen?', i: '1', x: '2', slot: '2', inSeen: 'no', seen: '{1}', ret: '—', detail: 'Slot 2 is empty: 2 is new.', done: [0], current: 1, filled: [1], probe: 2, lines: [3, 4] },
+        { step: 4, title: 'Step 4: remember 2', text: 'Add 2 to the set.', i: '1', x: '2', slot: '2', inSeen: 'no', seen: '{1, 2}', ret: '—', detail: '2 now sits in slot 2.', done: [0], current: 1, filled: [1, 2], probe: null, lines: [6] },
+        { step: 5, title: 'Step 5: read 3', text: 'x = 3. Is 3 in seen?', i: '2', x: '3', slot: '3', inSeen: 'no', seen: '{1, 2}', ret: '—', detail: 'Slot 3 is empty: 3 is new.', done: [0, 1], current: 2, filled: [1, 2], probe: 3, lines: [3, 4] },
+        { step: 6, title: 'Step 6: remember 3', text: 'Add 3 to the set.', i: '2', x: '3', slot: '3', inSeen: 'no', seen: '{1, 2, 3}', ret: '—', detail: '3 now sits in slot 3.', done: [0, 1], current: 2, filled: [1, 2, 3], probe: null, lines: [6] },
+        { step: 7, title: 'Step 7: read 1 again', text: 'x = 1. Is 1 in seen? Slot 1 already holds 1: return True.', i: '3', x: '1', slot: '1', inSeen: 'yes', seen: '{1, 2, 3}', ret: 'True', detail: 'Found with one probe. The brute force would have compared index 3 against indices 0, 1 and 2.', done: [0, 1, 2], current: 3, filled: [1, 2, 3], probe: 1, lines: [3, 4, 5] }
+      ];
+
+      // Ground truth: instrumented run of two_sum_optimal on [3, 2, 4], target 6.
+      const tsSteps = [
+        { step: 0, title: 'Initial state', text: 'Create an empty dict: value -> index.', i: '—', x: '—', need: '—', inSeen: '—', seen: '{}', ret: '—', detail: 'Nothing stored yet.', done: [], current: null, found: null, entries: {}, probe: null, lines: [2] },
+        { step: 1, title: 'Step 1: i = 0, x = 3', text: 'need = 6 - 3 = 3. Is 3 in seen?', i: '0', x: '3', need: '3', inSeen: 'no', seen: '{}', ret: '—', detail: 'Probe slot 3: empty. Note need equals x here; because 3 is not stored yet, it cannot pair with itself.', done: [], current: 0, found: null, entries: {}, probe: 3, lines: [3, 4, 5] },
+        { step: 2, title: 'Step 2: store 3 -> 0', text: 'No partner yet, so remember x = 3 at index 0.', i: '0', x: '3', need: '3', inSeen: 'no', seen: '{3: 0}', ret: '—', detail: 'Slot 3 now holds 3 -> 0.', done: [], current: 0, found: null, entries: { 3: '3→0' }, probe: null, lines: [7] },
+        { step: 3, title: 'Step 3: i = 1, x = 2', text: 'need = 6 - 2 = 4. Is 4 in seen?', i: '1', x: '2', need: '4', inSeen: 'no', seen: '{3: 0}', ret: '—', detail: 'Probe slot 4: empty. No 4 has been passed.', done: [0], current: 1, found: null, entries: { 3: '3→0' }, probe: 4, lines: [3, 4, 5] },
+        { step: 4, title: 'Step 4: store 2 -> 1', text: 'Remember x = 2 at index 1.', i: '1', x: '2', need: '4', inSeen: 'no', seen: '{3: 0, 2: 1}', ret: '—', detail: 'Slot 2 now holds 2 -> 1.', done: [0], current: 1, found: null, entries: { 3: '3→0', 2: '2→1' }, probe: null, lines: [7] },
+        { step: 5, title: 'Step 5: i = 2, x = 4', text: 'need = 6 - 4 = 2. Is 2 in seen? Yes, at index 1: return [1, 2].', i: '2', x: '4', need: '2', inSeen: 'yes', seen: '{3: 0, 2: 1}', ret: '[1, 2]', detail: 'Slot 2 holds 2 -> 1. nums[1] + nums[2] = 2 + 4 = 6.', done: [0], current: 2, found: 1, entries: { 3: '3→0', 2: '2→1' }, probe: 2, lines: [3, 4, 5, 6] }
+      ];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          const lineNo = Number(line.dataset.line);
+          line.classList.toggle('active', lines.includes(lineNo));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function colorCells(svgId, step) {
+        document.querySelectorAll(`#${svgId} [data-node]`).forEach((cell) => {
+          const id = Number(cell.dataset.node);
+          cell.classList.remove('done', 'current', 'found');
+          if (step.done.includes(id)) cell.classList.add('done');
+          if (step.current === id) cell.classList.add('current');
+          if (step.found === id) cell.classList.add('found');
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+          stop();
+          if (index > 0) index -= 1;
+          update();
+        });
+
+        nextBtn.addEventListener('click', () => {
+          stop();
+          if (index < steps.length - 1) index += 1;
+          update();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          stop();
+          index = 0;
+          update();
+        });
+
+        playBtn.addEventListener('click', () => {
+          if (timer) {
+            stop();
+            return;
+          }
+          if (index >= steps.length - 1) {
+            index = 0;
+            update();
+          }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) {
+              stop();
+              return;
+            }
+            index += 1;
+            update();
+          }, 1700);
+        });
+
+        update();
+      }
+
+      function renderCD(step, index, max) {
+        document.getElementById('cd-step-title').textContent = step.title;
+        document.getElementById('cd-step-text').textContent = step.text;
+        document.getElementById('cd-i').textContent = step.i;
+        document.getElementById('cd-x').textContent = step.x;
+        document.getElementById('cd-slot').textContent = step.slot;
+        document.getElementById('cd-in').textContent = step.inSeen;
+        document.getElementById('cd-seen').textContent = step.seen;
+        document.getElementById('cd-ret').textContent = step.ret;
+        document.getElementById('cd-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('cd-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('cd-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('cd-trace-table', step.step);
+        setCodeHighlight('cd-code', step.lines);
+        colorCells('cd-graph', step);
+        document.querySelectorAll('#cd-graph [data-slot]').forEach((slot) => {
+          const k = Number(slot.dataset.slot);
+          slot.classList.toggle('filled', step.filled.includes(k));
+          slot.classList.toggle('probe', step.probe === k);
+        });
+        document.querySelectorAll('#cd-graph [data-slot-text]').forEach((t) => {
+          const k = Number(t.dataset.slotText);
+          t.textContent = step.filled.includes(k) ? String(k) : '';
+        });
+      }
+
+      function renderTS(step, index, max) {
+        document.getElementById('ts-step-title').textContent = step.title;
+        document.getElementById('ts-step-text').textContent = step.text;
+        document.getElementById('ts-i').textContent = step.i;
+        document.getElementById('ts-x').textContent = step.x;
+        document.getElementById('ts-need').textContent = step.need;
+        document.getElementById('ts-in').textContent = step.inSeen;
+        document.getElementById('ts-seen').textContent = step.seen;
+        document.getElementById('ts-ret').textContent = step.ret;
+        document.getElementById('ts-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('ts-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('ts-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('ts-trace-table', step.step);
+        setCodeHighlight('ts-code', step.lines);
+        colorCells('ts-graph', step);
+        document.querySelectorAll('#ts-graph [data-slot]').forEach((slot) => {
+          const k = Number(slot.dataset.slot);
+          slot.classList.toggle('filled', k in step.entries);
+          slot.classList.toggle('probe', step.probe === k);
+        });
+        document.querySelectorAll('#ts-graph [data-slot-text]').forEach((t) => {
+          const k = t.dataset.slotText;
+          t.textContent = step.entries[k] || '';
+        });
+      }
+
+      setupTrace({ steps: cdSteps, prefix: 'cd', render: renderCD });
+      setupTrace({ steps: tsSteps, prefix: 'ts', render: renderTS });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

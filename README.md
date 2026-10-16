@@ -68,7 +68,7 @@ Each notebook finds `bench_utils.py` by walking up from its own folder, so you c
 To run a notebook top to bottom without opening Jupyter (this also refreshes its saved outputs):
 
 ```bash
-uvx --python 3.12 --with ipykernel --from nbconvert jupyter-nbconvert --to notebook --execute --inplace \
+uvx --python 3.12 --with ipykernel --with matplotlib --from nbconvert jupyter-nbconvert --to notebook --execute --inplace \
     --ExecutePreprocessor.kernel_name=python3 "<path/to/notebook.ipynb>"
 ```
 

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Temperatures — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:8px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:20px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:48px;height:48px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;transition:.15s}
+  .box.small{height:36px;font-size:15px}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:40px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:13px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.seen{background:var(--seen);border-color:var(--seen-bd)} .bar.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .bar.dim{opacity:.35}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .chip.new{background:var(--hi);border-color:var(--hi-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_monotonic_stack_lesson.html">← Monotonic Stack lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Stack · Monotonic Stack</span></div>
+<h1>739 · Daily Temperatures</h1>
+<p class="lead">For every day: how long until it gets warmer?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">You have a list of daily temperatures. For each day, count how many days you must wait until a <b>warmer</b> day comes. If no warmer day ever comes, write 0.</p>
+<div class="idea">Example: <code>[73, 74, 75, 71, 69, 72, 76, 73]</code> &rarr; <code>[1, 1, 4, 2, 1, 1, 0, 0]</code>. Day 2 (75°) waits 4 days, until 76° on day 6.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>the day we are answering</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>looked at / waiting</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>its warmer day</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>no warmer day ever</span></div>
+<div class="rowlabel">temperatures</div><div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The answer for a day is a <b>distance</b>: the index of its warmer day minus its own index.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: look right from every day</h2>
+<div class="idea">For each day, walk to the right one day at a time until you find a warmer one. Simple, but a day with no warmer day walks all the way to the end.</div>
+<div class="rowlabel">temperatures</div><div class="viz" id="br-viz"></div>
+<div class="rowlabel">answer</div><div class="viz" id="br-res"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each day may scan everything after it, so it gets slow fast — <code>O(n²)</code> time, <code>O(1)</code> extra memory.</p>
+<div class="trace-title">Step-by-step trace — temperatures = [73, 74, 75, 71, 69, 72, 76, 73]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>i</th><th>temp</th><th>days scanned (j)</th><th>first warmer</th><th>res[i]</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>73</td><td>1</td><td>day 1 (74)</td><td>1</td><td class="rule">Found at once &rarr; 1 - 0 = 1</td></tr>
+  <tr><td>2</td><td>1</td><td>74</td><td>2</td><td>day 2 (75)</td><td>1</td><td class="rule">Found at once &rarr; 1</td></tr>
+  <tr><td>3</td><td>2</td><td>75</td><td>3, 4, 5, 6</td><td>day 6 (76)</td><td>4</td><td class="rule">71, 69, 72 are cooler &rarr; 6 - 2 = 4</td></tr>
+  <tr><td>4</td><td>3</td><td>71</td><td>4, 5</td><td>day 5 (72)</td><td>2</td><td class="rule">69 is cooler &rarr; 5 - 3 = 2</td></tr>
+  <tr><td>5</td><td>4</td><td>69</td><td>5</td><td>day 5 (72)</td><td>1</td><td class="rule">Found at once &rarr; 1</td></tr>
+  <tr><td>6</td><td>5</td><td>72</td><td>6</td><td>day 6 (76)</td><td>1</td><td class="rule">Found at once &rarr; 1</td></tr>
+  <tr><td>7</td><td>6</td><td>76</td><td>7</td><td>none</td><td>0</td><td class="rule">73 is cooler, end of list &rarr; 0</td></tr>
+  <tr class="final"><td>8</td><td>7</td><td>73</td><td>(none)</td><td>none</td><td>0</td><td>Last day: nothing after it &rarr; 0. Answer [1, 1, 4, 2, 1, 1, 0, 0]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Right to left, jumping along known answers</h2>
+<div class="idea">Fill the answers from the <b>last</b> day backwards. If the next day is not warmer, you don't need to check the days it was waiting through: jump straight to <i>its</i> warmer day, which you already know. If it has none, neither do you.</div>
+<div class="rowlabel">temperatures</div><div class="viz" id="jp-viz"></div>
+<div class="rowlabel">answer (filled right to left)</div><div class="viz" id="jp-res"></div>
+<div class="caption" id="jp-cap"></div>
+<div class="controls" data-player="jp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="jp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> the jumps skip whole stretches, so the total work is <code>O(n)</code> (amortized) with <code>O(1)</code> extra memory — but it is harder to prove than the stack.</p>
+<div class="trace-title">Step-by-step trace — temperatures = [73, 74, 75, 71, 69, 72, 76, 73]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>i</th><th>temp</th><th>j visited (jump path)</th><th>res[i]</th><th>Decision</th></tr>
+  <tr><td>1</td><td>6</td><td>76</td><td>7 &rarr; end</td><td>0</td><td class="rule">73 &le; 76 and res[7] = 0 &rarr; no warmer day</td></tr>
+  <tr><td>2</td><td>5</td><td>72</td><td>6</td><td>1</td><td class="rule">76 &gt; 72 &rarr; 1</td></tr>
+  <tr><td>3</td><td>4</td><td>69</td><td>5</td><td>1</td><td class="rule">72 &gt; 69 &rarr; 1</td></tr>
+  <tr><td>4</td><td>3</td><td>71</td><td>4 &rarr; 5</td><td>2</td><td class="rule">69 &le; 71, jump by res[4] = 1 to day 5 (72) &rarr; 2</td></tr>
+  <tr><td>5</td><td>2</td><td>75</td><td>3 &rarr; 5 &rarr; 6</td><td>4</td><td class="rule">71 and 72 &le; 75, jump twice to day 6 (76) &rarr; 4</td></tr>
+  <tr><td>6</td><td>1</td><td>74</td><td>2</td><td>1</td><td class="rule">75 &gt; 74 &rarr; 1</td></tr>
+  <tr class="final"><td>7</td><td>0</td><td>73</td><td>1</td><td>1</td><td>74 &gt; 73 &rarr; 1. Answer [1, 1, 4, 2, 1, 1, 0, 0]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: a stack of days still waiting</h2>
+<div class="idea">Walk left to right. Keep a stack of the days that have not found a warmer day yet; their temperatures only go down from bottom to top. Each new day pops every cooler day from the top — it <b>is</b> their warmer day — and writes the distance. Then it waits on the stack itself.</div>
+<div class="rowlabel">temperatures</div><div class="viz" id="st-viz"></div>
+<div class="mem"><h4>stack of waiting days — index (temp), top on the right</h4><div class="chips" id="st-stack"></div></div>
+<div class="rowlabel">answer</div><div class="viz" id="st-res"></div>
+<div class="caption" id="st-cap"></div>
+<div class="controls" data-player="st"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="st-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every day is pushed once and popped at most once — <code>O(n)</code> time; the stack can hold every day — <code>O(n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — temperatures = [73, 74, 75, 71, 69, 72, 76, 73]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>i</th><th>temp</th><th>popped (j &rarr; res[j])</th><th>stack after: index (temp)</th><th>Decision</th></tr>
+  <tr><td>1</td><td>0</td><td>73</td><td>—</td><td>0 (73)</td><td class="rule">Stack empty &rarr; push 0</td></tr>
+  <tr><td>2</td><td>1</td><td>74</td><td>0 &rarr; 1</td><td>1 (74)</td><td class="rule">74 &gt; 73: day 0 waited 1 day</td></tr>
+  <tr><td>3</td><td>2</td><td>75</td><td>1 &rarr; 1</td><td>2 (75)</td><td class="rule">75 &gt; 74: day 1 waited 1 day</td></tr>
+  <tr><td>4</td><td>3</td><td>71</td><td>—</td><td>2 (75), 3 (71)</td><td class="rule">71 is not warmer than 75 &rarr; push</td></tr>
+  <tr><td>5</td><td>4</td><td>69</td><td>—</td><td>2 (75), 3 (71), 4 (69)</td><td class="rule">69 &lt; 71 &rarr; push</td></tr>
+  <tr><td>6</td><td>5</td><td>72</td><td>4 &rarr; 1, 3 &rarr; 2</td><td>2 (75), 5 (72)</td><td class="rule">72 beats 69 and 71; not 75 &rarr; stop, push</td></tr>
+  <tr><td>7</td><td>6</td><td>76</td><td>5 &rarr; 1, 2 &rarr; 4</td><td>6 (76)</td><td class="rule">76 beats 72 and 75 &rarr; stack empties, push</td></tr>
+  <tr class="final"><td>8</td><td>7</td><td>73</td><td>—</td><td>6 (76), 7 (73)</td><td>End: days 6 and 7 never warm up, keep 0. Answer [1, 1, 4, 2, 1, 1, 0, 0]</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"how many days until"</b>, <b>"next warmer / greater / taller element"</b> or <b>"the first element to the right that beats this one"</b>? Keep the elements still waiting on a stack and let each new element pop the ones it beats.
+<p><a href="02_monotonic_stack_lesson.html">→ Monotonic Stack: the pattern lesson and the other problems that use it</a></p></div>
+
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1300);
+  });
+  draw();
+}
+function chips(targetId, items){
+  if(!items.length){ document.getElementById(targetId).innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+/* A row of boxes. marks: {index: class}; ptrs: {index: label}. */
+function row(vals, marks, ptrs, small){
+  marks=marks||{}; ptrs=ptrs||{};
+  var h='<div class="row">';
+  for(var k=0;k<vals.length;k++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[k]||'')+'</div><div class="box'+(small?' small':'')+' '+(marks[k]||'')+'">'+vals[k]+'</div><div class="idxlabel">'+k+'</div></div>';
+  }
+  return h+'</div>';
+}
+
+
+var T=[73,74,75,71,69,72,76,73];
+function M(o){ var m={}; for(var c in o){ o[c].forEach(function(k){ m[k]=c; }); } return m; }
+function R(res, marks){ return row(res, marks||{}, {}, true); }
+
+/* Problem demo */
+makePlayer('pd',[
+  {cap:'Eight days of temperatures. For each day, how long until it gets warmer?', m:{}, p:{}},
+  {cap:'Day 0 is 73°. The very next day is 74°, warmer &rarr; wait <b>1</b> day.', m:M({hi:[0],good:[1]}), p:{0:'i',1:'warmer'}},
+  {cap:'Day 2 is 75°. 71, 69, 72 are all cooler; 76 on day 6 is warmer &rarr; wait <b>6 - 2 = 4</b> days.', m:M({hi:[2],seen:[3,4,5],good:[6]}), p:{2:'i',6:'warmer'}},
+  {cap:'Day 6 is 76°. Only 73 comes after it &rarr; never warmer, answer <b>0</b>.', m:M({hi:[6],bad:[7]}), p:{6:'i'}},
+  {cap:'All answers: <b>[1, 1, 4, 2, 1, 1, 0, 0]</b>.', m:{}, p:{}}
+],function(f){ document.getElementById('pd-viz').innerHTML=row(T,f.m,f.p); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: one frame per day i (values from daily_temperatures_brute). */
+var BR=[[0,[1],1,1],[1,[2],2,1],[2,[3,4,5,6],6,4],[3,[4,5],5,2],[4,[5],5,1],[5,[6],6,1],[6,[7],-1,0],[7,[],-1,0]];
+var brFrames=[{cap:'Start: every answer is 0 until we find a warmer day.', m:{}, p:{}, res:[0,0,0,0,0,0,0,0], rm:{}}];
+var brRes=[0,0,0,0,0,0,0,0];
+BR.forEach(function(r){
+  var i=r[0], sc=r[1], j=r[2]; brRes=brRes.slice(); brRes[i]=r[3];
+  var seen=sc.filter(function(k){return k!==j;}), m=M({hi:[i],seen:seen}); var p={}; p[i]='i';
+  if(j>=0){ m[j]='good'; p[j]='j'; }
+  var cap = j>=0 ? 'Day '+i+' ('+T[i]+'°): scan '+sc.join(', ')+'. First warmer is day '+j+' ('+T[j]+'°) &rarr; res['+i+'] = '+r[3]+'.'
+                 : 'Day '+i+' ('+T[i]+'°): '+(sc.length?'scan '+sc.join(', ')+' to the end':'nothing after it')+', no warmer day &rarr; res['+i+'] = 0.';
+  var rm={}; rm[i]='hi';
+  brFrames.push({cap:cap, m:m, p:p, res:brRes, rm:rm});
+});
+makePlayer('br',brFrames,function(f){ document.getElementById('br-viz').innerHTML=row(T,f.m,f.p); document.getElementById('br-res').innerHTML=R(f.res,f.rm); document.getElementById('br-cap').innerHTML=f.cap; });
+
+/* Jump: one frame per i, right to left (values from daily_temperatures_jump). */
+var JP=[[6,[7],-1,0],[5,[6],6,1],[4,[5],5,1],[3,[4,5],5,2],[2,[3,5,6],6,4],[1,[2],2,1],[0,[1],1,1]];
+var jpFrames=[{cap:'Start from the right. Day 7 has nothing after it, so res[7] = 0 already.', m:{}, p:{}, res:[0,0,0,0,0,0,0,0], rm:{7:'bad'}}];
+var jpRes=[0,0,0,0,0,0,0,0];
+JP.forEach(function(r){
+  var i=r[0], path=r[1], j=r[2]; jpRes=jpRes.slice(); jpRes[i]=r[3];
+  var m=M({hi:[i],seen:path.filter(function(k){return k!==j;})}); var p={}; p[i]='i';
+  if(j>=0){ m[j]='good'; p[j]='warmer'; }
+  var cap;
+  if(j<0) cap='Day '+i+' ('+T[i]+'°): day 7 (73°) is not warmer and res[7] = 0, so nothing after it is warmer either &rarr; res[6] = 0.';
+  else if(path.length===1) cap='Day '+i+' ('+T[i]+'°): the next day ('+T[j]+'°) is warmer &rarr; res['+i+'] = 1.';
+  else cap='Day '+i+' ('+T[i]+'°): jump '+path.join(' &rarr; ')+' using the answers already filled in. Day '+j+' ('+T[j]+'°) is warmer &rarr; res['+i+'] = '+r[3]+'.';
+  var rm={}; rm[i]='hi';
+  jpFrames.push({cap:cap, m:m, p:p, res:jpRes, rm:rm});
+});
+jpFrames[jpFrames.length-1].cap+=' Done: <b>[1, 1, 4, 2, 1, 1, 0, 0]</b>.';
+makePlayer('jp',jpFrames,function(f){ document.getElementById('jp-viz').innerHTML=row(T,f.m,f.p); document.getElementById('jp-res').innerHTML=R(f.res,f.rm); document.getElementById('jp-cap').innerHTML=f.cap; });
+
+/* Monotonic stack: one frame per day (values from daily_temperatures_stack). */
+var ST=[[0,[],[0]],[1,[[0,1]],[1]],[2,[[1,1]],[2]],[3,[],[2,3]],[4,[],[2,3,4]],[5,[[4,1],[3,2]],[2,5]],[6,[[5,1],[2,4]],[6]],[7,[],[6,7]]];
+var stFrames=[{cap:'Empty stack; every answer starts at 0.', m:{}, p:{}, st:[], res:[0,0,0,0,0,0,0,0], rm:{}}];
+var stRes=[0,0,0,0,0,0,0,0];
+ST.forEach(function(r){
+  var i=r[0], pops=r[1], st=r[2]; stRes=stRes.slice(); var rm={};
+  pops.forEach(function(q){ stRes[q[0]]=q[1]; rm[q[0]]='good'; });
+  var popped=pops.map(function(q){return q[0];});
+  var m=M({seen:st.filter(function(k){return k!==i;}),good:popped}); m[i]='hi'; var p={}; p[i]='i';
+  var cap='Day '+i+' ('+T[i]+'°): ';
+  if(pops.length) cap+='warmer than '+pops.map(function(q){return 'day '+q[0]+' ('+T[q[0]]+'°) &rarr; res['+q[0]+'] = '+i+' - '+q[0]+' = '+q[1];}).join('; ')+'. ';
+  else cap+=(st.length===1?'stack is empty':'not warmer than the top ('+T[st[st.length-2]]+'°)')+', nothing to pop. ';
+  cap+='Push '+i+'.';
+  stFrames.push({cap:cap, m:m, p:p, st:st, res:stRes, rm:rm});
+});
+stFrames[stFrames.length-1].cap+=' Days 6 and 7 stay on the stack: no warmer day, answer 0. Result <b>[1, 1, 4, 2, 1, 1, 0, 0]</b>.';
+makePlayer('st',stFrames,function(f){
+  document.getElementById('st-viz').innerHTML=row(T,f.m,f.p);
+  chips('st-stack',f.st.map(function(k,ix){return {text:k+' ('+T[k]+')', cls:(ix===f.st.length-1?'new':'')};}));
+  document.getElementById('st-res').innerHTML=R(f.res,f.rm); document.getElementById('st-cap').innerHTML=f.cap;
+});
+
+</script>
+</body></html>

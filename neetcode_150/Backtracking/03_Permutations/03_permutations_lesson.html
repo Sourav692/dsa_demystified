@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Permutations — Interactive DSA Lesson</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #182132;
+      --muted: #5d677d;
+      --line: #d9e1ef;
+      --accent: #315efb;
+      --accent-soft: #eaf0ff;
+      --good: #0f9d58;
+      --good-soft: #e9f8ef;
+      --warn: #c97a10;
+      --warn-soft: #fff4df;
+      --dark: #0f1728;
+      --dark-2: #131e34;
+      --dark-line: #24314d;
+      --shadow: 0 18px 42px rgba(23, 32, 51, 0.08);
+      --radius: 18px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #eef3ff 0, transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 24px;
+      margin-top: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); }
+    h2 { font-size: clamp(1.4rem, 2vw, 1.9rem); margin-bottom: 12px; }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    p { margin: 0; color: var(--muted); }
+
+    .hero-grid,
+    .two-col,
+    .steps,
+    .compare,
+    .interactive-grid,
+    .state-grid,
+    .summary-grid,
+    .note-grid,
+    .mini-grid,
+    .use-cases,
+    .reason-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .two-col,
+    .compare,
+    .summary-grid,
+    .reason-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .interactive-grid { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+    .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .note-grid,
+    .mini-grid,
+    .use-cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .chips, .legend, .tabs, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chips { margin-top: 14px; }
+
+    .chip,
+    .pill,
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 600;
+      background: #f5f7fb;
+      color: var(--ink);
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 16px;
+    }
+
+    .callout p,
+    .explainer p,
+    .timeline-step p,
+    details p { color: var(--ink); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fc;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #f1f4fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #17366c;
+    }
+
+    .code-block {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #e8eefc;
+      border: 1px solid var(--dark-line);
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      white-space: pre;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .code-block.stepped code {
+      font-size: 0;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .code-line:empty {
+      height: 0.55em;
+      line-height: 0.55em;
+    }
+
+    .code-line.active {
+      background: rgba(49, 94, 251, 0.22);
+      outline: 1px solid rgba(125, 158, 255, 0.45);
+      transform: translateX(2px);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--good-soft);
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 12px;
+    }
+
+    .interactive-graph {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-blue { background: #315efb; }
+    .dot-green { background: #13a46b; }
+    .dot-orange { background: #ff9f1c; }
+    .dot-gray { background: #c8d2e7; }
+
+    .footer-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    .subtle { color: var(--muted); font-size: 14px; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.active-tab { background: var(--accent); color: white; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress {
+      flex: 1 1 220px;
+      height: 10px;
+      background: #edf2fa;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, #6f8fff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .state-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .state-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .state-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      color: #17366c;
+      word-break: break-word;
+    }
+
+    .explainer {
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin-top: 16px;
+    }
+
+    .trace-table tbody tr.active-row { background: #eef4ff; }
+
+    .timeline {
+      position: relative;
+      margin-top: 18px;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 0 0 16px 18px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .example-panel { display: none; margin-top: 16px; }
+    .example-panel.active { display: block; }
+
+    .details-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mistake-list li { margin-bottom: 8px; }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .mini-diagram {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+
+    .arrow-box {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    /* Grid items default to min-width:auto, so one long code line widens the column past a phone screen. */
+    .diagram-row > * { min-width: 0; }
+    .mini-diagram .code-block { overflow-x: auto; }
+    p code, li code { overflow-wrap: anywhere; } /* long inline paths/arrays must wrap on phones */
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .two-col,
+      .steps,
+      .compare,
+      .interactive-grid,
+      .state-grid,
+      .summary-grid,
+      .note-grid,
+      .mini-grid,
+      .use-cases,
+      .reason-grid,
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel { padding: 20px; }
+    }
+  
+    .pu-edge { stroke: #cad3e6; stroke-width: 3; stroke-linecap: round; }
+    .pu-node circle { fill: #c8d2e7; transition: fill 0.2s ease; }
+    .pu-node.done circle { fill: #315efb; }
+    .pu-node.frontier circle { fill: #13a46b; }
+    .pu-node.current circle { fill: #ff9f1c; }
+    .pu-label { font: 700 15px Inter, Arial, sans-serif; fill: #ffffff; }
+    .pu-lvl { font: 700 13px Inter, Arial, sans-serif; fill: #172033; }
+    .pu-leaf { font: 600 12px Inter, Arial, sans-serif; fill: #5d677d; }
+    .pu-leaf.rec { fill: #0f9d58; font-weight: 800; }
+    .ps-cell { fill: #13a46b; transition: fill 0.2s ease; }
+    .ps-cell.fixed { fill: #315efb; }
+    .ps-cell.hi { fill: #ff9f1c; }
+    .ps-val { font: 700 24px Inter, Arial, sans-serif; fill: #ffffff; }
+    .ps-ptr { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+    .ps-idx { font: 600 13px Inter, Arial, sans-serif; fill: #5d677d; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">NeetCode 150 · Backtracking · Pattern 03 · interactive DSA lesson</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Permutations</h1>
+          <p>
+            List every ordering of a set of distinct items by filling one slot at a time. Each slot may take any item that is not already used, so the search keeps a <code>used[]</code> array next to the growing path: choose an unused item, explore the remaining slots, then un-choose it and try the next.
+          </p>
+          <div class="chips">
+            <span class="chip">Core idea: choose / explore / un-choose over unused items</span>
+            <span class="chip">Method 1: backtracking with <code>used[]</code></span>
+            <span class="chip">Method 2: swap in place</span>
+            <span class="chip">Interactive traces synced to code</span>
+          </div>
+          <p class="footer-note">Problem in this pattern: <a href="permutations.html">Permutations</a> (interactive page) · <a href="permutations.ipynb">notebook</a> · <a href="README.md">pattern notes (README)</a></p>
+        </div>
+        <div class="card">
+          <h3>Canonical example</h3>
+          <p>Permutations, <code>nums = [1, 2, 3]</code>: three slots, the choices shrink by one per slot.</p>
+          <div class="diagram">
+            <svg viewBox="0 0 520 200" width="100%" role="img" aria-label="Three slots with 3, 2 and 1 choices, giving 6 orderings">
+              <defs>
+                <style>
+                  .h-slot { fill: #315efb; }
+                  .h-slot2 { fill: #13a46b; }
+                  .h-slot3 { fill: #ff9f1c; }
+                  .h-label { font: 700 22px Inter, Arial, sans-serif; fill: #ffffff; }
+                  .h-title { font: 700 14px Inter, Arial, sans-serif; fill: #172033; }
+                  .h-op { font: 700 26px Inter, Arial, sans-serif; fill: #5d677d; }
+                </style>
+              </defs>
+              <text x="60" y="34" class="h-title">slot 0</text>
+              <text x="220" y="34" class="h-title">slot 1</text>
+              <text x="380" y="34" class="h-title">slot 2</text>
+              <rect x="40" y="48" width="100" height="70" rx="14" class="h-slot" />
+              <rect x="200" y="48" width="100" height="70" rx="14" class="h-slot2" />
+              <rect x="360" y="48" width="100" height="70" rx="14" class="h-slot3" />
+              <text x="90" y="92" text-anchor="middle" class="h-label">3 ways</text>
+              <text x="250" y="92" text-anchor="middle" class="h-label">2 ways</text>
+              <text x="410" y="92" text-anchor="middle" class="h-label">1 way</text>
+              <text x="170" y="93" text-anchor="middle" class="h-op">×</text>
+              <text x="330" y="93" text-anchor="middle" class="h-op">×</text>
+              <text x="260" y="160" text-anchor="middle" class="h-title">any of 1, 2, 3 · any of the 2 left · the last one</text>
+              <text x="260" y="186" text-anchor="middle" class="h-title">3 × 2 × 1 = 3! = 6 orderings</text>
+            </svg>
+          </div>
+          <div class="result-badge">Answer = [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Why this pattern matters</h2>
+      <div class="use-cases">
+        <div class="card">
+          <h3>Trying every order</h3>
+          <p>Seating plans, the order to visit a few delivery stops, the order to run a handful of jobs: when the input is small, checking every ordering is a correct baseline.</p>
+        </div>
+        <div class="card">
+          <h3>Order matters, sets do not</h3>
+          <p>Subsets and combinations treat <code>[1, 2]</code> and <code>[2, 1]</code> as the same answer. Permutations treat them as different. That one difference changes the loop and the state you keep.</p>
+        </div>
+        <div class="card">
+          <h3>The template behind harder searches</h3>
+          <p>Permutations II (duplicates), N-Queens (one queen per column), and word-building puzzles all reuse "pick an unused option for the next slot, then undo".</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Instructor note:</strong> the output has <code>n!</code> entries, so no method is faster than <code>O(n · n!)</code>. The point of this pattern is not speed; it is having one clean, undoable search you can extend with pruning and duplicate skips.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>What is the permutations pattern?</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Simple definition</h3>
+          <p>Build one ordering in a <code>path</code> list, slot by slot. For the next slot, loop over <strong>every</strong> index and skip the ones marked in <code>used[]</code>. Choose (mark and append), explore (recurse), un-choose (pop and unmark). When the path holds all <code>n</code> items, save a copy.</p>
+        </div>
+        <div class="card">
+          <h3>The tell in a problem statement</h3>
+          <p>"All permutations", "every possible order", "all arrangements", "rearrange", with a small <code>n</code> (LeetCode caps Permutations at 6). If <code>[1, 2]</code> and <code>[2, 1]</code> count as different answers, it is this pattern, not Subsets or Combinations.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Beginner shortcut:</strong> Subsets and Combinations loop <code>for i in range(start, n)</code>, so they never look back. Permutations loop <code>for i in range(n)</code> and use <code>used[i]</code> to avoid repeats. Looking back is what lets <code>[2, 1, 3]</code> exist.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step thinking process</h2>
+      <div class="steps">
+        <article class="card">
+          <div class="step-no">1</div>
+          <h3>Spot "every order"</h3>
+          <p>The answer lists orderings, and different orders count separately. That is a permutation search.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">2</div>
+          <h3>Pick the state</h3>
+          <p>A <code>path</code> for the ordering so far, a <code>used</code> array of booleans, and an <code>out</code> list.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">3</div>
+          <h3>Write the base case</h3>
+          <p><code>len(path) == len(nums)</code>: append <code>path[:]</code>, a copy, and return.</p>
+        </article>
+        <article class="card">
+          <div class="step-no">4</div>
+          <h3>Loop, choose, undo</h3>
+          <p>For every unused <code>i</code>: mark and append, recurse, then pop and unmark in reverse order.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How the input becomes a choice tree</h2>
+      <p>The input is just a list. The search turns it into an implicit tree: the root is the empty path, each level is one slot, and each edge is "put this unused number in the slot". The tree is never stored; the recursion walks it while <code>path</code> and <code>used</code> describe the node it is standing on.</p>
+      <div class="diagram-row">
+        <div class="mini-diagram">
+          <h3>Input list</h3>
+          <div class="code-block"><code>nums = [1, 2, 3]
+used = [False, False, False]
+path = []</code></div>
+        </div>
+        <div class="arrow-box">→</div>
+        <div class="mini-diagram">
+          <h3>Choice tree (levels = slots)</h3>
+          <div class="code-block"><code>slot 0:  1        2        3
+slot 1:  2  3     1  3     1  2
+slot 2:  3  2     3  1     2  1
+leaves:  6 orderings, one per root-to-leaf path</code></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Root: <code>path = []</code></h4>
+          <p>All three numbers are free, so the root has 3 children.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Choose <code>1</code>: <code>used = [T, F, F]</code></h4>
+          <p>Two numbers are free, so this node has 2 children: 2 and 3.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Choose <code>2</code>: <code>used = [T, T, F]</code></h4>
+          <p>Only 3 is free: 1 child. Choosing it fills the path, a leaf: record <code>[1, 2, 3]</code>.</p>
+        </div>
+        <div class="timeline-step">
+          <h4>Un-choose back up</h4>
+          <p>Pop and unmark 3, then 2. Back at <code>[1]</code> with <code>used = [T, F, F]</code>, the loop moves on to 3.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Critical point:</strong> one <code>path</code> and one <code>used</code> array are shared by the whole search. They describe the current node only because every choose is undone by an exact un-choose on the way back up.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 1: backtracking with a used[] array</h2>
+      <p>The pattern template, taken line for line from the notebook's <code>permute_backtrack</code>. The trace runs it on <code>nums = [1, 2, 3]</code>; each run of un-chooses on the way back up is one step.</p>
+      <div class="code-block stepped">
+        <code id="pu-code">
+<span class="code-line" data-line="1">def permute_backtrack(nums: List[int]) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    out, path, used = [], [], [False] * len(nums)</span>
+<span class="code-line" data-line="3">    def backtrack():</span>
+<span class="code-line" data-line="4">        if len(path) == len(nums):                 # every slot filled: one complete ordering</span>
+<span class="code-line" data-line="5">            out.append(path[:])                    # record a COPY; path keeps changing</span>
+<span class="code-line" data-line="6">            return</span>
+<span class="code-line" data-line="7">        for i in range(len(nums)):                 # any slot may take any number, not just later ones</span>
+<span class="code-line" data-line="8">            if used[i]:</span>
+<span class="code-line" data-line="9">                continue                           # already on the path</span>
+<span class="code-line" data-line="10">            used[i] = True;  path.append(nums[i])  # CHOOSE (two pieces of state)</span>
+<span class="code-line" data-line="11">            backtrack()                            # EXPLORE the next slot</span>
+<span class="code-line" data-line="12">            path.pop();      used[i] = False       # UN-CHOOSE (both pieces, reverse order)</span>
+<span class="code-line" data-line="13">    backtrack()</span>
+<span class="code-line" data-line="14">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive choice-tree trace</div>
+          <div class="diagram" style="margin-top:12px;">
+<svg id="pu-graph" viewBox="0 0 560 276" width="100%" style="max-width:560px" role="img" aria-label="Choice tree for permutations of 1, 2, 3">
+<text x="6" y="38" class="pu-lvl">start</text>
+<text x="6" y="102" class="pu-lvl">slot 0</text>
+<text x="6" y="166" class="pu-lvl">slot 1</text>
+<text x="6" y="230" class="pu-lvl">slot 2</text>
+<line class="pu-edge" x1="104" y1="162" x2="104" y2="226"/>
+<line class="pu-edge" x1="184" y1="162" x2="184" y2="226"/>
+<line class="pu-edge" x1="264" y1="162" x2="264" y2="226"/>
+<line class="pu-edge" x1="344" y1="162" x2="344" y2="226"/>
+<line class="pu-edge" x1="424" y1="162" x2="424" y2="226"/>
+<line class="pu-edge" x1="504" y1="162" x2="504" y2="226"/>
+<line class="pu-edge" x1="144" y1="98" x2="104" y2="162"/>
+<line class="pu-edge" x1="144" y1="98" x2="184" y2="162"/>
+<line class="pu-edge" x1="304" y1="98" x2="264" y2="162"/>
+<line class="pu-edge" x1="304" y1="98" x2="344" y2="162"/>
+<line class="pu-edge" x1="464" y1="98" x2="424" y2="162"/>
+<line class="pu-edge" x1="464" y1="98" x2="504" y2="162"/>
+<line class="pu-edge" x1="304" y1="34" x2="144" y2="98"/>
+<line class="pu-edge" x1="304" y1="34" x2="304" y2="98"/>
+<line class="pu-edge" x1="304" y1="34" x2="464" y2="98"/>
+<g class="pu-node" data-node="r"><circle cx="304" cy="34" r="24"/><text x="304" y="39" text-anchor="middle" class="pu-label" style="font-size:11px">start</text></g>
+<g class="pu-node" data-node="1"><circle cx="144" cy="98" r="18"/><text x="144" y="103" text-anchor="middle" class="pu-label">1</text></g>
+<g class="pu-node" data-node="2"><circle cx="304" cy="98" r="18"/><text x="304" y="103" text-anchor="middle" class="pu-label">2</text></g>
+<g class="pu-node" data-node="3"><circle cx="464" cy="98" r="18"/><text x="464" y="103" text-anchor="middle" class="pu-label">3</text></g>
+<g class="pu-node" data-node="12"><circle cx="104" cy="162" r="18"/><text x="104" y="167" text-anchor="middle" class="pu-label">2</text></g>
+<g class="pu-node" data-node="13"><circle cx="184" cy="162" r="18"/><text x="184" y="167" text-anchor="middle" class="pu-label">3</text></g>
+<g class="pu-node" data-node="21"><circle cx="264" cy="162" r="18"/><text x="264" y="167" text-anchor="middle" class="pu-label">1</text></g>
+<g class="pu-node" data-node="23"><circle cx="344" cy="162" r="18"/><text x="344" y="167" text-anchor="middle" class="pu-label">3</text></g>
+<g class="pu-node" data-node="31"><circle cx="424" cy="162" r="18"/><text x="424" y="167" text-anchor="middle" class="pu-label">1</text></g>
+<g class="pu-node" data-node="32"><circle cx="504" cy="162" r="18"/><text x="504" y="167" text-anchor="middle" class="pu-label">2</text></g>
+<g class="pu-node" data-node="123"><circle cx="104" cy="226" r="18"/><text x="104" y="231" text-anchor="middle" class="pu-label">3</text></g>
+<g class="pu-node" data-node="132"><circle cx="184" cy="226" r="18"/><text x="184" y="231" text-anchor="middle" class="pu-label">2</text></g>
+<g class="pu-node" data-node="213"><circle cx="264" cy="226" r="18"/><text x="264" y="231" text-anchor="middle" class="pu-label">3</text></g>
+<g class="pu-node" data-node="231"><circle cx="344" cy="226" r="18"/><text x="344" y="231" text-anchor="middle" class="pu-label">1</text></g>
+<g class="pu-node" data-node="312"><circle cx="424" cy="226" r="18"/><text x="424" y="231" text-anchor="middle" class="pu-label">2</text></g>
+<g class="pu-node" data-node="321"><circle cx="504" cy="226" r="18"/><text x="504" y="231" text-anchor="middle" class="pu-label">1</text></g>
+<text x="104" y="266" text-anchor="middle" class="pu-leaf" data-leaf="[1, 2, 3]">[1, 2, 3]</text>
+<text x="184" y="266" text-anchor="middle" class="pu-leaf" data-leaf="[1, 3, 2]">[1, 3, 2]</text>
+<text x="264" y="266" text-anchor="middle" class="pu-leaf" data-leaf="[2, 1, 3]">[2, 1, 3]</text>
+<text x="344" y="266" text-anchor="middle" class="pu-leaf" data-leaf="[2, 3, 1]">[2, 3, 1]</text>
+<text x="424" y="266" text-anchor="middle" class="pu-leaf" data-leaf="[3, 1, 2]">[3, 1, 2]</text>
+<text x="504" y="266" text-anchor="middle" class="pu-leaf" data-leaf="[3, 2, 1]">[3, 2, 1]</text>
+</svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> current node (the path right now)</span>
+            <span><i class="dot dot-green"></i> earlier choices still on the path</span>
+            <span><i class="dot dot-blue"></i> finished, already undone</span>
+            <span><i class="dot dot-gray"></i> not reached yet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="pu-step-title">Initial state</h3>
+          <p id="pu-step-text">Call backtrack() for slot 0.</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="pu-prev">Previous</button>
+            <button type="button" id="pu-play" class="primary">Resume</button>
+            <button type="button" id="pu-next">Next</button>
+            <button type="button" id="pu-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="pu-step-counter">Step 0 / 27</span>
+            <div class="progress"><span id="pu-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>Next slot to fill</strong><div class="state-value" id="pu-slot">0</div></div>
+            <div class="state-box"><strong>Action</strong><div class="state-value" id="pu-action">—</div></div>
+            <div class="state-box"><strong>path</strong><div class="state-value" id="pu-path">[]</div></div>
+            <div class="state-box"><strong>used</strong><div class="state-value" id="pu-used">[F, F, F]</div></div>
+            <div class="state-box"><strong>len(out)</strong><div class="state-value" id="pu-out">0</div></div>
+            <div class="state-box"><strong>Last recorded</strong><div class="state-value" id="pu-last">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="pu-detail"><strong>What changed:</strong> nothing chosen yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="pu-trace-table">
+          <thead>
+            <tr><th>Step</th><th>Action</th><th>path after</th><th>used after</th><th>len(out)</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>Start: <code>backtrack()</code></td><td><code>[]</code></td><td><code>[F, F, F]</code></td><td>0</td></tr>
+            <tr data-step="1"><td>1</td><td>choose <code>1</code></td><td><code>[1]</code></td><td><code>[T, F, F]</code></td><td>0</td></tr>
+            <tr data-step="2"><td>2</td><td>skip 1 (used); choose <code>2</code></td><td><code>[1, 2]</code></td><td><code>[T, T, F]</code></td><td>0</td></tr>
+            <tr data-step="3"><td>3</td><td>skip 1, 2 (used); choose <code>3</code></td><td><code>[1, 2, 3]</code></td><td><code>[T, T, T]</code></td><td>0</td></tr>
+            <tr data-step="4"><td>4</td><td>path full: record copy <code>[1, 2, 3]</code></td><td><code>[1, 2, 3]</code></td><td><code>[T, T, T]</code></td><td>1</td></tr>
+            <tr data-step="5"><td>5</td><td>un-choose <code>3</code>, <code>2</code></td><td><code>[1]</code></td><td><code>[T, F, F]</code></td><td>1</td></tr>
+            <tr data-step="6"><td>6</td><td>choose <code>3</code></td><td><code>[1, 3]</code></td><td><code>[T, F, T]</code></td><td>1</td></tr>
+            <tr data-step="7"><td>7</td><td>skip 1 (used); choose <code>2</code></td><td><code>[1, 3, 2]</code></td><td><code>[T, T, T]</code></td><td>1</td></tr>
+            <tr data-step="8"><td>8</td><td>path full: record copy <code>[1, 3, 2]</code></td><td><code>[1, 3, 2]</code></td><td><code>[T, T, T]</code></td><td>2</td></tr>
+            <tr data-step="9"><td>9</td><td>un-choose <code>2</code>, <code>3</code>, <code>1</code></td><td><code>[]</code></td><td><code>[F, F, F]</code></td><td>2</td></tr>
+            <tr data-step="10"><td>10</td><td>choose <code>2</code></td><td><code>[2]</code></td><td><code>[F, T, F]</code></td><td>2</td></tr>
+            <tr data-step="11"><td>11</td><td>choose <code>1</code></td><td><code>[2, 1]</code></td><td><code>[T, T, F]</code></td><td>2</td></tr>
+            <tr data-step="12"><td>12</td><td>skip 1, 2 (used); choose <code>3</code></td><td><code>[2, 1, 3]</code></td><td><code>[T, T, T]</code></td><td>2</td></tr>
+            <tr data-step="13"><td>13</td><td>path full: record copy <code>[2, 1, 3]</code></td><td><code>[2, 1, 3]</code></td><td><code>[T, T, T]</code></td><td>3</td></tr>
+            <tr data-step="14"><td>14</td><td>un-choose <code>3</code>, <code>1</code></td><td><code>[2]</code></td><td><code>[F, T, F]</code></td><td>3</td></tr>
+            <tr data-step="15"><td>15</td><td>skip 2 (used); choose <code>3</code></td><td><code>[2, 3]</code></td><td><code>[F, T, T]</code></td><td>3</td></tr>
+            <tr data-step="16"><td>16</td><td>choose <code>1</code></td><td><code>[2, 3, 1]</code></td><td><code>[T, T, T]</code></td><td>3</td></tr>
+            <tr data-step="17"><td>17</td><td>path full: record copy <code>[2, 3, 1]</code></td><td><code>[2, 3, 1]</code></td><td><code>[T, T, T]</code></td><td>4</td></tr>
+            <tr data-step="18"><td>18</td><td>un-choose <code>1</code>, <code>3</code>, <code>2</code></td><td><code>[]</code></td><td><code>[F, F, F]</code></td><td>4</td></tr>
+            <tr data-step="19"><td>19</td><td>choose <code>3</code></td><td><code>[3]</code></td><td><code>[F, F, T]</code></td><td>4</td></tr>
+            <tr data-step="20"><td>20</td><td>choose <code>1</code></td><td><code>[3, 1]</code></td><td><code>[T, F, T]</code></td><td>4</td></tr>
+            <tr data-step="21"><td>21</td><td>skip 1 (used); choose <code>2</code></td><td><code>[3, 1, 2]</code></td><td><code>[T, T, T]</code></td><td>4</td></tr>
+            <tr data-step="22"><td>22</td><td>path full: record copy <code>[3, 1, 2]</code></td><td><code>[3, 1, 2]</code></td><td><code>[T, T, T]</code></td><td>5</td></tr>
+            <tr data-step="23"><td>23</td><td>un-choose <code>2</code>, <code>1</code></td><td><code>[3]</code></td><td><code>[F, F, T]</code></td><td>5</td></tr>
+            <tr data-step="24"><td>24</td><td>choose <code>2</code></td><td><code>[3, 2]</code></td><td><code>[F, T, T]</code></td><td>5</td></tr>
+            <tr data-step="25"><td>25</td><td>choose <code>1</code></td><td><code>[3, 2, 1]</code></td><td><code>[T, T, T]</code></td><td>5</td></tr>
+            <tr data-step="26"><td>26</td><td>path full: record copy <code>[3, 2, 1]</code></td><td><code>[3, 2, 1]</code></td><td><code>[T, T, T]</code></td><td>6</td></tr>
+            <tr data-step="27"><td>27</td><td>un-choose <code>1</code>, <code>2</code>, <code>3</code> &rarr; done</td><td><code>[]</code></td><td><code>[F, F, F]</code></td><td>6</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>Each root-to-leaf path in the tree is one permutation. The recursion walks the tree depth-first, and the un-choose line is how it climbs back up one edge.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Popping <code>path</code> but leaving <code>used[i] = True</code>. Then from step 5 on, all three numbers would stay marked, so no number is ever free again: the result would be just <code>[[1, 2, 3]]</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Why a used[] array</h4>
+          <p><code>used[i]</code> answers "is <code>nums[i]</code> already placed?" in <code>O(1)</code>. Checking <code>nums[i] in path</code> works for distinct values but costs <code>O(n)</code> per check.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method 2: swap in place (no used[] array)</h2>
+      <p>The same depth-first search, from the notebook's <code>permute_swap</code>. The array itself is the path: <code>nums[:first]</code> is fixed, <code>nums[first:]</code> is exactly the set of unused numbers. Swapping a free number into slot <code>first</code> is the choose; swapping it back is the un-choose.</p>
+      <div class="code-block stepped">
+        <code id="ps-code">
+<span class="code-line" data-line="1">def permute_swap(nums: List[int]) -&gt; List[List[int]]:</span>
+<span class="code-line" data-line="2">    nums = nums[:]                                 # work on a copy: the caller's list stays untouched</span>
+<span class="code-line" data-line="3">    out = []</span>
+<span class="code-line" data-line="4">    def backtrack(first):</span>
+<span class="code-line" data-line="5">        if first == len(nums):                     # every slot fixed</span>
+<span class="code-line" data-line="6">            out.append(nums[:])                    # record a COPY of the whole array</span>
+<span class="code-line" data-line="7">            return</span>
+<span class="code-line" data-line="8">        for i in range(first, len(nums)):          # nums[first:] = the numbers not placed yet</span>
+<span class="code-line" data-line="9">            nums[first], nums[i] = nums[i], nums[first]   # CHOOSE: move nums[i] into slot `first`</span>
+<span class="code-line" data-line="10">            backtrack(first + 1)                          # EXPLORE the remaining slots</span>
+<span class="code-line" data-line="11">            nums[first], nums[i] = nums[i], nums[first]   # UN-CHOOSE: swap back</span>
+<span class="code-line" data-line="12">    backtrack(0)</span>
+<span class="code-line" data-line="13">    return out</span>
+        </code>
+      </div>
+
+      <div class="interactive-grid" style="margin-top:18px;">
+        <div class="interactive-graph card">
+          <div class="pill">Interactive swap trace</div>
+          <div class="diagram" style="margin-top:12px;">
+            <svg id="ps-graph" viewBox="0 0 420 190" width="100%" role="img" aria-label="Array of three slots being swapped in place">
+              <text x="85" y="34" text-anchor="middle" class="ps-ptr" data-ptr="0"></text>
+              <text x="210" y="34" text-anchor="middle" class="ps-ptr" data-ptr="1"></text>
+              <text x="335" y="34" text-anchor="middle" class="ps-ptr" data-ptr="2"></text>
+              <rect x="40" y="48" width="90" height="80" rx="14" class="ps-cell" data-cell="0" />
+              <rect x="165" y="48" width="90" height="80" rx="14" class="ps-cell" data-cell="1" />
+              <rect x="290" y="48" width="90" height="80" rx="14" class="ps-cell" data-cell="2" />
+              <text x="85" y="97" text-anchor="middle" class="ps-val" data-val="0">1</text>
+              <text x="210" y="97" text-anchor="middle" class="ps-val" data-val="1">2</text>
+              <text x="335" y="97" text-anchor="middle" class="ps-val" data-val="2">3</text>
+              <text x="85" y="156" text-anchor="middle" class="ps-idx">slot 0</text>
+              <text x="210" y="156" text-anchor="middle" class="ps-idx">slot 1</text>
+              <text x="335" y="156" text-anchor="middle" class="ps-idx">slot 2</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-orange"></i> just swapped</span>
+            <span><i class="dot dot-blue"></i> fixed prefix <code>nums[:first]</code></span>
+            <span><i class="dot dot-green"></i> free tail <code>nums[first:]</code></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="ps-step-title">Initial state</h3>
+          <p id="ps-step-text">backtrack(0).</p>
+          <div class="controls" style="margin-top:16px;">
+            <button type="button" id="ps-prev">Previous</button>
+            <button type="button" id="ps-play" class="primary">Resume</button>
+            <button type="button" id="ps-next">Next</button>
+            <button type="button" id="ps-reset">Reset</button>
+          </div>
+          <div class="status-bar">
+            <span class="pill" id="ps-step-counter">Step 0 / 27</span>
+            <div class="progress"><span id="ps-progress"></span></div>
+          </div>
+          <div class="state-grid" style="margin-top:16px;">
+            <div class="state-box"><strong>first</strong><div class="state-value" id="ps-first">0</div></div>
+            <div class="state-box"><strong>i</strong><div class="state-value" id="ps-i">—</div></div>
+            <div class="state-box"><strong>nums</strong><div class="state-value" id="ps-nums">[1, 2, 3]</div></div>
+            <div class="state-box"><strong>Action</strong><div class="state-value" id="ps-action">—</div></div>
+            <div class="state-box"><strong>len(out)</strong><div class="state-value" id="ps-out">0</div></div>
+            <div class="state-box"><strong>Last recorded</strong><div class="state-value" id="ps-last">—</div></div>
+          </div>
+          <div class="explainer">
+            <p id="ps-detail"><strong>What changed:</strong> nothing swapped yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:18px;">
+        <table class="trace-table" id="ps-trace-table">
+          <thead>
+            <tr><th>Step</th><th>first</th><th>Action</th><th>nums after</th><th>len(out)</th></tr>
+          </thead>
+          <tbody>
+            <tr data-step="0"><td>0</td><td>0</td><td>Start: <code>backtrack(0)</code></td><td><code>[1, 2, 3]</code></td><td>0</td></tr>
+            <tr data-step="1"><td>1</td><td>0</td><td>swap(0,0) &rarr; no change, slot 0 = <code>1</code></td><td><code>[1, 2, 3]</code></td><td>0</td></tr>
+            <tr data-step="2"><td>2</td><td>1</td><td>swap(1,1) &rarr; no change, slot 1 = <code>2</code></td><td><code>[1, 2, 3]</code></td><td>0</td></tr>
+            <tr data-step="3"><td>3</td><td>2</td><td>swap(2,2) &rarr; no change, slot 2 = <code>3</code></td><td><code>[1, 2, 3]</code></td><td>0</td></tr>
+            <tr data-step="4"><td>4</td><td>3</td><td>all fixed: record copy <code>[1, 2, 3]</code></td><td><code>[1, 2, 3]</code></td><td>1</td></tr>
+            <tr data-step="5"><td>5</td><td>1</td><td>swap back (2,2), swap back (1,1)</td><td><code>[1, 2, 3]</code></td><td>1</td></tr>
+            <tr data-step="6"><td>6</td><td>1</td><td>swap(1,2), slot 1 = <code>3</code></td><td><code>[1, 3, 2]</code></td><td>1</td></tr>
+            <tr data-step="7"><td>7</td><td>2</td><td>swap(2,2) &rarr; no change, slot 2 = <code>2</code></td><td><code>[1, 3, 2]</code></td><td>1</td></tr>
+            <tr data-step="8"><td>8</td><td>3</td><td>all fixed: record copy <code>[1, 3, 2]</code></td><td><code>[1, 3, 2]</code></td><td>2</td></tr>
+            <tr data-step="9"><td>9</td><td>0</td><td>swap back (2,2), swap back (1,2), swap back (0,0)</td><td><code>[1, 2, 3]</code></td><td>2</td></tr>
+            <tr data-step="10"><td>10</td><td>0</td><td>swap(0,1), slot 0 = <code>2</code></td><td><code>[2, 1, 3]</code></td><td>2</td></tr>
+            <tr data-step="11"><td>11</td><td>1</td><td>swap(1,1) &rarr; no change, slot 1 = <code>1</code></td><td><code>[2, 1, 3]</code></td><td>2</td></tr>
+            <tr data-step="12"><td>12</td><td>2</td><td>swap(2,2) &rarr; no change, slot 2 = <code>3</code></td><td><code>[2, 1, 3]</code></td><td>2</td></tr>
+            <tr data-step="13"><td>13</td><td>3</td><td>all fixed: record copy <code>[2, 1, 3]</code></td><td><code>[2, 1, 3]</code></td><td>3</td></tr>
+            <tr data-step="14"><td>14</td><td>1</td><td>swap back (2,2), swap back (1,1)</td><td><code>[2, 1, 3]</code></td><td>3</td></tr>
+            <tr data-step="15"><td>15</td><td>1</td><td>swap(1,2), slot 1 = <code>3</code></td><td><code>[2, 3, 1]</code></td><td>3</td></tr>
+            <tr data-step="16"><td>16</td><td>2</td><td>swap(2,2) &rarr; no change, slot 2 = <code>1</code></td><td><code>[2, 3, 1]</code></td><td>3</td></tr>
+            <tr data-step="17"><td>17</td><td>3</td><td>all fixed: record copy <code>[2, 3, 1]</code></td><td><code>[2, 3, 1]</code></td><td>4</td></tr>
+            <tr data-step="18"><td>18</td><td>0</td><td>swap back (2,2), swap back (1,2), swap back (0,1)</td><td><code>[1, 2, 3]</code></td><td>4</td></tr>
+            <tr data-step="19"><td>19</td><td>0</td><td>swap(0,2), slot 0 = <code>3</code></td><td><code>[3, 2, 1]</code></td><td>4</td></tr>
+            <tr data-step="20"><td>20</td><td>1</td><td>swap(1,1) &rarr; no change, slot 1 = <code>2</code></td><td><code>[3, 2, 1]</code></td><td>4</td></tr>
+            <tr data-step="21"><td>21</td><td>2</td><td>swap(2,2) &rarr; no change, slot 2 = <code>1</code></td><td><code>[3, 2, 1]</code></td><td>4</td></tr>
+            <tr data-step="22"><td>22</td><td>3</td><td>all fixed: record copy <code>[3, 2, 1]</code></td><td><code>[3, 2, 1]</code></td><td>5</td></tr>
+            <tr data-step="23"><td>23</td><td>1</td><td>swap back (2,2), swap back (1,1)</td><td><code>[3, 2, 1]</code></td><td>5</td></tr>
+            <tr data-step="24"><td>24</td><td>1</td><td>swap(1,2), slot 1 = <code>1</code></td><td><code>[3, 1, 2]</code></td><td>5</td></tr>
+            <tr data-step="25"><td>25</td><td>2</td><td>swap(2,2) &rarr; no change, slot 2 = <code>2</code></td><td><code>[3, 1, 2]</code></td><td>5</td></tr>
+            <tr data-step="26"><td>26</td><td>3</td><td>all fixed: record copy <code>[3, 1, 2]</code></td><td><code>[3, 1, 2]</code></td><td>6</td></tr>
+            <tr data-step="27"><td>27</td><td>—</td><td>swap back (2,2), swap back (1,2), swap back (0,2) &rarr; done</td><td><code>[1, 2, 3]</code></td><td>6</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-grid">
+        <div class="card">
+          <h4>Key mental model</h4>
+          <p>A wall moves right through the array. Left of <code>first</code>: decided. Right of it: the pool to pick from. Each swap pulls one pool member up to the wall.</p>
+        </div>
+        <div class="card" style="background:var(--warn-soft); border-color:#f1d9a8;">
+          <h4>Common mistake</h4>
+          <p>Forgetting the swap back. At step 9 the three swaps back return the array to <code>[1, 2, 3]</code>; without them, the next swap at slot 0 would start from a scrambled array and repeat or miss orderings.</p>
+        </div>
+        <div class="card">
+          <h4>Why the order differs</h4>
+          <p>The swaps reorder the free tail, so after <code>[2, 3, 1]</code> the method produces <code>[3, 2, 1]</code> before <code>[3, 1, 2]</code>. LeetCode accepts any order; the notebook compares sorted outputs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Edge cases you should test</h2>
+      <div class="tabs" role="tablist" aria-label="Edge case examples">
+        <button type="button" class="active-tab" data-example-tab="0">Single number</button>
+        <button type="button" data-example-tab="1">Two numbers</button>
+        <button type="button" data-example-tab="2">Largest input (n = 6)</button>
+        <button type="button" data-example-tab="3">Duplicates (out of scope)</button>
+      </div>
+
+      <div class="example-panel active" data-example-panel="0">
+        <div class="card">
+          <h3>Case A: one number</h3>
+          <p><code>nums = [1]</code></p>
+          <div class="result-badge">[[1]]</div>
+          <p class="footer-note">One choose, then the base case fires at once. The answer is a list containing one list, not <code>[1]</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="1">
+        <div class="card">
+          <h3>Case B: two numbers, including zero or negatives</h3>
+          <p><code>nums = [0, 1]</code> and <code>nums = [-1, 5]</code></p>
+          <div class="result-badge">[[0, 1], [1, 0]] · [[-1, 5], [5, -1]]</div>
+          <p class="footer-note">Values never matter to the search, only positions. <code>used</code> is indexed by position, so 0 and negatives need no special care.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="2">
+        <div class="card">
+          <h3>Case C: the largest allowed input</h3>
+          <p><code>len(nums) = 6</code></p>
+          <div class="result-badge">6! = 720 orderings</div>
+          <p class="footer-note">The notebook checks every length 1 to 6 against <code>itertools.permutations</code>: exactly <code>n!</code> distinct orderings each time. Recursion depth is only <code>n</code>.</p>
+        </div>
+      </div>
+
+      <div class="example-panel" data-example-panel="3">
+        <div class="card">
+          <h3>Case D: repeated values (Permutations II territory)</h3>
+          <p><code>nums = [1, 1, 2]</code></p>
+          <div class="result-badge">Template gives 6 lists, only 3 distinct</div>
+          <p class="footer-note">LC 46 promises distinct values. With repeats, the plain template treats the two 1s as different items and outputs <code>[1, 1, 2]</code> twice. Permutations II (LC 47) sorts first and skips a twin whose earlier copy is free, giving <code>[[1, 1, 2], [1, 2, 1], [2, 1, 1]]</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Method comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Time</th><th>Extra space</th><th>Takeaway</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Insert at every gap (iterative build-up)</td><td><code>O(n · n!)</code></td><td><code>O(n!)</code> beyond the output</td><td>No recursion; keeps the previous round alive. Fast in CPython because slicing runs in C.</td></tr>
+            <tr><td>Backtracking with <code>used[]</code> (Method 1)</td><td><code>O(n · n!)</code></td><td><code>O(n)</code></td><td>The template; pruning and duplicate skips slot in before the choose line.</td></tr>
+            <tr><td>Backtracking by swapping (Method 2)</td><td><code>O(n · n!)</code></td><td><code>O(n)</code></td><td>No <code>used[]</code>; output is not in lexicographic order.</td></tr>
+            <tr><td><code>itertools.permutations</code></td><td><code>O(n · n!)</code></td><td><code>O(n)</code> per tuple yielded</td><td>Library reference in the notebook's checks; same growth, smaller constant.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-note">The notebook times all four for <code>n = 5</code> to <code>9</code>. The size grows by 1, not by doubling, so the predicted ratio is <code>(n+1)²/n</code>: about 7.2x, 8.2x, 9.1x, 10.1x. The measured ratios of the three hand-written methods climb by roughly 1x per step in the same way.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How to derive this in an interview</h2>
+      <div class="reason-grid">
+        <div class="card">
+          <h3>Reasoning path</h3>
+          <div class="timeline">
+            <div class="timeline-step"><p>The answer is every ordering, and the count is <code>n!</code>, so the work is at least <code>O(n · n!)</code>. Exhaustive search is fine.</p></div>
+            <div class="timeline-step"><p>Build each ordering slot by slot. Every slot can take any number that is not placed yet.</p></div>
+            <div class="timeline-step"><p>"Not placed yet" needs state: a <code>used</code> array, checked in <code>O(1)</code>.</p></div>
+            <div class="timeline-step"><p>Choose, recurse, un-choose both pieces; at full length, save a copy.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What to say out loud</h3>
+          <ul>
+            <li>"Order matters, so this is permutations, not combinations: each level loops over all indices, not from a start index."</li>
+            <li>"I'll keep a path and a used array. Choose marks and appends, then I recurse, then I pop and unmark."</li>
+            <li>"When the path has n numbers I append a copy, because the path keeps changing."</li>
+            <li>"There are n! leaves and each copy costs O(n), so O(n · n!) time, which matches the output size; extra space is O(n) for the path, used array and call stack."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Common beginner coding mistakes</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Backtracking with used[]</h3>
+          <ul class="mistake-list">
+            <li>Looping <code>for i in range(start, n)</code> copied from Subsets: that builds combinations, not orderings.</li>
+            <li>Appending <code>path</code> instead of <code>path[:]</code>: every saved entry is the same list, empty at the end.</li>
+            <li>Undoing <code>path</code> but not <code>used[i]</code>, or the other way round.</li>
+            <li>Recording at every node instead of only when <code>len(path) == len(nums)</code>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Swap in place</h3>
+          <ul class="mistake-list">
+            <li>Forgetting to swap back after the recursive call.</li>
+            <li>Starting the loop at <code>first + 1</code>: the number already in slot <code>first</code> never gets its turn there (the self-swap <code>i == first</code> is needed).</li>
+            <li>Appending <code>nums</code> instead of <code>nums[:]</code>.</li>
+            <li>Swapping the caller's list directly, so their input comes back reordered.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Practice questions</h2>
+      <p>This pattern has one NeetCode 150 problem, so practice 2 to 4 are <strong>follow-up variants</strong> of Permutations that interviewers ask next. Try each in your head first, then open the answer.</p>
+      <div class="details-grid">
+        <details>
+          <summary>Practice 1 — Permutations: trace <code>nums = [0, 1]</code> with the used[] template</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> the root has 2 children; each has 1 child.</p>
+          <p style="margin-top:10px;">Answer: choose 0, choose 1, record <code>[0, 1]</code>; un-choose 1 and 0; choose 1, choose 0, record <code>[1, 0]</code>. Result <code>[[0, 1], [1, 0]]</code>. Step through the same mechanics for <code>[1, 2, 3]</code> on <a href="permutations.html">the Permutations page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 2 — Variant: Permutations II (LC 47), <code>nums = [1, 1, 2]</code> may contain duplicates</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> sort, then at one level a twin may only be chosen if its earlier copy is already on the path.</p>
+          <p style="margin-top:10px;">Answer: after <code>if used[i]: continue</code> add <code>if i &gt; 0 and nums[i] == nums[i-1] and not used[i-1]: continue</code>. Result <code>[[1, 1, 2], [1, 2, 1], [2, 1, 1]]</code> instead of the template's 6 lists with repeats. The base template is on <a href="permutations.html">the Permutations page</a>; the duplicate-skip version is in <a href="../../../deep_dive/21_Backtracking/21_backtracking_lesson.html">Deep Dive 21 — Backtracking</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 3 — Variant: Next Permutation (LC 31), the next ordering after <code>[1, 3, 2]</code> in sorted order</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> no backtracking. From the right, find the first <code>a[i] &lt; a[i+1]</code>, swap <code>a[i]</code> with the rightmost larger value, reverse the suffix.</p>
+          <p style="margin-top:10px;">Answer: <code>[2, 1, 3]</code>. <code>i = 0</code> (1 &lt; 3); the rightmost value larger than 1 is 2; swap gives <code>[2, 3, 1]</code>; reverse the suffix after index 0 to get <code>[2, 1, 3]</code>. For <code>[3, 2, 1]</code> no such <code>i</code> exists, so reverse everything: <code>[1, 2, 3]</code>. Compare with the sorted list of all six on <a href="permutations.html">the Permutations page</a>.</p>
+        </details>
+        <details>
+          <summary>Practice 4 — Variant: Permutation Sequence (LC 60), the 3rd ordering of 1..3 without listing them all</summary>
+          <p style="margin-top:10px;"><strong>Hint:</strong> each first digit owns a block of <code>(n-1)!</code> orderings.</p>
+          <p style="margin-top:10px;">Answer: <code>"213"</code>. Use <code>k - 1 = 2</code>; blocks of <code>2! = 2</code>, so <code>2 // 2 = 1</code> picks the second digit, 2, remainder 0; then from <code>[1, 3]</code>, <code>0 // 1! = 0</code> picks 1; then 3. It matches the third leaf of the choice tree on <a href="permutations.html">the Permutations page</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final takeaway</h2>
+      <div class="card">
+        <p>
+          <strong>Loop over every index, skip the used ones, choose, explore, un-choose both pieces, and save a copy when the path is full.</strong>
+          That is the whole Permutations pattern. The swap version folds <code>used</code> into the array itself. Either way the cost is <code>O(n · n!)</code>, the size of the answer, with <code>O(n)</code> extra memory.
+        </p>
+      </div>
+      <p class="footer-note">Back to the <a href="README.md">Permutations pattern notes</a>. Code and trace values are taken from this folder's notebook.</p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Ground truth: instrumented run of permute_backtrack([1, 2, 3]).
+      const puSteps = [{"step": 0, "title": "Initial state", "text": "path = [], used = [F, F, F], out = []. Call backtrack() for slot 0.", "detail": "Nothing chosen yet. The root of the choice tree is the empty path.", "action": "Start: <code>backtrack()</code>", "path": "[]", "used": "[F, F, F]", "out": 0, "last": "—", "outs": [], "current": "r", "frontier": [], "done": [], "lines": [2, 13], "slot": "0"}, {"step": 1, "title": "Step 1: choose 1", "text": "Choose index 0: used[0] = T, path.append(1) -> path = [1]. Recurse for slot 1.", "detail": "1 is not used yet, so it may fill slot 0.", "action": "choose <code>1</code>", "path": "[1]", "used": "[T, F, F]", "out": 0, "last": "—", "outs": [], "current": "1", "frontier": ["r"], "done": [], "lines": [7, 10, 11], "slot": "1"}, {"step": 2, "title": "Step 2: choose 2", "text": "Skip 1 (already used). Choose index 1: used[1] = T, path.append(2) -> path = [1, 2]. Recurse for slot 2.", "detail": "Skip 1 (already used). 2 is not used yet, so it may fill slot 1.", "action": "skip 1 (used); choose <code>2</code>", "path": "[1, 2]", "used": "[T, T, F]", "out": 0, "last": "—", "outs": [], "current": "12", "frontier": ["1", "r"], "done": [], "lines": [7, 8, 9, 10, 11], "slot": "2"}, {"step": 3, "title": "Step 3: choose 3", "text": "Skip 1, 2 (already used). Choose index 2: used[2] = T, path.append(3) -> path = [1, 2, 3]. Recurse for slot 3.", "detail": "Skip 1, 2 (already used). 3 is not used yet, so it may fill slot 2.", "action": "skip 1, 2 (used); choose <code>3</code>", "path": "[1, 2, 3]", "used": "[T, T, T]", "out": 0, "last": "—", "outs": [], "current": "123", "frontier": ["1", "12", "r"], "done": [], "lines": [7, 8, 9, 10, 11], "slot": "3"}, {"step": 4, "title": "Step 4: record [1, 2, 3]", "text": "len(path) == 3: every slot is filled. Append a copy, out now has 1.", "detail": "Base case. out.append(path[:]) stores a snapshot; path itself keeps changing.", "action": "path full: record copy <code>[1, 2, 3]</code>", "path": "[1, 2, 3]", "used": "[T, T, T]", "out": 1, "last": "[1, 2, 3]", "outs": ["[1, 2, 3]"], "current": "123", "frontier": ["1", "12", "r"], "done": [], "lines": [4, 5, 6], "slot": "—"}, {"step": 5, "title": "Step 5: backtrack", "text": "Un-choose: pop 3 (used[2] = F), pop 2 (used[1] = F). path = [1]. The loop at this level moves on to the next index.", "detail": "Both pieces of state are restored, so the next choice starts from a clean path.", "action": "un-choose <code>3</code>, <code>2</code>", "path": "[1]", "used": "[T, F, F]", "out": 1, "last": "[1, 2, 3]", "outs": ["[1, 2, 3]"], "current": "1", "frontier": ["r"], "done": ["12", "123"], "lines": [12, 7], "slot": "1"}, {"step": 6, "title": "Step 6: choose 3", "text": "Choose index 2: used[2] = T, path.append(3) -> path = [1, 3]. Recurse for slot 2.", "detail": "3 is not used yet, so it may fill slot 1.", "action": "choose <code>3</code>", "path": "[1, 3]", "used": "[T, F, T]", "out": 1, "last": "[1, 2, 3]", "outs": ["[1, 2, 3]"], "current": "13", "frontier": ["1", "r"], "done": ["12", "123"], "lines": [7, 10, 11], "slot": "2"}, {"step": 7, "title": "Step 7: choose 2", "text": "Skip 1 (already used). Choose index 1: used[1] = T, path.append(2) -> path = [1, 3, 2]. Recurse for slot 3.", "detail": "Skip 1 (already used). 2 is not used yet, so it may fill slot 2.", "action": "skip 1 (used); choose <code>2</code>", "path": "[1, 3, 2]", "used": "[T, T, T]", "out": 1, "last": "[1, 2, 3]", "outs": ["[1, 2, 3]"], "current": "132", "frontier": ["1", "13", "r"], "done": ["12", "123"], "lines": [7, 8, 9, 10, 11], "slot": "3"}, {"step": 8, "title": "Step 8: record [1, 3, 2]", "text": "len(path) == 3: every slot is filled. Append a copy, out now has 2.", "detail": "Base case. out.append(path[:]) stores a snapshot; path itself keeps changing.", "action": "path full: record copy <code>[1, 3, 2]</code>", "path": "[1, 3, 2]", "used": "[T, T, T]", "out": 2, "last": "[1, 3, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]"], "current": "132", "frontier": ["1", "13", "r"], "done": ["12", "123"], "lines": [4, 5, 6], "slot": "—"}, {"step": 9, "title": "Step 9: backtrack", "text": "Un-choose: pop 2 (used[1] = F), pop 3 (used[2] = F), pop 1 (used[0] = F). path = []. The loop at this level moves on to the next index.", "detail": "Both pieces of state are restored, so the next choice starts from a clean path.", "action": "un-choose <code>2</code>, <code>3</code>, <code>1</code>", "path": "[]", "used": "[F, F, F]", "out": 2, "last": "[1, 3, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]"], "current": "r", "frontier": [], "done": ["1", "12", "123", "13", "132"], "lines": [12, 7], "slot": "0"}, {"step": 10, "title": "Step 10: choose 2", "text": "Choose index 1: used[1] = T, path.append(2) -> path = [2]. Recurse for slot 1.", "detail": "2 is not used yet, so it may fill slot 0.", "action": "choose <code>2</code>", "path": "[2]", "used": "[F, T, F]", "out": 2, "last": "[1, 3, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]"], "current": "2", "frontier": ["r"], "done": ["1", "12", "123", "13", "132"], "lines": [7, 10, 11], "slot": "1"}, {"step": 11, "title": "Step 11: choose 1", "text": "Choose index 0: used[0] = T, path.append(1) -> path = [2, 1]. Recurse for slot 2.", "detail": "1 is not used yet, so it may fill slot 1.", "action": "choose <code>1</code>", "path": "[2, 1]", "used": "[T, T, F]", "out": 2, "last": "[1, 3, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]"], "current": "21", "frontier": ["2", "r"], "done": ["1", "12", "123", "13", "132"], "lines": [7, 10, 11], "slot": "2"}, {"step": 12, "title": "Step 12: choose 3", "text": "Skip 1, 2 (already used). Choose index 2: used[2] = T, path.append(3) -> path = [2, 1, 3]. Recurse for slot 3.", "detail": "Skip 1, 2 (already used). 3 is not used yet, so it may fill slot 2.", "action": "skip 1, 2 (used); choose <code>3</code>", "path": "[2, 1, 3]", "used": "[T, T, T]", "out": 2, "last": "[1, 3, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]"], "current": "213", "frontier": ["2", "21", "r"], "done": ["1", "12", "123", "13", "132"], "lines": [7, 8, 9, 10, 11], "slot": "3"}, {"step": 13, "title": "Step 13: record [2, 1, 3]", "text": "len(path) == 3: every slot is filled. Append a copy, out now has 3.", "detail": "Base case. out.append(path[:]) stores a snapshot; path itself keeps changing.", "action": "path full: record copy <code>[2, 1, 3]</code>", "path": "[2, 1, 3]", "used": "[T, T, T]", "out": 3, "last": "[2, 1, 3]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]"], "current": "213", "frontier": ["2", "21", "r"], "done": ["1", "12", "123", "13", "132"], "lines": [4, 5, 6], "slot": "—"}, {"step": 14, "title": "Step 14: backtrack", "text": "Un-choose: pop 3 (used[2] = F), pop 1 (used[0] = F). path = [2]. The loop at this level moves on to the next index.", "detail": "Both pieces of state are restored, so the next choice starts from a clean path.", "action": "un-choose <code>3</code>, <code>1</code>", "path": "[2]", "used": "[F, T, F]", "out": 3, "last": "[2, 1, 3]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]"], "current": "2", "frontier": ["r"], "done": ["1", "12", "123", "13", "132", "21", "213"], "lines": [12, 7], "slot": "1"}, {"step": 15, "title": "Step 15: choose 3", "text": "Skip 2 (already used). Choose index 2: used[2] = T, path.append(3) -> path = [2, 3]. Recurse for slot 2.", "detail": "Skip 2 (already used). 3 is not used yet, so it may fill slot 1.", "action": "skip 2 (used); choose <code>3</code>", "path": "[2, 3]", "used": "[F, T, T]", "out": 3, "last": "[2, 1, 3]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]"], "current": "23", "frontier": ["2", "r"], "done": ["1", "12", "123", "13", "132", "21", "213"], "lines": [7, 8, 9, 10, 11], "slot": "2"}, {"step": 16, "title": "Step 16: choose 1", "text": "Choose index 0: used[0] = T, path.append(1) -> path = [2, 3, 1]. Recurse for slot 3.", "detail": "1 is not used yet, so it may fill slot 2.", "action": "choose <code>1</code>", "path": "[2, 3, 1]", "used": "[T, T, T]", "out": 3, "last": "[2, 1, 3]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]"], "current": "231", "frontier": ["2", "23", "r"], "done": ["1", "12", "123", "13", "132", "21", "213"], "lines": [7, 10, 11], "slot": "3"}, {"step": 17, "title": "Step 17: record [2, 3, 1]", "text": "len(path) == 3: every slot is filled. Append a copy, out now has 4.", "detail": "Base case. out.append(path[:]) stores a snapshot; path itself keeps changing.", "action": "path full: record copy <code>[2, 3, 1]</code>", "path": "[2, 3, 1]", "used": "[T, T, T]", "out": 4, "last": "[2, 3, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]"], "current": "231", "frontier": ["2", "23", "r"], "done": ["1", "12", "123", "13", "132", "21", "213"], "lines": [4, 5, 6], "slot": "—"}, {"step": 18, "title": "Step 18: backtrack", "text": "Un-choose: pop 1 (used[0] = F), pop 3 (used[2] = F), pop 2 (used[1] = F). path = []. The loop at this level moves on to the next index.", "detail": "Both pieces of state are restored, so the next choice starts from a clean path.", "action": "un-choose <code>1</code>, <code>3</code>, <code>2</code>", "path": "[]", "used": "[F, F, F]", "out": 4, "last": "[2, 3, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]"], "current": "r", "frontier": [], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231"], "lines": [12, 7], "slot": "0"}, {"step": 19, "title": "Step 19: choose 3", "text": "Choose index 2: used[2] = T, path.append(3) -> path = [3]. Recurse for slot 1.", "detail": "3 is not used yet, so it may fill slot 0.", "action": "choose <code>3</code>", "path": "[3]", "used": "[F, F, T]", "out": 4, "last": "[2, 3, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]"], "current": "3", "frontier": ["r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231"], "lines": [7, 10, 11], "slot": "1"}, {"step": 20, "title": "Step 20: choose 1", "text": "Choose index 0: used[0] = T, path.append(1) -> path = [3, 1]. Recurse for slot 2.", "detail": "1 is not used yet, so it may fill slot 1.", "action": "choose <code>1</code>", "path": "[3, 1]", "used": "[T, F, T]", "out": 4, "last": "[2, 3, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]"], "current": "31", "frontier": ["3", "r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231"], "lines": [7, 10, 11], "slot": "2"}, {"step": 21, "title": "Step 21: choose 2", "text": "Skip 1 (already used). Choose index 1: used[1] = T, path.append(2) -> path = [3, 1, 2]. Recurse for slot 3.", "detail": "Skip 1 (already used). 2 is not used yet, so it may fill slot 2.", "action": "skip 1 (used); choose <code>2</code>", "path": "[3, 1, 2]", "used": "[T, T, T]", "out": 4, "last": "[2, 3, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]"], "current": "312", "frontier": ["3", "31", "r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231"], "lines": [7, 8, 9, 10, 11], "slot": "3"}, {"step": 22, "title": "Step 22: record [3, 1, 2]", "text": "len(path) == 3: every slot is filled. Append a copy, out now has 5.", "detail": "Base case. out.append(path[:]) stores a snapshot; path itself keeps changing.", "action": "path full: record copy <code>[3, 1, 2]</code>", "path": "[3, 1, 2]", "used": "[T, T, T]", "out": 5, "last": "[3, 1, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]"], "current": "312", "frontier": ["3", "31", "r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231"], "lines": [4, 5, 6], "slot": "—"}, {"step": 23, "title": "Step 23: backtrack", "text": "Un-choose: pop 2 (used[1] = F), pop 1 (used[0] = F). path = [3]. The loop at this level moves on to the next index.", "detail": "Both pieces of state are restored, so the next choice starts from a clean path.", "action": "un-choose <code>2</code>, <code>1</code>", "path": "[3]", "used": "[F, F, T]", "out": 5, "last": "[3, 1, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]"], "current": "3", "frontier": ["r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231", "31", "312"], "lines": [12, 7], "slot": "1"}, {"step": 24, "title": "Step 24: choose 2", "text": "Choose index 1: used[1] = T, path.append(2) -> path = [3, 2]. Recurse for slot 2.", "detail": "2 is not used yet, so it may fill slot 1.", "action": "choose <code>2</code>", "path": "[3, 2]", "used": "[F, T, T]", "out": 5, "last": "[3, 1, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]"], "current": "32", "frontier": ["3", "r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231", "31", "312"], "lines": [7, 10, 11], "slot": "2"}, {"step": 25, "title": "Step 25: choose 1", "text": "Choose index 0: used[0] = T, path.append(1) -> path = [3, 2, 1]. Recurse for slot 3.", "detail": "1 is not used yet, so it may fill slot 2.", "action": "choose <code>1</code>", "path": "[3, 2, 1]", "used": "[T, T, T]", "out": 5, "last": "[3, 1, 2]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]"], "current": "321", "frontier": ["3", "32", "r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231", "31", "312"], "lines": [7, 10, 11], "slot": "3"}, {"step": 26, "title": "Step 26: record [3, 2, 1]", "text": "len(path) == 3: every slot is filled. Append a copy, out now has 6.", "detail": "Base case. out.append(path[:]) stores a snapshot; path itself keeps changing.", "action": "path full: record copy <code>[3, 2, 1]</code>", "path": "[3, 2, 1]", "used": "[T, T, T]", "out": 6, "last": "[3, 2, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]", "[3, 2, 1]"], "current": "321", "frontier": ["3", "32", "r"], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231", "31", "312"], "lines": [4, 5, 6], "slot": "—"}, {"step": 27, "title": "Step 27: unwind and return", "text": "Un-choose: pop 1 (used[0] = F), pop 2 (used[1] = F), pop 3 (used[2] = F). path = []. Every loop is exhausted: return out (6 permutations).", "detail": "Final answer: 6 permutations, in the order the tree's leaves are reached.", "action": "un-choose <code>1</code>, <code>2</code>, <code>3</code> &rarr; done", "path": "[]", "used": "[F, F, F]", "out": 6, "last": "[3, 2, 1]", "outs": ["[1, 2, 3]", "[1, 3, 2]", "[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]", "[3, 2, 1]"], "current": null, "frontier": [], "done": ["1", "12", "123", "13", "132", "2", "21", "213", "23", "231", "3", "31", "312", "32", "321", "r"], "lines": [12, 13, 14], "slot": "—"}];
+      // Ground truth: instrumented run of permute_swap([1, 2, 3]).
+      const psSteps = [{"step": 0, "title": "Initial state", "text": "Work on a copy of nums. backtrack(0): slot 0 is the first slot to fix.", "detail": "No slot fixed yet: the whole array is the unused tail.", "action": "Start: <code>backtrack(0)</code>", "arr": [1, 2, 3], "fixed": 0, "hi": [], "first": "0", "i": "—", "nums": "[1, 2, 3]", "out": 0, "last": "—", "lines": [2, 3, 12]}, {"step": 1, "title": "Step 1: slot 0 takes 1", "text": "i = first = 0: swap nums[0] with itself (no change). nums = [1, 2, 3]. Recurse on first = 1.", "detail": "Slots 0..0 are now fixed; nums[1:] is the unused tail.", "action": "swap(0,0) &rarr; no change, slot 0 = <code>1</code>", "arr": [1, 2, 3], "fixed": 1, "hi": [0], "first": "0", "i": "0", "nums": "[1, 2, 3]", "out": 0, "last": "—", "lines": [8, 9, 10]}, {"step": 2, "title": "Step 2: slot 1 takes 2", "text": "i = first = 1: swap nums[1] with itself (no change). nums = [1, 2, 3]. Recurse on first = 2.", "detail": "Slots 0..1 are now fixed; nums[2:] is the unused tail.", "action": "swap(1,1) &rarr; no change, slot 1 = <code>2</code>", "arr": [1, 2, 3], "fixed": 2, "hi": [1], "first": "1", "i": "1", "nums": "[1, 2, 3]", "out": 0, "last": "—", "lines": [8, 9, 10]}, {"step": 3, "title": "Step 3: slot 2 takes 3", "text": "i = first = 2: swap nums[2] with itself (no change). nums = [1, 2, 3]. Recurse on first = 3.", "detail": "Slots 0..2 are now fixed; nums[3:] is the unused tail.", "action": "swap(2,2) &rarr; no change, slot 2 = <code>3</code>", "arr": [1, 2, 3], "fixed": 3, "hi": [2], "first": "2", "i": "2", "nums": "[1, 2, 3]", "out": 0, "last": "—", "lines": [8, 9, 10]}, {"step": 4, "title": "Step 4: record [1, 2, 3]", "text": "first == 3: every slot is fixed. Append a copy of nums, out now has 1.", "detail": "Base case. nums[:] stores a snapshot; the array will be swapped back next.", "action": "all fixed: record copy <code>[1, 2, 3]</code>", "arr": [1, 2, 3], "fixed": 3, "hi": [], "first": "3", "i": "—", "nums": "[1, 2, 3]", "out": 1, "last": "[1, 2, 3]", "lines": [5, 6, 7]}, {"step": 5, "title": "Step 5: backtrack", "text": "Un-choose: swap back (2,2) (no change), swap back (1,1) (no change). nums = [1, 2, 3]. The loop moves on to the next i.", "detail": "Swapping back restores the array exactly, so the next swap starts from the same order as before.", "action": "swap back (2,2), swap back (1,1)", "arr": [1, 2, 3], "fixed": 1, "hi": [1], "first": "1", "i": "2", "nums": "[1, 2, 3]", "out": 1, "last": "[1, 2, 3]", "lines": [11, 8]}, {"step": 6, "title": "Step 6: slot 1 takes 3", "text": "Swap nums[1] and nums[2]. nums = [1, 3, 2]. Recurse on first = 2.", "detail": "Slots 0..1 are now fixed; nums[2:] is the unused tail.", "action": "swap(1,2), slot 1 = <code>3</code>", "arr": [1, 3, 2], "fixed": 2, "hi": [1, 2], "first": "1", "i": "2", "nums": "[1, 3, 2]", "out": 1, "last": "[1, 2, 3]", "lines": [8, 9, 10]}, {"step": 7, "title": "Step 7: slot 2 takes 2", "text": "i = first = 2: swap nums[2] with itself (no change). nums = [1, 3, 2]. Recurse on first = 3.", "detail": "Slots 0..2 are now fixed; nums[3:] is the unused tail.", "action": "swap(2,2) &rarr; no change, slot 2 = <code>2</code>", "arr": [1, 3, 2], "fixed": 3, "hi": [2], "first": "2", "i": "2", "nums": "[1, 3, 2]", "out": 1, "last": "[1, 2, 3]", "lines": [8, 9, 10]}, {"step": 8, "title": "Step 8: record [1, 3, 2]", "text": "first == 3: every slot is fixed. Append a copy of nums, out now has 2.", "detail": "Base case. nums[:] stores a snapshot; the array will be swapped back next.", "action": "all fixed: record copy <code>[1, 3, 2]</code>", "arr": [1, 3, 2], "fixed": 3, "hi": [], "first": "3", "i": "—", "nums": "[1, 3, 2]", "out": 2, "last": "[1, 3, 2]", "lines": [5, 6, 7]}, {"step": 9, "title": "Step 9: backtrack", "text": "Un-choose: swap back (2,2) (no change), swap back (1,2), swap back (0,0) (no change). nums = [1, 2, 3]. The loop moves on to the next i.", "detail": "Swapping back restores the array exactly, so the next swap starts from the same order as before.", "action": "swap back (2,2), swap back (1,2), swap back (0,0)", "arr": [1, 2, 3], "fixed": 0, "hi": [0], "first": "0", "i": "2", "nums": "[1, 2, 3]", "out": 2, "last": "[1, 3, 2]", "lines": [11, 8]}, {"step": 10, "title": "Step 10: slot 0 takes 2", "text": "Swap nums[0] and nums[1]. nums = [2, 1, 3]. Recurse on first = 1.", "detail": "Slots 0..0 are now fixed; nums[1:] is the unused tail.", "action": "swap(0,1), slot 0 = <code>2</code>", "arr": [2, 1, 3], "fixed": 1, "hi": [0, 1], "first": "0", "i": "1", "nums": "[2, 1, 3]", "out": 2, "last": "[1, 3, 2]", "lines": [8, 9, 10]}, {"step": 11, "title": "Step 11: slot 1 takes 1", "text": "i = first = 1: swap nums[1] with itself (no change). nums = [2, 1, 3]. Recurse on first = 2.", "detail": "Slots 0..1 are now fixed; nums[2:] is the unused tail.", "action": "swap(1,1) &rarr; no change, slot 1 = <code>1</code>", "arr": [2, 1, 3], "fixed": 2, "hi": [1], "first": "1", "i": "1", "nums": "[2, 1, 3]", "out": 2, "last": "[1, 3, 2]", "lines": [8, 9, 10]}, {"step": 12, "title": "Step 12: slot 2 takes 3", "text": "i = first = 2: swap nums[2] with itself (no change). nums = [2, 1, 3]. Recurse on first = 3.", "detail": "Slots 0..2 are now fixed; nums[3:] is the unused tail.", "action": "swap(2,2) &rarr; no change, slot 2 = <code>3</code>", "arr": [2, 1, 3], "fixed": 3, "hi": [2], "first": "2", "i": "2", "nums": "[2, 1, 3]", "out": 2, "last": "[1, 3, 2]", "lines": [8, 9, 10]}, {"step": 13, "title": "Step 13: record [2, 1, 3]", "text": "first == 3: every slot is fixed. Append a copy of nums, out now has 3.", "detail": "Base case. nums[:] stores a snapshot; the array will be swapped back next.", "action": "all fixed: record copy <code>[2, 1, 3]</code>", "arr": [2, 1, 3], "fixed": 3, "hi": [], "first": "3", "i": "—", "nums": "[2, 1, 3]", "out": 3, "last": "[2, 1, 3]", "lines": [5, 6, 7]}, {"step": 14, "title": "Step 14: backtrack", "text": "Un-choose: swap back (2,2) (no change), swap back (1,1) (no change). nums = [2, 1, 3]. The loop moves on to the next i.", "detail": "Swapping back restores the array exactly, so the next swap starts from the same order as before.", "action": "swap back (2,2), swap back (1,1)", "arr": [2, 1, 3], "fixed": 1, "hi": [1], "first": "1", "i": "2", "nums": "[2, 1, 3]", "out": 3, "last": "[2, 1, 3]", "lines": [11, 8]}, {"step": 15, "title": "Step 15: slot 1 takes 3", "text": "Swap nums[1] and nums[2]. nums = [2, 3, 1]. Recurse on first = 2.", "detail": "Slots 0..1 are now fixed; nums[2:] is the unused tail.", "action": "swap(1,2), slot 1 = <code>3</code>", "arr": [2, 3, 1], "fixed": 2, "hi": [1, 2], "first": "1", "i": "2", "nums": "[2, 3, 1]", "out": 3, "last": "[2, 1, 3]", "lines": [8, 9, 10]}, {"step": 16, "title": "Step 16: slot 2 takes 1", "text": "i = first = 2: swap nums[2] with itself (no change). nums = [2, 3, 1]. Recurse on first = 3.", "detail": "Slots 0..2 are now fixed; nums[3:] is the unused tail.", "action": "swap(2,2) &rarr; no change, slot 2 = <code>1</code>", "arr": [2, 3, 1], "fixed": 3, "hi": [2], "first": "2", "i": "2", "nums": "[2, 3, 1]", "out": 3, "last": "[2, 1, 3]", "lines": [8, 9, 10]}, {"step": 17, "title": "Step 17: record [2, 3, 1]", "text": "first == 3: every slot is fixed. Append a copy of nums, out now has 4.", "detail": "Base case. nums[:] stores a snapshot; the array will be swapped back next.", "action": "all fixed: record copy <code>[2, 3, 1]</code>", "arr": [2, 3, 1], "fixed": 3, "hi": [], "first": "3", "i": "—", "nums": "[2, 3, 1]", "out": 4, "last": "[2, 3, 1]", "lines": [5, 6, 7]}, {"step": 18, "title": "Step 18: backtrack", "text": "Un-choose: swap back (2,2) (no change), swap back (1,2), swap back (0,1). nums = [1, 2, 3]. The loop moves on to the next i.", "detail": "Swapping back restores the array exactly, so the next swap starts from the same order as before.", "action": "swap back (2,2), swap back (1,2), swap back (0,1)", "arr": [1, 2, 3], "fixed": 0, "hi": [0, 1], "first": "0", "i": "2", "nums": "[1, 2, 3]", "out": 4, "last": "[2, 3, 1]", "lines": [11, 8]}, {"step": 19, "title": "Step 19: slot 0 takes 3", "text": "Swap nums[0] and nums[2]. nums = [3, 2, 1]. Recurse on first = 1.", "detail": "Slots 0..0 are now fixed; nums[1:] is the unused tail.", "action": "swap(0,2), slot 0 = <code>3</code>", "arr": [3, 2, 1], "fixed": 1, "hi": [0, 2], "first": "0", "i": "2", "nums": "[3, 2, 1]", "out": 4, "last": "[2, 3, 1]", "lines": [8, 9, 10]}, {"step": 20, "title": "Step 20: slot 1 takes 2", "text": "i = first = 1: swap nums[1] with itself (no change). nums = [3, 2, 1]. Recurse on first = 2.", "detail": "Slots 0..1 are now fixed; nums[2:] is the unused tail.", "action": "swap(1,1) &rarr; no change, slot 1 = <code>2</code>", "arr": [3, 2, 1], "fixed": 2, "hi": [1], "first": "1", "i": "1", "nums": "[3, 2, 1]", "out": 4, "last": "[2, 3, 1]", "lines": [8, 9, 10]}, {"step": 21, "title": "Step 21: slot 2 takes 1", "text": "i = first = 2: swap nums[2] with itself (no change). nums = [3, 2, 1]. Recurse on first = 3.", "detail": "Slots 0..2 are now fixed; nums[3:] is the unused tail.", "action": "swap(2,2) &rarr; no change, slot 2 = <code>1</code>", "arr": [3, 2, 1], "fixed": 3, "hi": [2], "first": "2", "i": "2", "nums": "[3, 2, 1]", "out": 4, "last": "[2, 3, 1]", "lines": [8, 9, 10]}, {"step": 22, "title": "Step 22: record [3, 2, 1]", "text": "first == 3: every slot is fixed. Append a copy of nums, out now has 5.", "detail": "Base case. nums[:] stores a snapshot; the array will be swapped back next.", "action": "all fixed: record copy <code>[3, 2, 1]</code>", "arr": [3, 2, 1], "fixed": 3, "hi": [], "first": "3", "i": "—", "nums": "[3, 2, 1]", "out": 5, "last": "[3, 2, 1]", "lines": [5, 6, 7]}, {"step": 23, "title": "Step 23: backtrack", "text": "Un-choose: swap back (2,2) (no change), swap back (1,1) (no change). nums = [3, 2, 1]. The loop moves on to the next i.", "detail": "Swapping back restores the array exactly, so the next swap starts from the same order as before.", "action": "swap back (2,2), swap back (1,1)", "arr": [3, 2, 1], "fixed": 1, "hi": [1], "first": "1", "i": "2", "nums": "[3, 2, 1]", "out": 5, "last": "[3, 2, 1]", "lines": [11, 8]}, {"step": 24, "title": "Step 24: slot 1 takes 1", "text": "Swap nums[1] and nums[2]. nums = [3, 1, 2]. Recurse on first = 2.", "detail": "Slots 0..1 are now fixed; nums[2:] is the unused tail.", "action": "swap(1,2), slot 1 = <code>1</code>", "arr": [3, 1, 2], "fixed": 2, "hi": [1, 2], "first": "1", "i": "2", "nums": "[3, 1, 2]", "out": 5, "last": "[3, 2, 1]", "lines": [8, 9, 10]}, {"step": 25, "title": "Step 25: slot 2 takes 2", "text": "i = first = 2: swap nums[2] with itself (no change). nums = [3, 1, 2]. Recurse on first = 3.", "detail": "Slots 0..2 are now fixed; nums[3:] is the unused tail.", "action": "swap(2,2) &rarr; no change, slot 2 = <code>2</code>", "arr": [3, 1, 2], "fixed": 3, "hi": [2], "first": "2", "i": "2", "nums": "[3, 1, 2]", "out": 5, "last": "[3, 2, 1]", "lines": [8, 9, 10]}, {"step": 26, "title": "Step 26: record [3, 1, 2]", "text": "first == 3: every slot is fixed. Append a copy of nums, out now has 6.", "detail": "Base case. nums[:] stores a snapshot; the array will be swapped back next.", "action": "all fixed: record copy <code>[3, 1, 2]</code>", "arr": [3, 1, 2], "fixed": 3, "hi": [], "first": "3", "i": "—", "nums": "[3, 1, 2]", "out": 6, "last": "[3, 1, 2]", "lines": [5, 6, 7]}, {"step": 27, "title": "Step 27: unwind and return", "text": "Un-choose: swap back (2,2) (no change), swap back (1,2), swap back (0,2). nums = [1, 2, 3]. All loops exhausted: return out (6 permutations).", "detail": "Final answer: 6 permutations. Note [3, 2, 1] comes before [3, 1, 2]: the swaps reorder the tail.", "action": "swap back (2,2), swap back (1,2), swap back (0,2) &rarr; done", "arr": [1, 2, 3], "fixed": 0, "hi": [], "first": "—", "i": "—", "nums": "[1, 2, 3]", "out": 6, "last": "[3, 1, 2]", "lines": [11, 12, 13]}];
+
+      function setCodeHighlight(containerId, lines) {
+        document.querySelectorAll(`#${containerId} .code-line`).forEach((line) => {
+          line.classList.toggle('active', lines.includes(Number(line.dataset.line)));
+        });
+      }
+
+      function markActiveRow(tableId, step) {
+        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row) => {
+          row.classList.toggle('active-row', Number(row.dataset.step) === step);
+        });
+      }
+
+      function setupTrace({ steps, prefix, render }) {
+        let index = 0;
+        let timer = null;
+        const prevBtn = document.getElementById(`${prefix}-prev`);
+        const nextBtn = document.getElementById(`${prefix}-next`);
+        const playBtn = document.getElementById(`${prefix}-play`);
+        const resetBtn = document.getElementById(`${prefix}-reset`);
+
+        function stop() {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          playBtn.textContent = 'Resume';
+        }
+
+        function update() {
+          render(steps[index], index, steps.length - 1);
+          prevBtn.disabled = index === 0;
+          nextBtn.disabled = index === steps.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => { stop(); if (index > 0) index -= 1; update(); });
+        nextBtn.addEventListener('click', () => { stop(); if (index < steps.length - 1) index += 1; update(); });
+        resetBtn.addEventListener('click', () => { stop(); index = 0; update(); });
+        playBtn.addEventListener('click', () => {
+          if (timer) { stop(); return; }
+          if (index >= steps.length - 1) { index = 0; update(); }
+          playBtn.textContent = 'Pause';
+          timer = setInterval(() => {
+            if (index >= steps.length - 1) { stop(); return; }
+            index += 1;
+            update();
+          }, 1500);
+        });
+        update();
+      }
+
+      function renderPU(step, index, max) {
+        document.getElementById('pu-step-title').textContent = step.title;
+        document.getElementById('pu-step-text').textContent = step.text;
+        document.getElementById('pu-slot').textContent = step.slot;
+        document.getElementById('pu-action').innerHTML = step.action;
+        document.getElementById('pu-path').textContent = step.path;
+        document.getElementById('pu-used').textContent = step.used;
+        document.getElementById('pu-out').textContent = step.out;
+        document.getElementById('pu-last').textContent = step.last;
+        document.getElementById('pu-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('pu-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('pu-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('pu-trace-table', step.step);
+        setCodeHighlight('pu-code', step.lines);
+        document.querySelectorAll('#pu-graph [data-node]').forEach((g) => {
+          const id = g.dataset.node;
+          g.classList.remove('done', 'frontier', 'current');
+          if (step.current === id) g.classList.add('current');
+          else if (step.frontier.includes(id)) g.classList.add('frontier');
+          else if (step.done.includes(id)) g.classList.add('done');
+        });
+        document.querySelectorAll('#pu-graph [data-leaf]').forEach((t) => {
+          t.classList.toggle('rec', step.outs.includes(t.dataset.leaf));
+        });
+      }
+
+      function renderPS(step, index, max) {
+        document.getElementById('ps-step-title').textContent = step.title;
+        document.getElementById('ps-step-text').textContent = step.text;
+        document.getElementById('ps-first').textContent = step.first;
+        document.getElementById('ps-i').textContent = step.i;
+        document.getElementById('ps-nums').textContent = step.nums;
+        document.getElementById('ps-action').innerHTML = step.action;
+        document.getElementById('ps-out').textContent = step.out;
+        document.getElementById('ps-last').textContent = step.last;
+        document.getElementById('ps-detail').innerHTML = `<strong>What changed:</strong> ${step.detail}`;
+        document.getElementById('ps-step-counter').textContent = `Step ${step.step} / ${max}`;
+        document.getElementById('ps-progress').style.width = `${(index / max) * 100}%`;
+        markActiveRow('ps-trace-table', step.step);
+        setCodeHighlight('ps-code', step.lines);
+        document.querySelectorAll('#ps-graph [data-cell]').forEach((cell) => {
+          const k = Number(cell.dataset.cell);
+          cell.classList.remove('fixed', 'hi');
+          if (step.hi.includes(k)) cell.classList.add('hi');
+          else if (k < step.fixed) cell.classList.add('fixed');
+        });
+        document.querySelectorAll('#ps-graph [data-val]').forEach((t) => {
+          t.textContent = step.arr[Number(t.dataset.val)];
+        });
+        document.querySelectorAll('#ps-graph [data-ptr]').forEach((t) => {
+          const k = String(t.dataset.ptr);
+          const parts = [];
+          if (step.first === k) parts.push('first');
+          if (step.i === k) parts.push('i');
+          t.textContent = parts.join(' = ');
+        });
+      }
+
+      setupTrace({ steps: puSteps, prefix: 'pu', render: renderPU });
+      setupTrace({ steps: psSteps, prefix: 'ps', render: renderPS });
+
+      const tabs = Array.from(document.querySelectorAll('[data-example-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-example-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const id = tab.dataset.exampleTab;
+          tabs.forEach((btn) => btn.classList.toggle('active-tab', btn === tab));
+          panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.examplePanel === id));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

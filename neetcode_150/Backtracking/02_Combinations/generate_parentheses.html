@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generate Parentheses — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+
+  .svgwrap{overflow-x:auto;padding:6px 0}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .chip.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .chip.cur{background:var(--hi);border-color:var(--hi-bd)}
+  .chips.mono .chip,.chip{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tedge{stroke:var(--border);stroke-width:2}
+  .tedge.live{stroke:var(--accent);stroke-width:3}
+  .elab{fill:var(--muted);font-size:11px;font-weight:600}
+  .tn rect{fill:var(--card);stroke:var(--border);stroke-width:2;transition:.15s}
+  .tn text{fill:var(--fg);font-size:13px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tn.seen rect{fill:var(--seen);stroke:var(--seen-bd)}
+  .tn.good rect{fill:var(--good);stroke:var(--good-bd)}
+  .tn.bad rect{fill:var(--bad);stroke:var(--bad-bd)}
+  .tn.dead{opacity:.5}
+  .tn.cur rect{fill:var(--hi);stroke:var(--hi-bd);stroke-width:3}
+  .tn.good.cur rect{fill:var(--good);stroke:var(--hi-bd);stroke-width:3}
+  .tn.bad.cur rect{fill:var(--bad);stroke:var(--hi-bd);stroke-width:3}
+  .tn.dead.cur{opacity:1}
+  .box{width:46px;height:46px;font-size:17px}
+  @media (max-width:520px){ .counter{margin-left:0;width:100%} }
+
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="02_combinations_lesson.html">&larr; Combinations lesson</a><span class="tag"><span class="dot" style="background:#eab308"></span> Medium · Backtracking · Combinations</span></div>
+<h1>22 · Generate Parentheses</h1>
+<p class="lead">Every balanced arrangement of n bracket pairs.</p>
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Given <code>n</code>, write down every way to arrange <code>n</code> opening and <code>n</code> closing brackets so that they match up properly.</p>
+<div class="idea">Example: <code>n = 3</code> &rarr; <code>["((()))", "(()())", "(())()", "()(())", "()()()"]</code>.</div>
+<div class="idea">NeetCode lists this problem under <b>Stack</b>, because checking brackets is a stack job. Producing all of them is a backtracking build, so here it lives in the Combinations pattern.</div>
+<div class="badges" id="pd-b"></div>
+<div class="mem"><h4>balanced strings</h4><div class="chips" id="pd-m0"></div></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="pd-count"></span></div>
+</div>
+<div class="card"><h2>Solution 1 — Brute force: build every bracket string, then check it</h2>
+<div class="idea">Put either ( or ) in every position: 2<sup>2n</sup> strings. Check each with a running <b>balance</b> (+1 for (, &minus;1 for )): it must never go below 0 and must end at 0. Keep the ones that pass. Traced on <code>n = 2</code> to keep the list short.</div>
+<div class="badges" id="br-b"></div>
+<div class="mem"><h4>all 16 strings (checked so far: green = kept, red = rejected)</h4><div class="chips" id="br-m0"></div></div>
+<div class="mem"><h4>kept</h4><div class="chips" id="br-m1"></div></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> <code>O(4^n &middot; n)</code> time: <code>4^n</code> strings, each checked in <code>O(n)</code>; <code>O(n)</code> depth. Most of the work is thrown away (14 of 16 here).</p>
+<div class="trace-title">Step-by-step trace — n = 2 (one row per finished string)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>String</th><th>Balance after each char</th><th>Valid?</th><th>Decision</th><th>Kept so far</th></tr>
+  <tr><td>1</td><td>((((</td><td>1 &rarr; 2 &rarr; 3 &rarr; 4</td><td>no</td><td>ends at 4, not 0 &rarr; reject</td><td class="rule">&ndash;</td></tr>
+  <tr><td>2</td><td>((()</td><td>1 &rarr; 2 &rarr; 3 &rarr; 2</td><td>no</td><td>ends at 2, not 0 &rarr; reject</td><td class="rule">&ndash;</td></tr>
+  <tr><td>3</td><td>(()(</td><td>1 &rarr; 2 &rarr; 1 &rarr; 2</td><td>no</td><td>ends at 2, not 0 &rarr; reject</td><td class="rule">&ndash;</td></tr>
+  <tr><td>4</td><td>(())</td><td>1 &rarr; 2 &rarr; 1 &rarr; 0</td><td>yes</td><td>balance never below 0 and ends at 0 &rarr; keep</td><td class="rule">(())</td></tr>
+  <tr><td>5</td><td>()((</td><td>1 &rarr; 0 &rarr; 1 &rarr; 2</td><td>no</td><td>ends at 2, not 0 &rarr; reject</td><td class="rule">(())</td></tr>
+  <tr><td>6</td><td>()()</td><td>1 &rarr; 0 &rarr; 1 &rarr; 0</td><td>yes</td><td>balance never below 0 and ends at 0 &rarr; keep</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>7</td><td>())(</td><td>1 &rarr; 0 &rarr; -1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>8</td><td>()))</td><td>1 &rarr; 0 &rarr; -1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>9</td><td>)(((</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>10</td><td>)(()</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>11</td><td>)()(</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>12</td><td>)())</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>13</td><td>))((</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>14</td><td>))()</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr><td>15</td><td>)))(</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject</td><td class="rule">(()), ()()</td></tr>
+  <tr class="final"><td>16</td><td>))))</td><td>-1</td><td>no</td><td>balance drops to -1 &rarr; reject; all 16 checked</td><td>(()), ()()</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>Solution 2 — The pattern template: backtracking with open/close counts</h2>
+<div class="idea">Build the string one bracket at a time, and only make moves that keep it fixable: add <code>(</code> while <code>open &lt; n</code>; add <code>)</code> only while <code>close &lt; open</code>. Then every string that reaches length <code>2n</code> is balanced, so nothing is ever thrown away.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>current call</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>visited call</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>answer recorded</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>pruned (none: the rules stop bad moves)</span><span><span class="sw" style="background:var(--card);border-color:var(--border);opacity:.5"></span>dead end / skipped</span></div>
+<div class="viz" id="bt-viz"></div>
+<div class="badges" id="bt-b"></div>
+<div class="mem"><h4>strings found</h4><div class="chips" id="bt-m0"></div></div>
+<div class="caption" id="bt-cap"></div>
+<div class="controls" data-player="bt"><button type="button" data-act="prev">&#9664; Prev</button><button type="button" data-act="play" class="primary">&#9654; Play</button><button type="button" data-act="next">Next &#9654;</button><button type="button" data-act="reset">&#8634; Reset</button><span class="counter" id="bt-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> proportional to the number of answers (the Catalan number, about <code>4^n / n^1.5</code>) times <code>n</code> to build each: <code>O(4^n / &radic;n)</code> time, <code>O(n)</code> depth. Here: 22 calls for 5 answers (the brute force would build 64 strings for n = 3).</p>
+<div class="trace-title">Step-by-step trace — n = 3 (one row per call)</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>path</th><th>open</th><th>close</th><th>Decision</th><th>Found</th></tr>
+  <tr><td>1</td><td>""</td><td>0</td><td>0</td><td>add ( (open 0 &lt; 3); no ) (close = open = 0)</td><td class="rule">0</td></tr>
+  <tr><td>2</td><td>"("</td><td>1</td><td>0</td><td>add ( (open 1 &lt; 3); add ) (close 0 &lt; open 1)</td><td class="rule">0</td></tr>
+  <tr><td>3</td><td>"(("</td><td>2</td><td>0</td><td>add ( (open 2 &lt; 3); add ) (close 0 &lt; open 2)</td><td class="rule">0</td></tr>
+  <tr><td>4</td><td>"((("</td><td>3</td><td>0</td><td>no ( (open = 3); add ) (close 0 &lt; open 3)</td><td class="rule">0</td></tr>
+  <tr><td>5</td><td>"((()"</td><td>3</td><td>1</td><td>no ( (open = 3); add ) (close 1 &lt; open 3)</td><td class="rule">0</td></tr>
+  <tr><td>6</td><td>"((())"</td><td>3</td><td>2</td><td>no ( (open = 3); add ) (close 2 &lt; open 3)</td><td class="rule">0</td></tr>
+  <tr><td>7</td><td>"((()))"</td><td>3</td><td>3</td><td>length 2n &rarr; save</td><td class="rule">1</td></tr>
+  <tr><td>8</td><td>"(()"</td><td>2</td><td>1</td><td>add ( (open 2 &lt; 3); add ) (close 1 &lt; open 2)</td><td class="rule">1</td></tr>
+  <tr><td>9</td><td>"(()("</td><td>3</td><td>1</td><td>no ( (open = 3); add ) (close 1 &lt; open 3)</td><td class="rule">1</td></tr>
+  <tr><td>10</td><td>"(()()"</td><td>3</td><td>2</td><td>no ( (open = 3); add ) (close 2 &lt; open 3)</td><td class="rule">1</td></tr>
+  <tr><td>11</td><td>"(()())"</td><td>3</td><td>3</td><td>length 2n &rarr; save</td><td class="rule">2</td></tr>
+  <tr><td>12</td><td>"(())"</td><td>2</td><td>2</td><td>add ( (open 2 &lt; 3); no ) (close = open = 2)</td><td class="rule">2</td></tr>
+  <tr><td>13</td><td>"(())("</td><td>3</td><td>2</td><td>no ( (open = 3); add ) (close 2 &lt; open 3)</td><td class="rule">2</td></tr>
+  <tr><td>14</td><td>"(())()"</td><td>3</td><td>3</td><td>length 2n &rarr; save</td><td class="rule">3</td></tr>
+  <tr><td>15</td><td>"()"</td><td>1</td><td>1</td><td>add ( (open 1 &lt; 3); no ) (close = open = 1)</td><td class="rule">3</td></tr>
+  <tr><td>16</td><td>"()("</td><td>2</td><td>1</td><td>add ( (open 2 &lt; 3); add ) (close 1 &lt; open 2)</td><td class="rule">3</td></tr>
+  <tr><td>17</td><td>"()(("</td><td>3</td><td>1</td><td>no ( (open = 3); add ) (close 1 &lt; open 3)</td><td class="rule">3</td></tr>
+  <tr><td>18</td><td>"()(()"</td><td>3</td><td>2</td><td>no ( (open = 3); add ) (close 2 &lt; open 3)</td><td class="rule">3</td></tr>
+  <tr><td>19</td><td>"()(())"</td><td>3</td><td>3</td><td>length 2n &rarr; save</td><td class="rule">4</td></tr>
+  <tr><td>20</td><td>"()()"</td><td>2</td><td>2</td><td>add ( (open 2 &lt; 3); no ) (close = open = 2)</td><td class="rule">4</td></tr>
+  <tr><td>21</td><td>"()()("</td><td>3</td><td>2</td><td>no ( (open = 3); add ) (close 2 &lt; open 3)</td><td class="rule">4</td></tr>
+  <tr class="final"><td>22</td><td>"()()()"</td><td>3</td><td>3</td><td>length 2n &rarr; save; all branches done &rarr; 5 strings</td><td>5</td></tr>
+</table>
+</div>
+</div>
+<div class="card"><h2>When you'd use this</h2>
+See <b>"generate all valid / well-formed ..."</b> where validity can be checked on a <b>prefix</b>? Backtrack, and turn the validity rule into the condition for each choice.
+<p><a href="02_combinations_lesson.html">&rarr; Combinations: the pattern lesson and the other problems that use it</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1100);
+  });
+  draw();
+}
+function chips(targetId, items){
+  var el=document.getElementById(targetId); if(!el) return;
+  if(!items.length){ el.innerHTML='<span class="empty">(empty)</span>'; return; }
+  var h=''; for(var k=0;k<items.length;k++) h+='<span class="chip '+(items[k].cls||'')+'">'+items[k].text+'</span>';
+  el.innerHTML=h;
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function boxes(targetId, nums, marks, ptrs){
+  var el=document.getElementById(targetId); if(!el) return;
+  var h='<div class="row">';
+  for(var k=0;k<nums.length;k++){
+    h+='<div class="cell"><div class="ptr">'+(ptrs[k]||'')+'</div><div class="box '+(marks[k]||'')+'">'+nums[k]+'</div><div class="idxlabel">'+k+'</div></div>';
+  }
+  el.innerHTML=h+'</div>';
+}
+/* Recursion tree: T.nodes[i] = {p: parent, label, edge, x (leaf slot), y (depth), w (box width)}.
+   f.n = nodes created so far, f.m = css class per node, f.live = ids on the current root-to-node path. */
+function drawTree(id, T, f){
+  var GY=60, H=T.rows*GY, W=T.cols*T.slot+8, live={};
+  (f.live||[]).forEach(function(k){ live[k]=1; });
+  function X(i){ return 4+(T.nodes[i].x+0.5)*T.slot; } function Y(i){ return 18+T.nodes[i].y*GY; }
+  var s='<div class="svgwrap"><svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="recursion tree">';
+  for(var i=1;i<f.n;i++){
+    var p=T.nodes[i].p, on=(live[i]&&live[p]);
+    s+='<line class="tedge'+(on?' live':'')+'" x1="'+X(p)+'" y1="'+(Y(p)+13)+'" x2="'+X(i)+'" y2="'+(Y(i)-13)+'"/>';
+    if(T.nodes[i].edge){
+      var mx=X(p)+(X(i)-X(p))*0.62, my=Y(p)+(Y(i)-Y(p))*0.62+4, dx=X(i)<X(p)?-4:(X(i)>X(p)?4:6);
+      s+='<text class="elab" x="'+(mx+dx)+'" y="'+my+'" text-anchor="'+(X(i)<X(p)?'end':'start')+'">'+T.nodes[i].edge+'</text>';
+    }
+  }
+  for(var i=0;i<f.n;i++){
+    var nd=T.nodes[i];
+    s+='<g class="tn '+(f.m[i]||'')+'"><rect x="'+(X(i)-nd.w/2)+'" y="'+(Y(i)-13)+'" width="'+nd.w+'" height="26" rx="8"/><text x="'+X(i)+'" y="'+(Y(i)+5)+'" text-anchor="middle">'+nd.label+'</text></g>';
+  }
+  var host=document.getElementById(id); host.innerHTML=s+'</svg></div>';
+  var cur=-1; for(var k in f.m){ if((' '+f.m[k]+' ').indexOf(' cur ')>=0) cur=+k; }
+  if(cur>=0 && host.scrollWidth>host.clientWidth) host.scrollLeft=Math.max(0,X(cur)-host.clientWidth/2);
+}
+
+var BT_T={"nodes": [{"p": null, "label": "start", "edge": "", "x": 2.125, "y": 0, "w": 54}, {"p": 0, "label": "(", "edge": "", "x": 2.125, "y": 1, "w": 30}, {"p": 1, "label": "((", "edge": "", "x": 0.75, "y": 2, "w": 30}, {"p": 2, "label": "(((", "edge": "", "x": 0.0, "y": 3, "w": 38}, {"p": 3, "label": "((()", "edge": "", "x": 0.0, "y": 4, "w": 46}, {"p": 4, "label": "((())", "edge": "", "x": 0.0, "y": 5, "w": 54}, {"p": 5, "label": "((()))", "edge": "", "x": 0, "y": 6, "w": 62}, {"p": 2, "label": "(()", "edge": "", "x": 1.5, "y": 3, "w": 38}, {"p": 7, "label": "(()(", "edge": "", "x": 1.0, "y": 4, "w": 46}, {"p": 8, "label": "(()()", "edge": "", "x": 1.0, "y": 5, "w": 54}, {"p": 9, "label": "(()())", "edge": "", "x": 1, "y": 6, "w": 62}, {"p": 7, "label": "(())", "edge": "", "x": 2.0, "y": 4, "w": 46}, {"p": 11, "label": "(())(", "edge": "", "x": 2.0, "y": 5, "w": 54}, {"p": 12, "label": "(())()", "edge": "", "x": 2, "y": 6, "w": 62}, {"p": 1, "label": "()", "edge": "", "x": 3.5, "y": 2, "w": 30}, {"p": 14, "label": "()(", "edge": "", "x": 3.5, "y": 3, "w": 38}, {"p": 15, "label": "()((", "edge": "", "x": 3.0, "y": 4, "w": 46}, {"p": 16, "label": "()(()", "edge": "", "x": 3.0, "y": 5, "w": 54}, {"p": 17, "label": "()(())", "edge": "", "x": 3, "y": 6, "w": 62}, {"p": 15, "label": "()()", "edge": "", "x": 4.0, "y": 4, "w": 46}, {"p": 19, "label": "()()(", "edge": "", "x": 4.0, "y": 5, "w": 54}, {"p": 20, "label": "()()()", "edge": "", "x": 4, "y": 6, "w": 62}], "slot": 74, "cols": 5, "rows": 7};
+makePlayer('pd', [{"cap": "n = 3: three ( and three ). A string is <b>balanced</b> if, reading left to right, you never close more than you have opened, and everything opened gets closed.", "b": [{"label": "n", "val": 3}], "mem": [[]]}, {"cap": "<b>(()())</b> is balanced. <b>())(()</b> is not: after three characters it has closed 2 but opened only 1.", "b": [{"label": "(()())", "val": "ok", "cls": "good"}, {"label": "())(()", "val": "broken", "cls": "bad"}], "mem": [[{"text": "(()())", "cls": "look"}]]}, {"cap": "All balanced strings for n = 3: <b>5</b> of them.", "b": [{"label": "answers", "val": 5, "cls": "good"}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}, {"text": "()(())", "cls": "look"}, {"text": "()()()", "cls": "look"}]]}], function(f){
+  badges('pd-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('pd-m'+k, items); });
+  document.getElementById('pd-cap').innerHTML=f.cap;
+});
+makePlayer('br', [{"cap": "Step 1. n = 2: try every string of 4 characters made of ( and ). There are 2^4 = 16.", "b": [{"label": "string", "val": "&ndash;"}], "mem": [[{"text": "((((", "cls": ""}, {"text": "((()", "cls": ""}, {"text": "(()(", "cls": ""}, {"text": "(())", "cls": ""}, {"text": "()((", "cls": ""}, {"text": "()()", "cls": ""}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], []]}, {"cap": "Step 2. <b>((((</b>: balance 1 &rarr; 2 &rarr; 3 &rarr; 4. Ends at 4, not 0 &rarr; reject.", "b": [{"label": "string", "val": "(((("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "cur"}, {"text": "((()", "cls": ""}, {"text": "(()(", "cls": ""}, {"text": "(())", "cls": ""}, {"text": "()((", "cls": ""}, {"text": "()()", "cls": ""}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], []]}, {"cap": "Step 3. <b>((()</b>: balance 1 &rarr; 2 &rarr; 3 &rarr; 2. Ends at 2, not 0 &rarr; reject.", "b": [{"label": "string", "val": "((()"}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "cur"}, {"text": "(()(", "cls": ""}, {"text": "(())", "cls": ""}, {"text": "()((", "cls": ""}, {"text": "()()", "cls": ""}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], []]}, {"cap": "Step 4. <b>(()(</b>: balance 1 &rarr; 2 &rarr; 1 &rarr; 2. Ends at 2, not 0 &rarr; reject.", "b": [{"label": "string", "val": "(()("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "cur"}, {"text": "(())", "cls": ""}, {"text": "()((", "cls": ""}, {"text": "()()", "cls": ""}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], []]}, {"cap": "Step 5. <b>(())</b>: balance 1 &rarr; 2 &rarr; 1 &rarr; 0. Balance never below 0 and ends at 0 &rarr; keep.", "b": [{"label": "string", "val": "(())"}, {"label": "valid", "val": "yes", "cls": "good"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "cur"}, {"text": "()((", "cls": ""}, {"text": "()()", "cls": ""}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}]]}, {"cap": "Step 6. <b>()((</b>: balance 1 &rarr; 0 &rarr; 1 &rarr; 2. Ends at 2, not 0 &rarr; reject.", "b": [{"label": "string", "val": "()(("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "cur"}, {"text": "()()", "cls": ""}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}]]}, {"cap": "Step 7. <b>()()</b>: balance 1 &rarr; 0 &rarr; 1 &rarr; 0. Balance never below 0 and ends at 0 &rarr; keep.", "b": [{"label": "string", "val": "()()"}, {"label": "valid", "val": "yes", "cls": "good"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "cur"}, {"text": "())(", "cls": ""}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 8. <b>())(</b>: balance 1 &rarr; 0 &rarr; -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": "())("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "cur"}, {"text": "()))", "cls": ""}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 9. <b>()))</b>: balance 1 &rarr; 0 &rarr; -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": "()))"}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "cur"}, {"text": ")(((", "cls": ""}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 10. <b>)(((</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": ")((("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "cur"}, {"text": ")(()", "cls": ""}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 11. <b>)(()</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": ")(()"}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "cur"}, {"text": ")()(", "cls": ""}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 12. <b>)()(</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": ")()("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "bad"}, {"text": ")()(", "cls": "cur"}, {"text": ")())", "cls": ""}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 13. <b>)())</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": ")())"}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "bad"}, {"text": ")()(", "cls": "bad"}, {"text": ")())", "cls": "cur"}, {"text": "))((", "cls": ""}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 14. <b>))((</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": "))(("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "bad"}, {"text": ")()(", "cls": "bad"}, {"text": ")())", "cls": "bad"}, {"text": "))((", "cls": "cur"}, {"text": "))()", "cls": ""}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 15. <b>))()</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": "))()"}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "bad"}, {"text": ")()(", "cls": "bad"}, {"text": ")())", "cls": "bad"}, {"text": "))((", "cls": "bad"}, {"text": "))()", "cls": "cur"}, {"text": ")))(", "cls": ""}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 16. <b>)))(</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": ")))("}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "bad"}, {"text": ")()(", "cls": "bad"}, {"text": ")())", "cls": "bad"}, {"text": "))((", "cls": "bad"}, {"text": "))()", "cls": "bad"}, {"text": ")))(", "cls": "cur"}, {"text": "))))", "cls": ""}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}, {"cap": "Step 17. <b>))))</b>: balance -1. Balance drops to -1 &rarr; reject.", "b": [{"label": "string", "val": "))))"}, {"label": "valid", "val": "no", "cls": "bad"}], "mem": [[{"text": "((((", "cls": "bad"}, {"text": "((()", "cls": "bad"}, {"text": "(()(", "cls": "bad"}, {"text": "(())", "cls": "look"}, {"text": "()((", "cls": "bad"}, {"text": "()()", "cls": "look"}, {"text": "())(", "cls": "bad"}, {"text": "()))", "cls": "bad"}, {"text": ")(((", "cls": "bad"}, {"text": ")(()", "cls": "bad"}, {"text": ")()(", "cls": "bad"}, {"text": ")())", "cls": "bad"}, {"text": "))((", "cls": "bad"}, {"text": "))()", "cls": "bad"}, {"text": ")))(", "cls": "bad"}, {"text": "))))", "cls": "cur"}], [{"text": "(())", "cls": "look"}, {"text": "()()", "cls": "look"}]]}], function(f){
+  badges('br-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('br-m'+k, items); });
+  document.getElementById('br-cap').innerHTML=f.cap;
+});
+makePlayer('bt', [{"cap": "Step 1. path \"\": add ( (open 0 &lt; 3); no ) (close = open = 0).", "n": 1, "m": {"0": "seen cur"}, "live": [0], "b": [{"label": "path", "val": "\"\""}, {"label": "open", "val": 0}, {"label": "close", "val": 0}], "mem": [[]]}, {"cap": "Step 2. path \"(\": add ( (open 1 &lt; 3); add ) (close 0 &lt; open 1).", "n": 2, "m": {"0": "seen", "1": "seen cur"}, "live": [0, 1], "b": [{"label": "path", "val": "\"(\""}, {"label": "open", "val": 1}, {"label": "close", "val": 0}], "mem": [[]]}, {"cap": "Step 3. path \"((\": add ( (open 2 &lt; 3); add ) (close 0 &lt; open 2).", "n": 3, "m": {"0": "seen", "1": "seen", "2": "seen cur"}, "live": [0, 1, 2], "b": [{"label": "path", "val": "\"((\""}, {"label": "open", "val": 2}, {"label": "close", "val": 0}], "mem": [[]]}, {"cap": "Step 4. path \"(((\": no ( (open = 3); add ) (close 0 &lt; open 3).", "n": 4, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen cur"}, "live": [0, 1, 2, 3], "b": [{"label": "path", "val": "\"(((\""}, {"label": "open", "val": 3}, {"label": "close", "val": 0}], "mem": [[]]}, {"cap": "Step 5. path \"((()\": no ( (open = 3); add ) (close 1 &lt; open 3).", "n": 5, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen cur"}, "live": [0, 1, 2, 3, 4], "b": [{"label": "path", "val": "\"((()\""}, {"label": "open", "val": 3}, {"label": "close", "val": 1}], "mem": [[]]}, {"cap": "Step 6. path \"((())\": no ( (open = 3); add ) (close 2 &lt; open 3).", "n": 6, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen cur"}, "live": [0, 1, 2, 3, 4, 5], "b": [{"label": "path", "val": "\"((())\""}, {"label": "open", "val": 3}, {"label": "close", "val": 2}], "mem": [[]]}, {"cap": "Step 7. Length 6 = 2n: <b>((()))</b> is complete, and valid by construction. Save it.", "n": 7, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good cur"}, "live": [0, 1, 2, 3, 4, 5, 6], "b": [{"label": "path", "val": "\"((()))\""}, {"label": "open", "val": 3}, {"label": "close", "val": 3}], "mem": [[{"text": "((()))", "cls": "look"}]]}, {"cap": "Step 8. path \"(()\": add ( (open 2 &lt; 3); add ) (close 1 &lt; open 2).", "n": 8, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen cur"}, "live": [0, 1, 2, 7], "b": [{"label": "path", "val": "\"(()\""}, {"label": "open", "val": 2}, {"label": "close", "val": 1}], "mem": [[{"text": "((()))", "cls": "look"}]]}, {"cap": "Step 9. path \"(()(\": no ( (open = 3); add ) (close 1 &lt; open 3).", "n": 9, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen cur"}, "live": [0, 1, 2, 7, 8], "b": [{"label": "path", "val": "\"(()(\""}, {"label": "open", "val": 3}, {"label": "close", "val": 1}], "mem": [[{"text": "((()))", "cls": "look"}]]}, {"cap": "Step 10. path \"(()()\": no ( (open = 3); add ) (close 2 &lt; open 3).", "n": 10, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen cur"}, "live": [0, 1, 2, 7, 8, 9], "b": [{"label": "path", "val": "\"(()()\""}, {"label": "open", "val": 3}, {"label": "close", "val": 2}], "mem": [[{"text": "((()))", "cls": "look"}]]}, {"cap": "Step 11. Length 6 = 2n: <b>(()())</b> is complete, and valid by construction. Save it.", "n": 11, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good cur"}, "live": [0, 1, 2, 7, 8, 9, 10], "b": [{"label": "path", "val": "\"(()())\""}, {"label": "open", "val": 3}, {"label": "close", "val": 3}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}]]}, {"cap": "Step 12. path \"(())\": add ( (open 2 &lt; 3); no ) (close = open = 2).", "n": 12, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen cur"}, "live": [0, 1, 2, 7, 11], "b": [{"label": "path", "val": "\"(())\""}, {"label": "open", "val": 2}, {"label": "close", "val": 2}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}]]}, {"cap": "Step 13. path \"(())(\": no ( (open = 3); add ) (close 2 &lt; open 3).", "n": 13, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen cur"}, "live": [0, 1, 2, 7, 11, 12], "b": [{"label": "path", "val": "\"(())(\""}, {"label": "open", "val": 3}, {"label": "close", "val": 2}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}]]}, {"cap": "Step 14. Length 6 = 2n: <b>(())()</b> is complete, and valid by construction. Save it.", "n": 14, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good cur"}, "live": [0, 1, 2, 7, 11, 12, 13], "b": [{"label": "path", "val": "\"(())()\""}, {"label": "open", "val": 3}, {"label": "close", "val": 3}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}]]}, {"cap": "Step 15. path \"()\": add ( (open 1 &lt; 3); no ) (close = open = 1).", "n": 15, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen cur"}, "live": [0, 1, 14], "b": [{"label": "path", "val": "\"()\""}, {"label": "open", "val": 1}, {"label": "close", "val": 1}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}]]}, {"cap": "Step 16. path \"()(\": add ( (open 2 &lt; 3); add ) (close 1 &lt; open 2).", "n": 16, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen cur"}, "live": [0, 1, 14, 15], "b": [{"label": "path", "val": "\"()(\""}, {"label": "open", "val": 2}, {"label": "close", "val": 1}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}]]}, {"cap": "Step 17. path \"()((\": no ( (open = 3); add ) (close 1 &lt; open 3).", "n": 17, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen", "16": "seen cur"}, "live": [0, 1, 14, 15, 16], "b": [{"label": "path", "val": "\"()((\""}, {"label": "open", "val": 3}, {"label": "close", "val": 1}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}]]}, {"cap": "Step 18. path \"()(()\": no ( (open = 3); add ) (close 2 &lt; open 3).", "n": 18, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen", "16": "seen", "17": "seen cur"}, "live": [0, 1, 14, 15, 16, 17], "b": [{"label": "path", "val": "\"()(()\""}, {"label": "open", "val": 3}, {"label": "close", "val": 2}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}]]}, {"cap": "Step 19. Length 6 = 2n: <b>()(())</b> is complete, and valid by construction. Save it.", "n": 19, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen", "16": "seen", "17": "seen", "18": "good cur"}, "live": [0, 1, 14, 15, 16, 17, 18], "b": [{"label": "path", "val": "\"()(())\""}, {"label": "open", "val": 3}, {"label": "close", "val": 3}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}, {"text": "()(())", "cls": "look"}]]}, {"cap": "Step 20. path \"()()\": add ( (open 2 &lt; 3); no ) (close = open = 2).", "n": 20, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen", "16": "seen", "17": "seen", "18": "good", "19": "seen cur"}, "live": [0, 1, 14, 15, 19], "b": [{"label": "path", "val": "\"()()\""}, {"label": "open", "val": 2}, {"label": "close", "val": 2}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}, {"text": "()(())", "cls": "look"}]]}, {"cap": "Step 21. path \"()()(\": no ( (open = 3); add ) (close 2 &lt; open 3).", "n": 21, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen", "16": "seen", "17": "seen", "18": "good", "19": "seen", "20": "seen cur"}, "live": [0, 1, 14, 15, 19, 20], "b": [{"label": "path", "val": "\"()()(\""}, {"label": "open", "val": 3}, {"label": "close", "val": 2}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}, {"text": "()(())", "cls": "look"}]]}, {"cap": "Step 22. Length 6 = 2n: <b>()()()</b> is complete, and valid by construction. Save it.", "n": 22, "m": {"0": "seen", "1": "seen", "2": "seen", "3": "seen", "4": "seen", "5": "seen", "6": "good", "7": "seen", "8": "seen", "9": "seen", "10": "good", "11": "seen", "12": "seen", "13": "good", "14": "seen", "15": "seen", "16": "seen", "17": "seen", "18": "good", "19": "seen", "20": "seen", "21": "good cur"}, "live": [0, 1, 14, 15, 19, 20, 21], "b": [{"label": "path", "val": "\"()()()\""}, {"label": "open", "val": 3}, {"label": "close", "val": 3}], "mem": [[{"text": "((()))", "cls": "look"}, {"text": "(()())", "cls": "look"}, {"text": "(())()", "cls": "look"}, {"text": "()(())", "cls": "look"}, {"text": "()()()", "cls": "look"}]]}], function(f){
+  drawTree('bt-viz', BT_T, f);
+  badges('bt-b', f.b);
+  (f.mem||[]).forEach(function(items,k){ chips('bt-m'+k, items); });
+  document.getElementById('bt-cap').innerHTML=f.cap;
+});
+
+</script>
+</body></html>

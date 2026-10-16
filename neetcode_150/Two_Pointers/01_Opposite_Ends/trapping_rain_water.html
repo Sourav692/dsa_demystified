@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trapping Rain Water — Visual Explainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1c2230; --muted:#5b6472; --card:#ffffff; --border:#e2e6ec;
+    --accent:#3563e9; --accent-soft:#e5edff;
+    --hi:#ffe08a; --hi-bd:#e0a800; --good:#b7ecc4; --good-bd:#2f9e52;
+    --bad:#f6c9c9; --bad-bd:#d24a4a; --seen:#d7ccff; --seen-bd:#7a5cff;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 20px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1420; --fg:#e7ebf2; --muted:#9aa4b5; --card:#171d2b; --border:#28303f;
+      --accent:#6f9bff; --accent-soft:#1c2740;
+      --hi:#6b5a1f; --hi-bd:#d8b23c; --good:#1f5133; --good-bd:#4cc178;
+      --bad:#5a2830; --bad-bd:#e07a7a; --seen:#332a63; --seen-bd:#9b83ff;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .back{font-size:14px;text-decoration:none}
+  h1{font-size:26px;margin:.2em 0}
+  h2{font-size:20px;margin:1.5em 0 .4em}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#eab308}
+  .lead{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .idea{background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0}
+  .big{font-size:17px}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:6px;font-size:.9em}
+  .viz{overflow-x:auto;padding:8px 2px 4px}
+  .rowlabel{font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .row{display:flex;gap:10px;min-width:min-content;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptr{height:22px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .box{width:52px;height:52px;border-radius:10px;border:2px solid var(--border);background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;transition:.15s}
+  .idxlabel{font-size:11px;color:var(--muted)}
+  .box.hi{background:var(--hi);border-color:var(--hi-bd)}
+  .box.good{background:var(--good);border-color:var(--good-bd)}
+  .box.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .box.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.dim{opacity:.35}
+  .bars{display:flex;gap:8px;align-items:flex-end;min-width:min-content;justify-content:center;padding-top:22px}
+  .barcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:34px;border-radius:8px 8px 0 0;background:var(--accent-soft);border:2px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:3px;color:var(--fg);transition:.15s}
+  .bar.hi{background:var(--hi);border-color:var(--hi-bd)} .bar.good{background:var(--good);border-color:var(--good-bd)}
+  .bar.dim{opacity:.35}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px}
+  .badge.good{background:var(--good);border-color:var(--good-bd)}
+  .badge.bad{background:var(--bad);border-color:var(--bad-bd)}
+  .mem{margin-top:14px}
+  .mem h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+  .chip{background:var(--seen);border:1px solid var(--seen-bd);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:600}
+  .chip.look{background:var(--good);border-color:var(--good-bd)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  .caption{margin:12px 0 6px;min-height:44px;font-size:15px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+  button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--card);
+    color:var(--fg);border-radius:9px;padding:7px 12px;transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .counter{margin-left:auto;font-size:13px;color:var(--muted)}
+  .speed{font-size:14px;color:var(--muted);margin-top:10px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:13px;height:13px;border-radius:4px;border:2px solid}
+  .trace-title{font-size:13px;color:var(--muted);font-weight:600;margin:16px 0 6px}
+  .trace-wrap{overflow-x:auto}
+  table.trace{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  table.trace th,table.trace td{border:1px solid var(--border);padding:6px 10px;text-align:center;white-space:nowrap}
+  table.trace th{background:var(--accent-soft);color:var(--fg);font-weight:600}
+  table.trace td.match{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  table.trace td.rule{color:var(--muted)}
+  table.trace tr.final td{background:var(--good);border-color:var(--good-bd);font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px;box-shadow:var(--shadow);transition:.12s}
+  .pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .pcard .n{font-size:12px;color:var(--muted)}
+  .pcard .t{font-size:17px;font-weight:700;margin:2px 0 6px}
+  .pcard .b{font-size:13px;color:var(--muted)}
+  :root{--wat:#cfe6ff;--wat-bd:#3b8fe0}
+  @media (prefers-color-scheme:dark){ :root{--wat:#16395c;--wat-bd:#5aa9f0} }
+  .sky{display:flex;gap:6px;align-items:flex-end;justify-content:center;min-width:min-content;padding-top:4px}
+  .col{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .stack{display:flex;flex-direction:column;justify-content:flex-end;width:34px}
+  .water{background:var(--wat);border:2px solid var(--wat-bd);border-bottom:none;border-radius:6px 6px 0 0;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--fg)}
+  .blk{background:var(--accent-soft);border:2px solid var(--border);border-radius:4px 4px 0 0;
+    display:flex;align-items:flex-start;justify-content:center;font-size:12px;font-weight:700;padding-top:2px;color:var(--fg);transition:.15s}
+  .blk.hi{background:var(--hi);border-color:var(--hi-bd)} .blk.good{background:var(--good);border-color:var(--good-bd)}
+  .blk.seen{background:var(--seen);border-color:var(--seen-bd)}
+  .box.sm{width:34px;height:34px;font-size:15px;border-radius:8px}
+  .row.tight{gap:6px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><a class="back" href="01_opposite_ends_lesson.html">← Opposite Ends lesson</a><span class="tag"><span class="dot" style="background:#ef4444"></span> Hard · Two Pointers · Opposite Ends</span></div>
+<h1>42 · Trapping Rain Water</h1>
+<p class="lead">Rain falls on a row of bars. How much water stays behind?</p>
+
+<div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
+<p class="big">Each number is the height of a bar, one unit wide. After rain, water sits in the dips between bars. Over any one bar, the water rises to the <b>lower</b> of the tallest wall on its left and the tallest wall on its right. Add up the water over every bar.</p>
+<div class="idea">Example: <code>[0,1,0,2,1,0,1,3,2,1,2,1]</code> &rarr; <code>6</code> units of water.</div>
+<div class="idea">One bar's rule: <code>water = min(tallest on the left, tallest on the right) - its own height</code>. Both "tallest" values include the bar itself, so this is never negative.</div>
+<div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>tallest wall used</span><span><span class="sw" style="background:var(--wat);border-color:var(--wat-bd)"></span>water</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>finished bar</span></div>
+<div class="viz" id="pd-viz"></div>
+<div class="caption" id="pd-cap"></div>
+<div class="controls" data-player="pd"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="pd-count"></span></div>
+<p class="speed">The small number under each bar is its index.</p>
+</div>
+
+<div class="card"><h2>Solution 1 — Brute force: for every bar, scan both sides</h2>
+<div class="idea">Stand on bar <code>i</code>. Look all the way left for the tallest wall, then all the way right for the tallest wall. The lower of the two is the water line above you. Do it again, from scratch, for the next bar.</div>
+<div class="viz" id="br-viz"></div>
+<div class="badges" id="br-badges"></div>
+<div class="caption" id="br-cap"></div>
+<div class="controls" data-player="br"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="br-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> each bar rescans the whole row — <code>O(n²)</code> time, <code>O(1)</code> memory. The notebook measured about 3.3&ndash;4.9&times; per doubling.</p>
+<div class="trace-title">Step-by-step trace — height = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>i</th><th>height[i]</th><th>tallest left</th><th>tallest right</th><th>water here</th><th>total</th></tr>
+  <tr><td>0</td><td>0</td><td>0</td><td>3</td><td>0</td><td>0</td></tr>
+  <tr><td>1</td><td>1</td><td>1</td><td>3</td><td>0</td><td>0</td></tr>
+  <tr><td>2</td><td>0</td><td>1</td><td>3</td><td>1</td><td>1</td></tr>
+  <tr><td>3</td><td>2</td><td>2</td><td>3</td><td>0</td><td>1</td></tr>
+  <tr><td>4</td><td>1</td><td>2</td><td>3</td><td>1</td><td>2</td></tr>
+  <tr><td>5</td><td>0</td><td>2</td><td>3</td><td>2</td><td>4</td></tr>
+  <tr><td>6</td><td>1</td><td>2</td><td>3</td><td>1</td><td>5</td></tr>
+  <tr><td>7</td><td>3</td><td>3</td><td>3</td><td>0</td><td>5</td></tr>
+  <tr><td>8</td><td>2</td><td>3</td><td>2</td><td>0</td><td>5</td></tr>
+  <tr><td>9</td><td>1</td><td>3</td><td>2</td><td>1</td><td>6</td></tr>
+  <tr><td>10</td><td>2</td><td>3</td><td>2</td><td>0</td><td>6</td></tr>
+  <tr class="final"><td>11</td><td>1</td><td>3</td><td>1</td><td>0</td><td>6 &rarr; return 6</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 2 — Better: write the tallest walls down once</h2>
+<div class="idea">The brute force keeps re-finding the same tallest walls. Instead, sweep once left to right and write down "tallest so far" for every bar (<code>left</code>), then once right to left (<code>right</code>). Now each bar's water is a quick lookup: <code>min(left[i], right[i]) - height[i]</code>.</div>
+<div class="viz" id="ps-viz"></div>
+<div class="rowlabel">left[i] — tallest in height[0..i]</div>
+<div class="viz" id="ps-left"></div>
+<div class="rowlabel">right[i] — tallest in height[i..n-1]</div>
+<div class="viz" id="ps-right"></div>
+<div class="badges" id="ps-badges"></div>
+<div class="caption" id="ps-cap"></div>
+<div class="controls" data-player="ps"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="ps-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> three straight passes — <code>O(n)</code> time, but two extra lists — <code>O(n)</code> memory.</p>
+<div class="trace-title">Step-by-step trace — height = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>i</th><th>height[i]</th><th>left[i]</th><th>right[i]</th><th>min - height</th><th>total</th></tr>
+  <tr><td>0</td><td>0</td><td>0</td><td>3</td><td>0</td><td>0</td></tr>
+  <tr><td>1</td><td>1</td><td>1</td><td>3</td><td>0</td><td>0</td></tr>
+  <tr><td>2</td><td>0</td><td>1</td><td>3</td><td>1</td><td>1</td></tr>
+  <tr><td>3</td><td>2</td><td>2</td><td>3</td><td>0</td><td>1</td></tr>
+  <tr><td>4</td><td>1</td><td>2</td><td>3</td><td>1</td><td>2</td></tr>
+  <tr><td>5</td><td>0</td><td>2</td><td>3</td><td>2</td><td>4</td></tr>
+  <tr><td>6</td><td>1</td><td>2</td><td>3</td><td>1</td><td>5</td></tr>
+  <tr><td>7</td><td>3</td><td>3</td><td>3</td><td>0</td><td>5</td></tr>
+  <tr><td>8</td><td>2</td><td>3</td><td>2</td><td>0</td><td>5</td></tr>
+  <tr><td>9</td><td>1</td><td>3</td><td>2</td><td>1</td><td>6</td></tr>
+  <tr><td>10</td><td>2</td><td>3</td><td>2</td><td>0</td><td>6</td></tr>
+  <tr class="final"><td>11</td><td>1</td><td>3</td><td>1</td><td>0</td><td>6 &rarr; return 6</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>Solution 3 — The smart way: two fingers, move the lower side</h2>
+<div class="idea">One finger at each end, each remembering the tallest wall it has passed (<code>left_max</code>, <code>right_max</code>). If <code>left_max &lt; right_max</code>, the next bar on the left has a wall at least <code>right_max</code> tall somewhere to its right, so its water line is just <code>left_max</code>. Step the left finger in, fill that bar, repeat. Otherwise do the same on the right.</div>
+<div class="viz" id="tp-viz"></div>
+<div class="badges" id="tp-badges"></div>
+<div class="caption" id="tp-cap"></div>
+<div class="controls" data-player="tp"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="tp-count"></span></div>
+<p class="speed"><b>Speed &amp; memory:</b> every step fills one bar and moves one finger — <code>O(n)</code> time, <code>O(1)</code> memory. The two lists of Solution 2 shrink to two numbers.</p>
+<div class="trace-title">Step-by-step trace — height = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]</div>
+<div class="trace-wrap">
+<table class="trace">
+  <tr><th>Step</th><th>Compare</th><th>Move</th><th>lo</th><th>hi</th><th>bar filled</th><th>left_max</th><th>right_max</th><th>water added</th><th>total</th></tr>
+  <tr><td>0</td><td>—</td><td>start</td><td>0</td><td>11</td><td>—</td><td>0</td><td>1</td><td>—</td><td>0</td></tr>
+  <tr><td>1</td><td>0 &lt; 1</td><td>lo += 1</td><td>1</td><td>11</td><td>1 (h=1)</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+  <tr><td>2</td><td>1 &lt; 1 no</td><td>hi -= 1</td><td>1</td><td>10</td><td>10 (h=2)</td><td>1</td><td>2</td><td>0</td><td>0</td></tr>
+  <tr><td>3</td><td>1 &lt; 2</td><td>lo += 1</td><td>2</td><td>10</td><td>2 (h=0)</td><td>1</td><td>2</td><td>1</td><td>1</td></tr>
+  <tr><td>4</td><td>1 &lt; 2</td><td>lo += 1</td><td>3</td><td>10</td><td>3 (h=2)</td><td>2</td><td>2</td><td>0</td><td>1</td></tr>
+  <tr><td>5</td><td>2 &lt; 2 no</td><td>hi -= 1</td><td>3</td><td>9</td><td>9 (h=1)</td><td>2</td><td>2</td><td>1</td><td>2</td></tr>
+  <tr><td>6</td><td>2 &lt; 2 no</td><td>hi -= 1</td><td>3</td><td>8</td><td>8 (h=2)</td><td>2</td><td>2</td><td>0</td><td>2</td></tr>
+  <tr><td>7</td><td>2 &lt; 2 no</td><td>hi -= 1</td><td>3</td><td>7</td><td>7 (h=3)</td><td>2</td><td>3</td><td>0</td><td>2</td></tr>
+  <tr><td>8</td><td>2 &lt; 3</td><td>lo += 1</td><td>4</td><td>7</td><td>4 (h=1)</td><td>2</td><td>3</td><td>1</td><td>3</td></tr>
+  <tr><td>9</td><td>2 &lt; 3</td><td>lo += 1</td><td>5</td><td>7</td><td>5 (h=0)</td><td>2</td><td>3</td><td>2</td><td>5</td></tr>
+  <tr><td>10</td><td>2 &lt; 3</td><td>lo += 1</td><td>6</td><td>7</td><td>6 (h=1)</td><td>2</td><td>3</td><td>1</td><td>6</td></tr>
+  <tr class="final"><td>11</td><td>2 &lt; 3</td><td>lo += 1</td><td>7</td><td>7</td><td>7 (h=3)</td><td>3</td><td>3</td><td>0</td><td>6 &rarr; lo == hi, return 6</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card"><h2>When you'd use this</h2>
+See <b>"how much water is trapped"</b>, an <b>elevation map</b>, or any per-position answer limited by <b>the lower of the tallest thing on each side</b>? Write down left and right maxima, then squeeze them into two fingers that always move the lower side.
+<p><a href="01_opposite_ends_lesson.html">→ Opposite Ends: the pattern lesson and its other problems</a></p></div>
+</div>
+<script>
+"use strict";
+function makePlayer(name, frames, render){
+  var i=0, timer=null;
+  var controls=document.querySelector('[data-player="'+name+'"]');
+  var counter=document.getElementById(name+'-count');
+  var btn={};
+  controls.querySelectorAll('button').forEach(function(b){ btn[b.dataset.act]=b; });
+  function draw(){
+    render(frames[i], i);
+    counter.textContent='Step '+(i+1)+' / '+frames.length;
+    btn.prev.disabled=(i===0); btn.next.disabled=(i===frames.length-1);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;btn.play.textContent='▶ Play';} }
+  function go(d){ stop(); i=Math.max(0,Math.min(frames.length-1,i+d)); draw(); }
+  btn.prev.addEventListener('click',function(){go(-1);});
+  btn.next.addEventListener('click',function(){go(1);});
+  btn.reset.addEventListener('click',function(){stop();i=0;draw();});
+  btn.play.addEventListener('click',function(){
+    if(timer){stop();return;}
+    if(i===frames.length-1){i=0;draw();}
+    btn.play.textContent='⏸ Pause';
+    timer=setInterval(function(){ if(i>=frames.length-1){stop();return;} i++; draw(); },1100);
+  });
+  draw();
+}
+function badges(targetId, list){
+  var h='';
+  for(var k=0;k<list.length;k++) h+='<span class="badge '+(list[k].cls||'')+'">'+list[k].label+': <b>'+list[k].val+'</b></span>';
+  document.getElementById(targetId).innerHTML=h;
+}
+function boxes(targetId, nums, marks){
+  marks=marks||{};
+  var h='<div class="row tight">';
+  for(var k=0;k<nums.length;k++) h+='<div class="cell"><div class="box sm '+(marks[k]||'')+'">'+nums[k]+'</div></div>';
+  document.getElementById(targetId).innerHTML=h+'</div>';
+}
+/* Skyline: bar k is height H[k] units, with water[k] units of water stacked on top. */
+var U=26;
+function sky(targetId, H, water, marks, ptrs){
+  marks=marks||{}; ptrs=ptrs||{};
+  var h='<div class="sky">';
+  for(var k=0;k<H.length;k++){
+    var w=water[k]||0;
+    h+='<div class="col"><div class="ptr">'+(ptrs[k]||'')+'</div><div class="stack" style="height:'+(3*U+6)+'px">'
+      +(w?'<div class="water" style="height:'+(w*U)+'px">'+w+'</div>':'')
+      +'<div class="blk '+(marks[k]||'')+'" style="height:'+Math.max(4,H[k]*U)+'px">'+(H[k]||'')+'</div></div>'
+      +'<div class="idxlabel">'+k+'</div></div>';
+  }
+  document.getElementById(targetId).innerHTML=h+'</div>';
+}
+
+var H=[0,1,0,2,1,0,1,3,2,1,2,1], n=H.length;
+function maxOf(a,from,to){ var m=a[from]; for(var k=from+1;k<=to;k++) if(a[k]>m) m=a[k]; return m; }
+var WATER=[]; for(var k=0;k<n;k++) WATER.push(Math.min(maxOf(H,0,k),maxOf(H,k,n-1))-H[k]);
+
+/* Problem demo */
+makePlayer('pd',[
+  {cap:'Twelve bars. Rain is about to fall.', w:[], m:{}},
+  {cap:'Bar 5 (height 0): tallest on its left is 2 (bar 3), tallest on its right is 3 (bar 7). The lower one, 2, is its water line: <b>2 - 0 = 2</b> units.', w:(function(){var a=[];a[5]=2;return a;})(), m:{5:'hi',3:'seen',7:'seen'}},
+  {cap:'Do that for every bar: 0+0+1+0+1+2+1+0+0+1+0+0 = <b>6</b> units of water.', w:WATER, m:{}}
+],function(f){ sky('pd-viz',H,f.w,f.m,{}); document.getElementById('pd-cap').innerHTML=f.cap; });
+
+/* Brute force: one frame per bar (mirrors trap_brute). */
+(function(){
+  var fr=[], total=0, w=[];
+  for(var i=0;i<n;i++){
+    var L=maxOf(H,0,i), R=maxOf(H,i,n-1), add=Math.min(L,R)-H[i], m={}, p={};
+    total+=add; w=w.slice(); w[i]=add;
+    for(var k=0;k<i;k++) m[k]='good';
+    var li=i, ri=i;
+    for(var k2=0;k2<=i;k2++) if(H[k2]===L){ li=k2; break; }      /* first tallest wall on the left */
+    for(var k3=n-1;k3>=i;k3--) if(H[k3]===R){ ri=k3; break; }  /* last tallest wall on the right */
+    if(li!==i) m[li]='seen'; if(ri!==i) m[ri]='seen'; m[i]='hi'; p[i]='i';
+    fr.push({w:w,m:m,p:p,L:L,R:R,add:add,total:total,
+      cap:'Bar '+i+' (height '+H[i]+'): scan left &rarr; tallest '+L+', scan right &rarr; tallest '+R+'. Water = min('+L+', '+R+') - '+H[i]+' = <b>'+add+'</b>.'+(i===n-1?' Last bar: return <b>'+total+'</b>.':'')});
+  }
+  makePlayer('br',fr,function(f){
+    sky('br-viz',H,f.w,f.m,f.p);
+    badges('br-badges',[{label:'tallest left',val:f.L},{label:'tallest right',val:f.R},{label:'water here',val:f.add},{label:'total',val:f.total,cls:'good'}]);
+    document.getElementById('br-cap').innerHTML=f.cap;
+  });
+})();
+
+/* Prefix / suffix maxima (mirrors trap_prefix_suffix). */
+(function(){
+  var left=[], right=[]; left[0]=H[0];
+  for(var i=1;i<n;i++) left[i]=Math.max(left[i-1],H[i]);
+  right[n-1]=H[n-1];
+  for(var j=n-2;j>=0;j--) right[j]=Math.max(right[j+1],H[j]);
+  var fr=[{cap:'Two quick sweeps build both lists: left = tallest so far from the left, right = tallest so far from the right.', i:-1, w:[], total:0}];
+  var total=0, w=[];
+  for(var k=0;k<n;k++){
+    var add=Math.min(left[k],right[k])-H[k]; total+=add; w=w.slice(); w[k]=add;
+    fr.push({i:k,w:w,total:total,add:add,cap:'Bar '+k+': min(left '+left[k]+', right '+right[k]+') - '+H[k]+' = <b>'+add+'</b>. Just two lookups, no scanning.'+(k===n-1?' Return <b>'+total+'</b>.':'')});
+  }
+  makePlayer('ps',fr,function(f){
+    var m={}, lm={}, rm={};
+    for(var k=0;k<f.i;k++) m[k]='good';
+    if(f.i>=0){ m[f.i]='hi'; lm[f.i]='hi'; rm[f.i]='hi'; }
+    sky('ps-viz',H,f.w,m,{});
+    boxes('ps-left',left,lm); boxes('ps-right',right,rm);
+    badges('ps-badges',[{label:'water here',val:f.i<0?'—':f.add},{label:'total',val:f.total,cls:'good'}]);
+    document.getElementById('ps-cap').innerHTML=f.cap;
+  });
+})();
+
+/* Two pointers with running maxes (mirrors trap_two_pointers). */
+(function(){
+  var lo=0, hi=n-1, lmax=H[lo], rmax=H[hi], total=0, w=[], done={};
+  done[lo]=1; done[hi]=1;
+  function ptrs(){ var p={}; if(lo===hi){ p[lo]='lo hi'; } else { p[lo]='lo'; p[hi]='hi'; } return p; }
+  function marks(cur){ var m={}; for(var k in done) m[k]='good'; if(cur>=0) m[cur]='hi'; return m; }
+  var fr=[{w:[],m:marks(-1),p:ptrs(),lmax:lmax,rmax:rmax,add:'—',total:0,
+    cap:'Start: lo = 0, hi = 11. left_max = '+lmax+', right_max = '+rmax+'. The two end bars can never hold water.'}];
+  while(lo<hi){
+    var cap, add, bar;
+    if(lmax<rmax){
+      lo++; lmax=Math.max(lmax,H[lo]); add=lmax-H[lo]; bar=lo;
+      cap='left_max &lt; right_max, so the left side is the limit. Step lo to '+lo+' (height '+H[lo]+'). left_max = '+lmax+', water = '+lmax+' - '+H[lo]+' = <b>'+add+'</b>.';
+    } else {
+      hi--; rmax=Math.max(rmax,H[hi]); add=rmax-H[hi]; bar=hi;
+      cap='left_max is not smaller than right_max, so the right side is the limit. Step hi to '+hi+' (height '+H[hi]+'). right_max = '+rmax+', water = '+rmax+' - '+H[hi]+' = <b>'+add+'</b>.';
+    }
+    total+=add; w=w.slice(); w[bar]=add; done[bar]=1;
+    if(lo===hi) cap+=' Fingers met: return <b>'+total+'</b>.';
+    fr.push({w:w,m:marks(bar),p:ptrs(),lmax:lmax,rmax:rmax,add:add,total:total,cap:cap});
+  }
+  makePlayer('tp',fr,function(f){
+    sky('tp-viz',H,f.w,f.m,f.p);
+    badges('tp-badges',[{label:'left_max',val:f.lmax},{label:'right_max',val:f.rmax},{label:'water added',val:f.add},{label:'total',val:f.total,cls:'good'}]);
+    document.getElementById('tp-cap').innerHTML=f.cap;
+  });
+})();
+</script>
+</body></html>
