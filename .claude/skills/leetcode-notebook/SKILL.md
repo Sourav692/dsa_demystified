@@ -1,6 +1,6 @@
 ---
 name: leetcode-notebook
-description: Generate a structured Jupyter notebook (.ipynb) for a LeetCode / Blind 75 problem. Each notebook opens with the underlying concepts — including a first-principles "what is it" primer for every data structure/technique named (e.g. what a hash map is and how it works) — then presents multiple Python solutions ordered by complexity (brute-force → better → optimal), each with a markdown explanation, inline-commented code, and complexity analysis, and closes with the reusable patterns learned. Invoke when the user asks to "make a notebook", "solve", "implement", or "practice" a specific LeetCode/Blind 75 problem, or wants a study notebook for one. Also use it to reformat an existing notebook's Concepts/theory cell into plain-language bullets (one notebook or a whole folder) when the user asks to make it "easier to read", "simpler language", or "proper bullet points".
+description: Generate a structured Jupyter notebook (.ipynb) for any coding problem — LeetCode, Blind 75, NeetCode 150, or one the user pastes — in any folder of the repo. Each notebook opens with the underlying concepts — including a first-principles "what is it" primer for every data structure/technique named — then presents multiple Python solutions ordered by complexity (brute-force → better → optimal), each with a markdown explanation, inline-commented code, and complexity analysis, and closes with the reusable patterns learned. Invoke when the user asks to "make a notebook", "solve", "implement", or "practice" a specific problem, or wants a study notebook for one. Writes to the folder the user names, else next to an existing notebook for that problem, else `outputs/<slug>/`. Also use it to reformat an existing notebook's Concepts/theory cell into plain-language bullets (one notebook or a whole folder) when the user asks to make it "easier to read", "simpler language", or "proper bullet points".
 ---
 
 # LeetCode Notebook Generator
@@ -10,16 +10,18 @@ Produce a single Jupyter notebook (`.ipynb`) per problem that doubles as a **lea
 ## When to use
 
 - User names a specific problem ("make a notebook for Two Sum", "implement Coin Change", "practice Number of Islands").
-- User wants to work through Blind 75 / LeetCode problems as study notebooks.
-- If the user names a topic or "next problem" without a specific one, pick the next unchecked problem from `Blind75_Tracker.md` (if present) and confirm before generating.
+- User wants to work through LeetCode / Blind 75 / NeetCode 150 problems (or any pasted problem) as study notebooks.
+- If the user asks for the "next Blind 75 problem" without naming one, pick the next unchecked problem from `blind_75/Blind75_Tracker.md` and confirm before generating.
 
 ## Output location & naming
 
-- Save notebooks in the topic folder, inside the pattern-group subfolder when the topic has groups: `blind_75/<Topic>/[<Group folder>/]<snake_case>.ipynb`, e.g. `blind_75/Tree/Group 1_Basic Tree DFS/same_tree.ipynb`. List the topic folder first and reuse the existing group folder whose pattern fits; ask before creating a new group. Paths contain spaces — quote them.
-- The shared `bench_utils.py` lives once at `blind_75/bench_utils.py` (a byte-identical copy is at `deep_dive/bench_utils.py`; change both together).
-- After saving, run the `register-content` skill so the topic README/index pages link the new notebook.
-- File name: `snake_case` of the problem title.
-- One notebook per problem. Do **not** overwrite an existing notebook without asking.
+File name: `<slug>.ipynb`, where `<slug>` is the `snake_case` of the problem title (e.g. `two_sum`). Pick the folder in this order, and state the path before writing:
+
+1. **The user named a folder, track, or topic** → write there. For a track topic with pattern groups (e.g. "Blind 75 Tree" → `blind_75/Tree/`), list it first and reuse the group folder whose pattern fits; ask before creating a new group.
+2. **A notebook for this problem already exists** (`git ls-files | grep -i '<slug>'`) → don't overwrite it without asking; if the user wants a new version, put it next to the existing one.
+3. **Otherwise** → `outputs/<slug>/<slug>.ipynb` at the repo root (create the folder). `outputs/` is the common landing spot; the user can move the folder into a track later.
+
+Paths may contain spaces — quote them. If the notebook landed inside a track (`blind_75/`, `deep_dive/`, `neetcode_150/`), run the `register-content` skill afterwards; skip that for `outputs/`.
 
 ## How to build the file
 
@@ -100,7 +102,7 @@ One final code cell that runs all approaches against a few test cases and prints
 ### 6. Empirical complexity benchmark (markdown + code) — *confirm the Big-O by measuring*
 After correctness is verified, add a section that lets the reader **observe** each approach's complexity instead of taking the claimed Big-O on faith.
 - **Markdown cell:** explain that Big-O can't be read off directly but can be measured via the **doubling ratio** — time each approach on inputs of growing `n` and watch how runtime grows when `n` doubles (~2× ⇒ linear/`n log n`, ~4× ⇒ quadratic, ~1× ⇒ constant/log). Include the expected-ratio table.
-- **Code cell — reuse the shared helper, do NOT re-implement the loop.** Every notebook imports one tested function from `blind_75/bench_utils.py`:
+- **Code cell — reuse the shared helper, do NOT re-implement the loop.** Every notebook imports one tested function from the repo-root `bench_utils.py`:
   - `benchmark(solutions, make_worst_case, sizes, repeats=1, plot=False)` prints the per-approach `n | time (ms) | ratio vs prev` table and, when `plot=True`, draws a log-log runtime chart with O(n)/O(n²) reference slopes. The matplotlib import inside it is **guarded** — if matplotlib is missing it prints a skip message and the table still works, so the notebook never hard-depends on a third-party library.
   - The notebook's benchmark cell only declares three things and calls the helper:
     1. a **bootstrap** that locates `bench_utils.py` by walking up from `os.getcwd()` and adds it to `sys.path` (so it works whatever folder the kernel starts in), then `from bench_utils import benchmark`;
@@ -108,7 +110,7 @@ After correctness is verified, add a section that lets the reader **observe** ea
     3. `solutions` (label → function) and `sizes` (doubling, e.g. `[1000, 2000, 4000, 8000]`); then `benchmark(solutions, make_worst_case, sizes, plot=True)`.
   - **Watch out for arithmetic that isn't O(1):** if the algorithm multiplies values into ever-larger integers (e.g. product problems), Python big-int math inflates the timing and hides the true shape. Use bounded-magnitude worst-case inputs (e.g. values in `{+1, -1}`) so each operation stays O(1).
   - Keep `sizes` modest enough that the slowest approach (e.g. O(n³) brute) finishes in a few seconds. Helper output is ASCII-only so it runs in any console.
-  - Never create another `bench_utils.py`; every topic and group folder shares the one at the `blind_75/` root (found by the walk-up bootstrap).
+  - Never create another `bench_utils.py`. The one at the repo root serves every folder; the bootstrap must walk up at least 5 levels (`for _ in range(5): ...; _root = os.path.dirname(_root)`) so it finds the root from any depth, including `outputs/<slug>/`.
 
 ### 7. Patterns Learned cell (markdown) — *at the very end*
 ```
@@ -128,7 +130,7 @@ A bulleted list of transferable takeaways from this problem:
 - Code must actually run and produce correct output for the test cases.
 - Comments explain reasoning, not restate syntax.
 - Keep markdown tight and skimmable; use bold labels and short bullets over long paragraphs.
-- After generating, tell the user the file path and offer to tick the problem off in `Blind75_Tracker.md`.
+- After generating, tell the user the file path. Only for a Blind 75 problem, offer to tick it off in `blind_75/Blind75_Tracker.md`.
 
 ## Reformatting an existing Concepts cell
 

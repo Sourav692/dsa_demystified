@@ -21,9 +21,11 @@ Also at the root: [`leetcode-prep-roadmap.html`](leetcode-prep-roadmap.html) (ov
 ## Layout
 
 ```
+bench_utils.py                     shared complexity-benchmark helper (one copy, used by every notebook)
+outputs/<slug>/                    skill output when no folder is named (staging; move into a track when ready)
+
 deep_dive/
 ├── README.md, index.html          track index + visual hub
-├── bench_utils.py                 shared complexity-benchmark helper
 └── NN_Title_Case/
     ├── README.md                  concept tutorial
     ├── NN_snake.ipynb             runnable notebook
@@ -33,7 +35,6 @@ deep_dive/
 blind_75/
 ├── README.md, index.html          track index + visual hub
 ├── Blind75_Tracker.md             progress checklist
-├── bench_utils.py                 same helper (keep both copies identical)
 └── <Topic>/
     ├── README.md                  concept tutorial for the topic
     ├── index.html, patterns.html  visual hub + interview cheat sheet
@@ -54,26 +55,50 @@ uv run jupyter lab
 
 Each notebook finds `bench_utils.py` by walking up from its own folder, so you can open it from anywhere in the repo. Blind 75 notebooks check correctness in a `# Correctness check` assert cell.
 
+To run a notebook top to bottom without opening Jupyter (this also refreshes its saved outputs):
+
+```bash
+uvx --python 3.12 --with ipykernel --from nbconvert jupyter-nbconvert --to notebook --execute --inplace \
+    --ExecutePreprocessor.kernel_name=python3 "<path/to/notebook.ipynb>"
+```
+
+A nonzero exit means an assert or a cell failed. Notebook outputs are committed, so re-run a notebook after changing its code.
+
 ## Claude Code skills
 
 Project skills live in [`.claude/skills/`](.claude/skills/). Claude picks one up automatically when your request matches. You can also call one directly as `/<skill-name> <arguments>`.
 
 | Skill | What it does | Arguments / input | Output |
 |---|---|---|---|
-| [`leetcode-notebook`](.claude/skills/leetcode-notebook/SKILL.md) | Builds a study notebook for one LeetCode / Blind 75 problem. It can also restyle an existing notebook's Concepts cell into plain bullets. | Problem name or number (e.g. `Two Sum`), or a notebook/folder to reformat. | `blind_75/<Topic>/[<Group>/]<snake_case>.ipynb`, with cells in this order: concepts + "what is it" primers, problem, brute → optimal approaches, asserts, `bench_utils` benchmark, patterns learned. For a reformat: the Concepts cell is replaced in place. |
-| [`leetcode-visualizer`](.claude/skills/leetcode-visualizer/SKILL.md) | Turns a topic's notebooks into self-contained interactive HTML explainers plus a patterns cheat sheet. | A topic (e.g. `Array`) or a single problem. The notebooks must exist first. | One `<problem>.html` next to each notebook, plus `blind_75/<Topic>/patterns.html` and `index.html`. Pages work offline with no CDNs. |
-| [`dsa-snippet-explainer`](.claude/skills/dsa-snippet-explainer/SKILL.md) | Traces notebook code step by step in a `Step \| Action \| state` table that matches the notebook's asserts. | The target code cell or notebook. Optional: **file** mode (default is cell mode) and **Bengali** (default is English). | **Cell mode:** one markdown cell inserted after the code. **File mode:** `<notebook>_explained.md` next to the notebook. **Bengali:** a translated cell after the English one, or `_explained_bn.md`. |
-| [`register-content`](.claude/skills/register-content/SKILL.md) | After content is added or moved, updates every index that should link to it and checks that all links resolve. | Optional path. With no path, it uses everything changed in `git status`. | Edits to the topic `README.md`, `index.html` and `patterns.html`, the track README tables and counts, `deep_dive/index.html`, and this README. Ends with a report of edited indexes and any broken links. It does not commit. |
+| [`leetcode-notebook`](.claude/skills/leetcode-notebook/SKILL.md) | Builds a study notebook for any coding problem (LeetCode, Blind 75, NeetCode 150, or one you paste). It can also restyle an existing notebook's Concepts cell into plain bullets. | Problem name, number or statement; optionally a target folder (e.g. `blind_75/Tree/`). Or a notebook/folder to reformat. | `<slug>.ipynb` in the [output location](#where-skills-write), with cells in this order: concepts + "what is it" primers, problem, brute → optimal approaches, asserts, `bench_utils` benchmark, patterns learned. For a reformat: the Concepts cell is replaced in place. |
+| [`leetcode-visualizer`](.claude/skills/leetcode-visualizer/SKILL.md) | Turns study notebooks into self-contained interactive HTML explainers, plus a patterns cheat sheet when given a folder. | A notebook path, a problem name, or any folder (e.g. `blind_75/Array/`, `outputs/`). The notebooks must exist first. | One `<slug>.html` next to each notebook. For a folder, also `patterns.html` and `index.html` at that folder's root. Pages work offline with no CDNs. |
+| [`dsa-interactive-lesson`](.claude/skills/dsa-interactive-lesson/SKILL.md) | Builds a beginner-friendly interactive HTML lesson for one DSA concept: the Deep Dive `_lesson.html` format. | A concept (e.g. `Union-Find`), optionally a target folder. It takes the code and example from a matching notebook when one exists. | `<slug>_lesson.html` in the [output location](#where-skills-write) (for a Deep Dive topic: `deep_dive/NN_Title_Case/NN_snake_lesson.html`): one offline file with 13 fixed sections, step-through traces (Previous / Resume / Next / Reset) synced to the code, edge-case tabs and practice questions. It is checked with `scripts/check_lesson.py`, and screenshotted too when a browser tool is available. |
+| [`dsa-snippet-explainer`](.claude/skills/dsa-snippet-explainer/SKILL.md) | Traces notebook code step by step in a `Step \| Action \| state` table that matches the notebook's asserts. | The target code cell or notebook. Optional: **file** mode (default is cell mode) and **Bengali** (default is English). | **Cell mode:** one markdown cell inserted after the code. **File mode:** `<notebook>_explained.md` next to the notebook, or `outputs/<slug>/` for pasted code. **Bengali:** a translated cell after the English one, or `_explained_bn.md`. |
+| [`register-content`](.claude/skills/register-content/SKILL.md) | After content is added or moved, updates every index that should link to it and checks that all links resolve. | Optional path. With no path, it uses everything changed in `git status`. | Edits to the topic `README.md`, `index.html` and `patterns.html`, the track README tables and counts, `deep_dive/index.html`, and this README. In other folders, it updates the nearest index that lists the new file's siblings. It skips `outputs/`. Ends with a case-sensitive link check (what GitHub serves) and a report. It does not commit. |
 | [`dsa-mock`](.claude/skills/dsa-mock/SKILL.md) | Runs a Socratic mock coding interview (DSA, SQL, follow-up variants). Claude plays the interviewer and never hands you the solution. | A pasted or named problem, optionally with follow-ups. | A live interview in chat, with free-form feedback at the end. |
 | [`fde-system-design-mock`](.claude/skills/fde-system-design-mock/SKILL.md) | Runs a voice-friendly mock AI system design interview for a Forward Deployed Engineer role. | A use case or domain, optional. If you don't give one, it generates a fresh one. | A live interview in chat. Each answer gets a clarity/communication grade, and the session ends with a full scorecard. |
 
+### Where skills write
+
+The skills that create files pick a folder in this order:
+
+1. **The folder you name**, e.g. "make a notebook for Two Sum in `blind_75/Array/Group 1_ hashing-pattern/`".
+2. **Next to the existing source**: an HTML page or `_explained.md` goes beside the notebook it explains, in whatever folder that is.
+3. **`outputs/<slug>/`** at the repo root, when neither applies. All of one problem's files (notebook, HTML, write-up) gather there. Move the folder into a track when it's ready, then run `/register-content` to link it from the indexes.
+
 The repo also has a hook in [`.claude/settings.json`](.claude/settings.json). After any edit to an `.ipynb` file, it checks that the notebook is still valid JSON, so a broken edit is reported straight away.
 
-### Note: `dsa-interactive-lesson` was removed
+### Note: `dsa-interactive-lesson` vs `leetcode-visualizer`
 
-This skill used to generate the Deep Dive `NN_snake_lesson.html` pages: one self-contained HTML lesson per concept. Each page had 13 fixed sections, synced code highlighting, and Previous / Resume / Next / Reset trace controls. It was removed because its workflow depended on Genspark-only tools (`gsk screenshot`, `gsk understand_images`, `genspark_deliver_files`) that don't exist in Claude Code.
+Both produce offline HTML pages you can step through, but they do different jobs.
 
-- **To make a new lesson:** copy the structure of an existing one, e.g. [`deep_dive/21_Backtracking/21_backtracking_lesson.html`](deep_dive/21_Backtracking/21_backtracking_lesson.html).
-- **To restore the skill:** it is in git history (`git show 8779292:.claude/skills/dsa-interactive-lesson/SKILL.md`). Its reference template and `build_lesson.py` are in the same commit. Swap the Genspark steps for Claude Code equivalents before using it again.
+- **`dsa-interactive-lesson`** teaches one **concept** from first principles. It writes a `_lesson.html` with a fixed 13-section structure (the Deep Dive lesson format).
+- **`leetcode-visualizer`** explains **problems** from their existing notebooks, in any folder. It writes one page per problem, plus a `patterns.html` cheat sheet when given a folder.
 
-The `excalidraw-diagram` skill was also removed from this repo, because the identical skill is installed globally in `~/.claude/skills/`.
+`dsa-interactive-lesson` was originally written for Genspark. It has been ported to Claude Code:
+
+- The Genspark screenshot and delivery steps are replaced by `scripts/check_lesson.py`, a structural check that runs locally. When a Playwright or Chrome DevTools browser tool is available, the skill also takes a screenshot.
+- A Cloudflare analytics beacon has been removed from the template.
+- Every existing `deep_dive/*/*_lesson.html` passes the checker.
+
+The `excalidraw-diagram` skill was removed from this repo, because the identical skill is installed globally in `~/.claude/skills/`.

@@ -17,7 +17,9 @@ Make new or moved content reachable from every index. Target: $ARGUMENTS (a path
 3. **Deep Dive topic** (`deep_dive/NN_Title_Case/`):
    - `deep_dive/README.md`: add a row to the right track table: `| NN | [Title](NN_X/README.md) | what you'll learn | [open](NN_X/NN_x_lesson.html) |`.
    - `deep_dive/index.html`: add the topic card, copying an existing card's markup.
-   - Root `README.md`: update the "NN numbered topics" count in the Track4. **Verify links — case-sensitively.** macOS ignores case, so a plain `os.path.exists` check passes links that 404 on GitHub. Check against the paths git tracks (plus untracked, non-ignored files):
+   - Root `README.md`: update the "NN numbered topics" count in the Tracks table if it changed.
+
+4. **Verify links — case-sensitively.** macOS ignores case, so a plain `os.path.exists` check passes links that 404 on GitHub. Check against the paths git tracks (plus untracked, non-ignored files):
    ```bash
    python3 - "blind_75/README.md" OTHER_EDITED_FILES <<'PY'
    import re, sys, os, subprocess
@@ -39,5 +41,8 @@ Make new or moved content reachable from every index. Target: $ARGUMENTS (a path
    Fix every `MISSING` you introduced; report pre-existing ones. A folder whose case differs only on disk (e.g. git has `Docs/`, disk shows `docs/`) needs a two-step rename: `git mv Docs tmp && git mv tmp docs`.
 
 ort pre-existing ones.
+
+4b. **Anything else** (`neetcode_150/`, a new folder): update the nearest `README.md` / `index.html` above the new file that lists its siblings, copying the existing entry format. If none exists, don't invent one — report it.
+   - `outputs/` is a staging area and is not indexed. When the user moves `outputs/<slug>/` into a track, run this skill on the new location.
 
 5. Report: one line per index edited, plus any index you deliberately skipped and why. Do not commit.

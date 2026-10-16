@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Shared benchmarking helper for the Blind-75 study notebooks.
+"""Shared benchmarking helper for the Atlassian-prep study notebooks.
 
 One tested function, reused by every notebook, so each notebook only has to
 declare its `solutions`, its `make_worst_case(n)` input generator, and the

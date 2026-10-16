@@ -1,31 +1,37 @@
 ---
 name: leetcode-visualizer
-description: Turn the LeetCode / Blind 75 study notebooks for a topic into interactive, self-contained HTML explainers. For each problem it builds one HTML page with plain-language explanations and interactive step-through diagrams of the problem and every solution; then it builds one final "patterns" HTML for the whole topic that summarizes the reusable patterns learned and how to use them in an interview. Invoke when the user asks to "make HTML", "visualize", "create diagrams", "interactive explainer", or "visual walkthrough" for a topic or problem.
+description: Turn study notebooks (any problem notebook, or every notebook in any folder of the repo) into interactive, self-contained HTML explainers. For each problem it builds one HTML page with plain-language explanations and interactive step-through diagrams of the problem and every solution; then, when given a folder, it builds one final "patterns" HTML for that folder that summarizes the reusable patterns learned and how to use them in an interview. Invoke when the user asks to "make HTML", "visualize", "create diagrams", "interactive explainer", or "visual walkthrough" for a topic or problem.
 ---
 
 # LeetCode Visual Explainer Generator
 
 Convert notebooks into **interactive HTML pages** a beginner can open in a browser and *play* with. The goal is understanding through animation and plain words — not walls of text or jargon.
 
-Two kinds of output per topic:
-1. **One page per problem** — explains the problem and each solution with interactive, step-through diagrams.
-2. **One final "patterns" page** for the whole topic — the reusable patterns learned across all its problems, in simple language, plus how to use each in an interview.
+Two kinds of output:
+1. **One page per problem notebook** — explains the problem and each solution with interactive, step-through diagrams.
+2. **One "patterns" page per folder** (only when the input is a folder with 2+ notebooks) — the reusable patterns learned across its problems, in simple language, plus how to use each in an interview.
 
 ## When to use
 
-- User asks to "make HTML / visualize / create interactive diagrams / visual walkthrough" for a topic (e.g. "Array") or a single problem.
+- User asks to "make HTML / visualize / create interactive diagrams / visual walkthrough" for a folder or topic (e.g. `blind_75/Array/`, `outputs/`), a notebook path, or a problem name.
 - Runs **after** the notebooks exist (see the `leetcode-notebook` skill). Source the problem statement, the approaches, and the "Patterns Learned" straight from each notebook so the page and notebook agree.
 
 ## Inputs
 
-- A **topic** (build a page for every notebook under `blind_75/<Topic>/`, including its `Group …/` subfolders, then the patterns page), or a **single problem** (just its page).
-- If the notebooks are missing, say so and offer to generate them first.
+- A **notebook path** → just its page.
+- A **problem name** → find its notebook (`git ls-files '*.ipynb' | grep -i '<slug>'`); if several match, ask which.
+- A **folder or topic name** (any folder: `blind_75/Tree/`, `deep_dive/18_Binary_Search/`, `outputs/`, …) → a page for every problem notebook under it, recursively (skip `*backup*` / `* copy*` notebooks), then the patterns page.
+- If the notebook is missing, say so and offer to generate it first with `leetcode-notebook` (which lands it in `outputs/<slug>/` unless told otherwise — the page then lands there too).
 
 ## Output location & naming
 
-- Per-problem pages: next to the notebook, same base name — `blind_75/<Topic>/[<Group folder>/]<snake_case>.html`.
-- Final patterns page: `blind_75/<Topic>/patterns.html`.
-- Also write/refresh `blind_75/<Topic>/index.html` linking every problem page (relative paths into the group folders, spaces as `%20`) + the patterns page, then run the `register-content` skill.
+Pick the folder in this order, and state the paths before writing:
+
+1. **The user named an output folder** → write every page there.
+2. **Otherwise, next to the source:** each per-problem page goes next to its notebook with the same base name (`<dir>/<slug>.ipynb` → `<dir>/<slug>.html`). For a folder input, `patterns.html` and an `index.html` (linking every problem page by relative path, spaces as `%20`, plus the patterns page) go at the root of that folder.
+3. **Source notebook outside the repo, or pasted content** → `outputs/<slug>/<slug>.html` at the repo root.
+
+If pages landed inside a track (`blind_75/`, `deep_dive/`, `neetcode_150/`), run the `register-content` skill afterwards; skip that for `outputs/`.
 - Do **not** overwrite an existing page without asking.
 
 ## Hard technical rules (every HTML file)

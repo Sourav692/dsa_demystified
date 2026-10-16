@@ -79,7 +79,8 @@ No ASCII/mermaid per-step diagrams in CELL mode — the table row *is* the pictu
 
 Write `<notebook_basename>_explained.md` next to the notebook (e.g.
 `deep_dive/04_Tree_Traversal/04_tree_traversal_explained.md`,
-`blind_75/Tree/Group 1_Basic Tree DFS/same_tree_explained.md`). Template:
+`blind_75/Tree/Group 1_Basic Tree DFS/same_tree_explained.md`). Pasted code with no notebook → the folder
+the user names, else `outputs/<slug>/<slug>_explained.md` at the repo root. Template:
 [FILE_TEMPLATE.md](FILE_TEMPLATE.md). One `##` section per function that implements an algorithm (class
 definitions brief; skip pure `assert`/`print` cells unless they teach something). Each section, in order:
 

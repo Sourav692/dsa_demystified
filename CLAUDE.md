@@ -2,30 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-DSA study repo: Jupyter notebooks + self-contained interactive HTML lessons + markdown write-ups. No build, no CI, no test runner — correctness lives in each notebook's `# Correctness check` cell (asserts).
+DSA study repo: Jupyter notebooks + self-contained interactive HTML lessons + markdown write-ups. No build, no CI, no test runner — correctness lives in notebook `assert` cells (Blind 75: `# Correctness check`).
 
 ## Tracks and naming
 
 - `deep_dive/NN_Title_Case/` — concept tutorials, read in number order. Files: `NN_snake.ipynb`, `NN_snake_lesson.html`, `README.md` (+ optional `NN_snake_explained.md`).
 - `blind_75/<Topic>/[<Group folder>/]` — interview problems. Files: `<problem>.ipynb`, `<problem>.html`, `<problem>_explained.md`, snake_case. Each topic has `README.md`, `index.html`, `patterns.html`. Group folder names are inconsistent (`Group 1_Basic Tree DFS`, `Group 1 - Grid Flood Field & Connectivity`) — list the topic folder and reuse the existing name.
 - `neetcode_150/` — `index.html` + `docs/` (reference docx/xlsx/pdf). Root `docs/` holds link lists.
+- `outputs/<slug>/` — staging area for skill output when no folder is named; not indexed.
 - Topic and group paths contain spaces (`Dynamic Programming`, `Group 1_Basic Tree DFS`): always quote them in shell; URL-encode as `%20` in markdown links.
 
 ## Adding content
 
-- New problem/topic is not done until every index linking it is updated: topic `README.md` + `index.html`, track `README.md` table (Blind 75 problem counts; Deep Dive "Interactive HTML" column), `deep_dive/index.html`, root `README.md`. Use `/register-content`.
-- Use the existing skills in `.claude/skills/` (`leetcode-notebook`, `leetcode-visualizer`, `dsa-snippet-explainer`, `register-content`) rather than hand-rolling formats — they encode the house structure. Skill table: `README.md` → "Claude Code skills".
-- Deep Dive `NN_snake_lesson.html` pages have no skill (`dsa-interactive-lesson` was removed): copy the structure of an existing lesson, e.g. `deep_dive/21_Backtracking/21_backtracking_lesson.html`.
-- Blind 75 notebook cell order: title + `**Difficulty:** · **Topic:** · **LeetCode:** <url>` → `## 💡 Concepts` → `## 📝 Problem` → setup cell → `### Approach N — <name>` (Idea/Time/Space + code), brute → optimal → `# Correctness check` → `## ⏱️ Empirically Checking the Complexities` → `## 🧩 Patterns Learned`.
+- New problem/topic inside a track is not done until every index linking it is updated: topic `README.md` + `index.html`, track `README.md` table (Blind 75 problem counts; Deep Dive "Interactive HTML" column), `deep_dive/index.html`, root `README.md`. Use `/register-content`.
+- Use the existing skills in `.claude/skills/` (`leetcode-notebook`, `leetcode-visualizer`, `dsa-interactive-lesson`, `dsa-snippet-explainer`, `register-content`) rather than hand-rolling formats — they encode the house structure. Skill table: `README.md` → "Claude Code skills".
+- Any edited `deep_dive/*_lesson.html` must still pass `python3 .claude/skills/dsa-interactive-lesson/scripts/check_lesson.py <file>`.
+- Problem notebook cell order (`leetcode-notebook`, any folder): title + `**Difficulty:** · **Topic:** · **LeetCode:** <url>` → `## 💡 Concepts` → `## 📝 Problem` → setup cell → `### Approach N — <name>` (Idea/Time/Space + code), brute → optimal → `# Correctness check` → `## ⏱️ Empirically Checking the Complexities` → `## 🧩 Patterns Learned`.
 - HTML lessons are single self-contained files (inline CSS/JS, no build step).
+- Skill output location: the folder the user names → else next to the existing source notebook → else `outputs/<slug>/` (common staging area, not indexed). Run `/register-content` only for output that lands inside `blind_75/`, `deep_dive/` or `neetcode_150/`.
 
 ## Python
 
-- Run notebooks in the root uv `.venv` (kernel `.venv`). Code is stdlib-only; `matplotlib` is optional (import guarded).
-- `bench_utils.py` is duplicated in `blind_75/` and `deep_dive/` — edit both copies identically. Notebooks locate it by walking up parent dirs onto `sys.path`; don't replace that with a relative import.
+- Code is stdlib-only; `matplotlib` is optional (import guarded). There is no committed env, and the pyenv `jupyter` shim is broken. Run/verify a notebook with `uvx --python 3.12 --with ipykernel --from nbconvert jupyter-nbconvert --to notebook --execute --inplace --ExecutePreprocessor.kernel_name=python3 "<nb>"` — nonzero exit = failed cell/assert. Don't pipe it into `tail` (hides the exit code).
+- `bench_utils.py` lives once at the repo root. Notebooks locate it by walking up ≤5 parent dirs onto `sys.path`; don't replace that with a relative import or add another copy.
 - Commit notebooks with executed outputs (do not strip them). Re-run the notebook after editing code cells so outputs match.
 
 ## Git
 
 - Commits: short conventional one-liner, scope = track or topic, e.g. `feat(blind75-tree): add group 3 notebooks`; details in body. Make sure the message matches the diff.
 - `.claude/skills/` is committed; `.claude/skills-workspace/` and `.claude/napkin.md` are not.
+- macOS is case-insensitive (`core.ignorecase=true`): a case-only folder rename never reaches git, and links that work locally 404 on GitHub. Rename case with `git mv X tmp && git mv tmp x`; check links with the git-based snippet in `register-content` (step 4), not `os.path.exists`.
