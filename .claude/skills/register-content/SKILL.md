@@ -40,9 +40,9 @@ Make new or moved content reachable from every index. Target: $ARGUMENTS (a path
    ```
    Fix every `MISSING` you introduced; report pre-existing ones. A folder whose case differs only on disk (e.g. git has `Docs/`, disk shows `docs/`) needs a two-step rename: `git mv Docs tmp && git mv tmp docs`.
 
-ort pre-existing ones.
+4b. **NeetCode 150** (`neetcode_150/<Type>/<NN_Pattern>/`): run `python3 .claude/skills/neetcode-pattern/scripts/pattern_plan.py index` — it regenerates `neetcode_150/README.md` from the CSV and the files on disk. Never hand-edit that README.
 
-4b. **Anything else** (`neetcode_150/`, a new folder): update the nearest `README.md` / `index.html` above the new file that lists its siblings, copying the existing entry format. If none exists, don't invent one — report it.
+4c. **Anything else** (a new folder): update the nearest `README.md` / `index.html` above the new file that lists its siblings, copying the existing entry format. If none exists, don't invent one — report it.
    - `outputs/` is a staging area and is not indexed. When the user moves `outputs/<slug>/` into a track, run this skill on the new location.
 
 5. Report: one line per index edited, plus any index you deliberately skipped and why. Do not commit.

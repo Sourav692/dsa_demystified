@@ -1,6 +1,6 @@
 # DSA Demystified
 
-Data structures and algorithms study material in two tracks: **concepts first**, then **interview problems**. Each track is organized by topic, not by content type: a topic's tutorial, runnable notebook, interactive HTML step-through, and cheat sheet all sit in that topic's folder.
+Data structures and algorithms study material in three tracks: **concepts first**, then **interview problems**, then **pattern-wise drilling**. Each track is organized by topic, not by content type: a topic's tutorial, runnable notebook, interactive HTML step-through, and cheat sheet all sit in that topic's folder.
 
 ## Tracks
 
@@ -8,7 +8,7 @@ Data structures and algorithms study material in two tracks: **concepts first**,
 |---|---|---|
 | [**deep_dive**](deep_dive/README.md) | Learning the structures and algorithms themselves from first principles: hashing, sorting, binary search, two pointers, greedy, backtracking, trees, heaps, tries, graphs, shortest paths, MST, topological sort, SCCs. 21 numbered topics. | [`deep_dive/README.md`](deep_dive/README.md) · [`deep_dive/index.html`](deep_dive/index.html) |
 | [**blind_75**](blind_75/README.md) | Drilling the 75 classic interview problems, grouped by topic and pattern (two pointers, sliding window, DFS/BFS, DP, …). | [`blind_75/README.md`](blind_75/README.md) · [`blind_75/index.html`](blind_75/index.html) · [tracker](blind_75/Blind75_Tracker.md) |
-| [**neetcode_150**](neetcode_150/index.html) | NeetCode 150 hub page plus reference docs: pattern archetypes, red-herring traps, a 20-day spaced-repetition plan, a mnemonic poster (PDF/PNG), and YouTube video links. | [`neetcode_150/index.html`](neetcode_150/index.html) · [`neetcode_150/docs/`](neetcode_150/docs/) |
+| [**neetcode_150**](neetcode_150/README.md) | The 150 NeetCode problems **pattern-wise**: 14 DSA types → 55 patterns, each with a pattern explainer, an interactive pattern lesson, and a notebook + interactive HTML per problem. Built one pattern at a time with `/neetcode-pattern`. Also a question tracker and reference docs: pattern archetypes, red-herring traps, a 20-day spaced-repetition plan, a mnemonic poster, YouTube links. | [`neetcode_150/README.md`](neetcode_150/README.md) · [tracker](neetcode_150/index.html) · [`neetcode_150/docs/`](neetcode_150/docs/) |
 
 Also at the root: [`leetcode-prep-roadmap.html`](leetcode-prep-roadmap.html) (overall prep roadmap) and [`docs/`](docs/) (course and NeetCode link lists).
 
@@ -16,7 +16,8 @@ Also at the root: [`leetcode-prep-roadmap.html`](leetcode-prep-roadmap.html) (ov
 
 1. Work through **deep_dive** track by track, in the order its README lists them, to build the concepts.
 2. Move to **blind_75** and go topic by topic, applying those concepts to real interview problems. Tick problems off in [`Blind75_Tracker.md`](blind_75/Blind75_Tracker.md).
-3. Before an interview, revisit the one topic folder you need. Everything about it is in that folder.
+3. Drill **neetcode_150** pattern by pattern: read the pattern's README and lesson, then solve its problems in order.
+4. Before an interview, revisit the one topic or pattern folder you need. Everything about it is in that folder.
 
 ## Layout
 
@@ -42,6 +43,15 @@ blind_75/
         ├── <problem>.ipynb        brute → optimal solutions, asserts, complexity benchmark
         ├── <problem>.html         interactive step-through
         └── <problem>_explained.md step-by-step trace write-up (where one exists)
+
+neetcode_150/
+├── README.md                      all 150 problems by type → pattern, with build status (generated)
+├── index.html, docs/              question tracker + reference docs
+└── <Type>/<NN_Pattern>/           e.g. Trees/03_BFS_Level_Order/
+    ├── README.md                  the pattern: the tell, template, problems table, traps
+    ├── <nn_pattern>_lesson.html   interactive pattern lesson
+    ├── <problem>.ipynb            brute → optimal solutions, asserts, complexity benchmark
+    └── <problem>.html             interactive step-through
 ```
 
 ## Running the notebooks
@@ -70,11 +80,12 @@ Project skills live in [`.claude/skills/`](.claude/skills/). Claude picks one up
 
 | Skill | What it does | Arguments / input | Output |
 |---|---|---|---|
+| [`neetcode-pattern`](.claude/skills/neetcode-pattern/SKILL.md) | Builds one NeetCode 150 pattern end to end: pattern explainer, interactive pattern lesson, and a notebook + interactive HTML for every problem in it. Copies problems already solved in `blind_75/`; generates the rest with the skills below. | A pattern (`Trees/BFS`, `dynamic knapsack`) or a problem name (builds its whole pattern). `pattern_plan.py list` shows what's done. | `neetcode_150/<Type>/<NN_Pattern>/`: `README.md`, `<nn_pattern>_lesson.html`, `<problem>.ipynb` + `<problem>.html` each; then `neetcode_150/README.md` is regenerated. |
 | [`leetcode-notebook`](.claude/skills/leetcode-notebook/SKILL.md) | Builds a study notebook for any coding problem (LeetCode, Blind 75, NeetCode 150, or one you paste). It can also restyle an existing notebook's Concepts cell into plain bullets. | Problem name, number or statement; optionally a target folder (e.g. `blind_75/Tree/`). Or a notebook/folder to reformat. | `<slug>.ipynb` in the [output location](#where-skills-write), with cells in this order: concepts + "what is it" primers, problem, brute → optimal approaches, asserts, `bench_utils` benchmark, patterns learned. For a reformat: the Concepts cell is replaced in place. |
 | [`leetcode-visualizer`](.claude/skills/leetcode-visualizer/SKILL.md) | Turns study notebooks into self-contained interactive HTML explainers, plus a patterns cheat sheet when given a folder. | A notebook path, a problem name, or any folder (e.g. `blind_75/Array/`, `outputs/`). The notebooks must exist first. | One `<slug>.html` next to each notebook. For a folder, also `patterns.html` and `index.html` at that folder's root. Pages work offline with no CDNs. |
 | [`dsa-interactive-lesson`](.claude/skills/dsa-interactive-lesson/SKILL.md) | Builds a beginner-friendly interactive HTML lesson for one DSA concept: the Deep Dive `_lesson.html` format. | A concept (e.g. `Union-Find`), optionally a target folder. It takes the code and example from a matching notebook when one exists. | `<slug>_lesson.html` in the [output location](#where-skills-write) (for a Deep Dive topic: `deep_dive/NN_Title_Case/NN_snake_lesson.html`): one offline file with 13 fixed sections, step-through traces (Previous / Resume / Next / Reset) synced to the code, edge-case tabs and practice questions. It is checked with `scripts/check_lesson.py`, and screenshotted too when a browser tool is available. |
 | [`dsa-snippet-explainer`](.claude/skills/dsa-snippet-explainer/SKILL.md) | Traces notebook code step by step in a `Step \| Action \| state` table that matches the notebook's asserts. | The target code cell or notebook. Optional: **file** mode (default is cell mode) and **Bengali** (default is English). | **Cell mode:** one markdown cell inserted after the code. **File mode:** `<notebook>_explained.md` next to the notebook, or `outputs/<slug>/` for pasted code. **Bengali:** a translated cell after the English one, or `_explained_bn.md`. |
-| [`register-content`](.claude/skills/register-content/SKILL.md) | After content is added or moved, updates every index that should link to it and checks that all links resolve. | Optional path. With no path, it uses everything changed in `git status`. | Edits to the topic `README.md`, `index.html` and `patterns.html`, the track README tables and counts, `deep_dive/index.html`, and this README. In other folders, it updates the nearest index that lists the new file's siblings. It skips `outputs/`. Ends with a case-sensitive link check (what GitHub serves) and a report. It does not commit. |
+| [`register-content`](.claude/skills/register-content/SKILL.md) | After content is added or moved, updates every index that should link to it and checks that all links resolve. | Optional path. With no path, it uses everything changed in `git status`. | Edits to the topic `README.md`, `index.html` and `patterns.html`, the track README tables and counts, `deep_dive/index.html`, and this README. For `neetcode_150/`, it regenerates `neetcode_150/README.md`. In other folders, it updates the nearest index that lists the new file's siblings. It skips `outputs/`. Ends with a case-sensitive link check (what GitHub serves) and a report. It does not commit. |
 | [`dsa-mock`](.claude/skills/dsa-mock/SKILL.md) | Runs a Socratic mock coding interview (DSA, SQL, follow-up variants). Claude plays the interviewer and never hands you the solution. | A pasted or named problem, optionally with follow-ups. | A live interview in chat, with free-form feedback at the end. |
 | [`fde-system-design-mock`](.claude/skills/fde-system-design-mock/SKILL.md) | Runs a voice-friendly mock AI system design interview for a Forward Deployed Engineer role. | A use case or domain, optional. If you don't give one, it generates a fresh one. | A live interview in chat. Each answer gets a clarity/communication grade, and the session ends with a full scorecard. |
 
