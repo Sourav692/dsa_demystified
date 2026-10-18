@@ -2,6 +2,18 @@
 
 Data structures and algorithms study material in three tracks: **concepts first**, then **interview problems**, then **pattern-wise drilling**. Each track is organized by topic, not by content type: a topic's tutorial, runnable notebook, interactive HTML step-through, and cheat sheet all sit in that topic's folder.
 
+## Website
+
+The desktop website lives in [`site/`](site/README.md). It brings together all 21 Foundations topics, pattern explainers, Blind 75 and NeetCode 150 practice, company preparation, roadmap, and resources. Problems share one identity across tracks while preserving their available notebooks, explanations, and interactive walkthroughs. Planned study material is labeled clearly.
+
+```bash
+cd site
+npm ci
+npm run dev
+```
+
+Open `http://127.0.0.1:3000/`. See [`site/README.md`](site/README.md) for the static production build, available pages, and validation commands.
+
 ## Tracks
 
 | Track | Use it for | Start here |

@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+public/lessons/
+public/notebooks/
+*.tsbuildinfo
+next-env.d.ts
+generated/
+public/content/

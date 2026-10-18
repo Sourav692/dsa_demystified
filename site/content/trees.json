@@ -1,0 +1,70 @@
+[
+  {
+    "slug": "generic-trees",
+    "title": "Generic trees",
+    "subtitle": "Think in hierarchies.",
+    "description": "Start with roots, branches, and leaves. Learn the vocabulary every tree problem shares.",
+    "folder": "01_Generic_Tree",
+    "notebook": "01_generic_tree.ipynb",
+    "interactive": "01_generic_tree_lesson.html",
+    "minutes": 25,
+    "mode": "generic",
+    "outcomes": [
+      "Recognize a hierarchy and its subtrees",
+      "Distinguish depth from height",
+      "Represent a node with a children list",
+      "Walk a tree with DFS and BFS"
+    ]
+  },
+  {
+    "slug": "binary-trees",
+    "title": "Binary trees",
+    "subtitle": "Two children. A world of possibilities.",
+    "description": "Understand left and right, compare tree shapes, and build your first recursive operations.",
+    "folder": "02_Binary_Tree",
+    "notebook": "02_binary_tree.ipynb",
+    "interactive": "02_binary_tree_lesson.html",
+    "minutes": 25,
+    "mode": "binary",
+    "outcomes": [
+      "Model left and right child links",
+      "Recognize full, complete, perfect, and skewed trees",
+      "Connect height to the cost of an operation",
+      "Compute size and height recursively"
+    ]
+  },
+  {
+    "slug": "binary-search-trees",
+    "title": "Binary search trees",
+    "subtitle": "Let order guide the search.",
+    "description": "Use the BST invariant to search, insert, delete, and validate. Understand when balance matters.",
+    "folder": "03_Binary_Search_Tree",
+    "notebook": "03_binary_search_tree.ipynb",
+    "interactive": "03_binary_search_tree_lesson.html",
+    "minutes": 30,
+    "mode": "bst",
+    "outcomes": [
+      "Apply the invariant to an entire subtree",
+      "Trace a search from root to target",
+      "Understand the three deletion cases",
+      "Explain O(h), balanced O(log n), and skewed O(n)"
+    ]
+  },
+  {
+    "slug": "tree-traversals",
+    "title": "Tree traversals",
+    "subtitle": "Same tree. Four ways to see it.",
+    "description": "Compare preorder, inorder, postorder, and level order. Choose an order that matches the job.",
+    "folder": "04_Tree_Traversal",
+    "notebook": "04_tree_traversal.ipynb",
+    "interactive": "04_tree_traversal_orders_lesson.html",
+    "minutes": 25,
+    "mode": "traversal",
+    "outcomes": [
+      "Predict all four traversal orders",
+      "Connect DFS to a stack and BFS to a queue",
+      "Choose top-down or bottom-up processing",
+      "Explain traversal time and auxiliary space"
+    ]
+  }
+]

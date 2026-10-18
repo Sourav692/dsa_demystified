@@ -66,13 +66,13 @@ def good_nodes_dfs(root):
 
 ## Problems
 
-| # | Problem | Difficulty | Twist on the template | Time | Space | Notebook | Interactive |
-|---|---------|------------|-----------------------|------|-------|----------|-------------|
-| 1 | Invert Binary Tree | Easy | Work = swap the two children; combine = return the node | `O(n)` | `O(h)` | [ipynb](invert_binary_tree.ipynb) | [html](invert_binary_tree.html) |
-| 2 | Maximum Depth of Binary Tree | Easy | No state down; combine = `1 + max(left, right)` | `O(n)` | `O(h)` | [ipynb](maximum_depth_of_binary_tree.ipynb) | [html](maximum_depth_of_binary_tree.html) |
-| 3 | Same Tree | Easy | Walk two trees in lockstep; base = both empty `True` / one empty `False`; combine = `left and right` | `O(n)` | `O(h)` | [ipynb](same_tree.ipynb) | [html](same_tree.html) |
-| 4 | Subtree of Another Tree | Easy | Outer DFS runs Same Tree at every node; combine = `left or right` (serializing both trees is the `O(m+n)` upgrade) | `O(m·n)` | `O(h)` | [ipynb](subtree_of_another_tree.ipynb) | [html](subtree_of_another_tree.html) |
-| 5 | Count Good Nodes in Binary Tree | Medium | State down = max on the path; combine = `good + left + right` | `O(n)` | `O(h)` | [ipynb](count_good_nodes_in_binary_tree.ipynb) | [html](count_good_nodes_in_binary_tree.html) |
+| # | Problem                         | Difficulty | Twist on the template                                                                                                  | Time        | Space    | Notebook                                      | Interactive                                 |
+| - | ------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- | ----------- | -------- | --------------------------------------------- | ------------------------------------------- |
+| 1 | Invert Binary Tree              | Easy       | Work = swap the two children; combine = return the node                                                                | `O(n)`    | `O(h)` | [ipynb](invert_binary_tree.ipynb)              | [html](invert_binary_tree.html)              |
+| 2 | Maximum Depth of Binary Tree    | Easy       | No state down; combine = `1 + max(left, right)`                                                                      | `O(n)`    | `O(h)` | [ipynb](maximum_depth_of_binary_tree.ipynb)    | [html](maximum_depth_of_binary_tree.html)    |
+| 3 | Same Tree                       | Easy       | Walk two trees in lockstep; base = both empty `True` / one empty `False`; combine = `left and right`             | `O(n)`    | `O(h)` | [ipynb](same_tree.ipynb)                       | [html](same_tree.html)                       |
+| 4 | Subtree of Another Tree         | Easy       | Outer DFS runs Same Tree at every node; combine = `left or right` (serializing both trees is the `O(m+n)` upgrade) | `O(m·n)` | `O(h)` | [ipynb](subtree_of_another_tree.ipynb)         | [html](subtree_of_another_tree.html)         |
+| 5 | Count Good Nodes in Binary Tree | Medium     | State down = max on the path; combine = `good + left + right`                                                        | `O(n)`    | `O(h)` | [ipynb](count_good_nodes_in_binary_tree.ipynb) | [html](count_good_nodes_in_binary_tree.html) |
 
 ## Traps and look-alikes
 

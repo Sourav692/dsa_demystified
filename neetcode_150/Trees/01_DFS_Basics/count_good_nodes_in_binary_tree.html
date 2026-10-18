@@ -116,7 +116,7 @@
 
 <div class="card"><h2 style="margin-top:.2em">The problem, in plain words</h2>
 <p class="big">Picture a family tree where every person has a height. A person is <b>good</b> if nobody above them in their own line (parent, grandparent, and so on up to the root) is taller than them. Ties are fine. Count the good people.</p>
-<div class="idea">Example: <code>root = [3,1,4,3,null,1,5]</code> has <b>4</b> good nodes: the root <code>3</code>, the <code>4</code>, the <code>5</code>, and the lower-left <code>3</code> (equal to the <code>3</code> above it is still good).</div>
+<div class="idea">Example: <code>root = [3,1,4,5,null,1,5]</code> has <b>4</b> good nodes: the root <code>3</code>, the <code>4</code>, and both leaves with value <code>5</code>. The lower-left <code>5</code> is good because it is greater than both ancestors on its path, <code>3 → 1 → 5</code>.</div>
 <p>A <b>path</b> here means the chain of nodes from the root down to one node. Each node has exactly one.</p>
 <div class="legend"><span><span class="sw" style="background:var(--hi);border-color:var(--hi-bd)"></span>looking at</span><span><span class="sw" style="background:var(--seen);border-color:var(--seen-bd)"></span>on the path above / still open</span><span><span class="sw" style="background:var(--good);border-color:var(--good-bd)"></span>good node</span><span><span class="sw" style="background:var(--bad);border-color:var(--bad-bd)"></span>not good</span></div>
 </div>
@@ -135,13 +135,13 @@
 <div class="badges" id="bf-b"></div><div class="caption" id="bf-cap"></div>
 <div class="controls" data-player="bf"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="bf-count"></span></div>
 <p class="speed"><b>Speed &amp; memory:</b> every node re-reads its whole path, so a tall tree gets slow fast: <code>O(n·h)</code> time (<code>O(n²)</code> for a chain), <code>O(h)</code> memory for the path list and the calls.</p>
-<div class="trace-title">Step-by-step trace — root = [3, 1, 4, 3, null, 1, 5]</div>
+<div class="trace-title">Step-by-step trace — root = [3, 1, 4, 5, null, 1, 5]</div>
 <div class="trace-wrap">
 <table class="trace">
   <tr><th>Step</th><th>Node</th><th>path above</th><th>all(p &lt;= val)?</th><th>Good?</th><th>Good so far</th></tr>
   <tr><td>1</td><td>3 (root)</td><td>[]</td><td>True (nothing above)</td><td>yes</td><td>1</td></tr>
   <tr><td>2</td><td>1</td><td>[3]</td><td>False (3 &gt; 1)</td><td>no</td><td>1</td></tr>
-  <tr><td>3</td><td>3 (left of 1)</td><td>[3, 1]</td><td>True</td><td>yes</td><td>2</td></tr>
+  <tr><td>3</td><td>5 (left of 1)</td><td>[3, 1]</td><td>True (3, 1 &lt;= 5)</td><td>yes</td><td>2</td></tr>
   <tr><td>4</td><td>4</td><td>[3]</td><td>True</td><td>yes</td><td>3</td></tr>
   <tr><td>5</td><td>1 (left of 4)</td><td>[3, 4]</td><td>False (3, 4 &gt; 1)</td><td>no</td><td>3</td></tr>
   <tr class="final"><td>6</td><td>5</td><td>[3, 4]</td><td>True</td><td>yes</td><td>4 — answer</td></tr>
@@ -156,13 +156,13 @@
 <div class="badges" id="op-b"></div><div class="caption" id="op-cap"></div>
 <div class="controls" data-player="op"><button type="button" data-act="prev">◀ Prev</button><button type="button" data-act="play" class="primary">▶ Play</button><button type="button" data-act="next">Next ▶</button><button type="button" data-act="reset">↺ Reset</button><span class="counter" id="op-count"></span></div>
 <p class="speed"><b>Speed &amp; memory:</b> one quick check per node, so <code>O(n)</code> time. The open calls form one root-to-node path, so <code>O(h)</code> memory.</p>
-<div class="trace-title">Step-by-step trace — root = [3, 1, 4, 3, null, 1, 5], call dfs(root, 3)</div>
+<div class="trace-title">Step-by-step trace — root = [3, 1, 4, 5, null, 1, 5], call dfs(root, 3)</div>
 <div class="trace-wrap">
 <table class="trace">
   <tr><th>Step</th><th>Event</th><th>Node</th><th>max_so_far in</th><th>val &gt;= max?</th><th>new_max passed down</th><th>Returns</th></tr>
   <tr><td>1</td><td>enter</td><td>3 (root)</td><td>3</td><td>yes → good = 1</td><td>3</td><td>—</td></tr>
   <tr><td>2</td><td>enter</td><td>1</td><td>3</td><td>no → good = 0</td><td>3</td><td>—</td></tr>
-  <tr><td>3</td><td>enter + return</td><td>3 (left of 1)</td><td>3</td><td>yes → good = 1</td><td>3</td><td>1 + 0 + 0 = 1</td></tr>
+  <tr><td>3</td><td>enter + return</td><td>5 (left of 1)</td><td>3</td><td>yes → good = 1</td><td>5</td><td>1 + 0 + 0 = 1</td></tr>
   <tr><td>4</td><td>return</td><td>1</td><td>3</td><td>—</td><td>—</td><td>0 + 1 + 0 = 1</td></tr>
   <tr><td>5</td><td>enter</td><td>4</td><td>3</td><td>yes → good = 1</td><td>4</td><td>—</td></tr>
   <tr><td>6</td><td>enter + return</td><td>1 (left of 4)</td><td>4</td><td>no → good = 0</td><td>4</td><td>0 + 0 + 0 = 0</td></tr>
@@ -229,8 +229,8 @@ function renderTree(id,T,root,marks){
   document.getElementById(id).innerHTML=s+'</svg></div>';
 }
 
-/* root = [3,1,4,3,null,1,5]; index = node id used below */
-var T=[{v:3,l:1,r:2},{v:1,l:3,r:-1},{v:4,l:4,r:5},{v:3,l:-1,r:-1},{v:1,l:-1,r:-1},{v:5,l:-1,r:-1}];
+/* root = [3,1,4,5,null,1,5]; index = node id used below */
+var T=[{v:3,l:1,r:2},{v:1,l:3,r:-1},{v:4,l:4,r:5},{v:5,l:-1,r:-1},{v:1,l:-1,r:-1},{v:5,l:-1,r:-1}];
 
 /* Problem demo: level order, each node judged against its own path */
 var PD=[
@@ -238,7 +238,7 @@ var PD=[
   {cap:'Root <b>3</b>: nothing above it, so it is good.',cur:0,path:[],good:[0],bad:[],cnt:1},
   {cap:'<b>1</b>: path is 3 → 1. The 3 above is bigger, so <b>not good</b>.',cur:1,path:[0],good:[0],bad:[1],cnt:1},
   {cap:'<b>4</b>: path is 3 → 4. Nothing above is bigger, so good.',cur:2,path:[0],good:[0,2],bad:[1],cnt:2},
-  {cap:'Lower-left <b>3</b>: path is 3 → 1 → 3. The biggest above is 3, a tie, so good.',cur:3,path:[0,1],good:[0,2,3],bad:[1],cnt:3},
+  {cap:'Lower-left <b>5</b>: path is 3 → 1 → 5. The biggest above is 3, and 5 &gt; 3, so good.',cur:3,path:[0,1],good:[0,2,3],bad:[1],cnt:3},
   {cap:'Lower <b>1</b>: path is 3 → 4 → 1. Both are bigger, so <b>not good</b>.',cur:4,path:[0,2],good:[0,2,3],bad:[1,4],cnt:3},
   {cap:'<b>5</b>: path is 3 → 4 → 5. Nothing above is bigger, so good. Total: <b>4</b>.',cur:5,path:[0,2],good:[0,2,3,5],bad:[1,4],cnt:4}
 ];
@@ -260,7 +260,7 @@ var BF=[
   {cap:'Start: <code>path = []</code>, call <code>dfs(root)</code>.',cur:-1,stack:[],pathv:[],good:[],bad:[],cnt:0,res:'—'},
   {cap:'Visit <b>3</b>. <code>all(p &lt;= 3 for p in [])</code> is True (nothing to check). Good. Push 3 onto path, go left.',cur:0,stack:[],pathv:[],good:[0],bad:[],cnt:1,res:'True'},
   {cap:'Visit <b>1</b>. Scan [3]: 3 &gt; 1, so <code>all(...)</code> is False. Not good. Push 1, go left.',cur:1,stack:[0],pathv:[3],good:[0],bad:[1],cnt:1,res:'False'},
-  {cap:'Visit <b>3</b>. Scan [3, 1]: both &lt;= 3. Good. No children: pop 3, then 1 is done too, pop 1.',cur:3,stack:[0,1],pathv:[3,1],good:[0,3],bad:[1],cnt:2,res:'True'},
+  {cap:'Visit the lower-left <b>5</b>. Scan [3, 1]: both &lt;= 5. Good. No children: pop 5, then 1 is done too, pop 1.',cur:3,stack:[0,1],pathv:[3,1],good:[0,3],bad:[1],cnt:2,res:'True'},
   {cap:'Back at the root, go right. Visit <b>4</b>. Scan [3]: 3 &lt;= 4. Good. Push 4, go left.',cur:2,stack:[0],pathv:[3],good:[0,3,2],bad:[1],cnt:3,res:'True'},
   {cap:'Visit <b>1</b>. Scan [3, 4]: 3 &gt; 1 already fails. Not good. Pop back to 4, go right.',cur:4,stack:[0,2],pathv:[3,4],good:[0,3,2],bad:[1,4],cnt:3,res:'False'},
   {cap:'Visit <b>5</b>. Scan [3, 4]: both &lt;= 5. Good. Everything is visited: the answer is <b>4</b>.',cur:5,stack:[0,2],pathv:[3,4],good:[0,3,2,5],bad:[1,4],cnt:4,res:'True'}
@@ -277,7 +277,7 @@ var OP=[
   {cap:'Call <code>dfs(root, root.val)</code>, so the root is compared with itself.',cur:-1,stack:[],good:[],bad:[],mx:'3',g:'—',ret:'—'},
   {cap:'Enter <b>3</b> with max_so_far = 3. 3 &gt;= 3, so good = 1. Pass new_max = 3 to the left child.',cur:0,stack:[],good:[0],bad:[],mx:'3',g:'1',ret:'—'},
   {cap:'Enter <b>1</b> with max_so_far = 3. 1 &lt; 3, so good = 0. Pass new_max = 3 down.',cur:1,stack:[0],good:[0],bad:[1],mx:'3',g:'0',ret:'—'},
-  {cap:'Enter <b>3</b> with max_so_far = 3. 3 &gt;= 3, good = 1. Both children are empty and return 0, so it returns <b>1</b>.',cur:3,stack:[0,1],good:[0,3],bad:[1],mx:'3',g:'1',ret:'1 + 0 + 0 = 1'},
+  {cap:'Enter the lower-left <b>5</b> with max_so_far = 3. 5 &gt;= 3, good = 1. The new maximum is 5. Both children are empty and return 0, so it returns <b>1</b>.',cur:3,stack:[0,1],good:[0,3],bad:[1],mx:'3',g:'1',ret:'1 + 0 + 0 = 1'},
   {cap:'Back in <b>1</b>: its right child is empty (0). It returns 0 + 1 + 0 = <b>1</b> to the root.',cur:1,stack:[0],good:[0,3],bad:[1],mx:'3',g:'0',ret:'0 + 1 + 0 = 1'},
   {cap:'Root calls its right child. Enter <b>4</b> with max_so_far = 3. 4 &gt;= 3, good = 1. Pass new_max = 4 down.',cur:2,stack:[0],good:[0,3,2],bad:[1],mx:'3',g:'1',ret:'—'},
   {cap:'Enter <b>1</b> with max_so_far = 4. 1 &lt; 4, good = 0. No children: returns <b>0</b>.',cur:4,stack:[0,2],good:[0,3,2],bad:[1,4],mx:'4',g:'0',ret:'0 + 0 + 0 = 0'},
