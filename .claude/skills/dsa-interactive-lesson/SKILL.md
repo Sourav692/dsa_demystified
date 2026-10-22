@@ -3,6 +3,8 @@ name: dsa-interactive-lesson
 description: Build a beginner-friendly, single-file interactive HTML lesson for a Data Structures and Algorithms concept — the `deep_dive/NN_Title_Case/NN_snake_lesson.html` format. Use when the user asks to "explain this DSA concept as an interactive HTML", "make an interactive lesson for X", "create an HTML tutorial for Y data structure", "step-by-step interactive visualization for X", or "teach me BFS/DFS/Dijkstra/Union-Find/Backtracking with an interactive HTML", or wants a new/refreshed Deep Dive lesson page. Produces ONE self-contained offline HTML file in the instructor-grade format of the "Number of Connected Components" reference template — fixed 13-section structure, synced code highlighting, interactive step-by-step traces (Previous / Resume / Next / Reset), edge-case tabs, interview reasoning, practice questions — verified with `scripts/check_lesson.py`. For Blind 75 per-problem pages and topic `patterns.html`, use `leetcode-visualizer` instead. Not for non-DSA content, essays, or slide decks.
 ---
 
+> **Paths:** `<skills-root>` means the folder that holds this skill — the parent of its base directory (e.g. `~/.claude/skills`, or a repo's `.claude/skills`). Sibling skills referenced below live there too.
+
 # DSA Interactive Lesson (HTML)
 
 You are acting as an **expert DSA instructor**. Your job with this skill is to convert any DSA concept, algorithm, or LeetCode-style problem into a **single self-contained interactive HTML lesson** that a beginner can learn from without help.
@@ -27,7 +29,7 @@ Do NOT use this skill for:
 
 - Produce **ONE** self-contained HTML file named `<slug>_lesson.html` (`<slug>` = snake_case concept name). Pick the folder in this order and state the path before writing: (1) the folder/path the user names; (2) the folder of an existing notebook for this concept or problem, anywhere in the repo — for a Deep Dive topic that's `deep_dive/NN_Title_Case/NN_snake_lesson.html`, matching the notebook's `NN_snake` name; (3) otherwise `outputs/<slug>/<slug>_lesson.html` at the repo root. Do not overwrite an existing lesson without asking.
 - Inline all CSS in `<style>` and all JS in `<script>`
-- ALWAYS run `python3 .claude/skills/dsa-interactive-lesson/scripts/check_lesson.py <file.html>` and fix every FAIL before delivering, then do the visual pass in Step 6
+- ALWAYS run `python3 <skills-root>/dsa-interactive-lesson/scripts/check_lesson.py <file.html>` and fix every FAIL before delivering, then do the visual pass in Step 6
 - Wrap the trace script inside `window.addEventListener('DOMContentLoaded', () => { ... })`
 - Every button MUST use `type="button"`
 - Never use external CSS files, external JS files, or CDN dependencies
@@ -181,13 +183,13 @@ Replace the concept-specific parts. Do NOT rewrite CSS from scratch.
 
 ### Step 6 — Verify
 
-1. **Structure (always):** `python3 .claude/skills/dsa-interactive-lesson/scripts/check_lesson.py <file.html>`. It fails on external resources, `<button>` without `type="button"`, missing `DOMContentLoaded`, a trace missing any of `<prefix>-prev/-next/-play/-reset`, no `data-line` code sync, fewer than 3 practice `<details>`, unbalanced tags, or a missing required section. Fix and re-run until PASS.
+1. **Structure (always):** `python3 <skills-root>/dsa-interactive-lesson/scripts/check_lesson.py <file.html>`. It fails on external resources, `<button>` without `type="button"`, missing `DOMContentLoaded`, a trace missing any of `<prefix>-prev/-next/-play/-reset`, no `data-line` code sync, fewer than 3 practice `<details>`, unbalanced tags, or a missing required section. Fix and re-run until PASS.
 2. **Visual (when a browser tool is available):** open `file://<absolute path>` and take a full-page screenshot — e.g. Playwright MCP (`browser_navigate` + `browser_take_screenshot` with `fullPage: true`) or Chrome DevTools MCP (`new_page` + `take_screenshot`). Read the image and fix clipping, blank code cards (a `.stepped` class on a non-stepped block hides its text), overlapping SVG labels, or spacing issues. Click each trace's Next button a few times and re-screenshot to confirm the state grid, SVG, code highlight, and table row all move together. Check the browser console for errors.
 3. If no browser tool is available, say the visual pass was skipped and ask the user to open the file.
 
 ### Step 7 — Deliver
 
-- If the lesson landed inside a track (`deep_dive/`, `blind_75/`, `neetcode_150/`), run the `register-content` skill so its indexes (e.g. the `deep_dive/README.md` "Interactive HTML" column and `deep_dive/index.html`) link the new lesson. Skip that for `outputs/`.
+- If the lesson landed inside a track (`deep_dive/`, `blind_75/`, `neetcode_150/`), run the `dsa-index-updater` skill so its indexes (e.g. the `deep_dive/README.md` "Interactive HTML" column and `deep_dive/index.html`) link the new lesson. Skip that for `outputs/`.
 - Reply with the file path, the check result, whether the visual pass ran, and what sections and interactive features were included.
 
 ## Reference material

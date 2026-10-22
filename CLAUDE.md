@@ -14,8 +14,8 @@ DSA study repo: Jupyter notebooks + self-contained interactive HTML lessons + ma
 
 ## Adding content
 
-- New problem/topic inside a track is not done until every index linking it is updated: topic `README.md` + `index.html`, track `README.md` table (Blind 75 problem counts; Deep Dive "Interactive HTML" column), `deep_dive/index.html`, root `README.md`. Use `/register-content`.
-- Use the existing skills in `.claude/skills/` (`neetcode-pattern`, `leetcode-notebook`, `leetcode-visualizer`, `dsa-interactive-lesson`, `dsa-snippet-explainer`, `register-content`) rather than hand-rolling formats — they encode the house structure. Skill table: `README.md` → "Claude Code skills".
+- New problem/topic inside a track is not done until every index linking it is updated: topic `README.md` + `index.html`, track `README.md` table (Blind 75 problem counts; Deep Dive "Interactive HTML" column), `deep_dive/index.html`, root `README.md`. Use `/dsa-index-updater`.
+- Use the existing skills in `.claude/skills/` (`neetcode-pattern`, `leetcode-notebook`, `leetcode-visualizer`, `dsa-interactive-lesson`, `dsa-snippet-explainer`, `dsa-index-updater`) rather than hand-rolling formats — they encode the house structure. Skill table: `README.md` → "Claude Code skills".
 - Any edited `deep_dive/*_lesson.html` must still pass `python3 .claude/skills/dsa-interactive-lesson/scripts/check_lesson.py <file>`.
 - Problem notebook cell order (`leetcode-notebook`, any folder): title + `**Difficulty:** · **Topic:** · **LeetCode:** <url>` → `## 💡 Concepts` → `## 📝 Problem` → setup cell → `### Approach N — <name>` (Idea/Time/Space + code), brute → optimal → `# Correctness check` → `## ⏱️ Empirically Checking the Complexities` → `## 🧩 Patterns Learned`.
 - HTML lessons are single self-contained files (inline CSS/JS, no build step).

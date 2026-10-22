@@ -1,7 +1,9 @@
 ---
-name: register-content
+name: dsa-index-updater
 description: After adding or renaming a Blind 75 problem or a deep_dive topic, update every index that should link to it (topic README/index.html, track README tables and counts, deep_dive/index.html, root README). Use when new notebooks/HTML lessons were created, files were renamed/moved, or the user says "register", "link it up", "update the indexes".
 ---
+
+> **Paths:** `<skills-root>` means the folder that holds this skill — the parent of its base directory (e.g. `~/.claude/skills`, or a repo's `.claude/skills`). Sibling skills referenced below live there too.
 
 Make new or moved content reachable from every index. Target: $ARGUMENTS (a path, or empty = everything changed per `git status`).
 
@@ -19,28 +21,16 @@ Make new or moved content reachable from every index. Target: $ARGUMENTS (a path
    - `deep_dive/index.html`: add the topic card, copying an existing card's markup.
    - Root `README.md`: update the "NN numbered topics" count in the Tracks table if it changed.
 
-4. **Verify links — case-sensitively.** macOS ignores case, so a plain `os.path.exists` check passes links that 404 on GitHub. Check against the paths git tracks (plus untracked, non-ignored files):
+4. **Verify links — case-sensitively.** Run the `link-check` skill's script on every index you edited:
    ```bash
-   python3 - "blind_75/README.md" OTHER_EDITED_FILES <<'PY'
-   import re, sys, os, subprocess
-   from urllib.parse import unquote
-   out = subprocess.run(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], capture_output=True, text=True).stdout
-   known = set()
-   for f in filter(None, out.split("\0")):
-       while f:
-           known.add(f); f = os.path.dirname(f)
-   for f in sys.argv[1:]:
-       for m in re.findall(r'\]\(([^)#\s]+)\)|href="([^"#]+)"', open(f).read()):
-           p = m[0] or m[1]
-           if p.startswith(("http", "mailto:")):
-               continue
-           if os.path.normpath(os.path.join(os.path.dirname(f), unquote(p))) not in known:
-               print(f"MISSING in {f}: {p}")
-   PY
+   python3 <skills-root>/link-check/scripts/check_links.py --html "blind_75/README.md" OTHER_EDITED_FILES
    ```
-   Fix every `MISSING` you introduced; report pre-existing ones. A folder whose case differs only on disk (e.g. git has `Docs/`, disk shows `docs/`) needs a two-step rename: `git mv Docs tmp && git mv tmp docs`.
+   It checks markdown links and `href`s case-exactly against the paths git knows (macOS ignores case;
+   GitHub does not). Fix every broken link you introduced; report pre-existing ones. A folder whose case
+   differs only on disk (git has `Docs/`, disk shows `docs/`) needs a two-step rename:
+   `git mv Docs tmp && git mv tmp docs`.
 
-4b. **NeetCode 150** (`neetcode_150/<Type>/<NN_Pattern>/`): run `python3 .claude/skills/neetcode-pattern/scripts/pattern_plan.py index` — it regenerates `neetcode_150/README.md` from the CSV and the files on disk. Never hand-edit that README.
+4b. **NeetCode 150** (`neetcode_150/<Type>/<NN_Pattern>/`): run `python3 <skills-root>/neetcode-pattern/scripts/pattern_plan.py index` — it regenerates `neetcode_150/README.md` from the CSV and the files on disk. Never hand-edit that README.
 
 4c. **Anything else** (a new folder): update the nearest `README.md` / `index.html` above the new file that lists its siblings, copying the existing entry format. If none exists, don't invent one — report it.
    - `outputs/` is a staging area and is not indexed. When the user moves `outputs/<slug>/` into a track, run this skill on the new location.

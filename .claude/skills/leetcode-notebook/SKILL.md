@@ -21,7 +21,7 @@ File name: `<slug>.ipynb`, where `<slug>` is the `snake_case` of the problem tit
 2. **A notebook for this problem already exists** (`git ls-files | grep -i '<slug>'`) → don't overwrite it without asking; if the user wants a new version, put it next to the existing one.
 3. **Otherwise** → `outputs/<slug>/<slug>.ipynb` at the repo root (create the folder). `outputs/` is the common landing spot; the user can move the folder into a track later.
 
-Paths may contain spaces — quote them. If the notebook landed inside a track (`blind_75/`, `deep_dive/`, `neetcode_150/`), run the `register-content` skill afterwards; skip that for `outputs/`.
+Paths may contain spaces — quote them. If the notebook landed inside a track (`blind_75/`, `deep_dive/`, `neetcode_150/`), run the `dsa-index-updater` skill afterwards; skip that for `outputs/`.
 
 ## How to build the file
 
@@ -134,12 +134,8 @@ A bulleted list of transferable takeaways from this problem:
 
 ## Reformatting an existing Concepts cell
 
-When the user asks to make an existing notebook's Concepts/theory cell easier to read (one notebook or a whole folder):
-
-1. Read the notebook and find the `## 💡 Concepts` cell id. Touch only that cell unless the user names another — Problem, Approach, and Patterns Learned cells stay as they are.
-2. Rewrite it with the bullet rules in section 2. This is a reformat, not a rewrite: don't invent facts, don't drop any. If unsure whether a compression loses precision, keep the original claim.
-3. `NotebookEdit` with `edit_mode: replace` on that cell id. No need to re-run code — nothing executable changed.
-4. Folder batches: one notebook at a time, each keeps its own primers and examples (only the shape is shared). Report the list of files updated.
+Not this skill's job: to make an existing notebook's Concepts cell easier to read, use the
+`study-content-style` skill (Notebook-cell mode). This skill writes new notebooks.
 
 ## Minimal cell template (for reference)
 

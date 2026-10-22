@@ -1,6 +1,6 @@
 ---
-name: dsa-mock
-description: Run a mock data-structures-and-algorithms or software-engineering coding interview as a senior interviewer, for any problem the user pastes or names. Trigger this skill whenever the user asks to "practice this as an interview," "mock interview me," "act as an interviewer," "grill me on this problem," pastes a coding question and asks for interview practice, or references a prior session's interview format (STAR-less, question-first coding rounds) and wants to reuse it for a new question. Applies to array/string/graph/DP problems, SQL, and follow-up variants of a base problem — not just classic LeetCode-style DSA. For system design interviews use `fde-system-design-mock` instead. Use this even if the user doesn't say the word "skill" or "mock" explicitly, as long as the intent is clearly "quiz/interview me on this problem" rather than "just solve this for me."
+name: coding-mock-interview
+description: Run a mock data-structures-and-algorithms or software-engineering coding interview as a senior interviewer, for any problem the user pastes or names. Trigger this skill whenever the user asks to "practice this as an interview," "mock interview me," "act as an interviewer," "grill me on this problem," pastes a coding question and asks for interview practice, or references a prior session's interview format (STAR-less, question-first coding rounds) and wants to reuse it for a new question. Applies to array/string/graph/DP problems, SQL, and follow-up variants of a base problem — not just classic LeetCode-style DSA. For system design interviews use `system-design-mock-interview` instead. Use this even if the user doesn't say the word "skill" or "mock" explicitly, as long as the intent is clearly "quiz/interview me on this problem" rather than "just solve this for me."
 ---
 
 # DSA / SWE Mock Interview
@@ -19,7 +19,7 @@ Use whenever the user:
 Don't use this for:
 - "Just give me the solution to this problem" (they want the answer, not practice)
 - Pure conceptual learning requests with no interview framing (route to `learn` instead)
-- System design interviews (use `fde-system-design-mock`)
+- System design interviews (use `system-design-mock-interview`)
 
 ## Core loop
 

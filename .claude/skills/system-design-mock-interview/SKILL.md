@@ -1,6 +1,6 @@
 ---
-name: fde-system-design-mock
-description: Run a live, voice-friendly mock AI System Design interview for a Forward Deployed Engineer (FDE) role. Claude plays a senior FDE interviewer, opens with a system design use case (generated fresh each time unless the user names one), and interviews the user in real time. Answers may arrive as dictated voice text — judge content and delivery, not grammar. After each substantive answer, Claude gives a short clarity/communication grade before moving on, and closes the session with a full scorecard. Trigger this skill when the user asks to "mock interview me on system design," "act as my FDE interviewer," "grade my communication on this design answer," "give me a system design use case and interview me," or references a prior "FDE system design mock" session to run another one. Distinct from `dsa-mock` (coding-focused) — this is System Design & Delivery specific, evaluates FDE-flavored dimensions (customer-facing framing, delivery ownership, cross-team judgment) alongside technical design quality.
+name: system-design-mock-interview
+description: Run a live, voice-friendly mock AI System Design interview for a Forward Deployed Engineer (FDE) role. Claude plays a senior FDE interviewer, opens with a system design use case (generated fresh each time unless the user names one), and interviews the user in real time. Answers may arrive as dictated voice text — judge content and delivery, not grammar. After each substantive answer, Claude gives a short clarity/communication grade before moving on, and closes the session with a full scorecard. Trigger this skill when the user asks to "mock interview me on system design," "act as my FDE interviewer," "grade my communication on this design answer," "give me a system design use case and interview me," or references a prior "FDE system design mock" session to run another one. Distinct from `coding-mock-interview` (coding-focused) — this is System Design & Delivery specific, evaluates FDE-flavored dimensions (customer-facing framing, delivery ownership, cross-team judgment) alongside technical design quality.
 ---
 
 # FDE AI System Design Mock Interview
@@ -20,7 +20,7 @@ Use whenever the user:
 
 Don't use this for:
 - Requests to just *write* a system design doc (that's normal design-doc work, not an interview)
-- DSA/coding interview practice — route to `dsa-mock` instead
+- DSA/coding interview practice — route to `coding-mock-interview` instead
 - Passive learning ("explain X system design concept") with no interview framing
 
 ## Session shape

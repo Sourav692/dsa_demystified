@@ -31,7 +31,7 @@ Pick the folder in this order, and state the paths before writing:
 2. **Otherwise, next to the source:** each per-problem page goes next to its notebook with the same base name (`<dir>/<slug>.ipynb` → `<dir>/<slug>.html`). For a folder input, `patterns.html` and an `index.html` (linking every problem page by relative path, spaces as `%20`, plus the patterns page) go at the root of that folder.
 3. **Source notebook outside the repo, or pasted content** → `outputs/<slug>/<slug>.html` at the repo root.
 
-If pages landed inside a track (`blind_75/`, `deep_dive/`, `neetcode_150/`), run the `register-content` skill afterwards; skip that for `outputs/`.
+If pages landed inside a track (`blind_75/`, `deep_dive/`, `neetcode_150/`), run the `dsa-index-updater` skill afterwards; skip that for `outputs/`.
 - Do **not** overwrite an existing page without asking.
 
 ## Hard technical rules (every HTML file)

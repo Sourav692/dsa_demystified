@@ -3,11 +3,13 @@ name: neetcode-pattern
 description: Build one pattern of the pattern-wise NeetCode 150 track in `neetcode_150/<DSA_Type>/<NN_Pattern>/` — a `README.md` explaining the pattern, an interactive `NN_pattern_lesson.html`, and for every problem in that pattern a notebook (brute force → optimal) plus an interactive step-through HTML. Problems already solved in `blind_75/` are copied in and adapted; the rest are generated with the `leetcode-notebook` and `leetcode-visualizer` skills, and the pattern lesson with `dsa-interactive-lesson`. The 150 → type → pattern mapping is fixed in `references/neetcode150_patterns.csv` (14 types, 55 patterns). Use when the user asks to "build the <X> pattern", "do NeetCode 150 <topic/pattern>", "pattern-wise prep for <X>", "add <problem> to the NeetCode patterns", or `/neetcode-pattern <query>`. A problem name builds that problem's whole pattern. Also answers "which patterns are done" via `pattern_plan.py list`.
 ---
 
+> **Paths:** `<skills-root>` means the folder that holds this skill — the parent of its base directory (e.g. `~/.claude/skills`, or a repo's `.claude/skills`). Sibling skills referenced below live there too.
+
 # NeetCode 150 — pattern-wise builder
 
 One run builds **one pattern** completely. Target: `$ARGUMENTS` — a pattern (`Trees/BFS`, `dynamic knapsack`) or a problem name (builds its whole pattern).
 
-All paths below are relative to the repo root. `PP=.claude/skills/neetcode-pattern/scripts/pattern_plan.py`.
+All paths below are relative to the repo root. `PP=<skills-root>/neetcode-pattern/scripts/pattern_plan.py`.
 
 ## Layout (fixed — names come from the CSV, never invent them)
 
@@ -81,11 +83,11 @@ Follow `dsa-interactive-lesson` with **concept = this pattern**, written to `<nn
 - **Practice questions:** the pattern's other problems, as `<details>` with a hint and a link to each problem's `.html`.
 - **Edge cases, mistakes, interview:** from the traps section.
 
-It must pass `python3 .claude/skills/dsa-interactive-lesson/scripts/check_lesson.py <file>`. Do the screenshot pass if a browser tool is available.
+It must pass `python3 <skills-root>/dsa-interactive-lesson/scripts/check_lesson.py <file>`. Do the screenshot pass if a browser tool is available.
 
 ### 7. Index and verify
 - `python3 $PP index` regenerates `neetcode_150/README.md`: the build counts, plus links for every file that now exists.
-- Run the case-sensitive link check from `register-content` step 4 on:
+- Run the case-sensitive link check from `dsa-index-updater` step 4 on:
   - the pattern `README.md`;
   - the lesson;
   - each problem `.html`;
