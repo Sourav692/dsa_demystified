@@ -27,7 +27,7 @@ for folder in sorted((ROOT/'deep_dive').glob('[0-9]*')):
     paragraph = re.sub(r'\s+', ' ', ' '.join(line.lstrip('> ') for line in read(folder/'README.md').splitlines()[1:10] if line and not line.startswith(('#','Prerequisite','> 🎯'))))
     foundations.append({'slug':override.get('slug',slug(folder.name[3:])), 'title':title,'folder':folder.name,'source':relative(folder/'README.md'),'notebook':relative(notebook),'interactive':relative(interactive),'group':group_names.get(number,'Advanced graph algorithms'),'description':override.get('description') or clean(paragraph)[:210]})
 
-rows = list(csv.DictReader(open(ROOT/'.claude/skills/neetcode-pattern/references/neetcode150_patterns.csv',encoding='utf-8')))
+rows = list(csv.DictReader(open(ROOT/'neetcode_150/neetcode150_patterns.csv',encoding='utf-8')))
 patterns = {}
 problems = {}
 for row in rows:
